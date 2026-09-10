@@ -1,3 +1,8 @@
+/* ترجمة جوجل التلقائية — إخفاء الشريط العلوي الافتراضي بتاعه عشان مايبوظش التصميم */
+.goog-te-banner-frame{display:none !important;}
+body{top:0px !important;}
+#google_translate_element{display:none;}
+
 @font-face{
   font-family:'SF Sultan';
   src:url('../assets/fonts/Sultan-Display.ttf') format('truetype');
@@ -74,6 +79,24 @@ ul{list-style:none;}
 .hero-text{flex:1 1 380px;min-width:280px;}
 .hero-text h1{font-size:2.2rem;font-weight:900;margin-bottom:16px;line-height:1.35;}
 .hero-text p{max-width:520px;color:#cdd6de;font-size:1.02rem;margin-bottom:26px;}
+.hero-badge{
+  display:inline-block;background:rgba(201,163,95,.15);border:1px solid var(--gold);
+  color:var(--gold-light);font-size:.82rem;font-weight:700;padding:7px 16px;
+  border-radius:999px;margin-bottom:18px;transition:background .2s;
+}
+.hero-badge:hover{background:rgba(201,163,95,.28);}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;}
+.btn-outline{
+  display:inline-block;background:transparent;color:var(--white);font-weight:700;
+  padding:13px 30px;border-radius:999px;border:1.5px solid rgba(255,255,255,.5);
+  transition:border-color .2s, background .2s;
+}
+.btn-outline:hover{border-color:var(--gold);background:rgba(255,255,255,.06);}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:6px;color:var(--gold-light);
+  font-weight:700;padding:13px 10px;font-size:.95rem;
+}
+.btn-ghost:hover{color:var(--white);}
 .hero-photo{
   flex:0 0 auto;align-self:flex-end;
   max-width:320px;position:relative;
@@ -109,9 +132,30 @@ ul{list-style:none;}
 }
 .btn-primary:hover{background:var(--gold-light);transform:translateY(-2px);}
 
+/* Client portal promo */
+.portal-promo{background:linear-gradient(180deg,var(--white) 0%,var(--bg) 100%);padding:64px 0;}
+.portal-promo-grid{display:flex;align-items:center;gap:48px;flex-wrap:wrap;}
+.portal-promo-text{flex:1 1 420px;min-width:280px;}
+.promo-eyebrow{display:inline-block;color:var(--gold);font-weight:700;font-size:.82rem;margin-bottom:10px;}
+.portal-promo-card{
+  flex:0 1 320px;min-width:260px;background:var(--navy);border-radius:var(--radius);
+  padding:26px;box-shadow:0 16px 34px rgba(15,36,56,.18);
+}
+.promo-mock-row{
+  display:flex;align-items:center;gap:12px;color:#dfe6ec;font-size:.9rem;
+  padding:14px 4px;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.promo-mock-row:last-child{border-bottom:none;}
+.promo-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+
 /* Sections */
 .section{padding:70px 0;}
 .section-alt{background:var(--white);}
+.section-eyebrow{
+  display:block;color:var(--gold);font-weight:800;font-size:.75rem;
+  letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;
+  font-family:var(--f-body);
+}
 .section-title{
   font-size:1.8rem;font-weight:900;
   margin-bottom:24px;
@@ -123,6 +167,47 @@ ul{list-style:none;}
 }
 .section-text{color:var(--muted);max-width:820px;font-size:1.02rem;}
 .section-note{margin-top:20px;color:var(--muted);font-size:.85rem;font-style:italic;}
+
+/* Stats strip */
+.stats-strip{
+  display:flex;flex-wrap:wrap;gap:0;margin-top:32px;
+  background:var(--navy);border-radius:var(--radius);overflow:hidden;
+}
+.stat-item{
+  flex:1 1 140px;text-align:center;padding:26px 14px;
+  border-inline-start:1px solid rgba(255,255,255,.1);
+  display:flex;flex-direction:column;gap:6px;
+}
+.stat-item:first-child{border-inline-start:none;}
+.stat-num{font-family:var(--f-label);color:var(--gold-light);font-size:1.6rem;font-weight:900;}
+.stat-label{color:#cdd6de;font-size:.8rem;}
+@media(max-width:640px){
+  .stats-strip{flex-direction:column;}
+  .stat-item{border-inline-start:none;border-top:1px solid rgba(255,255,255,.1);}
+  .stat-item:first-child{border-top:none;}
+}
+
+/* Icon service cards */
+.icon-card{position:relative;padding-top:30px;}
+.card-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:46px;height:46px;border-radius:12px;margin-bottom:14px;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+}
+.card-icon svg{width:24px;height:24px;fill:none;stroke:var(--navy-dark);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+
+/* Trust / reviews */
+.trust-section{background:var(--white);}
+.trust-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.trust-text .section-title{margin-bottom:6px;}
+.trust-badge{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:var(--bg);border:1px solid #e7e4dd;border-radius:var(--radius);
+  padding:18px 30px;text-align:center;transition:box-shadow .2s, transform .2s;
+}
+.trust-badge:hover{box-shadow:0 10px 24px rgba(15,36,56,.08);transform:translateY(-2px);}
+.trust-stars{color:var(--gold);font-size:1.3rem;letter-spacing:2px;}
+.trust-badge span:last-child{color:var(--navy);font-weight:700;font-size:.9rem;}
 
 /* Cards */
 .cards-grid{
@@ -251,4 +336,52 @@ a.card{cursor:pointer;}
   }
   .main-nav.open{display:flex;}
   .hero h1{font-size:1.8rem;}
+}
+
+/* قسم المقالات */
+.articles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-top:20px;}
+.article-card{display:block;background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:24px;text-decoration:none;color:inherit;transition:transform .2s,box-shadow .2s;}
+.article-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.08);}
+.article-cat{display:inline-block;color:var(--gold);font-weight:800;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.article-card h3{font-size:1.05rem;line-height:1.5;margin-bottom:10px;color:var(--navy);}
+.article-card p{font-size:.88rem;color:var(--muted);line-height:1.7;margin-bottom:12px;}
+.article-meta{font-size:.78rem;color:var(--muted);font-weight:700;}
+.article-byline{color:var(--gold-light);font-weight:700;}
+.print-btn{margin-bottom:24px;cursor:pointer;border:2px solid var(--navy);background:none;font-family:inherit;font-size:.95rem;}
+
+/* ترويسة الطباعة — مخفية في الشاشة، تظهر فقط عند الطباعة */
+.print-letterhead{display:none;}
+
+@media print{
+  .no-print, .site-header, .site-footer, #google_translate_element,
+  .goog-te-banner-frame, .skiptranslate{display:none !important;}
+  body{direction:rtl;background:#fff;}
+  .print-letterhead{
+    display:flex;align-items:center;gap:16px;
+    border-bottom:3px solid #0d2a3d;padding-bottom:14px;margin-bottom:24px;
+  }
+  .print-letterhead-logo{height:64px;width:auto;}
+  .print-letterhead-text{display:flex;flex-direction:column;gap:3px;font-size:.85rem;line-height:1.6;}
+  .print-letterhead-text strong{font-size:1.05rem;}
+  .print-only-title{display:block !important;margin-bottom:16px;font-size:1.4rem;}
+  .article-body{max-width:100%;}
+  .lp-cta{display:none !important;}
+  a{color:inherit !important;text-decoration:none !important;}
+}
+.print-only-title{display:none;}
+
+/* معرض صور المكتب */
+.office-gallery{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;
+}
+.office-gallery-item{
+  display:block;border-radius:10px;overflow:hidden;aspect-ratio:4/3;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+.office-gallery-wide{grid-column:span 2;aspect-ratio:16/9;}
+.office-gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}
+.office-gallery-item:hover img{transform:scale(1.05);}
+@media(max-width:640px){
+  .office-gallery{grid-template-columns:repeat(2,1fr);}
+  .office-gallery-wide{grid-column:span 2;}
 }

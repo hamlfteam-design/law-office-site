@@ -17,27 +17,35 @@
 // ============================================================
 
 export const firebaseConfig = {
-  apiKey: "PASTE_API_KEY_HERE",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_PROJECT_ID.appspot.com",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId: "PASTE_APP_ID",
+  apiKey: "AIzaSyAtoBf8dhrDhNrXWXgnL-MdaTOfO2q_sio",
+  authDomain: "profissional-lawyer-updat.firebaseapp.com",
+  projectId: "profissional-lawyer-updat",
+  storageBucket: "profissional-lawyer-updat.firebasestorage.app",
+  messagingSenderId: "852226723772",
+  appId: "1:852226723772:web:2d63b199c41ae14155e5b9",
 };
 
 // ============================================================
-// أسماء الكولكشنز في Firestore — عدّلها لو مختلفة عن كده في تطبيق
-// com.sherif.lawyer عشان البوابة تقرأ بالظبط من نفس المكان.
+// مسارات الكولكشنز في Firestore — مؤكَّدة مباشرة من Firestore
+// Console (اتفتحت الوثائق الحقيقية وقرينا محتواها):
+//   offices/{officeId}/records/clients/items/{itemId}
+//   offices/{officeId}/records/cases/items/{itemId}
+//
+// وثيقة الموكل فيها matchEmails (مصفوفة إيميلات مسموح لها تربط
+// نفسها بالسجل ده) و clientUid (بيتسجل أول ما الموكل يفعّل حسابه
+// من البوابة).
+//
+// وثيقة القضية فيها حقل clientUids (array من auth uid) على مستوى
+// المستند نفسه — ده اللي بيحدد مين يقدر يشوف القضية دي، وبيتحدّث
+// تلقائياً من تطبيق المكتب كل 6 ساعات أول ما موكل يسجّل دخول في
+// البوابة لأول مرة. باقي بيانات القضية (fileNo, subject, courtName,
+// status, sessions...) متخزّنة جوه حقل نصي واحد اسمه json ولازم
+// JSON.parse (شايفينه في dashboard.html). مفيش كولكشن جلسات منفصل —
+// الجلسات array جوه نفس وثيقة القضية.
 // ============================================================
+export const OFFICE_ID = "office_UDdH9ctTHcd3";
+
 export const COLLECTIONS = {
-  // كولكشن الموكلين: المفروض فيه حقل email نبحث بيه وقت تسجيل الدخول
-  clients: "clients",
-  // كولكشن القضايا: كل قضية فيها حقل clientId أو clientEmail يربطها بالموكل
-  cases: "cases",
-  // كولكشن الجلسات (لو منفصل عن القضايا): تاريخ الجلسة، رقم القضية، المحكمة
-  sessions: "sessions",
+  clients: `offices/${OFFICE_ID}/records/clients/items`,
+  cases: `offices/${OFFICE_ID}/records/cases/items`,
 };
-
-// اسم الحقل في وثيقة الموكل اللي بيحدد office / tenant (لأن النظام
-// multi-tenant زي ما اتفقنا) — سيبه فاضي لو مؤسستك هي الوحيدة على النظام دلوقتي
-export const OFFICE_ID = "PASTE_OFFICE_ID_OR_LEAVE_EMPTY";

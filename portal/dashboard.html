@@ -22,8 +22,19 @@
   .session-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #f0eee8;font-size:.9rem;}
   .session-row:first-of-type{border-top:none;}
   .session-date{font-weight:700;color:var(--navy);}
-  .pdf-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
-  .pdf-list a{background:var(--bg);border:1px solid #e7e4dd;border-radius:6px;padding:6px 12px;font-size:.82rem;color:var(--navy);}
+  .pdf-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .pdf-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--bg);border:1px solid #e7e4dd;border-radius:8px;padding:10px 14px;
+  }
+  .pdf-row .pdf-name{font-size:.86rem;color:var(--navy);font-weight:600;}
+  .pdf-row .pdf-size{font-size:.75rem;color:var(--muted);margin-inline-start:6px;font-weight:400;}
+  .pdf-actions{display:flex;gap:8px;flex-shrink:0;}
+  .pdf-actions a, .pdf-actions button{
+    font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;
+    border:1px solid #d8d4cb;background:var(--white);border-radius:6px;padding:5px 12px;color:var(--navy);
+  }
+  .pdf-actions a:hover, .pdf-actions button:hover{border-color:var(--gold);}
   .empty-state{text-align:center;color:var(--muted);padding:60px 20px;}
   .loading{text-align:center;color:var(--muted);padding:60px 20px;}
 </style>
@@ -56,7 +67,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
-    getFirestore, collection, query, where, getDocs, orderBy
+    getFirestore, collection, query, where, getDocs
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
   import { firebaseConfig, COLLECTIONS } from "./portal-config.js";
 
@@ -80,64 +91,63 @@
     whoText.textContent = user.email;
 
     try {
-      // ملحوظة تنفيذية: الاستعلام هنا بيفترض إن كل وثيقة قضية في
-      // كولكشن "cases" فيها حقل clientEmail بنفس إيميل الموكل.
-      // لو شكل البيانات الفعلي في Firestore مختلف (مثلاً clientId
-      // بدل clientEmail)، الاستعلام ده هيتعدّل بسهولة بعد ما نتأكد
-      // من الـ schema الحقيقي.
+      // مؤكَّد مباشرة من Firestore: كل قضية فيها حقل clientUids (array
+      // من auth uid) على مستوى المستند نفسه — بيتحدّث تلقائياً من تطبيق
+      // المكتب كل 6 ساعات أول ما الموكل يسجّل دخول في البوابة لأول مرة.
+      // القضايا القديمة (اللي اتحفظت قبل هذا التحديث) لسه من غير الحقل ده
+      // لحد ما تطبيق المكتب يعيد حفظها — فممكن الموكل ميشوفش كل قضاياه
+      // فوراً في أول أيام، وده طبيعي.
       const casesQuery = query(
         collection(db, COLLECTIONS.cases),
-        where("clientEmail", "==", user.email)
+        where("clientUids", "array-contains", user.uid)
       );
       const casesSnap = await getDocs(casesQuery);
 
       if (casesSnap.empty) {
-        contentEl.innerHTML = `<div class="empty-state">مفيش قضايا مسجّلة على إيميلك حالياً. لو ده غير متوقع، تواصل معانا.</div>`;
+        contentEl.innerHTML = `<div class="empty-state">مفيش قضايا مرتبطة بحسابك حالياً. لو ده غير متوقع، ممكن قضيتك لسه محدّثتش من تطبيق المكتب — جرّب تاني بعد شوية، أو تواصل معانا.</div>`;
         return;
+      }
+
+      // كل مستند قضية شكله { json: "<نص JSON>", owner, updatedAt,
+      // clientUids }. البيانات الفعلية (رقم الملف، الموضوع، المحكمة،
+      // الحالة، الجلسات...) جوه نص الـ json ده ولازم JSON.parse.
+      function parseCase(docSnap) {
+        const raw = docSnap.data();
+        let c = {};
+        try { c = JSON.parse(raw.json || "{}"); } catch (e) { console.error("bad case json", docSnap.id, e); }
+        return c;
       }
 
       let html = "";
       for (const caseDoc of casesSnap.docs) {
-        const c = caseDoc.data();
+        const c = parseCase(caseDoc);
+        const caseLabel = [c.caseNo, c.caseYear].filter(Boolean).join(" لسنة ");
         html += `
           <div class="case-card">
-            <h3>${c.title || "قضية بدون عنوان"}</h3>
+            <h3>${c.subject || "قضية بدون موضوع مسجّل"}</h3>
             <div class="case-meta">
-              ${c.caseNumber ? `<span>رقم القضية: ${c.caseNumber}</span>` : ""}
-              ${c.court ? `<span>المحكمة: ${c.court}</span>` : ""}
+              ${caseLabel ? `<span>رقم القضية: ${caseLabel}</span>` : ""}
+              ${c.fileNo ? `<span>رقم الملف بالمكتب: ${c.fileNo}</span>` : ""}
+              ${c.courtName ? `<span>المحكمة: ${c.courtName}</span>` : ""}
+              ${c.caseType ? `<span>نوع الدعوى: ${c.caseType}</span>` : ""}
               ${c.status ? `<span>الحالة: ${c.status}</span>` : ""}
             </div>
             <div id="sessions-${caseDoc.id}"></div>
-            <div id="pdfs-${caseDoc.id}" class="pdf-list"></div>
           </div>
         `;
       }
       contentEl.innerHTML = html;
 
-      // تحميل الجلسات والمستندات لكل قضية
+      // عرض الجلسات — مصفوفة sessions جوه نفس القضية (مش كولكشن منفصل)
       for (const caseDoc of casesSnap.docs) {
-        const sessionsQuery = query(
-          collection(db, COLLECTIONS.sessions),
-          where("caseId", "==", caseDoc.id),
-          orderBy("date", "asc")
-        );
-        try {
-          const sessionsSnap = await getDocs(sessionsQuery);
-          const sessionsEl = document.getElementById(`sessions-${caseDoc.id}`);
-          if (!sessionsSnap.empty) {
-            let rows = "";
-            sessionsSnap.forEach(sDoc => {
-              const s = sDoc.data();
-              rows += `<div class="session-row"><span class="session-date">${s.date || ""}</span><span>${s.note || "جلسة"}</span></div>`;
-            });
-            sessionsEl.innerHTML = rows;
-          }
-        } catch (e) { /* كولكشن الجلسات لسه ما اتظبطش — تجاهل مؤقتاً */ }
-
-        const c = caseDoc.data();
-        if (Array.isArray(c.pdfs) && c.pdfs.length) {
-          const pdfsEl = document.getElementById(`pdfs-${caseDoc.id}`);
-          pdfsEl.innerHTML = c.pdfs.map(p => `<a href="${p.url}" target="_blank" rel="noopener">📄 ${p.name || "مستند"}</a>`).join("");
+        const c = parseCase(caseDoc);
+        const sessionsEl = document.getElementById(`sessions-${caseDoc.id}`);
+        if (Array.isArray(c.sessions) && c.sessions.length) {
+          const sorted = [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+          sessionsEl.innerHTML = sorted.map(s => {
+            const note = (s.raw && (s.raw.result || s.raw.for)) || s.raw?.type || "جلسة";
+            return `<div class="session-row"><span class="session-date">${s.date || ""}</span><span>${note}</span></div>`;
+          }).join("");
         }
       }
     } catch (err) {

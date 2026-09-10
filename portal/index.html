@@ -49,42 +49,44 @@
 <div class="portal-wrap">
   <div class="portal-card">
 
-    <!-- الخطوة 1: تسجيل الدخول بكلمة السر (للموكلين اللي عندهم حساب بالفعل) -->
-    <div class="step active" id="step-login">
+    <!-- الخطوة 1: اكتب إيميلك — النظام بيحدد تلقائياً هل عندك حساب ولا لأ -->
+    <div class="step active" id="step-email">
       <h1>بوابة الموكلين</h1>
-      <p class="sub">سجّل دخولك بإيميلك المسجّل عندنا لمتابعة قضاياك.</p>
+      <p class="sub">اكتب نفس الإيميل المسجّل عندنا في ملف قضيتك.</p>
+      <form class="portal-form" id="emailForm">
+        <input type="email" id="checkEmail" placeholder="البريد الإلكتروني" required autocomplete="email">
+        <button type="submit" class="btn-primary">متابعة</button>
+      </form>
+    </div>
+
+    <!-- الخطوة 2أ: عندك حساب بالفعل — كلمة السر -->
+    <div class="step" id="step-login">
+      <h1>تسجيل الدخول</h1>
+      <p class="sub" id="loginEmailLabel"></p>
       <form class="portal-form" id="loginForm">
-        <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required autocomplete="email">
         <input type="password" id="loginPassword" placeholder="كلمة السر" required autocomplete="current-password">
         <button type="submit" class="btn-primary">دخول</button>
       </form>
       <div class="portal-switch">
-        أول مرة تدخل؟ <a id="goToOtp">فعّل حسابك بالإيميل</a>
+        نسيت كلمة السر؟ <a id="doResetPassword">استرجعها بالإيميل</a>
+      </div>
+      <div class="portal-switch">
+        <a id="backFromLogin">إيميل مختلف</a>
       </div>
     </div>
 
-    <!-- الخطوة 2: طلب رابط الدخول (بديل الـ OTP) -->
-    <div class="step" id="step-otp-request">
-      <h1>تفعيل الحساب لأول مرة</h1>
-      <p class="sub">اكتب نفس الإيميل المسجّل لدينا في ملف قضيتك، وهنبعتلك رابط دخول آمن عليه.</p>
-      <form class="portal-form" id="otpRequestForm">
-        <input type="email" id="otpEmail" placeholder="البريد الإلكتروني" required autocomplete="email">
-        <button type="submit" class="btn-primary">ابعت رابط الدخول</button>
+    <!-- الخطوة 2ب: أول مرة — تعيين كلمة سر -->
+    <div class="step" id="step-set-password">
+      <h1>أول مرة تدخل البوابة</h1>
+      <p class="sub" id="newEmailLabel"></p>
+      <form class="portal-form" id="setPasswordForm">
+        <input type="password" id="newPassword" placeholder="اختر كلمة سر (6 أحرف على الأقل)" required minlength="6">
+        <input type="password" id="newPassword2" placeholder="تأكيد كلمة السر" required minlength="6">
+        <button type="submit" class="btn-primary">إنشاء الحساب والدخول</button>
       </form>
       <div class="portal-switch">
-        عندك حساب بالفعل؟ <a id="backToLogin">سجّل دخولك هنا</a>
+        <a id="backFromSetPassword">إيميل مختلف</a>
       </div>
-    </div>
-
-    <!-- الخطوة 3: بعد الضغط على الرابط اللي وصل بالإيميل — تعيين كلمة سر -->
-    <div class="step" id="step-set-password">
-      <h1>عيّن كلمة سر لحسابك</h1>
-      <p class="sub">تم التحقق من إيميلك بنجاح. دلوقتي اختار كلمة سر عشان تستخدمها في الدخول من المرات الجاية.</p>
-      <form class="portal-form" id="setPasswordForm">
-        <input type="password" id="newPassword" placeholder="كلمة السر الجديدة (6 أحرف على الأقل)" required minlength="6">
-        <input type="password" id="newPassword2" placeholder="تأكيد كلمة السر" required minlength="6">
-        <button type="submit" class="btn-primary">حفظ الدخول للبوابة</button>
-      </form>
     </div>
 
     <div class="portal-msg" id="portalMsg"></div>
@@ -103,95 +105,129 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
-    getAuth, sendSignInLinkToEmail, isSignInWithEmailLink,
-    signInWithEmailLink, signInWithEmailAndPassword,
-    EmailAuthProvider, linkWithCredential
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-  import { firebaseConfig } from "./portal-config.js";
+  import {
+    getFirestore, collection, query, where, limit, getDocs, doc, updateDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { firebaseConfig, COLLECTIONS } from "./portal-config.js";
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
   const msgEl = document.getElementById("portalMsg");
   function showMsg(text, type) {
     msgEl.textContent = text;
     msgEl.className = "portal-msg show " + type;
   }
+  function clearMsg() { msgEl.className = "portal-msg"; }
 
   function showStep(id) {
     document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
-    msgEl.className = "portal-msg";
+    clearMsg();
   }
 
-  document.getElementById("goToOtp").addEventListener("click", () => showStep("step-otp-request"));
-  document.getElementById("backToLogin").addEventListener("click", () => showStep("step-login"));
+  let currentEmail = "";
+  let currentClientDocId = "";
+
+  // ---------- الخطوة 1: اكتب الإيميل ----------
+  document.getElementById("emailForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("checkEmail").value.trim().toLowerCase();
+    if (!email) return;
+    clearMsg();
+
+    try {
+      // تأكيد إن الإيميل ده مسموح له يربط نفسه بسجل موكل عندنا
+      // (matchEmails بيتسجل يدوياً في Firestore وقت فتح ملف الموكل)
+      const q = query(
+        collection(db, COLLECTIONS.clients),
+        where("matchEmails", "array-contains", email),
+        limit(1)
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        showMsg("مفيش موكل مسجّل بهذا الإيميل. تأكد من الإيميل، أو تواصل مع المكتب لتفعيل حسابك.", "error");
+        return;
+      }
+
+      currentEmail = email;
+      const clientDocSnap = snap.docs[0];
+      currentClientDocId = clientDocSnap.id;
+      const clientDoc = clientDocSnap.data();
+
+      if (clientDoc.clientUid) {
+        document.getElementById("loginEmailLabel").textContent = email;
+        showStep("step-login");
+      } else {
+        document.getElementById("newEmailLabel").textContent = email;
+        showStep("step-set-password");
+      }
+    } catch (err) {
+      showMsg("حصل خطأ أثناء التحقق. حاول تاني.", "error");
+      console.error(err);
+    }
+  });
 
   // ---------- تسجيل دخول عادي (إيميل + كلمة سر) ----------
   document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, currentEmail, password);
       window.location.href = "dashboard.html";
     } catch (err) {
-      showMsg("الإيميل أو كلمة السر غير صحيحة. لو أول مرة تدخل، استخدم زرار «فعّل حسابك بالإيميل».", "error");
+      showMsg("كلمة السر غير صحيحة.", "error");
     }
   });
 
-  // ---------- طلب رابط الدخول الأول (بديل الـ OTP) ----------
-  document.getElementById("otpRequestForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("otpEmail").value.trim();
-    const actionCodeSettings = {
-      url: window.location.origin + window.location.pathname,
-      handleCodeInApp: true,
-    };
+  document.getElementById("doResetPassword").addEventListener("click", async () => {
     try {
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      window.localStorage.setItem("portalEmailForSignIn", email);
-      showMsg("تم إرسال رابط الدخول إلى إيميلك — افتح الإيميل واضغط على الرابط لإكمال التفعيل.", "success");
+      await sendPasswordResetEmail(auth, currentEmail);
+      showMsg("بعتنالك إيميل لاسترجاع كلمة السر — افتحه واتبع الخطوات.", "success");
     } catch (err) {
-      showMsg("حصل خطأ في إرسال الرابط. تأكد من صحة الإيميل وحاول تاني.", "error");
+      showMsg("حصل خطأ في إرسال إيميل الاسترجاع.", "error");
     }
   });
 
-  // ---------- لو المستخدم رجع من الرابط اللي في الإيميل ----------
-  if (isSignInWithEmailLink(auth, window.location.href)) {
-    let email = window.localStorage.getItem("portalEmailForSignIn");
-    if (!email) {
-      email = window.prompt("أكّد إيميلك عشان نكمل تسجيل الدخول:");
+  // ---------- أول مرة: إنشاء حساب بكلمة سر ----------
+  document.getElementById("setPasswordForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const p1 = document.getElementById("newPassword").value;
+    const p2 = document.getElementById("newPassword2").value;
+    if (p1 !== p2) {
+      showMsg("كلمتا السر غير متطابقتين.", "error");
+      return;
     }
-    signInWithEmailLink(auth, email, window.location.href)
-      .then((result) => {
-        window.localStorage.removeItem("portalEmailForSignIn");
-        showStep("step-set-password");
-
-        document.getElementById("setPasswordForm").addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const p1 = document.getElementById("newPassword").value;
-          const p2 = document.getElementById("newPassword2").value;
-          if (p1 !== p2) {
-            showMsg("كلمتا السر غير متطابقتين.", "error");
-            return;
-          }
-          try {
-            const cred = EmailAuthProvider.credential(email, p1);
-            await linkWithCredential(result.user, cred);
-            window.location.href = "dashboard.html";
-          } catch (err) {
-            showMsg("حصل خطأ أثناء حفظ كلمة السر. حاول تاني.", "error");
-          }
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, currentEmail, p1);
+      // نسجّل uid المستخدم الجديد على وثيقة الموكل نفسها (clientUid)
+      // — ده اللي "بيربط" الحساب بسجل القضايا بتاعه بشكل دائم.
+      // يتطلب Firestore Rule تسمح بالتحديث ده تحديداً (شرحها في README).
+      try {
+        await updateDoc(doc(db, COLLECTIONS.clients, currentClientDocId), {
+          clientUid: cred.user.uid,
         });
-      })
-      .catch(() => {
-        showMsg("رابط الدخول غير صالح أو منتهي الصلاحية. اطلب رابط جديد.", "error");
-        showStep("step-otp-request");
-      });
-  }
+      } catch (linkErr) {
+        console.error("clientUid link failed:", linkErr);
+        showMsg("تم إنشاء الحساب لكن حصل خطأ في ربطه بملف قضيتك — تواصل مع المكتب.", "error");
+        return;
+      }
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      showMsg("حصل خطأ أثناء إنشاء الحساب. جرب تاني أو تواصل مع المكتب.", "error");
+      console.error(err);
+    }
+  });
+
+  document.getElementById("backFromLogin").addEventListener("click", () => showStep("step-email"));
+  document.getElementById("backFromSetPassword").addEventListener("click", () => showStep("step-email"));
 </script>
 </body>
 </html>
