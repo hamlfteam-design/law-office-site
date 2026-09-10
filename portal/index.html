@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة الموكلين | مؤسسة د. حسن عبد المنعم حسن</title>
+<meta name="description" content="بوابة الموكلين — سجّل دخولك لمتابعة قضاياك ومواعيد جلساتك والمستندات الخاصة بك.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .portal-wrap{max-width:440px;margin:60px auto;padding:0 20px;}
+  .portal-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:32px 28px;box-shadow:0 10px 30px rgba(15,36,56,.06);}
+  .portal-card h1{font-size:1.3rem;margin-bottom:8px;color:var(--navy);}
+  .portal-card p.sub{color:var(--muted);font-size:.9rem;margin-bottom:22px;}
+  .portal-form{display:flex;flex-direction:column;gap:12px;}
+  .portal-form input{
+    font-family:inherit;padding:12px 14px;border-radius:8px;
+    border:1px solid #d8d4cb;font-size:.95rem;background:var(--bg);
+  }
+  .portal-form button{cursor:pointer;}
+  .portal-msg{font-size:.85rem;margin-top:12px;padding:10px 12px;border-radius:6px;display:none;}
+  .portal-msg.show{display:block;}
+  .portal-msg.info{background:#eef4fb;color:#1a4a7a;}
+  .portal-msg.error{background:#fbeceb;color:#8a2a22;}
+  .portal-msg.success{background:#eaf6ee;color:#1d6b3a;}
+  .portal-switch{margin-top:18px;font-size:.85rem;color:var(--muted);text-align:center;}
+  .portal-switch a{color:var(--gold);font-weight:700;cursor:pointer;}
+  .step{display:none;}
+  .step.active{display:block;}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand">
+      <a href="../index.html#home"><img src="../assets/images/logo.png" alt="شعار مؤسسة د. حسن عبد المنعم حسن" class="brand-logo"></a>
+    </div>
+    <nav class="main-nav" id="mainNav">
+      <a href="../index.html#home">الرئيسية</a>
+      <a href="../index.html#contact">تواصل معنا</a>
+    </nav>
+  </div>
+</header>
+
+<div class="portal-wrap">
+  <div class="portal-card">
+
+    <!-- الخطوة 1: تسجيل الدخول بكلمة السر (للموكلين اللي عندهم حساب بالفعل) -->
+    <div class="step active" id="step-login">
+      <h1>بوابة الموكلين</h1>
+      <p class="sub">سجّل دخولك بإيميلك المسجّل عندنا لمتابعة قضاياك.</p>
+      <form class="portal-form" id="loginForm">
+        <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required autocomplete="email">
+        <input type="password" id="loginPassword" placeholder="كلمة السر" required autocomplete="current-password">
+        <button type="submit" class="btn-primary">دخول</button>
+      </form>
+      <div class="portal-switch">
+        أول مرة تدخل؟ <a id="goToOtp">فعّل حسابك بالإيميل</a>
+      </div>
+    </div>
+
+    <!-- الخطوة 2: طلب رابط الدخول (بديل الـ OTP) -->
+    <div class="step" id="step-otp-request">
+      <h1>تفعيل الحساب لأول مرة</h1>
+      <p class="sub">اكتب نفس الإيميل المسجّل لدينا في ملف قضيتك، وهنبعتلك رابط دخول آمن عليه.</p>
+      <form class="portal-form" id="otpRequestForm">
+        <input type="email" id="otpEmail" placeholder="البريد الإلكتروني" required autocomplete="email">
+        <button type="submit" class="btn-primary">ابعت رابط الدخول</button>
+      </form>
+      <div class="portal-switch">
+        عندك حساب بالفعل؟ <a id="backToLogin">سجّل دخولك هنا</a>
+      </div>
+    </div>
+
+    <!-- الخطوة 3: بعد الضغط على الرابط اللي وصل بالإيميل — تعيين كلمة سر -->
+    <div class="step" id="step-set-password">
+      <h1>عيّن كلمة سر لحسابك</h1>
+      <p class="sub">تم التحقق من إيميلك بنجاح. دلوقتي اختار كلمة سر عشان تستخدمها في الدخول من المرات الجاية.</p>
+      <form class="portal-form" id="setPasswordForm">
+        <input type="password" id="newPassword" placeholder="كلمة السر الجديدة (6 أحرف على الأقل)" required minlength="6">
+        <input type="password" id="newPassword2" placeholder="تأكيد كلمة السر" required minlength="6">
+        <button type="submit" class="btn-primary">حفظ الدخول للبوابة</button>
+      </form>
+    </div>
+
+    <div class="portal-msg" id="portalMsg"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>© <span id="year"></span> مؤسسة د. حسن عبد المنعم حسن — محامون ومستشارون. جميع الحقوق محفوظة.</p>
+  </div>
+</footer>
+
+<!-- ============================================================
+     Firebase SDK (نسخة معيارية / modular v10) — عبر CDN
+     ============================================================ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth, sendSignInLinkToEmail, isSignInWithEmailLink,
+    signInWithEmailLink, signInWithEmailAndPassword,
+    EmailAuthProvider, linkWithCredential
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { firebaseConfig } from "./portal-config.js";
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const msgEl = document.getElementById("portalMsg");
+  function showMsg(text, type) {
+    msgEl.textContent = text;
+    msgEl.className = "portal-msg show " + type;
+  }
+
+  function showStep(id) {
+    document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    msgEl.className = "portal-msg";
+  }
+
+  document.getElementById("goToOtp").addEventListener("click", () => showStep("step-otp-request"));
+  document.getElementById("backToLogin").addEventListener("click", () => showStep("step-login"));
+
+  // ---------- تسجيل دخول عادي (إيميل + كلمة سر) ----------
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      showMsg("الإيميل أو كلمة السر غير صحيحة. لو أول مرة تدخل، استخدم زرار «فعّل حسابك بالإيميل».", "error");
+    }
+  });
+
+  // ---------- طلب رابط الدخول الأول (بديل الـ OTP) ----------
+  document.getElementById("otpRequestForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("otpEmail").value.trim();
+    const actionCodeSettings = {
+      url: window.location.origin + window.location.pathname,
+      handleCodeInApp: true,
+    };
+    try {
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      window.localStorage.setItem("portalEmailForSignIn", email);
+      showMsg("تم إرسال رابط الدخول إلى إيميلك — افتح الإيميل واضغط على الرابط لإكمال التفعيل.", "success");
+    } catch (err) {
+      showMsg("حصل خطأ في إرسال الرابط. تأكد من صحة الإيميل وحاول تاني.", "error");
+    }
+  });
+
+  // ---------- لو المستخدم رجع من الرابط اللي في الإيميل ----------
+  if (isSignInWithEmailLink(auth, window.location.href)) {
+    let email = window.localStorage.getItem("portalEmailForSignIn");
+    if (!email) {
+      email = window.prompt("أكّد إيميلك عشان نكمل تسجيل الدخول:");
+    }
+    signInWithEmailLink(auth, email, window.location.href)
+      .then((result) => {
+        window.localStorage.removeItem("portalEmailForSignIn");
+        showStep("step-set-password");
+
+        document.getElementById("setPasswordForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const p1 = document.getElementById("newPassword").value;
+          const p2 = document.getElementById("newPassword2").value;
+          if (p1 !== p2) {
+            showMsg("كلمتا السر غير متطابقتين.", "error");
+            return;
+          }
+          try {
+            const cred = EmailAuthProvider.credential(email, p1);
+            await linkWithCredential(result.user, cred);
+            window.location.href = "dashboard.html";
+          } catch (err) {
+            showMsg("حصل خطأ أثناء حفظ كلمة السر. حاول تاني.", "error");
+          }
+        });
+      })
+      .catch(() => {
+        showMsg("رابط الدخول غير صالح أو منتهي الصلاحية. اطلب رابط جديد.", "error");
+        showStep("step-otp-request");
+      });
+  }
+</script>
+</body>
+</html>
