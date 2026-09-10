@@ -10,31 +10,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-  .dash-wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px;}
+  .dash-wrap{max-width:960px;margin:0 auto;padding:40px 20px 80px;}
   .dash-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
   .dash-head h1{font-size:1.4rem;color:var(--navy);}
   .dash-head .who{color:var(--muted);font-size:.9rem;}
   .btn-logout{background:none;border:1px solid #d8d4cb;border-radius:999px;padding:8px 18px;cursor:pointer;font-family:inherit;font-size:.85rem;color:var(--muted);}
-  .case-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:22px;margin-bottom:16px;}
-  .case-card h3{color:var(--navy);margin-bottom:6px;}
-  .case-meta{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0;font-size:.85rem;color:var(--muted);}
-  .case-meta span{background:var(--bg);border-radius:6px;padding:4px 10px;}
-  .session-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #f0eee8;font-size:.9rem;}
-  .session-row:first-of-type{border-top:none;}
-  .session-date{font-weight:700;color:var(--navy);}
-  .pdf-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
-  .pdf-row{
-    display:flex;align-items:center;justify-content:space-between;gap:10px;
-    background:var(--bg);border:1px solid #e7e4dd;border-radius:8px;padding:10px 14px;
+
+  .case-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:0;margin-bottom:22px;overflow:hidden;}
+  .case-card h3{color:var(--navy);margin:0;padding:18px 20px;border-bottom:1px solid #e7e4dd;font-size:1.1rem;}
+
+  .case-table-wrap{overflow-x:auto;}
+  table.case-table{width:100%;border-collapse:collapse;font-size:.88rem;}
+  table.case-table caption{
+    text-align:start;font-weight:700;color:var(--navy);background:var(--bg);
+    padding:8px 20px;font-size:.85rem;
   }
-  .pdf-row .pdf-name{font-size:.86rem;color:var(--navy);font-weight:600;}
-  .pdf-row .pdf-size{font-size:.75rem;color:var(--muted);margin-inline-start:6px;font-weight:400;}
-  .pdf-actions{display:flex;gap:8px;flex-shrink:0;}
-  .pdf-actions a, .pdf-actions button{
-    font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;
-    border:1px solid #d8d4cb;background:var(--white);border-radius:6px;padding:5px 12px;color:var(--navy);
+  table.case-table th, table.case-table td{
+    padding:9px 20px;text-align:start;border-top:1px solid #f0eee8;vertical-align:top;
   }
-  .pdf-actions a:hover, .pdf-actions button:hover{border-color:var(--gold);}
+  table.case-table th{color:var(--muted);font-weight:600;width:38%;background:#fbfaf7;}
+  table.case-table.parties th{width:22%;}
+  table.sessions-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  table.sessions-table caption{
+    text-align:start;font-weight:700;color:var(--navy);background:var(--bg);
+    padding:8px 20px;font-size:.85rem;
+  }
+  table.sessions-table th, table.sessions-table td{
+    padding:8px 10px;text-align:center;border-top:1px solid #f0eee8;
+  }
+  table.sessions-table th{color:var(--muted);font-weight:600;background:#fbfaf7;font-size:.8rem;}
+  table.sessions-table td.session-note-cell, table.sessions-table th.session-note-cell{text-align:start;}
+  table.sessions-table tbody tr:nth-child(even){background:#fcfbf8;}
+
   .empty-state{text-align:center;color:var(--muted);padding:60px 20px;}
   .loading{text-align:center;color:var(--muted);padding:60px 20px;}
 </style>
@@ -118,38 +125,114 @@
         return c;
       }
 
-      let html = "";
-      for (const caseDoc of casesSnap.docs) {
+      // قاعدة ثابتة للمكتب: كل الأرقام تُعرض بصيغة عربي هندي (٠١٢٣٤٥٦٧٨٩)
+      const HINDI = ["٠","١","٢","٣","٤","٥","٦","٧","٨","٩"];
+      function toHindi(v) {
+        if (v === null || v === undefined) return "";
+        return String(v).replace(/[0-9]/g, (d) => HINDI[+d]);
+      }
+      // تواريخ الجلسات مخزّنة ISO (yyyy-mm-dd) — نعرضها yyyy/mm/dd بأرقام
+      // عربي هندي، نفس قاعدة المكتب في كل المستندات التانية.
+      function formatDate(iso) {
+        if (!iso) return "";
+        const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+        if (!m) return toHindi(iso);
+        return toHindi(`${m[1]}/${m[2]}/${m[3]}`);
+      }
+      function esc(v) {
+        return (v === null || v === undefined) ? "" : String(v).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+      }
+      // حقل clients/opponents نص واحد بيجمع أكتر من طرف مفصول بـ "·"
+      function splitParties(v) {
+        if (!v) return [];
+        return String(v).split("·").map(s => s.trim()).filter(Boolean);
+      }
+
+      function renderCase(caseDoc) {
         const c = parseCase(caseDoc);
-        const caseLabel = [c.caseNo, c.caseYear].filter(Boolean).join(" لسنة ");
-        html += `
+        const caseLabel = [toHindi(c.caseNo), toHindi(c.caseYear)].filter(Boolean).join(" لسنة ");
+        const firstLabel = (c.firstNo || c.firstYear)
+          ? `أول درجة ${[toHindi(c.firstNo), toHindi(c.firstYear)].filter(Boolean).join(" لسنة ")}`
+          : "";
+
+        const infoRows = [
+          ["رقم الملف", toHindi(c.fileNo)],
+          ["سنة التعامل", toHindi(c.dealYear)],
+          ["رقم الدعوى", caseLabel],
+          ["درجة التقاضي", esc(c.courtLevel)],
+          ["الحالة", esc(c.status)],
+          ["نوع الدعوى", esc(c.caseType)],
+          ["المحامي", esc(c.lawyer)],
+          ["المحكمة", esc(c.courtName)],
+          ["الدائرة", esc(c.circuit)],
+          ["الموضوع", esc(c.subject)],
+          ["ملاحظات", esc(firstLabel)],
+        ].filter(([, val]) => val);
+
+        const clients = splitParties(c.clients);
+        const opponents = splitParties(c.opponents);
+        const partyRows = [
+          ...(clients.length ? [["الموكلون", clients.map(esc).join("، ")]] : []),
+          ...(opponents.length ? [["الخصوم", opponents.map(esc).join("، ")]] : []),
+        ];
+
+        const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
+
+        return `
           <div class="case-card">
-            <h3>${c.subject || "قضية بدون موضوع مسجّل"}</h3>
-            <div class="case-meta">
-              ${caseLabel ? `<span>رقم القضية: ${caseLabel}</span>` : ""}
-              ${c.fileNo ? `<span>رقم الملف بالمكتب: ${c.fileNo}</span>` : ""}
-              ${c.courtName ? `<span>المحكمة: ${c.courtName}</span>` : ""}
-              ${c.caseType ? `<span>نوع الدعوى: ${c.caseType}</span>` : ""}
-              ${c.status ? `<span>الحالة: ${c.status}</span>` : ""}
-            </div>
-            <div id="sessions-${caseDoc.id}"></div>
+            <h3>${esc(c.subject) || "قضية بدون موضوع مسجّل"}</h3>
+
+            ${infoRows.length ? `
+            <div class="case-table-wrap">
+              <table class="case-table">
+                <caption>بيان الدعوى</caption>
+                <tbody>
+                  ${infoRows.map(([label, val]) => `<tr><th>${label}</th><td>${val}</td></tr>`).join("")}
+                </tbody>
+              </table>
+            </div>` : ""}
+
+            ${partyRows.length ? `
+            <div class="case-table-wrap">
+              <table class="case-table parties">
+                <caption>الأطراف</caption>
+                <tbody>
+                  ${partyRows.map(([label, val]) => `<tr><th>${label}</th><td>${val}</td></tr>`).join("")}
+                </tbody>
+              </table>
+            </div>` : ""}
+
+            ${sessions.length ? `
+            <div class="case-table-wrap">
+              <table class="sessions-table">
+                <caption>تتابع الجلسات</caption>
+                <thead>
+                  <tr>
+                    <th>م</th>
+                    <th>رول</th>
+                    <th>تاريخ الجلسة</th>
+                    <th>نوع الجلسة</th>
+                    <th class="session-note-cell">ما تم بها من قرارات أو أحكام</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sessions.map((s, i) => `
+                    <tr>
+                      <td>${toHindi(i + 1)}</td>
+                      <td>${toHindi(s.raw?.roll || "")}</td>
+                      <td>${formatDate(s.date)}</td>
+                      <td>${esc(s.raw?.type || "")}</td>
+                      <td class="session-note-cell">${esc(s.raw?.result || s.raw?.for || "")}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>` : ""}
           </div>
         `;
       }
-      contentEl.innerHTML = html;
 
-      // عرض الجلسات — مصفوفة sessions جوه نفس القضية (مش كولكشن منفصل)
-      for (const caseDoc of casesSnap.docs) {
-        const c = parseCase(caseDoc);
-        const sessionsEl = document.getElementById(`sessions-${caseDoc.id}`);
-        if (Array.isArray(c.sessions) && c.sessions.length) {
-          const sorted = [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
-          sessionsEl.innerHTML = sorted.map(s => {
-            const note = (s.raw && (s.raw.result || s.raw.for)) || s.raw?.type || "جلسة";
-            return `<div class="session-row"><span class="session-date">${s.date || ""}</span><span>${note}</span></div>`;
-          }).join("");
-        }
-      }
+      contentEl.innerHTML = casesSnap.docs.map(renderCase).join("");
     } catch (err) {
       contentEl.innerHTML = `<div class="empty-state">حصل خطأ في تحميل البيانات. حاول تاني لاحقاً.</div>`;
       console.error(err);
