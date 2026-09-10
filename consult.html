@@ -114,7 +114,7 @@
 
     if (method === "whatsapp") {
       const url = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
-      window.open(url, "_blank", "noopener");
+      window.location.href = url;
     } else {
       const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("طلب استشارة قانونية - " + subject)}&body=${encodeURIComponent(bodyText)}`;
       window.location.href = mailUrl;
