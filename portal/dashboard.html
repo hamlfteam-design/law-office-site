@@ -46,6 +46,21 @@
 
   .empty-state{text-align:center;color:var(--muted);padding:60px 20px;}
   .loading{text-align:center;color:var(--muted);padding:60px 20px;}
+
+  .btn-print{background:var(--navy);color:#fff;border:none;border-radius:999px;padding:8px 18px;cursor:pointer;font-family:inherit;font-size:.85rem;}
+  .case-actions{padding:12px 20px;text-align:start;}
+
+  /* ================= طباعة / تصدير PDF بنفس شكل ورقة المكتب الرسمية ================= */
+  @page { margin: 1.5cm 1.27cm; }
+  @media print {
+    body *{visibility:hidden;}
+    .printing-case, .printing-case *{visibility:visible;}
+    .printing-case{position:absolute;top:0;left:0;width:100%;margin:0;border:none;border-radius:0;}
+    .case-actions{display:none !important;}
+    .case-table-wrap{overflow:visible;}
+    table.case-table, table.sessions-table{page-break-inside:auto;}
+    tr{page-break-inside:avoid;}
+  }
 </style>
 </head>
 <body>
@@ -150,7 +165,7 @@
         return String(v).split("·").map(s => s.trim()).filter(Boolean);
       }
 
-      function renderCase(caseDoc) {
+      function renderCase(caseDoc, idx) {
         const c = parseCase(caseDoc);
         const caseLabel = [toHindi(c.caseNo), toHindi(c.caseYear)].filter(Boolean).join(" لسنة ");
         const firstLabel = (c.firstNo || c.firstYear)
@@ -181,10 +196,13 @@
         const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
 
         return `
-          <div class="case-card">
-            <img class="case-letterhead" src="../assets/images/letterhead/header.png" alt="مؤسسة د. حسن عبد المنعم حسن">
+          <div class="case-card" id="case-${idx}">
+            <img class="case-letterhead" src="../assets/images/letterhead/header_tight.png" alt="مؤسسة د. حسن عبد المنعم حسن">
             <div class="case-letterhead-rule"></div>
             <h3>${esc(c.subject) || "قضية بدون موضوع مسجّل"}</h3>
+            <div class="case-actions">
+              <button class="btn-print" data-print-case="case-${idx}">طباعة / حفظ PDF</button>
+            </div>
 
             ${infoRows.length ? `
             <div class="case-table-wrap">
@@ -236,7 +254,19 @@
         `;
       }
 
-      contentEl.innerHTML = casesSnap.docs.map(renderCase).join("");
+      contentEl.innerHTML = casesSnap.docs.map((docSnap, idx) => renderCase(docSnap, idx)).join("");
+
+      // طباعة/تصدير PDF لقضية واحدة بنفس شكل ورقة المكتب الرسمية —
+      // نضيف كلاس مؤقت على الكارت المطلوب بس، نطبع، وبعدين نشيله.
+      contentEl.addEventListener("click", (ev) => {
+        const btn = ev.target.closest("[data-print-case]");
+        if (!btn) return;
+        const card = document.getElementById(btn.getAttribute("data-print-case"));
+        if (!card) return;
+        card.classList.add("printing-case");
+        window.print();
+        setTimeout(() => card.classList.remove("printing-case"), 500);
+      });
     } catch (err) {
       contentEl.innerHTML = `<div class="empty-state">حصل خطأ في تحميل البيانات. حاول تاني لاحقاً.</div>`;
       console.error(err);

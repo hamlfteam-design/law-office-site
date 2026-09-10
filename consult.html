@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>استشارة قانونية أونلاين | مؤسسة د. حسن عبد المنعم حسن</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:var(--f-body);
+    background:linear-gradient(180deg,var(--navy) 0%,var(--navy-dark) 100%);
+    color:#fff;min-height:100vh;display:flex;justify-content:center;
+    line-height:normal;
+  }
+  h1{font-family:var(--f-label);}
+  .wrap{width:100%;max-width:480px;padding:20px 18px calc(30px + env(safe-area-inset-bottom));}
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--gold-light);text-decoration:none;font-size:.85rem;font-weight:700;margin-bottom:16px;}
+  h1{font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:6px;}
+  .sub{font-size:.85rem;color:#9aa3ad;margin-bottom:22px;line-height:1.7;}
+
+  form{display:flex;flex-direction:column;gap:14px;}
+  label{font-size:.82rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;display:block;}
+  input,select,textarea{
+    width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+    border-radius:10px;padding:12px 14px;color:#fff;font-family:inherit;font-size:.9rem;
+  }
+  input::placeholder,textarea::placeholder{color:#6b7480;}
+  textarea{min-height:110px;resize:vertical;}
+  select{appearance:none;}
+  select option{background:#141414;color:#fff;}
+
+  .method-choice{display:flex;gap:10px;margin-top:4px;}
+  .method-choice label{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;
+    padding:11px 8px;font-size:.82rem;font-weight:700;color:#fff;cursor:pointer;margin:0;
+  }
+  .method-choice input{width:auto;accent-color:var(--gold);}
+
+  .submit-btn{
+    margin-top:6px;background:linear-gradient(135deg,var(--gold-light),var(--gold));
+    color:var(--navy-dark);border:none;border-radius:12px;padding:15px;
+    font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;
+  }
+  .note{font-size:.74rem;color:#6b7480;text-align:center;margin-top:12px;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="app.html">→ رجوع</a>
+  <h1>استشارة قانونية أونلاين</h1>
+  <p class="sub">اكتب تفاصيل استفسارك أو قضيتك، وهنرد عليك في أقرب وقت. الرسالة هتتبعت مباشرة على واتساب أو إيميل المكتب حسب اختيارك.</p>
+
+  <form id="consultForm">
+    <div>
+      <label for="name">الاسم</label>
+      <input type="text" id="name" placeholder="اسمك بالكامل" required>
+    </div>
+    <div>
+      <label for="phone">رقم الموبايل</label>
+      <input type="tel" id="phone" placeholder="01xxxxxxxxx" required>
+    </div>
+    <div>
+      <label for="subject">نوع الاستشارة</label>
+      <select id="subject">
+        <option>قضايا مدنية</option>
+        <option>قضايا جنائية</option>
+        <option>قضايا شركات</option>
+        <option>أحوال شخصية</option>
+        <option>الطعن بالنقض / الإدارية العليا / الدستورية</option>
+        <option>استفسار آخر</option>
+      </select>
+    </div>
+    <div>
+      <label for="message">تفاصيل الاستشارة</label>
+      <textarea id="message" placeholder="اشرح موضوع الاستشارة باختصار..." required></textarea>
+    </div>
+
+    <div>
+      <label>هتوصلنا إزاي؟</label>
+      <div class="method-choice">
+        <label><input type="radio" name="method" value="whatsapp" checked> واتساب</label>
+        <label><input type="radio" name="method" value="email"> إيميل</label>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">إرسال الاستشارة</button>
+    <p class="note">هيفتحلك واتساب أو برنامج الإيميل عندك برسالة جاهزة — تقدر تراجعها وتضيف تفاصيل قبل الإرسال.</p>
+  </form>
+</div>
+
+<script>
+  const OFFICE_PHONE = "201208555806";
+  const OFFICE_EMAIL = "info.hamlf@gmail.com";
+
+  document.getElementById("consultForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const subject = document.getElementById("subject").value;
+    const message = document.getElementById("message").value.trim();
+    const method = document.querySelector('input[name="method"]:checked').value;
+
+    const bodyText =
+      `طلب استشارة قانونية من موقع المؤسسة\n` +
+      `الاسم: ${name}\n` +
+      `رقم الموبايل: ${phone}\n` +
+      `نوع الاستشارة: ${subject}\n` +
+      `التفاصيل: ${message}`;
+
+    if (method === "whatsapp") {
+      const url = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
+      window.open(url, "_blank", "noopener");
+    } else {
+      const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("طلب استشارة قانونية - " + subject)}&body=${encodeURIComponent(bodyText)}`;
+      window.location.href = mailUrl;
+    }
+  });
+</script>
+</body>
+</html>
