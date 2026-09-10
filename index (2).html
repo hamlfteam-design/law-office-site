@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة الموكلين | مؤسسة د. حسن عبد المنعم حسن</title>
+<meta name="description" content="بوابة الموكلين — سجّل دخولك لمتابعة قضاياك ومواعيد جلساتك والمستندات الخاصة بك.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .portal-wrap{max-width:440px;margin:60px auto;padding:0 20px;}
+  .portal-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:32px 28px;box-shadow:0 10px 30px rgba(15,36,56,.06);}
+  .portal-card h1{font-size:1.3rem;margin-bottom:8px;color:var(--navy);}
+  .portal-card p.sub{color:var(--muted);font-size:.9rem;margin-bottom:22px;}
+  .portal-form{display:flex;flex-direction:column;gap:12px;}
+  .portal-form input{
+    font-family:inherit;padding:12px 14px;border-radius:8px;
+    border:1px solid #d8d4cb;font-size:.95rem;background:var(--bg);
+  }
+  .portal-form button{cursor:pointer;}
+  .portal-msg{font-size:.85rem;margin-top:12px;padding:10px 12px;border-radius:6px;display:none;}
+  .portal-msg.show{display:block;}
+  .portal-msg.info{background:#eef4fb;color:#1a4a7a;}
+  .portal-msg.error{background:#fbeceb;color:#8a2a22;}
+  .portal-msg.success{background:#eaf6ee;color:#1d6b3a;}
+  .portal-switch{margin-top:18px;font-size:.85rem;color:var(--muted);text-align:center;}
+  .portal-switch a{color:var(--gold);font-weight:700;cursor:pointer;}
+  .step{display:none;}
+  .step.active{display:block;}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand">
+      <a href="../index.html#home"><img src="../assets/images/logo.png" alt="شعار مؤسسة د. حسن عبد المنعم حسن" class="brand-logo"></a>
+    </div>
+    <nav class="main-nav" id="mainNav">
+      <a href="../index.html#home">الرئيسية</a>
+      <a href="../index.html#contact">تواصل معنا</a>
+    </nav>
+  </div>
+</header>
+
+<div class="portal-wrap">
+  <div class="portal-card">
+
+    <!-- الخطوة 1: اكتب إيميلك — النظام بيحدد تلقائياً هل عندك حساب ولا لأ -->
+    <div class="step active" id="step-email">
+      <h1>بوابة الموكلين</h1>
+      <p class="sub">اكتب نفس الإيميل المسجّل عندنا في ملف قضيتك.</p>
+      <form class="portal-form" id="emailForm">
+        <input type="email" id="checkEmail" placeholder="البريد الإلكتروني" required autocomplete="email">
+        <button type="submit" class="btn-primary">متابعة</button>
+      </form>
+    </div>
+
+    <!-- الخطوة 2أ: عندك حساب بالفعل — كلمة السر -->
+    <div class="step" id="step-login">
+      <h1>تسجيل الدخول</h1>
+      <p class="sub" id="loginEmailLabel"></p>
+      <form class="portal-form" id="loginForm">
+        <input type="password" id="loginPassword" placeholder="كلمة السر" required autocomplete="current-password">
+        <button type="submit" class="btn-primary">دخول</button>
+      </form>
+      <div class="portal-switch">
+        نسيت كلمة السر؟ <a id="doResetPassword">استرجعها بالإيميل</a>
+      </div>
+      <div class="portal-switch">
+        <a id="backFromLogin">إيميل مختلف</a>
+      </div>
+    </div>
+
+    <!-- الخطوة 2ب: أول مرة — تعيين كلمة سر -->
+    <div class="step" id="step-set-password">
+      <h1>أول مرة تدخل البوابة</h1>
+      <p class="sub" id="newEmailLabel"></p>
+      <form class="portal-form" id="setPasswordForm">
+        <input type="password" id="newPassword" placeholder="اختر كلمة سر (6 أحرف على الأقل)" required minlength="6">
+        <input type="password" id="newPassword2" placeholder="تأكيد كلمة السر" required minlength="6">
+        <button type="submit" class="btn-primary">إنشاء الحساب والدخول</button>
+      </form>
+      <div class="portal-switch">
+        <a id="backFromSetPassword">إيميل مختلف</a>
+      </div>
+    </div>
+
+    <div class="portal-msg" id="portalMsg"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>© <span id="year"></span> مؤسسة د. حسن عبد المنعم حسن — محامون ومستشارون. جميع الحقوق محفوظة.</p>
+  </div>
+</footer>
+
+<!-- ============================================================
+     Firebase SDK (نسخة معيارية / modular v10) — عبر CDN
+     ============================================================ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {
+    getFirestore, collection, query, where, limit, getDocs, doc, updateDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { firebaseConfig, COLLECTIONS } from "./portal-config.js";
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const msgEl = document.getElementById("portalMsg");
+  function showMsg(text, type) {
+    msgEl.textContent = text;
+    msgEl.className = "portal-msg show " + type;
+  }
+  function clearMsg() { msgEl.className = "portal-msg"; }
+
+  function showStep(id) {
+    document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    clearMsg();
+  }
+
+  let currentEmail = "";
+  let currentClientDocId = "";
+
+  // ---------- الخطوة 1: اكتب الإيميل ----------
+  document.getElementById("emailForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("checkEmail").value.trim().toLowerCase();
+    if (!email) return;
+    clearMsg();
+
+    try {
+      // تأكيد إن الإيميل ده مسموح له يربط نفسه بسجل موكل عندنا
+      // (matchEmails بيتسجل يدوياً في Firestore وقت فتح ملف الموكل)
+      const q = query(
+        collection(db, COLLECTIONS.clients),
+        where("matchEmails", "array-contains", email),
+        limit(1)
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        showMsg("مفيش موكل مسجّل بهذا الإيميل. تأكد من الإيميل، أو تواصل مع المكتب لتفعيل حسابك.", "error");
+        return;
+      }
+
+      currentEmail = email;
+      const clientDocSnap = snap.docs[0];
+      currentClientDocId = clientDocSnap.id;
+      const clientDoc = clientDocSnap.data();
+
+      if (clientDoc.clientUid) {
+        document.getElementById("loginEmailLabel").textContent = email;
+        showStep("step-login");
+      } else {
+        document.getElementById("newEmailLabel").textContent = email;
+        showStep("step-set-password");
+      }
+    } catch (err) {
+      showMsg("حصل خطأ أثناء التحقق. حاول تاني.", "error");
+      console.error(err);
+    }
+  });
+
+  // ---------- تسجيل دخول عادي (إيميل + كلمة سر) ----------
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const password = document.getElementById("loginPassword").value;
+    try {
+      await signInWithEmailAndPassword(auth, currentEmail, password);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      showMsg("كلمة السر غير صحيحة.", "error");
+    }
+  });
+
+  document.getElementById("doResetPassword").addEventListener("click", async () => {
+    try {
+      await sendPasswordResetEmail(auth, currentEmail);
+      showMsg("بعتنالك إيميل لاسترجاع كلمة السر — افتحه واتبع الخطوات.", "success");
+    } catch (err) {
+      showMsg("حصل خطأ في إرسال إيميل الاسترجاع.", "error");
+    }
+  });
+
+  // ---------- أول مرة: إنشاء حساب بكلمة سر ----------
+  document.getElementById("setPasswordForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const p1 = document.getElementById("newPassword").value;
+    const p2 = document.getElementById("newPassword2").value;
+    if (p1 !== p2) {
+      showMsg("كلمتا السر غير متطابقتين.", "error");
+      return;
+    }
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, currentEmail, p1);
+      // نسجّل uid المستخدم الجديد على وثيقة الموكل نفسها (clientUid)
+      // — ده اللي "بيربط" الحساب بسجل القضايا بتاعه بشكل دائم.
+      // يتطلب Firestore Rule تسمح بالتحديث ده تحديداً (شرحها في README).
+      try {
+        await updateDoc(doc(db, COLLECTIONS.clients, currentClientDocId), {
+          clientUid: cred.user.uid,
+        });
+      } catch (linkErr) {
+        console.error("clientUid link failed:", linkErr);
+        showMsg("تم إنشاء الحساب لكن حصل خطأ في ربطه بملف قضيتك — تواصل مع المكتب.", "error");
+        return;
+      }
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      showMsg("حصل خطأ أثناء إنشاء الحساب. جرب تاني أو تواصل مع المكتب.", "error");
+      console.error(err);
+    }
+  });
+
+  document.getElementById("backFromLogin").addEventListener("click", () => showStep("step-email"));
+  document.getElementById("backFromSetPassword").addEventListener("click", () => showStep("step-email"));
+</script>
+</body>
+</html>
