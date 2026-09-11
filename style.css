@@ -347,7 +347,21 @@ a.card{cursor:pointer;}
 .article-card p{font-size:.88rem;color:var(--muted);line-height:1.7;margin-bottom:12px;}
 .article-meta{font-size:.78rem;color:var(--muted);font-weight:700;}
 .article-byline{color:var(--gold-light);font-weight:700;}
+.article-hero-img{width:100%;max-width:900px;height:auto;border-radius:var(--radius);margin-top:20px;display:block;box-shadow:0 10px 30px rgba(0,0,0,.15);}
 .print-btn{margin-bottom:24px;cursor:pointer;border:2px solid var(--navy);background:none;font-family:inherit;font-size:.95rem;}
+
+/* تمييز نص القانون عن نص حكم النقض داخل المقالات (بخطوط وألوان هوية المكتب) */
+.law-quote{background:#f4f2ec;border-inline-start:4px solid var(--gold);border-radius:8px;
+  padding:14px 18px;margin:20px 0;font-size:.92rem;line-height:1.9;}
+.law-quote .lbl{font-family:var(--f-label);color:var(--navy);font-weight:800;display:block;margin-bottom:6px;font-size:.8rem;letter-spacing:.03em;}
+.naqd-quote{border:1px solid #ddd6c7;border-radius:10px;padding:14px 18px;margin:20px 0;background:#fbfaf7;}
+.naqd-quote .t{font-family:var(--f-label);color:var(--navy);font-weight:800;display:block;margin-bottom:6px;font-size:.85rem;}
+.naqd-quote p{margin:0;font-size:.92rem;line-height:1.9;}
+.naqd-quote .cite{display:block;color:var(--gold);font-family:var(--f-label);font-size:.78rem;margin-top:8px;font-weight:700;}
+@media print{
+  .law-quote{background:#f4f2ec !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .naqd-quote{background:#fbfaf7 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
 
 /* ترويسة الطباعة — مخفية في الشاشة، تظهر فقط عند الطباعة */
 .print-letterhead{display:none;}
