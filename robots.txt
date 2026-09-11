@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /portal/
+Disallow: /app.html
+Disallow: /consult.html
+
+Sitemap: https://hamlfteam-design.github.io/law-office-site/sitemap.xml
