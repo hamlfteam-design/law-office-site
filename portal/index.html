@@ -132,13 +132,28 @@
     clearMsg();
   }
 
+  // ---------- تطبيع الأرقام العربية/الفارسية لإنجليزية (نفس منطق تطبيق الموبايل) ----------
+  function laDigits(str) {
+    const arabicIndic = "٠١٢٣٤٥٦٧٨٩";
+    const persian = "۰۱۲۳۴۵۶۷۸۹";
+    return String(str).replace(/[٠-٩۰-۹]/g, (d) => {
+      let i = arabicIndic.indexOf(d);
+      if (i === -1) i = persian.indexOf(d);
+      return i !== -1 ? String(i) : d;
+    });
+  }
+  function toArabicIndicDigits(str) {
+    const arabicIndic = "٠١٢٣٤٥٦٧٨٩";
+    return String(str).replace(/[0-9]/g, (d) => arabicIndic[+d]);
+  }
+
   let currentEmail = "";
   let currentClientDocId = "";
-
   // ---------- الخطوة 1: اكتب الإيميل ----------
   document.getElementById("emailForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("checkEmail").value.trim().toLowerCase();
+    const rawEmail = document.getElementById("checkEmail").value.trim().toLowerCase();
+    const email = laDigits(rawEmail);
     if (!email) return;
     clearMsg();
 
@@ -150,7 +165,21 @@
         where("matchEmails", "array-contains", email),
         limit(1)
       );
-      const snap = await getDocs(q);
+      let snap = await getDocs(q);
+
+      // احتياطاً: لو مفيش نتيجة، جرّب نفس الإيميل بس بأرقام عربية
+      // (في حالة إن الإيميل اتسجل قديماً بأرقام عربية في بيانات الموكل)
+      if (snap.empty) {
+        const altEmail = toArabicIndicDigits(email);
+        if (altEmail !== email) {
+          const qAlt = query(
+            collection(db, COLLECTIONS.clients),
+            where("matchEmails", "array-contains", altEmail),
+            limit(1)
+          );
+          snap = await getDocs(qAlt);
+        }
+      }
 
       if (snap.empty) {
         showMsg("مفيش موكل مسجّل بهذا الإيميل. تأكد من الإيميل، أو تواصل مع المكتب لتفعيل حسابك.", "error");
