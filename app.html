@@ -31,9 +31,10 @@
   }
 
   .app-brand{text-align:center; padding-top:6px;}
-  .app-brand img.mark{width:46px;height:46px;margin:0 auto 10px;display:block;filter:drop-shadow(0 0 6px rgba(201,163,95,.35));}
-  .app-brand h1{font-family:var(--f-body);font-size:1.05rem;font-weight:700;color:var(--gold-light);}
-  .app-brand p{font-size:.78rem;color:#9aa3ad;margin-top:2px;letter-spacing:.03em;}
+  .app-brand img.mark{width:92px;height:92px;margin:0 auto 12px;display:block;filter:drop-shadow(0 0 10px rgba(201,163,95,.4));}
+  .app-brand h1{font-family:var(--f-body);font-size:1.15rem;font-weight:700;color:var(--gold-light);}
+  .app-brand .brand-en{font-size:.72rem;color:#c7ccd2;margin-top:3px;letter-spacing:.06em;}
+  .app-brand p{font-size:.78rem;color:#9aa3ad;margin-top:6px;letter-spacing:.03em;}
   .app-brand-rule{height:1px;background:linear-gradient(to left,transparent,var(--gold),transparent);margin-top:14px;}
 
   .install-bar{
@@ -76,7 +77,8 @@
     color:var(--navy-dark);border-radius:14px;padding:15px 16px;
     text-decoration:none;font-weight:800;font-size:.95rem;
   }
-  .client-tile .ico{font-size:1.5rem;}
+  .client-tile .ico{width:26px;height:26px;flex-shrink:0;}
+  .client-tile .ico svg{width:100%;height:100%;color:var(--navy-dark);}
   .client-tile small{display:block;font-weight:600;font-size:.72rem;margin-top:2px;color:#3a2f1c;}
 
   .consult-tile{
@@ -84,21 +86,19 @@
     background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
     color:#fff;border-radius:14px;padding:15px 16px;text-decoration:none;font-weight:700;font-size:.92rem;
   }
-  .consult-tile .ico{font-size:1.4rem;}
+  .consult-tile .ico{width:24px;height:24px;flex-shrink:0;}
+  .consult-tile .ico svg{width:100%;height:100%;color:var(--gold-light);}
   .consult-tile small{display:block;font-weight:500;font-size:.72rem;margin-top:2px;color:#9aa3ad;}
 
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .grid .full{grid-column:1 / -1;}
   .tile{
     background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
-    border-radius:14px;padding:16px 10px;text-align:center;text-decoration:none;color:#fff;
-    display:flex;flex-direction:column;align-items:center;gap:8px;
+    border-radius:14px;padding:18px 10px;text-align:center;text-decoration:none;color:#fff;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
   }
-  .tile .ico{
-    width:42px;height:42px;border-radius:50%;
-    background:linear-gradient(135deg,var(--gold-light),var(--gold));
-    display:flex;align-items:center;justify-content:center;font-size:1.2rem;
-  }
+  .tile .ico{width:34px;height:34px;}
+  .tile .ico svg{width:100%;height:100%;color:var(--gold-light);}
   .tile span{font-size:.82rem;font-weight:700;word-spacing:.2em;}
 
   .contact-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
@@ -107,8 +107,9 @@
     border-radius:12px;padding:12px 6px;text-align:center;text-decoration:none;color:#fff;
     font-size:.78rem;font-weight:700;display:flex;flex-direction:column;gap:6px;align-items:center;
   }
-  .contact-row .ico{font-size:1.2rem;}
-  .contact-row a.whatsapp .ico{color:#25D366;}
+  .contact-row .ico{width:22px;height:22px;}
+  .contact-row .ico svg{width:100%;height:100%;color:var(--gold-light);}
+  .contact-row a.whatsapp .ico svg{color:#25D366;}
 
   footer.app-footer{text-align:center;font-size:.72rem;color:#6b7480;margin-top:4px;}
 </style>
@@ -120,6 +121,7 @@
   <div class="app-brand">
     <img class="mark" src="assets/images/logo.png" alt="شعار المؤسسة">
     <h1>مؤسسة د. حسن عبد المنعم حسن</h1>
+    <p class="brand-en">Hassan Abdel Moniem Law Firm (HAMLF)</p>
     <p>للمحاماة أمام النقض والإدارية العليا والدستورية</p>
     <div class="app-brand-rule"></div>
   </div>
@@ -135,7 +137,7 @@
 
   <div class="app-hero">
     <div class="app-photo-wrap">
-      <img class="app-photo" src="assets/images/hassan-portrait.jpg" alt="د. حسن عبد المنعم حسن">
+      <img class="app-photo" src="assets/images/hassan-portrait-app.jpg" alt="د. حسن عبد المنعم حسن">
     </div>
     <div class="app-hero-text">
       <h2>أهلاً بيك</h2>
@@ -146,7 +148,7 @@
   <div>
     <div class="section-label" style="margin-bottom:10px;">لو موكل عندنا بالفعل</div>
     <a class="client-tile" href="portal/index.html">
-      <span class="ico">📁</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h5l2 2h11v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7z"/></svg></span>
       <span>قضاياي<small>ادخل بإيميلك وتابع كل قضاياك وجلساتك أول بأول</small></span>
     </a>
   </div>
@@ -154,7 +156,7 @@
   <div>
     <div class="section-label" style="margin-bottom:10px;">لسه مش موكل عندنا؟</div>
     <a class="consult-tile" href="consult.html">
-      <span class="ico">💬</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-4.97 0-9 3.13-9 7 0 2.24 1.36 4.24 3.5 5.53L5 21l4.2-2.02c.9.2 1.84.31 2.8.31 4.97 0 9-3.13 9-7s-4.03-7-9-7z"/></svg></span>
       <span>اطلب استشارة قانونية<small>ابعتلنا تفاصيل قضيتك وهنرد عليك في أقرب وقت</small></span>
     </a>
   </div>
@@ -162,20 +164,20 @@
   <div>
     <div class="section-label" style="margin-bottom:10px;">مجالات عملنا</div>
     <div class="grid">
-      <a class="tile" href="practice-areas.html"><span class="ico">⚖️</span><span>قضايا مدنية</span></a>
-      <a class="tile" href="services/criminal.html"><span class="ico">🛡️</span><span>قضايا جنائية</span></a>
-      <a class="tile" href="services/corporate.html"><span class="ico">🏢</span><span>قضايا شركات</span></a>
-      <a class="tile" href="services/inheritance.html"><span class="ico">👪</span><span>أحوال شخصية</span></a>
-      <a class="tile full" href="services/naqd.html"><span class="ico">🏛️</span><span>الطعن بالنقض والإدارية العليا والدستورية</span></a>
+      <a class="tile" href="practice-areas.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16"/><path d="M5 21V10M9 21V10M15 21V10M19 21V10"/><path d="M3 10l9-6 9 6"/><path d="M3 10h18"/></svg></span><span>قضايا مدنية</span></a>
+      <a class="tile" href="services/criminal.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="9" r="3.2"/><circle cx="17" cy="15" r="3.2"/><path d="M9.3 9h5.4M9 11.8l1.6 1.6M14.7 12.3l1.6-1.6M9.8 6.2L8 4.4M14.2 17.8L16 19.6"/></svg></span><span>قضايا جنائية</span></a>
+      <a class="tile" href="services/corporate.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="1.5"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/><path d="M10.5 13v2h3v-2"/></svg></span><span>قضايا شركات</span></a>
+      <a class="tile" href="services/inheritance.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2.4"/><circle cx="16" cy="8" r="2.4"/><circle cx="12" cy="6.5" r="2"/><path d="M2.5 20c0-3 2.4-5 5.5-5s5.5 2 5.5 5"/><path d="M10.5 20c0-2.6 2-4.6 4.6-4.6s4.6 2 4.6 4.6"/><path d="M8.7 12.8c1-.6 2.1-.9 3.3-.9s2.3.3 3.3.9"/></svg></span><span>أحوال شخصية</span></a>
+      <a class="tile full" href="services/naqd.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M9 21h6M12 3L6 6.5M12 3l6 3.5"/><path d="M3 7h6M15 7h6"/><path d="M3 7l-2.2 5C1.3 13.4 2.9 14.6 6 14.6S10.7 13.4 10.2 12L8 7"/><path d="M21 7l-2.2 5c-.5 1.4 1.1 2.6 4.2 2.6"/></svg></span><span>الطعن بالنقض والإدارية العليا والدستورية</span></a>
     </div>
   </div>
 
   <div>
     <div class="section-label" style="margin-bottom:10px;">تواصل معنا</div>
     <div class="contact-row">
-      <a href="tel:+201208555806"><span class="ico">📞</span>اتصل بنا</a>
-      <a class="whatsapp" href="https://wa.me/201208555806?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%B9%D8%A7%D9%88%D8%B2%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%B1%20%D8%B9%D9%86..."><span class="ico">💚</span>واتساب</a>
-      <a href="mailto:info.hamlf@gmail.com"><span class="ico">✉️</span>إيميل</a>
+      <a href="tel:+201208555806"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5c0-.6.5-1 1-1H8c.5 0 1 .4 1.1 1 .2 1.3.6 2.6 1.1 3.8.2.4.1.9-.2 1.2L8.6 10.9c1.2 2.6 3.3 4.7 5.9 5.9l1.4-1.4c.3-.3.8-.4 1.2-.2 1.2.5 2.5.9 3.8 1.1.6.1 1 .6 1 1.1v2.5c0 .6-.4 1-1 1C11.9 20.9 3.1 12.1 3.1 5c0-.2 0-.3.1-.5"/></svg></span>اتصل بنا</a>
+      <a class="whatsapp" href="https://wa.me/201208555806?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%B9%D8%A7%D9%88%D8%B2%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%B1%20%D8%B9%D9%86..."><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.6 1.4 5.1L2 22l5.1-1.3c1.4.8 3.1 1.2 4.9 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm5.8 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.2.1-1.9-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5.1-4.5-.1-.2-1.2-1.6-1.2-3.1s.8-2.2 1.1-2.5c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .6.5.2.5.8 1.9.8 2 .1.2.1.3 0 .5-.1.2-.1.3-.3.5-.1.2-.3.4-.4.5-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.5 1.6.3.1.5.1.6-.1.2-.2.7-.8.9-1.1.2-.3.4-.2.6-.1.2.1 1.6.7 1.8.9.2.1.4.2.5.3.1.2.1.9-.1 1.5z"/></svg></span>واتساب</a>
+      <a href="mailto:info.hamlf@gmail.com"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span>إيميل</a>
     </div>
   </div>
 
