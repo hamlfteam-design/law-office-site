@@ -5,17 +5,17 @@ body{top:0px !important;}
 
 @font-face{
   font-family:'SF Sultan';
-  src:url('../assets/fonts/Sultan-Display.ttf') format('truetype');
+  src:url('assets/fonts/Sultan-Display.ttf') format('truetype');
   font-weight:400;font-style:normal;font-display:swap;
 }
 @font-face{
   font-family:'SF Sultan';
-  src:url('../assets/fonts/Sultan-Black.ttf') format('truetype');
+  src:url('assets/fonts/Sultan-Black.ttf') format('truetype');
   font-weight:900;font-style:normal;font-display:swap;
 }
 @font-face{
   font-family:'SF-Mada';
-  src:url('../assets/fonts/SF-Mada-Bold.ttf') format('truetype');
+  src:url('assets/fonts/SF-Mada-Bold.ttf') format('truetype');
   font-weight:700;font-style:normal;font-display:swap;
 }
 
