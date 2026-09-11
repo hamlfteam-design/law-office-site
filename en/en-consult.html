@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Online Legal Consultation | Hassan Abdelmoneim Hassan Law Firm</title>
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/icons/apple-touch-icon.png?v=2">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:var(--f-body);
+    background:linear-gradient(180deg,var(--navy) 0%,var(--navy-dark) 100%);
+    color:#fff;min-height:100vh;display:flex;justify-content:center;
+    line-height:normal;direction:ltr;
+  }
+  h1{font-family:var(--f-label);}
+  .wrap{width:100%;max-width:480px;padding:20px 18px calc(30px + env(safe-area-inset-bottom));}
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--gold-light);text-decoration:none;font-size:.85rem;font-weight:700;margin-bottom:16px;}
+  h1{font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:6px;}
+  .sub{font-size:.85rem;color:#9aa3ad;margin-bottom:22px;line-height:1.7;}
+
+  form{display:flex;flex-direction:column;gap:14px;}
+  label{font-size:.82rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;display:block;}
+  input,select,textarea{
+    width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+    border-radius:10px;padding:12px 14px;color:#fff;font-family:inherit;font-size:.9rem;
+  }
+  input::placeholder,textarea::placeholder{color:#6b7480;}
+  textarea{min-height:110px;resize:vertical;}
+  select{appearance:none;}
+  select option{background:#141414;color:#fff;}
+
+  .method-choice{display:flex;gap:10px;margin-top:4px;}
+  .method-choice label{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;
+    padding:11px 8px;font-size:.82rem;font-weight:700;color:#fff;cursor:pointer;margin:0;
+  }
+  .method-choice input{width:auto;accent-color:var(--gold);}
+
+  .submit-btn{
+    margin-top:6px;background:linear-gradient(135deg,var(--gold-light),var(--gold));
+    color:var(--navy-dark);border:none;border-radius:12px;padding:15px;
+    font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;
+  }
+  .note{font-size:.74rem;color:#6b7480;text-align:center;margin-top:12px;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="app.html">← Back</a>
+  <h1>Online Legal Consultation</h1>
+  <p class="sub">Tell us about your inquiry or case, and we'll get back to you as soon as possible. Your message will be sent directly to our office WhatsApp or email, based on your choice.</p>
+
+  <form id="consultForm">
+    <div>
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Your full name" required>
+    </div>
+    <div>
+      <label for="phone">Mobile Number</label>
+      <input type="tel" id="phone" placeholder="With country code" required>
+    </div>
+    <div>
+      <label for="subject">Type of Consultation</label>
+      <select id="subject">
+        <option>Civil Cases</option>
+        <option>Criminal Cases</option>
+        <option>Corporate Cases</option>
+        <option>Personal Status</option>
+        <option>Court of Cassation / Supreme Administrative / Constitutional Court</option>
+        <option>Other Inquiry</option>
+      </select>
+    </div>
+    <div>
+      <label for="message">Consultation Details</label>
+      <textarea id="message" placeholder="Briefly describe your matter..." required></textarea>
+    </div>
+
+    <div>
+      <label>How should we reach you?</label>
+      <div class="method-choice">
+        <label><input type="radio" name="method" value="whatsapp" checked> WhatsApp</label>
+        <label><input type="radio" name="method" value="email"> Email</label>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Send Consultation Request</button>
+    <p class="note">This will open WhatsApp or your email app with a ready-made message — you can review it and add details before sending.</p>
+  </form>
+</div>
+
+<script>
+  const OFFICE_PHONE = "201208555806";
+  const OFFICE_EMAIL = "info.hamlf@gmail.com";
+
+  document.getElementById("consultForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const subject = document.getElementById("subject").value;
+    const message = document.getElementById("message").value.trim();
+    const method = document.querySelector('input[name="method"]:checked').value;
+
+    const bodyText =
+      `Legal consultation request from the firm's website\n` +
+      `Name: ${name}\n` +
+      `Mobile number: ${phone}\n` +
+      `Type of consultation: ${subject}\n` +
+      `Details: ${message}`;
+
+    if (method === "whatsapp") {
+      const url = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
+      window.location.href = url;
+    } else {
+      const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("Legal Consultation Request - " + subject)}&body=${encodeURIComponent(bodyText)}`;
+      window.location.href = mailUrl;
+    }
+  });
+</script>
+</body>
+</html>
