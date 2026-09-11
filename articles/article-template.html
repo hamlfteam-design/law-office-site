@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+     قالب مقال/بحث جديد — طريقة الاستخدام:
+     1. غيّر عنوان الصفحة (Title) والوصف (Meta Description) تحت
+     2. غيّر العنوان في مكانين: قسم "العنوان الرئيسي" وقسم "عنوان الطباعة"
+     3. غيّر التصنيف (فئة المقال) والتاريخ لو حبيت
+     4. احذف الفقرات التجريبية واكتب محتوى المقال/البحث الفعلي
+        (تقدر تستخدم h2 للعناوين الفرعية زي الأمثلة الموجودة)
+     5. سيب باقي الصفحة (الهيدر، الفوتر، الترويسة) زي ما هي —
+        دي بتتظبط تلقائيًا وتظهر بشكل صحيح في الطباعة/PDF
+     ============================================================ -->
+
+<title>[عنوان المقال أو البحث هنا] | مقالات | مؤسسة د. حسن عبد المنعم حسن</title>
+<meta name="description" content="[وصف مختصر للمقال أو البحث في سطر أو اتنين]">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="google_translate_element"></div>
+
+<header class="site-header no-print">
+  <div class="container header-inner">
+    <div class="brand">
+      <a href="../index.html#home"><img src="../assets/images/logo.png" alt="شعار مؤسسة د. حسن عبد المنعم حسن" class="brand-logo"></a>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav" id="mainNav">
+      <a href="../index.html#home">الرئيسية</a>
+      <a href="../index.html#about">من نحن</a>
+      <a href="../index.html#services">خدماتنا</a>
+      <a href="../practice-areas.html">كل التخصصات</a>
+      <a href="../index.html#team">فريق المكتب</a>
+      <a href="index.html">مقالات</a>
+      <a href="../index.html#contact">تواصل معنا</a>
+      <a href="../portal/index.html">بوابة الموكلين</a>
+      <a href="../en/index.html" class="lang-switch">English</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ترويسة المكتب — تظهر فقط عند الطباعة/حفظ PDF، مش وقت التصفح العادي -->
+<div class="print-letterhead">
+  <img src="../assets/images/letterhead-print-header.png" alt="ترويسة مؤسسة د. حسن عبد المنعم حسن">
+</div>
+
+<section class="lp-hero no-print">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">الرئيسية</a> / <a href="index.html">مقالات</a> / [عنوان المقال]</div>
+    <h1>[عنوان المقال أو البحث — نفس العنوان اللي في الأعلى]</h1>
+    <p class="article-byline">بقلم د. حسن عبد المنعم حسن — محامي نقض، القاهرة</p>
+  </div>
+</section>
+
+<div class="container">
+<div class="lp-body article-body">
+
+  <!-- ده العنوان اللي بيظهر فوق الترويسة وقت الطباعة/PDF بس -->
+  <h1 class="print-only-title">[عنوان المقال أو البحث — نفس العنوان]</h1>
+
+  <button class="btn-outline no-print print-btn" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
+
+  <p>
+    [فقرة المقدمة — اشرح موضوع المقال أو البحث في سطرين تلاتة، وليه هو مهم للقارئ.]
+  </p>
+
+  <h2>[عنوان فرعي أول]</h2>
+  <p>
+    [محتوى الجزء الأول من المقال هنا.]
+  </p>
+
+  <h2>[عنوان فرعي تاني]</h2>
+  <p>
+    [محتوى الجزء الثاني من المقال هنا.]
+  </p>
+
+  <div class="lp-note">
+    [ملحوظة أو قاعدة عملية مهمة تحب تبرزها بشكل مميز — اختياري، احذف القسم ده لو مش محتاجه.]
+  </div>
+
+  <h2>الخلاصة</h2>
+  <p>
+    [فقرة ختامية تلخّص أهم نقطة يخرج بيها القارئ.]
+  </p>
+
+  <div class="lp-cta no-print" id="contact-cta">
+    <h3>عندك سؤال عن الموضوع ده؟</h3>
+    <p>ابعتلنا تفاصيل حالتك على الواتساب أو الإيميل، ونوضحلك الخطوة الصحيحة.</p>
+    <a href="../index.html#contact" class="btn-primary">تواصل معنا الآن</a>
+  </div>
+
+  <p class="disclaimer">هذا المقال معلومة عامة لأغراض التوعية القانونية، ولا يُغني عن استشارة قانونية لحالتك الخاصة.</p>
+</div>
+</div>
+
+<footer class="site-footer no-print">
+  <div class="container">
+    <p>© <span id="year"></span> مؤسسة د. حسن عبد المنعم حسن — محامون ومستشارون. جميع الحقوق محفوظة.</p>
+    <a href="https://www.facebook.com/info.hamlf" target="_blank" rel="noopener" class="fb-link">صفحتنا على فيسبوك</a>
+  </div>
+</footer>
+
+<script src="../js/translate.js"></script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="../js/script.js"></script>
+</body>
+</html>
