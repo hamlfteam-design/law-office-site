@@ -1,9 +1,9 @@
 // Service Worker بسيط لتطبيق مؤسسة د. حسن عبد المنعم حسن
-// الهدف: تخزين الصفحة الرئيسية والأصول الأساسية عشان التطبيق يفتح بسرعة
-// ويشتغل حتى لو الاتصال بالإنترنت ضعيف — مش بديل عن الاتصال (البوابة
-// والفورمات محتاجة إنترنت فعلي)، هو بس Cache للواجهة.
+// الاستراتيجية: "الشبكة أولاً" (network-first) للصفحات — يعني أي تحديث
+// جديد للموقع بيظهر فورًا لأي زائر، ومفيش تخزين قديم بيتعارض مع التحديثات.
+// الكاش بيتستخدم بس لو النت مقطوع تمامًا (احتياطي، مش المصدر الأساسي).
 
-const CACHE_NAME = "hamlf-app-v1";
+const CACHE_NAME = "hamlf-app-v2"; // غيّر الرقم ده في أي تحديث مستقبلي عشان يجبر تفريغ الكاش القديم
 const APP_SHELL = [
   "./app.html",
   "./index.html",
@@ -32,17 +32,14 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
