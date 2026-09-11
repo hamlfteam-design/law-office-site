@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>استشارة قانونية أونلاين | مؤسسة د. حسن عبد المنعم حسن</title>
-<link rel="manifest" href="manifest.json">
+<title>Online Legal Consultation | Hassan Abdelmoneim Hassan Law Firm</title>
+<link rel="manifest" href="../manifest.json">
 <meta name="theme-color" content="#0a0a0a">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png?v=2">
-<link rel="stylesheet" href="css/style.css">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/icons/apple-touch-icon.png?v=2">
+<link rel="stylesheet" href="../css/style.css">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
     font-family:var(--f-body);
     background:linear-gradient(180deg,var(--navy) 0%,var(--navy-dark) 100%);
     color:#fff;min-height:100vh;display:flex;justify-content:center;
-    line-height:normal;
+    line-height:normal;direction:ltr;
   }
   h1{font-family:var(--f-label);}
   .wrap{width:100%;max-width:480px;padding:20px 18px calc(30px + env(safe-area-inset-bottom));}
@@ -51,46 +51,45 @@
 </head>
 <body>
 <div class="wrap">
-  <a class="back" href="app.html">→ رجوع</a>
-  <a href="en/consult.html" style="float:left;font-size:.78rem;color:var(--gold-light);text-decoration:underline;">English</a>
-  <h1>استشارة قانونية أونلاين</h1>
-  <p class="sub">اكتب تفاصيل استفسارك أو قضيتك، وهنرد عليك في أقرب وقت. الرسالة هتتبعت مباشرة على واتساب أو إيميل المكتب حسب اختيارك.</p>
+  <a class="back" href="app.html">← Back</a>
+  <h1>Online Legal Consultation</h1>
+  <p class="sub">Tell us about your inquiry or case, and we'll get back to you as soon as possible. Your message will be sent directly to our office WhatsApp or email, based on your choice.</p>
 
   <form id="consultForm">
     <div>
-      <label for="name">الاسم</label>
-      <input type="text" id="name" placeholder="اسمك بالكامل" required>
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Your full name" required>
     </div>
     <div>
-      <label for="phone">رقم الموبايل</label>
-      <input type="tel" id="phone" placeholder="01xxxxxxxxx" required>
+      <label for="phone">Mobile Number</label>
+      <input type="tel" id="phone" placeholder="With country code" required>
     </div>
     <div>
-      <label for="subject">نوع الاستشارة</label>
+      <label for="subject">Type of Consultation</label>
       <select id="subject">
-        <option>قضايا مدنية</option>
-        <option>قضايا جنائية</option>
-        <option>قضايا شركات</option>
-        <option>أحوال شخصية</option>
-        <option>الطعن بالنقض / الإدارية العليا / الدستورية</option>
-        <option>استفسار آخر</option>
+        <option>Civil Cases</option>
+        <option>Criminal Cases</option>
+        <option>Corporate Cases</option>
+        <option>Personal Status</option>
+        <option>Court of Cassation / Supreme Administrative / Constitutional Court</option>
+        <option>Other Inquiry</option>
       </select>
     </div>
     <div>
-      <label for="message">تفاصيل الاستشارة</label>
-      <textarea id="message" placeholder="اشرح موضوع الاستشارة باختصار..." required></textarea>
+      <label for="message">Consultation Details</label>
+      <textarea id="message" placeholder="Briefly describe your matter..." required></textarea>
     </div>
 
     <div>
-      <label>هتوصلنا إزاي؟</label>
+      <label>How should we reach you?</label>
       <div class="method-choice">
-        <label><input type="radio" name="method" value="whatsapp" checked> واتساب</label>
-        <label><input type="radio" name="method" value="email"> إيميل</label>
+        <label><input type="radio" name="method" value="whatsapp" checked> WhatsApp</label>
+        <label><input type="radio" name="method" value="email"> Email</label>
       </div>
     </div>
 
-    <button type="submit" class="submit-btn">إرسال الاستشارة</button>
-    <p class="note">هيفتحلك واتساب أو برنامج الإيميل عندك برسالة جاهزة — تقدر تراجعها وتضيف تفاصيل قبل الإرسال.</p>
+    <button type="submit" class="submit-btn">Send Consultation Request</button>
+    <p class="note">This will open WhatsApp or your email app with a ready-made message — you can review it and add details before sending.</p>
   </form>
 </div>
 
@@ -107,17 +106,17 @@
     const method = document.querySelector('input[name="method"]:checked').value;
 
     const bodyText =
-      `طلب استشارة قانونية من موقع المؤسسة\n` +
-      `الاسم: ${name}\n` +
-      `رقم الموبايل: ${phone}\n` +
-      `نوع الاستشارة: ${subject}\n` +
-      `التفاصيل: ${message}`;
+      `Legal consultation request from the firm's website\n` +
+      `Name: ${name}\n` +
+      `Mobile number: ${phone}\n` +
+      `Type of consultation: ${subject}\n` +
+      `Details: ${message}`;
 
     if (method === "whatsapp") {
       const url = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
       window.location.href = url;
     } else {
-      const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("طلب استشارة قانونية - " + subject)}&body=${encodeURIComponent(bodyText)}`;
+      const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("Legal Consultation Request - " + subject)}&body=${encodeURIComponent(bodyText)}`;
       window.location.href = mailUrl;
     }
   });
