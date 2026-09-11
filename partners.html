@@ -69,6 +69,15 @@
     font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;
   }
   .p-inquiry .note{font-size:.74rem;color:#8a939c;text-align:center;margin-top:10px;line-height:1.7;}
+
+  .p-badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:26px;}
+  .p-badge{background:rgba(255,255,255,.06);border:1px solid rgba(201,163,95,.35);border-radius:10px;padding:14px 12px;text-align:center;}
+  .p-badge .b-ico{font-size:1.2rem;display:block;margin-bottom:6px;}
+  .p-badge .b-txt{color:var(--gold-light);font-size:.8rem;font-weight:700;line-height:1.5;}
+
+  .p-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:20px 0 40px;}
+  .p-gallery img{width:100%;height:170px;object-fit:cover;border-radius:12px;border:1px solid #e7e4dd;display:block;}
+  .p-gallery-caption{color:var(--muted);font-size:.88rem;line-height:1.7;margin-bottom:16px;}
 </style>
 </head>
 <body>
@@ -104,6 +113,12 @@
     <div class="breadcrumb"><a href="index.html">الرئيسية</a> / التعاون القانوني الدولي</div>
     <h1>شريككم القانوني الموثوق داخل مصر</h1>
     <p>لمكاتب المحاماة العربية والدولية اللي عندها عملاء محتاجين تمثيل قانوني داخل مصر — من التوكيلات والميراث، للتقاضي وتنفيذ الأحكام الأجنبية. مؤسسة د. حسن عبد المنعم حسن (HAMLF) بتقدّم شراكة قانونية حقيقية، مش مجرد إحالة عابرة.</p>
+    <div class="p-badges">
+      <div class="p-badge"><span class="b-ico">⏱️</span><span class="b-txt">رد أولي خلال 24 ساعة على أي استفسار</span></div>
+      <div class="p-badge"><span class="b-ico">🗣️</span><span class="b-txt">تواصل بالعربية والإنجليزية</span></div>
+      <div class="p-badge"><span class="b-ico">📄</span><span class="b-txt">تقارير دورية مكتوبة لكل ملف</span></div>
+      <div class="p-badge"><span class="b-ico">🔒</span><span class="b-txt">اتفاق تعاون واضح قبل أي عمل</span></div>
+    </div>
   </div>
 </section>
 
@@ -132,6 +147,15 @@
       <h4>تواصل مباشر وشفاف</h4>
       <p>نقطة تواصل واحدة مباشرة معانا، ومتابعة دورية لكل ملف محال، من غير وسطاء أو تعقيد.</p>
     </div>
+  </div>
+
+  <h2>نشاطنا التدريبي والمحاضرات القانونية</h2>
+  <p class="p-gallery-caption">د. حسن عبد المنعم حسن بيقدّم بانتظام محاضرات وورش تدريبية للمحامين في مصر — نشاط مستمر بيعكس خبرة عملية حقيقية، مش مجرد ممارسة مكتبية.</p>
+  <div class="p-gallery">
+    <img src="assets/images/activities/lecture-1.jpg" alt="محاضرة قانونية لجمهور من المحامين">
+    <img src="assets/images/activities/lecture-2.jpg" alt="ورشة تدريبية للمحامين">
+    <img src="assets/images/activities/lecture-3.jpg" alt="فعالية قانونية بحضور جمهور من المحامين تحت علم مصر">
+    <img src="assets/images/activities/lecture-4.jpg" alt="جلسة نقاش قانوني مع المحامين">
   </div>
 
   <h2>أشكال التعاون المتاحة</h2>
