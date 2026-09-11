@@ -352,17 +352,16 @@ a.card{cursor:pointer;}
 /* ترويسة الطباعة — مخفية في الشاشة، تظهر فقط عند الطباعة */
 .print-letterhead{display:none;}
 
+@page{margin:1.5cm;}
 @media print{
   .no-print, .site-header, .site-footer, #google_translate_element,
   .goog-te-banner-frame, .skiptranslate{display:none !important;}
-  body{direction:rtl;background:#fff;}
+  body{direction:rtl;background:#fff;margin:0;}
   .print-letterhead{
-    display:flex;align-items:center;gap:16px;
-    border-bottom:3px solid #0d2a3d;padding-bottom:14px;margin-bottom:24px;
+    display:block;margin:0 0 20px;
   }
-  .print-letterhead-logo{height:64px;width:auto;}
-  .print-letterhead-text{display:flex;flex-direction:column;gap:3px;font-size:.85rem;line-height:1.6;}
-  .print-letterhead-text strong{font-size:1.05rem;}
+  .print-letterhead img{width:100%;height:auto;display:block;}
+  .print-letterhead-logo,.print-letterhead-text{display:none !important;}
   .print-only-title{display:block !important;margin-bottom:16px;font-size:1.4rem;}
   .article-body{max-width:100%;}
   .lp-cta{display:none !important;}
