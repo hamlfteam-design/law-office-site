@@ -238,12 +238,7 @@ a.card{cursor:pointer;}
   border-radius:var(--radius);
   padding:24px;text-align:center;
 }
-.team-photo{
-  width:96px;height:96px;border-radius:50%;
-  background:linear-gradient(135deg,var(--gold-light),var(--gold));
-  background-size:cover;background-position:top center;
-  margin:0 auto 16px;
-}
+.team-photo{width:100%;aspect-ratio:4/5;border-radius:var(--radius);background-color:#f1ece0;background-size:contain;background-repeat:no-repeat;background-position:center;margin:0 auto 16px;}
 .pricing-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.92rem;}
 .pricing-table th,.pricing-table td{border:1px solid #e7e4dd;padding:10px 12px;text-align:center;}
 .pricing-table th{background:var(--navy);color:var(--gold-light);font-weight:700;}
