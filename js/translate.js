@@ -1,7 +1,8 @@
 // ============================================================
-// ترجمة تلقائية للموقع بالكامل (Google Website Translator)
-// لو الزائر متصفحه بالإنجليزي، الموقع بيتحول تلقائياً للإنجليزي
-// (بما فيها المقالات) من غير أي تدخل يدوي.
+// ترجمة اختيارية للموقع (Google Website Translator)
+// اللغة العربية هي اللغة الأساسية والثابتة للموقع دايماً.
+// الموقع مبيبدّلش اللغة تلقائياً على حسب لغة المتصفح — الترجمة
+// بتحصل بس لما الزائر يضغط بنفسه على زرار EN في الهيدر.
 // ============================================================
 
 function googleTranslateElementInit() {
@@ -16,19 +17,24 @@ function googleTranslateElementInit() {
   );
 }
 
+// ============================================================
+// تصحيح لزوار قدامى اتأثروا بمشكلة قديمة كانت بتبدّل اللغة تلقائياً:
+// لو لقينا كوكي googtrans=/ar/en من غير أي طلب صريح من المستخدم
+// دلوقتي، بنشيله ونرجّع الصفحة عربي (مرة واحدة بس لكل جلسة).
+// ============================================================
 (function () {
   try {
-    var wantsEnglish =
-      navigator.language && navigator.language.toLowerCase().indexOf("en") === 0;
-    var hasCookie = document.cookie.indexOf("googtrans") !== -1;
-    var alreadyTried = sessionStorage.getItem("hamlfTranslateAttempted");
-    if (wantsEnglish && !hasCookie && !alreadyTried) {
-      sessionStorage.setItem("hamlfTranslateAttempted", "1");
-      document.cookie = "googtrans=/ar/en; path=/";
+    var hasOldAutoCookie = document.cookie.indexOf("googtrans=/ar/en") !== -1;
+    var alreadyReset = sessionStorage.getItem("hamlfArResetDone");
+    if (hasOldAutoCookie && !alreadyReset) {
+      sessionStorage.setItem("hamlfArResetDone", "1");
+      document.cookie = "googtrans=/ar/ar; path=/";
+      document.cookie =
+        "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       location.reload();
     }
   } catch (e) {
-    /* تجاهل — الترجمة التلقائية ميزة إضافية، لو فشلت الموقع يفضل شغال بالعربي عادي */
+    /* تجاهل */
   }
 })();
 
