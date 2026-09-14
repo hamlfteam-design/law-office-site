@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../css/style.css">
 <style>
   .portal-wrap{max-width:440px;margin:60px auto;padding:0 20px;}
   .portal-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:32px 28px;box-shadow:0 10px 30px rgba(15,36,56,.06);}
@@ -132,28 +132,13 @@
     clearMsg();
   }
 
-  // ---------- تطبيع الأرقام العربية/الفارسية لإنجليزية (نفس منطق تطبيق الموبايل) ----------
-  function laDigits(str) {
-    const arabicIndic = "٠١٢٣٤٥٦٧٨٩";
-    const persian = "۰۱۲۳۴۵۶۷۸۹";
-    return String(str).replace(/[٠-٩۰-۹]/g, (d) => {
-      let i = arabicIndic.indexOf(d);
-      if (i === -1) i = persian.indexOf(d);
-      return i !== -1 ? String(i) : d;
-    });
-  }
-  function toArabicIndicDigits(str) {
-    const arabicIndic = "٠١٢٣٤٥٦٧٨٩";
-    return String(str).replace(/[0-9]/g, (d) => arabicIndic[+d]);
-  }
-
   let currentEmail = "";
   let currentClientDocId = "";
+
   // ---------- الخطوة 1: اكتب الإيميل ----------
   document.getElementById("emailForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const rawEmail = document.getElementById("checkEmail").value.trim().toLowerCase();
-    const email = laDigits(rawEmail);
+    const email = document.getElementById("checkEmail").value.trim().toLowerCase();
     if (!email) return;
     clearMsg();
 
@@ -165,21 +150,7 @@
         where("matchEmails", "array-contains", email),
         limit(1)
       );
-      let snap = await getDocs(q);
-
-      // احتياطاً: لو مفيش نتيجة، جرّب نفس الإيميل بس بأرقام عربية
-      // (في حالة إن الإيميل اتسجل قديماً بأرقام عربية في بيانات الموكل)
-      if (snap.empty) {
-        const altEmail = toArabicIndicDigits(email);
-        if (altEmail !== email) {
-          const qAlt = query(
-            collection(db, COLLECTIONS.clients),
-            where("matchEmails", "array-contains", altEmail),
-            limit(1)
-          );
-          snap = await getDocs(qAlt);
-        }
-      }
+      const snap = await getDocs(q);
 
       if (snap.empty) {
         showMsg("مفيش موكل مسجّل بهذا الإيميل. تأكد من الإيميل، أو تواصل مع المكتب لتفعيل حسابك.", "error");
@@ -235,17 +206,37 @@
       return;
     }
     try {
-      const cred = await createUserWithEmailAndPassword(auth, currentEmail, p1);
-      // نسجّل uid المستخدم الجديد على وثيقة الموكل نفسها (clientUid)
-      // — ده اللي "بيربط" الحساب بسجل القضايا بتاعه بشكل دائم.
-      // يتطلب Firestore Rule تسمح بالتحديث ده تحديداً (شرحها في README).
+      let cred;
+      try {
+        cred = await createUserWithEmailAndPassword(auth, currentEmail, p1);
+      } catch (createErr) {
+        if (createErr.code === "auth/email-already-in-use") {
+          // في الغالب محاولة سابقة أنشأت الحساب لكن فشل ربطه بملف القضية
+          // (مثلاً بسبب انقطاع الاتصال) — لو نفس كلمة السر دي هي اللي
+          // اتسجّلت وقتها، الدخول بيها هينجح ونكمّل الربط من هنا بدل ما
+          // نوقف المستخدم بخطأ عام لا يفسّر له حاجة.
+          try {
+            cred = await signInWithEmailAndPassword(auth, currentEmail, p1);
+          } catch (signInErr) {
+            showMsg("عندك حساب مسجَّل بالفعل بهذا البريد بكلمة سر مختلفة — " +
+              "جرّب كلمة السر اللي استخدمتها قبل كده، أو دوس \"نسيت كلمة السر\" " +
+              "من شاشة الدخول.", "error");
+            return;
+          }
+        } else {
+          throw createErr;
+        }
+      }
+      // نسجّل uid المستخدم على وثيقة الموكل نفسها (clientUid) — ده اللي
+      // "بيربط" الحساب بسجل القضايا بتاعه بشكل دائم. يتطلب Firestore Rule
+      // تسمح بالتحديث ده تحديداً (شرحها في README).
       try {
         await updateDoc(doc(db, COLLECTIONS.clients, currentClientDocId), {
           clientUid: cred.user.uid,
         });
       } catch (linkErr) {
         console.error("clientUid link failed:", linkErr);
-        showMsg("تم إنشاء الحساب لكن حصل خطأ في ربطه بملف قضيتك — تواصل مع المكتب.", "error");
+        showMsg("تم تسجيل الدخول لكن حصل خطأ في ربطه بملف قضيتك — تواصل مع المكتب.", "error");
         return;
       }
       window.location.href = "dashboard.html";
