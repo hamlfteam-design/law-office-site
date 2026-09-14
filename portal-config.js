@@ -49,3 +49,13 @@ export const COLLECTIONS = {
   clients: `offices/${OFFICE_ID}/records/clients/items`,
   cases: `offices/${OFFICE_ID}/records/cases/items`,
 };
+
+// ============================================================
+// رابط "الوسيط" (Google Apps Script Web App) اللي بيوصّل بوابة
+// الموكلين بمستندات القضايا المخزّنة في Google Drive الخاص بالمكتب،
+// من غير ما نكشف أي مفتاح سري في كود الموقع. الوسيط بيتحقق من
+// idToken بتاع فايربيز قبل ما يورّي أي ملف — شرح كامل في
+// README (قسم "مستندات القضايا / Google Drive").
+// ============================================================
+export const DRIVE_BROKER_URL =
+  "https://script.google.com/macros/s/AKfycbyS9zKaFp9CXINT_KGDWwIJ9H1fb_wKXMm1uZgFBNMnqcHeh1W5V6Cak0qPMwanHIVepA/exec";
