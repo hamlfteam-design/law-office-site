@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>تطبيق المكتب الداخلي — للمحامين والفريق</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="style.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--f-body);
+    background:linear-gradient(180deg,var(--navy) 0%,var(--navy-dark) 100%);
+    color:#fff; min-height:100vh;
+    display:flex; justify-content:center;
+  }
+  .shell{width:100%;max-width:480px;min-height:100vh;
+    padding:30px 20px calc(30px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:20px;}
+  h1{font-family:var(--f-label);font-size:1.15rem;color:var(--gold-light);text-align:center;}
+  p.sub{font-size:.85rem;color:#9aa3ad;text-align:center;line-height:1.8;}
+  .card{background:#1d1d1d;border:1px solid var(--gold);border-radius:16px;padding:20px;}
+  .fld{margin-bottom:14px;}
+  .fld label{display:block;font-size:.8rem;color:#9aa3ad;margin-bottom:6px;}
+  .fld input{width:100%;min-height:46px;padding:0 12px;border-radius:9px;
+    border:1px solid #333;background:#141414;color:#fff;font-family:inherit;
+    font-size:.95rem;direction:ltr;text-align:right;box-sizing:border-box;}
+  .fld input[dir="rtl"]{direction:rtl;text-align:right;}
+  .btn{width:100%;min-height:48px;border:none;border-radius:10px;
+    font-family:var(--f-label);font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn-gold{background:var(--gold);color:var(--navy-dark);}
+  .btn-gold:hover{background:var(--gold-light);}
+  .btn-gold[disabled]{opacity:.6;cursor:default;}
+  .msg{border-radius:10px;padding:11px 13px;font-size:.85rem;line-height:1.8;
+    margin-top:12px;display:none;}
+  .msg.error{background:rgba(200,60,50,.12);border:1px solid rgba(200,60,50,.4);color:#f2a99f;}
+  .msg.success{background:rgba(201,163,95,.12);border:1px solid var(--gold);color:var(--gold-light);}
+  #downloadBox{display:none;text-align:center;}
+  #downloadBox p{font-size:.9rem;color:var(--gold-light);margin-bottom:14px;line-height:1.8;}
+  #downloadBox a.btn{display:block;text-decoration:none;line-height:48px;}
+  .steps{font-size:.78rem;color:#9aa3ad;line-height:2;margin-top:16px;text-align:right;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div>
+    <h1>تطبيق المكتب الداخلي</h1>
+    <p class="sub">خاص بمحامي وفريق المكتب فقط — للتحقق من عضويتك اكتب بياناتك المسجَّلة عندنا.</p>
+  </div>
+
+  <div class="card" id="verifyCard">
+    <div class="fld"><label>البريد الإلكتروني</label>
+      <input id="vEmail" type="email" dir="ltr" placeholder="name@example.com"></div>
+    <div class="fld"><label>رقم التليفون</label>
+      <input id="vPhone" type="tel" dir="ltr" placeholder="01xxxxxxxxx"></div>
+    <button class="btn btn-gold" id="verifyBtn">تحقّق وتحميل التطبيق</button>
+    <div class="msg" id="msgBox"></div>
+  </div>
+
+  <div class="card" id="downloadBox">
+    <p id="welcomeMsg"></p>
+    <a class="btn btn-gold" id="downloadLink" href="downloads/professional-lawyer.apk" download>
+      تحميل التطبيق الآن</a>
+    <div class="steps">
+      بعد التحميل: افتح الملف → اسمح بالتثبيت من "مصادر غير معروفة" لو
+      طلب منك أندرويد ذلك → بعد التثبيت افتح التطبيق واضغط
+      "أول مرة تستخدم البرنامج؟" وحدد كلمة سر بنفس هذا البريد.
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig } from "./portal/portal-config.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const verifyBtn = document.getElementById("verifyBtn");
+const msgBox = document.getElementById("msgBox");
+function showMsg(text, kind) {
+  msgBox.textContent = text;
+  msgBox.className = "msg " + kind;
+  msgBox.style.display = "block";
+}
+
+/* تطبيع تليفون مصري لمقارنة مرنة (بيتجاهل +٢٠ أو ٠ أول الرقم أو الصفر
+   المحلي، وبيقارن آخر ٩-١٠ أرقام بس) — عشان أي صيغة كتبها المحامي تتقبل. */
+function normPhone(p) {
+  var d = String(p || "").replace(/\D/g, "");
+  if (d.indexOf("20") === 0) d = d.slice(2);
+  if (d.indexOf("0") === 0) d = d.slice(1);
+  return d.slice(-9);
+}
+verifyBtn.addEventListener("click", async () => {
+  msgBox.style.display = "none";
+  const email = document.getElementById("vEmail").value.trim().toLowerCase();
+  const phone = document.getElementById("vPhone").value.trim();
+  if (!email || !phone) {
+    showMsg("من فضلك اكتب البريد والتليفون كاملين.", "error");
+    return;
+  }
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = "جارٍ التحقّق…";
+  try {
+    const snap = await getDoc(doc(db, "invites", email));
+    if (!snap.exists()) {
+      showMsg("البريد ده مش مسجَّل عندنا كعضو مكتب — تأكد منه أو تواصل مع إدارة المكتب.", "error");
+      return;
+    }
+    const inv = snap.data();
+    const phoneOk = !inv.phone || normPhone(inv.phone) === normPhone(phone);
+    if (!phoneOk) {
+      showMsg("رقم التليفون مش مطابق للمسجَّل عندنا — تأكد منه أو تواصل مع إدارة المكتب.", "error");
+      return;
+    }
+    /* الاسم بيظهر تلقائياً بالشكل اللي المكتب مسجّله بيه بالظبط — لا
+       يُكتَب يدوياً، فيبقى تأكيداً للمحامي إنه دخل بياناته الصح. */
+    document.getElementById("welcomeMsg").textContent =
+      "أهلاً " + (inv.name || email) + " — اتأكدنا إنك من فريق المكتب. اضغط تحميل.";
+    document.getElementById("verifyCard").style.display = "none";
+    document.getElementById("downloadBox").style.display = "block";
+  } catch (err) {
+    console.error(err);
+    showMsg("حصل خطأ أثناء التحقّق. حاول تاني.", "error");
+  } finally {
+    verifyBtn.disabled = false;
+    verifyBtn.textContent = "تحقّق وتحميل التطبيق";
+  }
+});
+</script>
+</body>
+</html>
