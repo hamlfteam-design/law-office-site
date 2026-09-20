@@ -397,3 +397,15 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 .office-gallery{grid-template-columns:repeat(2,1fr);}
 .office-gallery-wide{grid-column:span 2;}
 }
+
+
+/* === Nav fix (2026-09): one line on wide screens, dropdown on narrower === */
+.header-inner{gap:14px;}
+.main-nav{gap:14px;flex-wrap:nowrap;}
+.main-nav a{font-size:.8rem;white-space:nowrap;}
+@media(max-width:1240px){
+  .menu-toggle{display:flex;}
+  .main-nav{display:none;position:absolute;top:100%;right:0;left:0;flex-direction:column;gap:0;background:var(--navy);padding:6px 20px 14px;box-shadow:0 8px 16px rgba(0,0,0,.25);}
+  .main-nav.open{display:flex;}
+  .main-nav a{font-size:.95rem;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.1);}
+}
