@@ -133,7 +133,7 @@
   }
 
   let currentEmail = "";
-  let currentClientDocId = "";
+  let currentClientDocIds = [];   // كل سجلات الموكل بنفس الإيميل التي لم تُربَط بعد
 
   // ---------- الخطوة 1: اكتب الإيميل ----------
   document.getElementById("emailForm").addEventListener("submit", async (e) => {
@@ -147,8 +147,7 @@
       // (matchEmails بيتسجل يدوياً في Firestore وقت فتح ملف الموكل)
       const q = query(
         collection(db, COLLECTIONS.clients),
-        where("matchEmails", "array-contains", email),
-        limit(1)
+        where("matchEmails", "array-contains", email)
       );
       const snap = await getDocs(q);
 
@@ -158,11 +157,12 @@
       }
 
       currentEmail = email;
-      const clientDocSnap = snap.docs[0];
-      currentClientDocId = clientDocSnap.id;
-      const clientDoc = clientDocSnap.data();
+      // نفس الإيميل قد يكون على أكثر من سجل (تكرار/سجل وكيل) — لا نكتفي بأول واحد:
+      // لو أي سجل مربوط بحساب فالموكل عنده حساب، وإلا نربط كل السجلات معاً.
+      const linked = snap.docs.some(d => d.data().clientUid);
+      currentClientDocIds = snap.docs.filter(d => !d.data().clientUid).map(d => d.id);
 
-      if (clientDoc.clientUid) {
+      if (linked) {
         document.getElementById("loginEmailLabel").textContent = email;
         showStep("step-login");
       } else {
@@ -231,9 +231,9 @@
       // "بيربط" الحساب بسجل القضايا بتاعه بشكل دائم. يتطلب Firestore Rule
       // تسمح بالتحديث ده تحديداً (شرحها في README).
       try {
-        await updateDoc(doc(db, COLLECTIONS.clients, currentClientDocId), {
-          clientUid: cred.user.uid,
-        });
+        await Promise.all(currentClientDocIds.map(id =>
+          updateDoc(doc(db, COLLECTIONS.clients, id), { clientUid: cred.user.uid })
+        ));
       } catch (linkErr) {
         console.error("clientUid link failed:", linkErr);
         showMsg("تم تسجيل الدخول لكن حصل خطأ في ربطه بملف قضيتك — تواصل مع المكتب.", "error");
