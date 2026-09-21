@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal | Dr. Hassan Abdelmoneim Hassan Law Firm</title>
+<meta name="description" content="Client Portal — sign in to follow your cases and hearing dates online.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  .portal-wrap{max-width:440px;margin:60px auto;padding:0 20px;}
+  .portal-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:32px 28px;box-shadow:0 10px 30px rgba(15,36,56,.06);}
+  .portal-card h1{font-size:1.3rem;margin-bottom:8px;color:var(--navy);}
+  .portal-card p.sub{color:var(--muted);font-size:.9rem;margin-bottom:22px;}
+  .portal-form{display:flex;flex-direction:column;gap:12px;}
+  .portal-form input{
+    font-family:inherit;padding:12px 14px;border-radius:8px;
+    border:1px solid #d8d4cb;font-size:.95rem;background:var(--bg);
+  }
+  .portal-form button{cursor:pointer;}
+  .portal-msg{font-size:.85rem;margin-top:12px;padding:10px 12px;border-radius:6px;display:none;}
+  .portal-msg.show{display:block;}
+  .portal-msg.info{background:#eef4fb;color:#1a4a7a;}
+  .portal-msg.error{background:#fbeceb;color:#8a2a22;}
+  .portal-msg.success{background:#eaf6ee;color:#1d6b3a;}
+  .portal-switch{margin-top:18px;font-size:.85rem;color:var(--muted);text-align:center;}
+  .portal-switch a{color:var(--gold);font-weight:700;cursor:pointer;}
+  .step{display:none;}
+  .step.active{display:block;}
+</style>
+<link rel="alternate" hreflang="ar" href="https://hamlf.com/portal/index.html"></head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand">
+      <a href="../index.html#home"><img src="../../assets/images/logo.png" alt="Firm logo" class="brand-logo"></a>
+    </div>
+    <nav class="main-nav" id="mainNav">
+      <a href="../index.html#home">Home</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="portal-wrap">
+  <div class="portal-card">
+
+    <!-- الخطوة 1: اكتب إيميلك — النظام بيحدد تلقائياً هل عندك حساب ولا لأ -->
+    <div class="step active" id="step-email">
+      <h1>Client Portal</h1>
+      <p class="sub">Enter the same email registered with us in your case file.</p>
+      <form class="portal-form" id="emailForm">
+        <input type="email" id="checkEmail" placeholder="Email address" required="" autocomplete="email">
+        <button type="submit" class="btn-primary">Continue</button>
+      </form>
+    </div>
+
+    <!-- الخطوة 2أ: عندك حساب بالفعل — كلمة السر -->
+    <div class="step" id="step-login">
+      <h1>Sign in</h1>
+      <p class="sub" id="loginEmailLabel"></p>
+      <form class="portal-form" id="loginForm">
+        <input type="password" id="loginPassword" placeholder="Password" required="" autocomplete="current-password">
+        <button type="submit" class="btn-primary">Log in</button>
+      </form>
+      <div class="portal-switch"> Forgot your password? <a id="doResetPassword">Recover it by email</a>
+      </div>
+      <div class="portal-switch">
+        <a id="backFromLogin">Use a different email</a>
+      </div>
+    </div>
+
+    <!-- الخطوة 2ب: أول مرة — تعيين كلمة سر -->
+    <div class="step" id="step-set-password">
+      <h1>First time in the portal</h1>
+      <p class="sub" id="newEmailLabel"></p>
+      <form class="portal-form" id="setPasswordForm">
+        <input type="password" id="newPassword" placeholder="Choose a password (at least 6 characters)" required="" minlength="6">
+        <input type="password" id="newPassword2" placeholder="Confirm password" required="" minlength="6">
+        <button type="submit" class="btn-primary">Create account and log in</button>
+      </form>
+      <div class="portal-switch">
+        <a id="backFromSetPassword">Use a different email</a>
+      </div>
+    </div>
+
+    <div class="portal-msg" id="portalMsg"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>© <span id="year"></span> Dr. Hassan Abdelmoneim Hassan Law Firm — Attorneys &amp; Legal Consultants. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- ============================================================
+     Firebase SDK (نسخة معيارية / modular v10) — عبر CDN
+     ============================================================ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {
+    getFirestore, collection, query, where, limit, getDocs, doc, updateDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { firebaseConfig, COLLECTIONS } from "./portal-config.js";
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const msgEl = document.getElementById("portalMsg");
+  function showMsg(text, type) {
+    msgEl.textContent = text;
+    msgEl.className = "portal-msg show " + type;
+  }
+  function clearMsg() { msgEl.className = "portal-msg"; }
+
+  function showStep(id) {
+    document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    clearMsg();
+  }
+
+  let currentEmail = "";
+  let currentClientDocIds = [];   // كل سجلات الموكل بنفس الإيميل التي لم تُربَط بعد
+
+  // ---------- الخطوة 1: اكتب الإيميل ----------
+  document.getElementById("emailForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("checkEmail").value.trim().toLowerCase();
+    if (!email) return;
+    clearMsg();
+
+    try {
+      // تأكيد إن الإيميل ده مسموح له يربط نفسه بسجل موكل عندنا
+      // (matchEmails بيتسجل يدوياً في Firestore وقت فتح ملف الموكل)
+      const q = query(
+        collection(db, COLLECTIONS.clients),
+        where("matchEmails", "array-contains", email)
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        showMsg("No client is registered with this email. Check the email, or contact the office to activate your account.", "error");
+        return;
+      }
+
+      currentEmail = email;
+      // نفس الإيميل قد يكون على أكثر من سجل (تكرار/سجل وكيل) — لا نكتفي بأول واحد:
+      // لو أي سجل مربوط بحساب فالموكل عنده حساب، وإلا نربط كل السجلات معاً.
+      const linked = snap.docs.some(d => d.data().clientUid);
+      currentClientDocIds = snap.docs.filter(d => !d.data().clientUid).map(d => d.id);
+
+      if (linked) {
+        document.getElementById("loginEmailLabel").textContent = email;
+        showStep("step-login");
+      } else {
+        document.getElementById("newEmailLabel").textContent = email;
+        showStep("step-set-password");
+      }
+    } catch (err) {
+      showMsg("An error occurred during verification. Please try again.", "error");
+      console.error(err);
+    }
+  });
+
+  // ---------- تسجيل دخول عادي (إيميل + كلمة سر) ----------
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const password = document.getElementById("loginPassword").value;
+    try {
+      await signInWithEmailAndPassword(auth, currentEmail, password);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      showMsg("Incorrect password.", "error");
+    }
+  });
+
+  document.getElementById("doResetPassword").addEventListener("click", async () => {
+    try {
+      await sendPasswordResetEmail(auth, currentEmail);
+      showMsg("We have sent you a password-reset email — open it and follow the steps.", "success");
+    } catch (err) {
+      showMsg("An error occurred while sending the reset email.", "error");
+    }
+  });
+
+  // ---------- أول مرة: إنشاء حساب بكلمة سر ----------
+  document.getElementById("setPasswordForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const p1 = document.getElementById("newPassword").value;
+    const p2 = document.getElementById("newPassword2").value;
+    if (p1 !== p2) {
+      showMsg("The two passwords do not match.", "error");
+      return;
+    }
+    try {
+      let cred;
+      try {
+        cred = await createUserWithEmailAndPassword(auth, currentEmail, p1);
+      } catch (createErr) {
+        if (createErr.code === "auth/email-already-in-use") {
+          // في الغالب محاولة سابقة أنشأت الحساب لكن فشل ربطه بملف القضية
+          // (مثلاً بسبب انقطاع الاتصال) — لو نفس كلمة السر دي هي اللي
+          // اتسجّلت وقتها، الدخول بيها هينجح ونكمّل الربط من هنا بدل ما
+          // نوقف المستخدم بخطأ عام لا يفسّر له حاجة.
+          try {
+            cred = await signInWithEmailAndPassword(auth, currentEmail, p1);
+          } catch (signInErr) {
+            showMsg("You already have an account registered with this email using a different password — " +
+              "try the password you used before, or click ‘Forgot your password?’ " +
+              "on the login screen.", "error");
+            return;
+          }
+        } else {
+          throw createErr;
+        }
+      }
+      // نسجّل uid المستخدم على وثيقة الموكل نفسها (clientUid) — ده اللي
+      // "links" الحساب بسجل القضايا بتاعه بشكل دائم. يتطلب Firestore Rule
+      // تسمح بالتحديث ده تحديداً (شرحها في README).
+      try {
+        await Promise.all(currentClientDocIds.map(id =>
+          updateDoc(doc(db, COLLECTIONS.clients, id), { clientUid: cred.user.uid })
+        ));
+      } catch (linkErr) {
+        console.error("clientUid link failed:", linkErr);
+        showMsg("You are signed in, but an error occurred while linking it to your case file — please contact the office.", "error");
+        return;
+      }
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      showMsg("An error occurred while creating the account. Try again or contact the office.", "error");
+      console.error(err);
+    }
+  });
+
+  document.getElementById("backFromLogin").addEventListener("click", () => showStep("step-email"));
+  document.getElementById("backFromSetPassword").addEventListener("click", () => showStep("step-email"));
+</script>
+
+
+</body></html>
