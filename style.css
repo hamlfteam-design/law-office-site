@@ -420,3 +420,10 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 .main-nav{position:absolute;top:100%;right:0;left:0;background:var(--navy);flex-direction:column;padding:10px 20px 20px;display:none;gap:16px;z-index:50;}
 .main-nav.open{display:flex;}
 }
+
+
+/* === English (LTR) pages === */
+html[dir="ltr"]{--f-body:'Cairo','Segoe UI',Tahoma,Arial,sans-serif;}
+html[dir="ltr"] body{font-family:var(--f-body);}
+html[dir="ltr"] .section-title::after{right:auto;left:0;}
+html[dir="ltr"] .main-nav a{letter-spacing:0;}
