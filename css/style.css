@@ -1,0 +1,2 @@
+/* Alias so pages that link css/style.css (portal, articles, services) load the shared site stylesheet. */
+@import url("../style.css");
