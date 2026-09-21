@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
+<html lang="en" dir="ltr"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Online Legal Consultation | Hassan Abdelmoneim Hassan Law Firm</title>
+<title>Online Legal Consultation | Dr. Hassan Abdelmoneim Hassan Law Firm</title>
 <link rel="manifest" href="../manifest.json">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/icons/apple-touch-icon.png?v=2">
@@ -14,7 +13,7 @@
     font-family:var(--f-body);
     background:linear-gradient(180deg,var(--navy) 0%,var(--navy-dark) 100%);
     color:#fff;min-height:100vh;display:flex;justify-content:center;
-    line-height:normal;direction:ltr;
+    line-height:normal;
   }
   h1{font-family:var(--f-label);}
   .wrap{width:100%;max-width:480px;padding:20px 18px calc(30px + env(safe-area-inset-bottom));}
@@ -48,54 +47,55 @@
   }
   .note{font-size:.74rem;color:#6b7480;text-align:center;margin-top:12px;line-height:1.7;}
 </style>
-</head>
+<link rel="alternate" hreflang="ar" href="https://hamlf.com/consult.html"></head>
 <body>
 <div class="wrap">
   <a class="back" href="app.html">← Back</a>
+  <a href="../en/consult.html" style="float:left;font-size:.78rem;color:var(--gold-light);text-decoration:underline;">English</a>
   <h1>Online Legal Consultation</h1>
-  <p class="sub">Tell us about your inquiry or case, and we'll get back to you as soon as possible. Your message will be sent directly to our office WhatsApp or email, based on your choice.</p>
+  <p class="sub">Write the details of your inquiry or case and we will reply as soon as possible. Your message is sent directly to the firm's WhatsApp or email, as you choose.</p>
 
   <form id="consultForm">
     <div>
       <label for="name">Name</label>
-      <input type="text" id="name" placeholder="Your full name" required>
+      <input type="text" id="name" placeholder="Your full name" required="">
     </div>
     <div>
-      <label for="phone">Mobile Number</label>
-      <input type="tel" id="phone" placeholder="With country code" required>
+      <label for="phone">Mobile number</label>
+      <input type="tel" id="phone" placeholder="01xxxxxxxxx" required="">
     </div>
     <div>
-      <label for="subject">Type of Consultation</label>
+      <label for="subject">Consultation type</label>
       <select id="subject">
-        <option>Civil Cases</option>
-        <option>Criminal Cases</option>
-        <option>Corporate Cases</option>
-        <option>Personal Status</option>
-        <option>Court of Cassation / Supreme Administrative / Constitutional Court</option>
-        <option>Other Inquiry</option>
+        <option>Civil cases</option>
+        <option>Criminal cases</option>
+        <option>Corporate cases</option>
+        <option>Personal status</option>
+        <option>Cassation / Supreme Administrative Court / Constitutional Court appeal</option>
+        <option>Other inquiry</option>
       </select>
     </div>
     <div>
-      <label for="message">Consultation Details</label>
-      <textarea id="message" placeholder="Briefly describe your matter..." required></textarea>
+      <label for="message">Consultation details</label>
+      <textarea id="message" placeholder="Briefly describe the subject of your consultation..." required=""></textarea>
     </div>
 
     <div>
-      <label>How should we reach you?</label>
+      <label>How would you like to reach us?</label>
       <div class="method-choice">
-        <label><input type="radio" name="method" value="whatsapp" checked> WhatsApp</label>
+        <label><input type="radio" name="method" value="whatsapp" checked=""> WhatsApp</label>
         <label><input type="radio" name="method" value="email"> Email</label>
       </div>
     </div>
 
-    <button type="submit" class="submit-btn">Send Consultation Request</button>
-    <p class="note">This will open WhatsApp or your email app with a ready-made message — you can review it and add details before sending.</p>
+    <button type="submit" class="submit-btn">Send Consultation</button>
+    <p class="note">WhatsApp or your email app will open with a ready message — you can review it and add details before sending.</p>
   </form>
 </div>
 
 <script>
   const OFFICE_PHONE = "201208555806";
-  const OFFICE_EMAIL = "info.hamlf@gmail.com";
+  const OFFICE_EMAIL = "info@hamlf.com";
 
   document.getElementById("consultForm").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -106,20 +106,21 @@
     const method = document.querySelector('input[name="method"]:checked').value;
 
     const bodyText =
-      `Legal consultation request from the firm's website\n` +
+      `Legal consultation request from the firm website\n` +
       `Name: ${name}\n` +
-      `Mobile number: ${phone}\n` +
-      `Type of consultation: ${subject}\n` +
+      `Mobile: ${phone}\n` +
+      `Consultation type: ${subject}\n` +
       `Details: ${message}`;
 
     if (method === "whatsapp") {
       const url = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
       window.location.href = url;
     } else {
-      const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("Legal Consultation Request - " + subject)}&body=${encodeURIComponent(bodyText)}`;
+      const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("Legal consultation request - " + subject)}&body=${encodeURIComponent(bodyText)}`;
       window.location.href = mailUrl;
     }
   });
 </script>
-</body>
-</html>
+
+
+</body></html>
