@@ -413,7 +413,6 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 
 /* === nav fix (2026-09-21): single-line desktop nav, hamburger up to 1180px, one language toggle === */
 .main-nav a{white-space:nowrap;}
-.main-nav .lang-switch{display:none !important;}
 @media(min-width:1181px){.main-nav{gap:16px;}.main-nav a{font-size:.84rem;}.header-inner{gap:14px;}}
 @media(max-width:1180px){
 .menu-toggle{display:flex;}
