@@ -10,6 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
 <style>
+  @font-face{font-family:"SF Sultan";src:url("../assets/fonts/Sultan-Black.ttf") format("truetype");font-weight:700;font-display:swap;}
+  @font-face{font-family:"SF Mada";src:url("../assets/fonts/SF-Mada-Bold.ttf") format("truetype");font-weight:700;font-display:swap;}
+</style>
+<script src="../assets/js/portal-letterhead.js" defer></script>
+<script src="../assets/js/pdfdoc.js" defer></script>
+<script src="../assets/js/pdfbuild.js" defer></script>
+<style>
   .dash-wrap{max-width:960px;margin:0 auto;padding:40px 20px 80px;}
   .dash-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
   .dash-head h1{font-size:1.4rem;color:var(--navy);}
@@ -202,6 +209,7 @@
             <h3>${esc(c.subject) || "قضية بدون موضوع مسجّل"}</h3>
             <div class="case-actions">
               <button class="btn-print" data-print-case="case-${idx}">طباعة / حفظ PDF</button>
+              <button class="btn-print" data-paper-pdf="${idx}" style="background:#7a5a2a;margin-inline-start:8px">📄 PDF على ورق المؤسسة</button>
             </div>
 
             ${infoRows.length ? `
@@ -254,6 +262,8 @@
         `;
       }
 
+      const __caseData = casesSnap.docs.map((d) => parseCase(d));
+      window.__portalCases = __caseData;
       contentEl.innerHTML = casesSnap.docs.map((docSnap, idx) => renderCase(docSnap, idx)).join("");
 
       // طباعة/تصدير PDF لقضية واحدة بنفس شكل ورقة المكتب الرسمية —
@@ -266,6 +276,59 @@
         card.classList.add("printing-case");
         window.print();
         setTimeout(() => card.classList.remove("printing-case"), 500);
+      });
+
+      // بلوكات PDF على ورق المؤسسة لقضية واحدة — نفس شكل التقرير الذي يرسله المكتب
+      function caseToBlocks(c) {
+        const caseLabel = [toHindi(c.caseNo), toHindi(c.caseYear)].filter(Boolean).join(" لسنة ");
+        const pairs = [
+          ["رقم الملف", toHindi(c.fileNo)],
+          ["سنة التعامل", toHindi(c.dealYear)],
+          ["رقم الدعوى", caseLabel],
+          ["درجة التقاضي", c.courtLevel || ""],
+          ["الحالة", c.status || ""],
+          ["نوع الدعوى", c.caseType || ""],
+          ["المحكمة", c.courtName || ""],
+          ["الدائرة", c.circuit || ""],
+          ["الموكل", splitParties(c.clients).join("، ")],
+          ["الخصم", splitParties(c.opponents).join("، ")],
+        ].filter(([, v]) => v);
+        const blocks = [
+          { center: "مؤسسة د. حسن عبد المنعم حسن — بيان قضية" },
+          { card: { title: c.subject || "قضية بدون موضوع مسجّل", pairs, perRow: 3 } },
+        ];
+        const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
+        if (sessions.length) {
+          blocks.push({ h: "تتابع الجلسات" });
+          blocks.push({ table: {
+            headers: ["م", "تاريخ الجلسة", "ما تم بها من قرارات أو أحكام"],
+            widths: [1, 2, 5],
+            rows: sessions.map((s, i) => [toHindi(i + 1), formatDate(s.date), esc(s.raw?.result || s.raw?.for || "")])
+          } });
+        }
+        return blocks;
+      }
+
+      contentEl.addEventListener("click", async (ev) => {
+        const btn = ev.target.closest("[data-paper-pdf]");
+        if (!btn) return;
+        const idx = +btn.getAttribute("data-paper-pdf");
+        const c = (window.__portalCases || [])[idx];
+        if (!c || !window.PdfDoc || !window.PdfBuild) { alert("تعذّر تجهيز الملف — أعد المحاولة بعد ثوانٍ."); return; }
+        const old = btn.textContent; btn.disabled = true; btn.textContent = "جارٍ التجهيز…";
+        try {
+          const pages = await PdfDoc.build(caseToBlocks(c));
+          const pdf = PdfBuild.fromJpegs(pages);
+          const blob = new Blob([pdf], { type: "application/pdf" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "قضية-" + (c.fileNo || idx + 1) + ".pdf";
+          document.body.appendChild(a); a.click(); a.remove();
+        } catch (e) {
+          console.error(e);
+          alert("تعذّر إنشاء الـPDF.");
+        }
+        btn.disabled = false; btn.textContent = old;
       });
     } catch (err) {
       contentEl.innerHTML = `<div class="empty-state">حصل خطأ في تحميل البيانات. حاول تاني لاحقاً.</div>`;
