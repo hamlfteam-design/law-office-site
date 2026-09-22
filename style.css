@@ -324,16 +324,6 @@ padding:36px 30px;text-align:center;margin-top:40px;
 .lang-switch{color:var(--gold-light) !important;font-weight:700;}
 
 @media(max-width:720px){
-.menu-toggle{display:flex;}
-.main-nav{
-position:absolute;top:100%;right:0;left:0;
-background:var(--navy);
-flex-direction:column;
-padding:10px 20px 20px;
-display:none;
-gap:16px;
-}
-.main-nav.open{display:flex;}
 .hero h1{font-size:1.8rem;}
 }
 
@@ -399,25 +389,16 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
 
 
-/* === Nav fix (2026-09): one line on wide screens, dropdown on narrower === */
+/* === Nav fix (2026-09-22): كتلة واحدة نهائية — كانت 3 كتل متضاربة (720/1240/1180px)
+   تُعرِّف نفس الأزرار بقواعد مختلفة، فتشتبك ويظهر القائمة سطرين بدل سطر أو قائمة منسدلة. === */
 .header-inner{gap:14px;}
-.main-nav{gap:14px;flex-wrap:nowrap;}
-.main-nav a{font-size:.8rem;white-space:nowrap;}
+.main-nav{gap:16px;flex-wrap:nowrap;}
+.main-nav a{font-size:.84rem;white-space:nowrap;}
 @media(max-width:1240px){
   .menu-toggle{display:flex;}
-  .main-nav{display:none;position:absolute;top:100%;right:0;left:0;flex-direction:column;gap:0;background:var(--navy);padding:6px 20px 14px;box-shadow:0 8px 16px rgba(0,0,0,.25);}
+  .main-nav{display:none;position:absolute;top:100%;right:0;left:0;flex-direction:column;gap:0;background:var(--navy);padding:6px 20px 14px;box-shadow:0 8px 16px rgba(0,0,0,.25);z-index:50;}
   .main-nav.open{display:flex;}
   .main-nav a{font-size:.95rem;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.1);}
-}
-
-
-/* === nav fix (2026-09-21): single-line desktop nav, hamburger up to 1180px, one language toggle === */
-.main-nav a{white-space:nowrap;}
-@media(min-width:1181px){.main-nav{gap:16px;}.main-nav a{font-size:.84rem;}.header-inner{gap:14px;}}
-@media(max-width:1180px){
-.menu-toggle{display:flex;}
-.main-nav{position:absolute;top:100%;right:0;left:0;background:var(--navy);flex-direction:column;padding:10px 20px 20px;display:none;gap:16px;z-index:50;}
-.main-nav.open{display:flex;}
 }
 
 
