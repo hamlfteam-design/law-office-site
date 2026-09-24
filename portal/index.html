@@ -156,6 +156,12 @@
         return;
       }
 
+      // موكل أجنبي (إثبات شخصيته جواز سفر / بطاقة إقامة في قاعدة بيانات المكتب) → البوابة الإنجليزية من أولها
+      const foreign = snap.docs.some((d) => {
+        try { return /جواز|إقامة|اقامة/.test(String(JSON.parse(d.data().json || "{}").idType || "")); } catch (e) { return false; }
+      });
+      if (foreign) { window.location.replace("../en/portal/index.html?e=" + encodeURIComponent(email)); return; }
+
       currentEmail = email;
       // نفس الإيميل قد يكون على أكثر من سجل (تكرار/سجل وكيل) — لا نكتفي بأول واحد:
       // لو أي سجل مربوط بحساب فالموكل عنده حساب، وإلا نربط كل السجلات معاً.

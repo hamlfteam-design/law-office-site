@@ -185,6 +185,12 @@
     }
   });
 
+  // arriving from the Arabic portal (foreign client detected): pre-fill the email and continue automatically
+  (function () {
+    const e = new URLSearchParams(location.search).get("e");
+    if (e) { document.getElementById("checkEmail").value = e; document.getElementById("emailForm").requestSubmit(); }
+  })();
+
   document.getElementById("doResetPassword").addEventListener("click", async () => {
     try {
       await sendPasswordResetEmail(auth, currentEmail);
