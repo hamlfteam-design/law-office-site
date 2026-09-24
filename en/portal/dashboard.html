@@ -12,7 +12,7 @@
   @font-face{font-family:"SF Sultan";src:url("../../assets/fonts/Sultan-Black.ttf") format("truetype");font-weight:700;font-display:swap;}
   @font-face{font-family:"SF Mada";src:url("../../assets/fonts/SF-Mada-Bold.ttf") format("truetype");font-weight:700;font-display:swap;}
 </style>
-<script src="../../assets/js/portal-letterhead.js?v=2" defer></script>
+<script src="../../assets/js/portal-letterhead.js?v=3" defer></script>
 <script src="../../assets/js/pdfdoc.js?v=2" defer></script>
 <script src="../../assets/js/pdfbuild.js" defer></script>
 <style>
@@ -148,6 +148,34 @@
         return c;
       }
 
+      // English-only view of a case: uses the stored translation (c.en); never shows Arabic.
+      const PENDING = "Translation pending";
+      const hasAr = (v) => /[؀-ۿ]/.test(String(v == null ? "" : v));
+      function view(c) {
+        const e = c.en || {};
+        const t = (f) => {
+          if (Object.prototype.hasOwnProperty.call(e, f)) return e[f] === null ? PENDING : e[f];
+          return hasAr(c[f]) ? PENDING : (c[f] || "");
+        };
+        const parties = (arr, raw) => (arr && arr.length)
+          ? arr.map((p) => (p.name === null ? PENDING : p.name) + (p.cap ? " (" + p.cap + ")" : "")).join(", ")
+          : (hasAr(raw) ? PENDING : (raw || ""));
+        const src = Array.isArray(c.sessions) ? c.sessions : [];
+        const sessions = src.map((s, i) => {
+          const en = (e.sessions || [])[i] || {};
+          const r = s.raw || {};
+          const type = "type" in en ? (en.type === null ? PENDING : en.type) : (hasAr(r.type) ? PENDING : (r.type || ""));
+          const rawTxt = r.result || r.decision || r["for"] || r.reason || "";
+          const text = "text" in en ? (en.text === null ? PENDING : en.text) : (hasAr(rawTxt) ? PENDING : rawTxt);
+          return { date: s.date || "", roll: r.roll || "", type, text };
+        }).sort((a, b) => a.date.localeCompare(b.date));
+        return {
+          courtLevel: t("courtLevel"), status: t("status"), caseType: t("caseType"), lawyer: t("lawyer"),
+          courtName: t("courtName"), circuit: t("circuit"), subject: t("subject"),
+          clients: parties(e.clients, c.clients), opponents: parties(e.opponents, c.opponents), sessions,
+        };
+      }
+
       // قاعدة ثابتة للمكتب: كل الأرقام تُعرض بصيغة عربي هندي (٠١٢٣٤٥٦٧٨٩)
       const HINDI = ["0","1","2","3","4","5","6","7","8","9"];
       function toHindi(v) {
@@ -173,6 +201,7 @@
 
       function renderCase(caseDoc, idx) {
         const c = parseCase(caseDoc);
+        const v = view(c);
         const caseLabel = [toHindi(c.caseNo), toHindi(c.caseYear)].filter(Boolean).join(" of ");
         const firstLabel = (c.firstNo || c.firstYear)
           ? `First instance ${[toHindi(c.firstNo), toHindi(c.firstYear)].filter(Boolean).join(" of ")}`
@@ -182,30 +211,28 @@
           ["File No.", toHindi(c.fileNo)],
           ["Year of Engagement", toHindi(c.dealYear)],
           ["Case No.", caseLabel],
-          ["Litigation Stage", esc(c.courtLevel)],
-          ["Status", esc(c.status)],
-          ["Case Type", esc(c.caseType)],
-          ["Lawyer", esc(c.lawyer)],
-          ["Court", esc(c.courtName)],
-          ["Circuit", esc(c.circuit)],
-          ["Subject", esc(c.subject)],
+          ["Litigation Stage", esc(v.courtLevel)],
+          ["Status", esc(v.status)],
+          ["Case Type", esc(v.caseType)],
+          ["Lawyer", esc(v.lawyer)],
+          ["Court", esc(v.courtName)],
+          ["Circuit", esc(v.circuit)],
+          ["Subject", esc(v.subject)],
           ["Notes", esc(firstLabel)],
         ].filter(([, val]) => val);
 
-        const clients = splitParties(c.clients);
-        const opponents = splitParties(c.opponents);
         const partyRows = [
-          ...(clients.length ? [["Clients", clients.map(esc).join(", ")]] : []),
-          ...(opponents.length ? [["Opponents", opponents.map(esc).join(", ")]] : []),
+          ...(v.clients ? [["Clients", esc(v.clients)]] : []),
+          ...(v.opponents ? [["Opponents", esc(v.opponents)]] : []),
         ];
 
-        const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
+        const sessions = v.sessions;
 
         return `
           <div class="case-card" id="case-${idx}">
-            <img class="case-letterhead" src="../../assets/images/letterhead/header_tight.png" alt="Dr. Hassan Abdelmoneim Hassan Law Firm">
+            <img class="case-letterhead" src="../../assets/images/letterhead/header_tight_en.png" alt="Dr. Hassan Abdelmoneim Hassan Law Firm">
             <div class="case-letterhead-rule"></div>
-            <h3>${esc(c.subject) || "Case with no recorded subject"}</h3>
+            <h3>${esc(v.subject) || "Case with no recorded subject"}</h3>
             <div class="case-actions">
               <button class="btn-print" data-print-case="case-${idx}">Print / Save PDF</button>
               <button class="btn-print" data-paper-pdf="${idx}" style="background:#7a5a2a;margin-inline-start:8px">📄 PDF on Firm Letterhead</button>
@@ -248,10 +275,10 @@
                   ${sessions.map((s, i) => `
                     <tr>
                       <td>${toHindi(i + 1)}</td>
-                      <td>${toHindi(s.raw?.roll || "")}</td>
+                      <td>${esc(s.roll)}</td>
                       <td>${formatDate(s.date)}</td>
-                      <td>${esc(s.raw?.type || "")}</td>
-                      <td class="session-note-cell">${esc(s.raw?.result || s.raw?.for || "")}</td>
+                      <td>${esc(s.type)}</td>
+                      <td class="session-note-cell">${esc(s.text)}</td>
                     </tr>
                   `).join("")}
                 </tbody>
@@ -268,23 +295,24 @@
       // نضيف كلاس مؤقت على الكارت المطلوب بس، نطبع، وبعدين نشيله.
       // Office-letterhead PDF for one case — same look as the reports the firm sends (LTR layout)
       function caseToBlocks(c) {
+        const v = view(c);
         const caseLabel = [toHindi(c.caseNo), toHindi(c.caseYear)].filter(Boolean).join(" of ");
         const pairs = [
           ["File No.", toHindi(c.fileNo)], ["Year of Engagement", toHindi(c.dealYear)], ["Case No.", caseLabel],
-          ["Litigation Stage", c.courtLevel || ""], ["Status", c.status || ""], ["Case Type", c.caseType || ""],
-          ["Court", c.courtName || ""], ["Circuit", c.circuit || ""],
-          ["Client", splitParties(c.clients).join(", ")], ["Opponent", splitParties(c.opponents).join(", ")],
+          ["Litigation Stage", v.courtLevel], ["Status", v.status], ["Case Type", v.caseType],
+          ["Court", v.courtName], ["Circuit", v.circuit],
+          ["Client", v.clients], ["Opponent", v.opponents],
         ].filter(([, v]) => v);
         const blocks = [
           { center: "Dr. Hassan Abdelmoneim Hassan Law Firm — Case Statement" },
-          { card: { title: c.subject || "Case with no recorded subject", pairs, perRow: 3 } },
+          { card: { title: v.subject || "Case with no recorded subject", pairs, perRow: 3 } },
         ];
-        const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
+        const sessions = v.sessions;
         if (sessions.length) {
           blocks.push({ h: "Hearing Sequence" });
           blocks.push({ table: {
             headers: ["#", "Hearing Date", "Decision / Outcome"], widths: [1, 2, 5],
-            rows: sessions.map((s, i) => [toHindi(i + 1), formatDate(s.date), s.raw?.result || s.raw?.for || ""])
+            rows: sessions.map((s, i) => [toHindi(i + 1), formatDate(s.date), s.text])
           } });
         }
         return blocks;

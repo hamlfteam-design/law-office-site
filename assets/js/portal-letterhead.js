@@ -6,7 +6,10 @@
 (function (w) {
   "use strict";
   var me = document.currentScript && document.currentScript.src;
-  var PAPER_SRC = me ? new URL("../images/letterhead/officepaper.jpg", me).href : "../assets/images/letterhead/officepaper.jpg";
+  /* الصفحات الإنجليزية (/en/) تستعمل ورق المؤسسة بترويسة إنجليزية (الشعار فقط يبقى) */
+  var EN = /\/en\//.test(location.pathname);
+  var FILE = EN ? "officepaper_en.jpg" : "officepaper.jpg";
+  var PAPER_SRC = me ? new URL("../images/letterhead/" + FILE, me).href : "../assets/images/letterhead/" + FILE;
   var _paper = null;
   function preload() {
     if (_paper) return;
