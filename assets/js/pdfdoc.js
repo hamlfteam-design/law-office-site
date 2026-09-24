@@ -66,10 +66,12 @@
                  Letterhead.paper && Letterhead.paper()) || null;
     var TOP = paper ? 285 : M, BOTTOM = paper ? 1585 : H - M;
     var pages = [], cv, ctx, y;
+    /* opts.ltr: مستند إنجليزي — نفس التخطيط لكن يبدأ من اليسار (نعكس إحداثيات المحتوى فقط، لا الخلفية ولا مربّع رقم الصفحة) */
+    var LTR = !!opts.ltr, mir = false;
     function newPage() {
       cv = document.createElement("canvas"); cv.width = W; cv.height = H;
       ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
-      ctx.direction = "rtl"; ctx.textAlign = "right"; ctx.textBaseline = "top";
+      ctx.direction = LTR ? "ltr" : "rtl"; ctx.textAlign = "right"; ctx.textBaseline = "top";
       y = M;
       if (paper) {
         try { ctx.drawImage(paper, 0, 0, W, H); } catch (e) { }
@@ -82,16 +84,31 @@
           y = topM + ih + 14;
         } catch (e) { }
       }
+      if (LTR) {
+        var _ft = ctx.fillText.bind(ctx), _fr = ctx.fillRect.bind(ctx), _sr = ctx.strokeRect.bind(ctx);
+        ctx.fillText = function (t, x, yy) {
+          if (!mir) return _ft(t, x, yy);
+          var a = ctx.textAlign;
+          ctx.textAlign = a === "right" ? "left" : (a === "left" ? "right" : a);
+          _ft(t, W - x, yy); ctx.textAlign = a;
+        };
+        ctx.fillRect = function (x, yy, w, h) { return mir ? _fr(W - x - w, yy, w, h) : _fr(x, yy, w, h); };
+        ctx.strokeRect = function (x, yy, w, h) { return mir ? _sr(W - x - w, yy, w, h) : _sr(x, yy, w, h); };
+        mir = true;
+      }
     }
     function push() {
+      var _mir = mir; mir = false;
       if (paper) {                                   /* رقم الصفحة الصحيح داخل مربّع التذييل */
         ctx.fillStyle = "#fff"; ctx.fillRect(68, 1626, 152, 66);
         ctx.fillStyle = "#1a1a1a"; ctx.font = "bold " + pt(12) + "px " + TITLE_FONT;
         ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText("صفحة " + String(pages.length + 1).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }), 143, 1665);
+        ctx.fillText(LTR ? "Page " + (pages.length + 1)
+          : "صفحة " + String(pages.length + 1).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }), 143, 1665);
         ctx.textAlign = "right"; ctx.textBaseline = "top";
       }
       pages.push(cv.toDataURL("image/jpeg", 0.92));
+      mir = _mir;
     }
     function ensure(hgt) { if (y + hgt > BOTTOM) { push(); newPage(); } }
     newPage();

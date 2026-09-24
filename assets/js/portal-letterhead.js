@@ -5,7 +5,8 @@
    ============================================================================= */
 (function (w) {
   "use strict";
-  var PAPER_SRC = "../assets/images/letterhead/officepaper.jpg";
+  var me = document.currentScript && document.currentScript.src;
+  var PAPER_SRC = me ? new URL("../images/letterhead/officepaper.jpg", me).href : "../assets/images/letterhead/officepaper.jpg";
   var _paper = null;
   function preload() {
     if (_paper) return;

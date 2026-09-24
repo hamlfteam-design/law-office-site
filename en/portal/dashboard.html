@@ -9,6 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../style.css?v=20260924">
 <style>
+  @font-face{font-family:"SF Sultan";src:url("../../assets/fonts/Sultan-Black.ttf") format("truetype");font-weight:700;font-display:swap;}
+  @font-face{font-family:"SF Mada";src:url("../../assets/fonts/SF-Mada-Bold.ttf") format("truetype");font-weight:700;font-display:swap;}
+</style>
+<script src="../../assets/js/portal-letterhead.js?v=2" defer></script>
+<script src="../../assets/js/pdfdoc.js?v=2" defer></script>
+<script src="../../assets/js/pdfbuild.js" defer></script>
+<style>
   .dash-wrap{max-width:960px;margin:0 auto;padding:40px 20px 80px;}
   .dash-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
   .dash-head h1{font-size:1.4rem;color:var(--navy);}
@@ -201,6 +208,7 @@
             <h3>${esc(c.subject) || "Case with no recorded subject"}</h3>
             <div class="case-actions">
               <button class="btn-print" data-print-case="case-${idx}">Print / Save PDF</button>
+              <button class="btn-print" data-paper-pdf="${idx}" style="background:#7a5a2a;margin-inline-start:8px">📄 PDF on Firm Letterhead</button>
             </div>
 
             ${infoRows.length ? `
@@ -253,10 +261,52 @@
         `;
       }
 
+      window.__portalCases = casesSnap.docs.map((d) => parseCase(d));
       contentEl.innerHTML = casesSnap.docs.map((docSnap, idx) => renderCase(docSnap, idx)).join("");
 
       // طباعة/تصدير PDF لقضية واحدة بنفس شكل ورقة المكتب الرسمية —
       // نضيف كلاس مؤقت على الكارت المطلوب بس، نطبع، وبعدين نشيله.
+      // Office-letterhead PDF for one case — same look as the reports the firm sends (LTR layout)
+      function caseToBlocks(c) {
+        const caseLabel = [toHindi(c.caseNo), toHindi(c.caseYear)].filter(Boolean).join(" of ");
+        const pairs = [
+          ["File No.", toHindi(c.fileNo)], ["Year of Engagement", toHindi(c.dealYear)], ["Case No.", caseLabel],
+          ["Litigation Stage", c.courtLevel || ""], ["Status", c.status || ""], ["Case Type", c.caseType || ""],
+          ["Court", c.courtName || ""], ["Circuit", c.circuit || ""],
+          ["Client", splitParties(c.clients).join(", ")], ["Opponent", splitParties(c.opponents).join(", ")],
+        ].filter(([, v]) => v);
+        const blocks = [
+          { center: "Dr. Hassan Abdelmoneim Hassan Law Firm — Case Statement" },
+          { card: { title: c.subject || "Case with no recorded subject", pairs, perRow: 3 } },
+        ];
+        const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
+        if (sessions.length) {
+          blocks.push({ h: "Hearing Sequence" });
+          blocks.push({ table: {
+            headers: ["#", "Hearing Date", "Decision / Outcome"], widths: [1, 2, 5],
+            rows: sessions.map((s, i) => [toHindi(i + 1), formatDate(s.date), s.raw?.result || s.raw?.for || ""])
+          } });
+        }
+        return blocks;
+      }
+      contentEl.addEventListener("click", async (ev) => {
+        const btn = ev.target.closest("[data-paper-pdf]");
+        if (!btn) return;
+        const idx = +btn.getAttribute("data-paper-pdf");
+        const c = (window.__portalCases || [])[idx];
+        if (!c || !window.PdfDoc || !window.PdfBuild) { alert("Could not prepare the file — please try again in a few seconds."); return; }
+        const old = btn.textContent; btn.disabled = true; btn.textContent = "Preparing…";
+        try {
+          const pages = await PdfDoc.build(caseToBlocks(c), { ltr: true });
+          const blob = new Blob([PdfBuild.fromJpegs(pages)], { type: "application/pdf" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "case-" + (c.fileNo || idx + 1) + ".pdf";
+          document.body.appendChild(a); a.click(); a.remove();
+        } catch (e) { console.error(e); alert("Could not create the PDF."); }
+        btn.disabled = false; btn.textContent = old;
+      });
+
       contentEl.addEventListener("click", (ev) => {
         const btn = ev.target.closest("[data-print-case]");
         if (!btn) return;
