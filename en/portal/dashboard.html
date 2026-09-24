@@ -188,8 +188,8 @@
         const clients = splitParties(c.clients);
         const opponents = splitParties(c.opponents);
         const partyRows = [
-          ...(clients.length ? [["Clients", clients.map(esc).join("، ")]] : []),
-          ...(opponents.length ? [["Opponents", opponents.map(esc).join("، ")]] : []),
+          ...(clients.length ? [["Clients", clients.map(esc).join(", ")]] : []),
+          ...(opponents.length ? [["Opponents", opponents.map(esc).join(", ")]] : []),
         ];
 
         const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
