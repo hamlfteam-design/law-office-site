@@ -107,7 +107,7 @@
     sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
-    getFirestore, collection, query, where, limit, getDocs, doc, updateDoc
+    getFirestore, collection, query, where, limit, getDocs, getDoc, doc, updateDoc
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
   import { firebaseConfig, COLLECTIONS } from "../../portal/portal-config.js";
 
@@ -143,22 +143,33 @@
     try {
       // تأكيد إن الإيميل ده مسموح له يربط نفسه بسجل موكل عندنا
       // (matchEmails بيتسجل يدوياً في Firestore وقت فتح ملف الموكل)
-      const q = query(
-        collection(db, COLLECTIONS.clients),
-        where("matchEmails", "array-contains", email)
-      );
-      const snap = await getDocs(q);
-
-      if (snap.empty) {
+      // فهرس البريد العام (portalEmails): موكل؟ مربوط؟ أجنبي؟ — بلا قراءة سجلات الموكلين نفسها
+      let info = null;
+      try {
+        const ix = await getDoc(doc(db, "portalEmails", email));
+        if (ix.exists()) info = ix.data();
+      } catch (e) { console.warn("portalEmails read failed", e); }
+      if (!info) {
+        // احتياطي مؤقت للنظام القديم (يعمل فقط طالما قراءة سجلات الموكلين مفتوحة)
+        try {
+          const snap = await getDocs(query(collection(db, COLLECTIONS.clients), where("matchEmails", "array-contains", email)));
+          if (!snap.empty) {
+            info = {
+              linked: snap.docs.some(d => d.data().clientUid),
+              pending: snap.docs.filter(d => !d.data().clientUid).map(d => d.id),
+              foreign: snap.docs.some(d => { try { return /جواز|إقامة|اقامة/.test(String(JSON.parse(d.data().json || "{}").idType || "")); } catch (e2) { return false; } })
+            };
+          }
+        } catch (e) { /* مقفولة الآن — طبيعي */ }
+      }
+      if (!info) {
         showMsg("No client is registered with this email. Check the email, or contact the office to activate your account.", "error");
         return;
       }
-
+      
       currentEmail = email;
-      // نفس الإيميل قد يكون على أكثر من سجل (تكرار/سجل وكيل) — لا نكتفي بأول واحد:
-      // لو أي سجل مربوط بحساب فالموكل عنده حساب، وإلا نربط كل السجلات معاً.
-      const linked = snap.docs.some(d => d.data().clientUid);
-      currentClientDocIds = snap.docs.filter(d => !d.data().clientUid).map(d => d.id);
+      const linked = !!info.linked;
+      currentClientDocIds = info.pending || [];
 
       if (linked) {
         document.getElementById("loginEmailLabel").textContent = email;
@@ -238,6 +249,7 @@
         await Promise.all(currentClientDocIds.map(id =>
           updateDoc(doc(db, COLLECTIONS.clients, id), { clientUid: cred.user.uid })
         ));
+        try { await updateDoc(doc(db, "portalEmails", currentEmail), { linked: true, pending: [] }); } catch (ixErr) { console.warn("index update failed", ixErr); }
       } catch (linkErr) {
         console.error("clientUid link failed:", linkErr);
         showMsg("You are signed in, but an error occurred while linking it to your case file — please contact the office.", "error");
