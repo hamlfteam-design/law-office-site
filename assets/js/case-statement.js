@@ -150,7 +150,7 @@
     var multi = groups.length > 1;
     var sess = groups.map(function (g) {
       return {
-        label: multi ? L.st[g.cat] : L.seq,
+        label: multi ? L.st[g.cat] : L.st[cat(c.courtLevel)],   /* العنوان دائماً باسم مرحلة التقاضي المدوَّنة في الدعوى */
         rows: g.rows.map(function (sn) {
           n++;
           var raw = sn.raw || {}, done = resultOf(sn) || (reasonOf(sn) ? L.delay + reasonOf(sn) : "");
