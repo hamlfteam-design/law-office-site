@@ -55,7 +55,9 @@
     }
     var _style = document.createElement("style");
     _style.textContent = ".st-pages img{display:block;width:100%;max-width:820px;margin:0 auto 14px;border:1px solid #d8cdb5;box-shadow:0 2px 10px rgba(0,0,0,.12);background:#fff}" +
-      "@media print{.st-pages img{max-width:none;width:100%;margin:0;border:0;box-shadow:none;page-break-after:always;break-after:page}}";
+      "@media print{@page{size:A4;margin:0}html,body{margin:0!important;padding:0!important}" +
+      ".printing-case{padding:0!important;margin:0!important;max-width:none!important;width:210mm!important}.printing-case .st-pages{padding:0!important;min-height:0!important}" +
+      ".st-pages img{display:block;width:210mm;height:297mm;max-width:none;margin:0;border:0;box-shadow:none;page-break-after:always;break-after:page}}";
     document.head.appendChild(_style);
     function fonts() {
       try {
