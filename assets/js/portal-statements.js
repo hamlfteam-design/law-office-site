@@ -68,7 +68,12 @@
     function pagesFor(c) {
       var key = c.id || JSON.stringify(c).length;
       if (!_cache[key]) _cache[key] = fonts().then(function () {
-        return w.PdfDoc.build(CaseStatement.toBlocks(model(c)), lang === "en" ? { ltr: true } : {});
+        var d = new Date(), p2 = function (n) { return ("0" + n).slice(-2); };
+        var stamp = d.getFullYear() + "/" + p2(d.getMonth() + 1) + "/" + p2(d.getDate()) + "  " + p2(d.getHours()) + ":" + p2(d.getMinutes());
+        var footer = lang === "en" ? "Printed: " + stamp + " — hamlf.com"
+          : "تاريخ الطباعة: " + num(stamp) + " — hamlf.com";
+        var o2 = lang === "en" ? { ltr: true } : {}; o2.footer = footer;
+        return w.PdfDoc.build(CaseStatement.toBlocks(model(c)), o2);
       });
       return _cache[key];
     }

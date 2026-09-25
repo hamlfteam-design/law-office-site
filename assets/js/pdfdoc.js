@@ -105,6 +105,11 @@
         ctx.textAlign = "center"; ctx.textBaseline = "middle";
         ctx.fillText(LTR ? "Page " + (pages.length + 1)
           : "صفحة " + String(pages.length + 1).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }), 143, 1665);
+        /* سطر بيانات الطباعة (تاريخ/ساعة…) في منتصف التذييل بين الـQR ورقم الصفحة */
+        if (opts.footer) {
+          ctx.fillStyle = "#4a4a4a"; ctx.font = pt(10) + "px " + BODY_FONT; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(String(opts.footer), 630, 1665);
+        }
         ctx.textAlign = "right"; ctx.textBaseline = "top";
       }
       pages.push(cv.toDataURL("image/jpeg", 0.92));
