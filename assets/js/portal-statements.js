@@ -46,13 +46,44 @@
     }
     function model(c) { return CaseStatement.build(c, { lang: lang, chain: chainOf(c), tv: tv }); }
 
+    /* العرض على الشاشة = صور صفحات A4 نفسها المبنية للـPDF (نفس الخطوط سلطان/مادا، ورق المؤسسة، العلامة المائية، QR) — مطابق للمطبوع تماماً */
     function card(c, i) {
-      var m = model(c);
       return "<div class=\"case-card\" id=\"case-" + i + "\">" +
-        "<img class=\"case-letterhead\" src=\"" + lhImg + "\" alt=\"\"><div class=\"case-letterhead-rule\"></div>" +
         "<div class=\"case-actions\"><button class=\"btn-print\" data-print=\"case-" + i + "\">" + X.print + "</button>" +
         "<button class=\"btn-print\" data-paper=\"" + i + "\" style=\"background:#7a5a2a;margin-inline-start:8px\">" + X.paper + "</button></div>" +
-        CaseStatement.toHtml(m) + "</div>";
+        "<div class=\"st-pages\" data-i=\"" + i + "\" style=\"min-height:120px;text-align:center;color:#8a7a5a;padding:18px\">" + X.prep + "</div></div>";
+    }
+    var _style = document.createElement("style");
+    _style.textContent = ".st-pages img{display:block;width:100%;max-width:820px;margin:0 auto 14px;border:1px solid #d8cdb5;box-shadow:0 2px 10px rgba(0,0,0,.12);background:#fff}" +
+      "@media print{.st-pages img{max-width:none;width:100%;margin:0;border:0;box-shadow:none;page-break-after:always;break-after:page}}";
+    document.head.appendChild(_style);
+    function fonts() {
+      try {
+        return Promise.all([document.fonts.load("bold 20px \"SF Sultan\""), document.fonts.load("20px \"SF Mada\"")]).catch(function () { });
+      } catch (e) { return Promise.resolve(); }
+    }
+    var _cache = {};
+    function pagesFor(c) {
+      var key = c.id || JSON.stringify(c).length;
+      if (!_cache[key]) _cache[key] = fonts().then(function () {
+        return w.PdfDoc.build(CaseStatement.toBlocks(model(c)), lang === "en" ? { ltr: true } : {});
+      });
+      return _cache[key];
+    }
+    function fill() {
+      Array.prototype.forEach.call(el.querySelectorAll(".st-pages"), function (box) {
+        if (box.getAttribute("data-done")) return;
+        box.setAttribute("data-done", "1");
+        var c = list[+box.getAttribute("data-i")];
+        if (!w.PdfDoc) { box.textContent = X.wait; return; }
+        pagesFor(c).then(function (pages) {
+          box.style.cssText = ""; box.textContent = "";
+          pages.forEach(function (p) {
+            var im = new Image(); im.alt = ""; im.src = String(p).indexOf("data:") === 0 ? p : "data:image/jpeg;base64," + p;
+            box.appendChild(im);
+          });
+        }).catch(function (e) { console.error(e); box.textContent = X.fail; });
+      });
     }
 
     var n = list.length;
@@ -70,6 +101,7 @@
       if (sel === "" ) { view.innerHTML = "<div class=\"empty-state\">" + X.empty + "</div>"; return; }
       var idxs = sel === "all" ? list.map(function (_, i) { return i; }) : [+sel];
       view.innerHTML = idxs.map(function (i) { return card(list[i], i); }).join("");
+      fill();
     }
     if (many) { show(""); el.querySelector("#casePick").addEventListener("change", function (e) { show(e.target.value); }); }
     else show("all");
@@ -86,7 +118,7 @@
       var c = list[+b.getAttribute("data-paper")];
       if (!c || !w.PdfDoc || !w.PdfBuild) { alert(X.wait); return; }
       var old = b.textContent; b.disabled = true; b.textContent = X.prep;
-      w.PdfDoc.build(CaseStatement.toBlocks(model(c)), lang === "en" ? { ltr: true } : {}).then(function (pages) {
+      pagesFor(c).then(function (pages) {
         var blob = new Blob([w.PdfBuild.fromJpegs(pages)], { type: "application/pdf" });
         var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
         a.download = "case-" + (c.fileNo || "statement") + ".pdf";
