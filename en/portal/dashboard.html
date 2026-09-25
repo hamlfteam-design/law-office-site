@@ -16,6 +16,9 @@
 <script src="../../assets/js/portal-letterhead.js?v=3" defer></script>
 <script src="../../assets/js/pdfdoc.js?v=2" defer></script>
 <script src="../../assets/js/pdfbuild.js" defer></script>
+<script src="../../assets/js/case-statement.js?v=1" defer></script>
+<script src="../../assets/js/portal-statements.js?v=1" defer></script>
+
 <style>
   .dash-wrap{max-width:960px;margin:0 auto;padding:40px 20px 80px;}
   .dash-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
@@ -289,61 +292,9 @@
         `;
       }
 
-      window.__portalCases = casesSnap.docs.map((d) => parseCase(d));
-      contentEl.innerHTML = casesSnap.docs.map((docSnap, idx) => renderCase(docSnap, idx)).join("");
-
-      // طباعة/تصدير PDF لقضية واحدة بنفس شكل ورقة المكتب الرسمية —
-      // نضيف كلاس مؤقت على الكارت المطلوب بس، نطبع، وبعدين نشيله.
-      // Office-letterhead PDF for one case — same look as the reports the firm sends (LTR layout)
-      function caseToBlocks(c) {
-        const v = view(c);
-        const caseLabel = [toHindi(c.caseNo), toHindi(c.caseYear)].filter(Boolean).join(" of ");
-        const pairs = [
-          ["File No.", toHindi(c.fileNo)], ["Year of Engagement", toHindi(c.dealYear)], ["Case No.", caseLabel],
-          ["Litigation Stage", v.courtLevel], ["Status", v.status], ["Case Type", v.caseType],
-          ["Court", v.courtName], ["Circuit", v.circuit],
-          ["Client", v.clients], ["Opponent", v.opponents],
-        ].filter(([, v]) => v);
-        const blocks = [
-          { center: "Dr. Hassan Abdelmoneim Hassan Law Firm — Case Statement" },
-          { card: { title: v.subject || "Case with no recorded subject", pairs, perRow: 3 } },
-        ];
-        const sessions = v.sessions;
-        if (sessions.length) {
-          blocks.push({ h: "Hearing Sequence" });
-          blocks.push({ table: {
-            headers: ["#", "Hearing Date", "Decision / Outcome"], widths: [1, 2, 5],
-            rows: sessions.map((s, i) => [toHindi(i + 1), formatDate(s.date), s.text])
-          } });
-        }
-        return blocks;
-      }
-      contentEl.addEventListener("click", async (ev) => {
-        const btn = ev.target.closest("[data-paper-pdf]");
-        if (!btn) return;
-        const idx = +btn.getAttribute("data-paper-pdf");
-        const c = (window.__portalCases || [])[idx];
-        if (!c || !window.PdfDoc || !window.PdfBuild) { alert("Could not prepare the file — please try again in a few seconds."); return; }
-        const old = btn.textContent; btn.disabled = true; btn.textContent = "Preparing…";
-        try {
-          const pages = await PdfDoc.build(caseToBlocks(c), { ltr: true });
-          const blob = new Blob([PdfBuild.fromJpegs(pages)], { type: "application/pdf" });
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(blob);
-          a.download = "case-" + (c.fileNo || idx + 1) + ".pdf";
-          document.body.appendChild(a); a.click(); a.remove();
-        } catch (e) { console.error(e); alert("Could not create the PDF."); }
-        btn.disabled = false; btn.textContent = old;
-      });
-
-      contentEl.addEventListener("click", (ev) => {
-        const btn = ev.target.closest("[data-print-case]");
-        if (!btn) return;
-        const card = document.getElementById(btn.getAttribute("data-print-case"));
-        if (!card) return;
-        card.classList.add("printing-case");
-        window.print();
-        setTimeout(() => card.classList.remove("printing-case"), 500);
+      PortalStatements.mount({
+        el: contentEl, lang: "en",
+        cases: casesSnap.docs.map((d) => { const c = parseCase(d); if (!c.id) c.id = d.id; return c; })
       });
     } catch (err) {
       contentEl.innerHTML = `<div class="empty-state">An error occurred while loading your data. Please try again later.</div>`;

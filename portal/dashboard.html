@@ -16,6 +16,9 @@
 <script src="../assets/js/portal-letterhead.js?v=2" defer></script>
 <script src="../assets/js/pdfdoc.js?v=2" defer></script>
 <script src="../assets/js/pdfbuild.js" defer></script>
+<script src="../assets/js/case-statement.js?v=1" defer></script>
+<script src="../assets/js/portal-statements.js?v=1" defer></script>
+
 <style>
   .dash-wrap{max-width:960px;margin:0 auto;padding:40px 20px 80px;}
   .dash-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
@@ -262,73 +265,9 @@
         `;
       }
 
-      const __caseData = casesSnap.docs.map((d) => parseCase(d));
-      window.__portalCases = __caseData;
-      contentEl.innerHTML = casesSnap.docs.map((docSnap, idx) => renderCase(docSnap, idx)).join("");
-
-      // طباعة/تصدير PDF لقضية واحدة بنفس شكل ورقة المكتب الرسمية —
-      // نضيف كلاس مؤقت على الكارت المطلوب بس، نطبع، وبعدين نشيله.
-      contentEl.addEventListener("click", (ev) => {
-        const btn = ev.target.closest("[data-print-case]");
-        if (!btn) return;
-        const card = document.getElementById(btn.getAttribute("data-print-case"));
-        if (!card) return;
-        card.classList.add("printing-case");
-        window.print();
-        setTimeout(() => card.classList.remove("printing-case"), 500);
-      });
-
-      // بلوكات PDF على ورق المؤسسة لقضية واحدة — نفس شكل التقرير الذي يرسله المكتب
-      function caseToBlocks(c) {
-        const caseLabel = [toHindi(c.caseNo), toHindi(c.caseYear)].filter(Boolean).join(" لسنة ");
-        const pairs = [
-          ["رقم الملف", toHindi(c.fileNo)],
-          ["سنة التعامل", toHindi(c.dealYear)],
-          ["رقم الدعوى", caseLabel],
-          ["درجة التقاضي", c.courtLevel || ""],
-          ["الحالة", c.status || ""],
-          ["نوع الدعوى", c.caseType || ""],
-          ["المحكمة", c.courtName || ""],
-          ["الدائرة", c.circuit || ""],
-          ["الموكل", splitParties(c.clients).join("، ")],
-          ["الخصم", splitParties(c.opponents).join("، ")],
-        ].filter(([, v]) => v);
-        const blocks = [
-          { center: "مؤسسة د. حسن عبد المنعم حسن — بيان قضية" },
-          { card: { title: c.subject || "قضية بدون موضوع مسجّل", pairs, perRow: 3 } },
-        ];
-        const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
-        if (sessions.length) {
-          blocks.push({ h: "تتابع الجلسات" });
-          blocks.push({ table: {
-            headers: ["م", "تاريخ الجلسة", "ما تم بها من قرارات أو أحكام"],
-            widths: [1, 2, 5],
-            rows: sessions.map((s, i) => [toHindi(i + 1), formatDate(s.date), esc(s.raw?.result || s.raw?.for || "")])
-          } });
-        }
-        return blocks;
-      }
-
-      contentEl.addEventListener("click", async (ev) => {
-        const btn = ev.target.closest("[data-paper-pdf]");
-        if (!btn) return;
-        const idx = +btn.getAttribute("data-paper-pdf");
-        const c = (window.__portalCases || [])[idx];
-        if (!c || !window.PdfDoc || !window.PdfBuild) { alert("تعذّر تجهيز الملف — أعد المحاولة بعد ثوانٍ."); return; }
-        const old = btn.textContent; btn.disabled = true; btn.textContent = "جارٍ التجهيز…";
-        try {
-          const pages = await PdfDoc.build(caseToBlocks(c));
-          const pdf = PdfBuild.fromJpegs(pages);
-          const blob = new Blob([pdf], { type: "application/pdf" });
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(blob);
-          a.download = "قضية-" + (c.fileNo || idx + 1) + ".pdf";
-          document.body.appendChild(a); a.click(); a.remove();
-        } catch (e) {
-          console.error(e);
-          alert("تعذّر إنشاء الـPDF.");
-        }
-        btn.disabled = false; btn.textContent = old;
+      PortalStatements.mount({
+        el: contentEl, lang: "ar",
+        cases: casesSnap.docs.map((d) => { const c = parseCase(d); if (!c.id) c.id = d.id; return c; })
       });
     } catch (err) {
       contentEl.innerHTML = `<div class="empty-state">حصل خطأ في تحميل البيانات. حاول تاني لاحقاً.</div>`;
