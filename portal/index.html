@@ -135,9 +135,26 @@
   let currentEmail = "";
   let currentClientDocIds = [];   // كل سجلات الموكل بنفس الإيميل التي لم تُربَط بعد
 
+  /* منع الضغط المزدوج على أي زرار إرسال أثناء انتظار الرد — بدونه كان
+     ممكن نداءان متزامنان (ضغطتين سريعتين، أو اتصال بطيء) ينجحا الاتنين
+     في إنشاء حساب Firebase منفصل لنفس الإيميل (بيحصل فعلاً رغم إن
+     الإيميل المفروض يبقى فريد — سبق ولوحظ حساب واحد اتكرر ٦ مرات). */
+  function guardSubmit(form, handler) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector("button[type=submit]");
+      if (btn && btn.disabled) return;
+      if (btn) btn.disabled = true;
+      try {
+        await handler(e);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+  }
+
   // ---------- الخطوة 1: اكتب الإيميل ----------
-  document.getElementById("emailForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  guardSubmit(document.getElementById("emailForm"), async (e) => {
     const email = document.getElementById("checkEmail").value.trim().toLowerCase();
     if (!email) return;
     clearMsg();
@@ -187,8 +204,7 @@
   });
 
   // ---------- تسجيل دخول عادي (إيميل + كلمة سر) ----------
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  guardSubmit(document.getElementById("loginForm"), async (e) => {
     const password = document.getElementById("loginPassword").value;
     try {
       await signInWithEmailAndPassword(auth, currentEmail, password);
@@ -208,8 +224,7 @@
   });
 
   // ---------- أول مرة: إنشاء حساب بكلمة سر ----------
-  document.getElementById("setPasswordForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  guardSubmit(document.getElementById("setPasswordForm"), async (e) => {
     const p1 = document.getElementById("newPassword").value;
     const p2 = document.getElementById("newPassword2").value;
     if (p1 !== p2) {
@@ -241,19 +256,28 @@
       // نسجّل uid المستخدم على وثيقة الموكل نفسها (clientUid) — ده اللي
       // "بيربط" الحساب بسجل القضايا بتاعه بشكل دائم. يتطلب Firestore Rule
       // تسمح بالتحديث ده تحديداً (شرحها في README).
+      // ملحوظة: currentClientDocIds ممكن يحتوي نفس المعرّف مكرر أكتر من
+      // مرة (بيحصل لو نفس الموكل اتسجّل بأكتر من توكيل/سجل بنفس الإيميل) —
+      // بدون إزالة التكرار، Promise.all كان بيبعت نداءين متزامنين على نفس
+      // المستند، والقاعدة الأمنية بترفض التاني لأن clientUid بقى موجود من
+      // أول نداء نجح — فيفشل Promise.all كله رغم إن الربط الحقيقي نجح.
+      const uniqueIds = [...new Set(currentClientDocIds)];
       try {
-        await Promise.all(currentClientDocIds.map(id =>
+        await Promise.all(uniqueIds.map(id =>
           updateDoc(doc(db, COLLECTIONS.clients, id), { clientUid: cred.user.uid })
         ));
         try { await updateDoc(doc(db, "portalEmails", currentEmail), { linked: true, pending: [] }); } catch (ixErr) { console.warn("index update failed", ixErr); }
       } catch (linkErr) {
         console.error("clientUid link failed:", linkErr);
-        showMsg("تم تسجيل الدخول لكن حصل خطأ في ربطه بملف قضيتك — تواصل مع المكتب.", "error");
+        const detail = (linkErr && (linkErr.code || linkErr.message)) ? String(linkErr.code || linkErr.message) : "";
+        showMsg("تم تسجيل الدخول لكن حصل خطأ في ربطه بملف قضيتك — تواصل مع المكتب." +
+          (detail ? " (" + detail + ")" : ""), "error");
         return;
       }
       window.location.href = "dashboard.html";
     } catch (err) {
-      showMsg("حصل خطأ أثناء إنشاء الحساب. جرب تاني أو تواصل مع المكتب.", "error");
+      const detail = (err && (err.code || err.message)) ? String(err.code || err.message) : "";
+      showMsg("حصل خطأ أثناء إنشاء الحساب. جرب تاني أو تواصل مع المكتب." + (detail ? " (" + detail + ")" : ""), "error");
       console.error(err);
     }
   });
