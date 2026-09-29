@@ -106,7 +106,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
     getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    sendPasswordResetEmail
+    sendPasswordResetEmail, sendEmailVerification
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
     getFirestore, collection, query, where, limit, getDocs, getDoc, doc, updateDoc
@@ -133,6 +133,7 @@
   }
 
   let currentEmail = "";
+  let currentIsCollab = false;   // محامي متعاون (portalEmails.collab) — لازم يأكّد إيميله
   let currentClientDocIds = [];   // كل سجلات الموكل بنفس الإيميل التي لم تُربَط بعد
 
   /* منع الضغط المزدوج على أي زرار إرسال أثناء انتظار الرد — بدونه كان
@@ -189,6 +190,7 @@
       currentEmail = email;
       const linked = !!info.linked;
       currentClientDocIds = info.pending || [];
+      currentIsCollab = !!info.collab;
 
       if (linked) {
         document.getElementById("loginEmailLabel").textContent = email;
@@ -273,6 +275,10 @@
         showMsg("تم تسجيل الدخول لكن حصل خطأ في ربطه بملف قضيتك — تواصل مع المكتب." +
           (detail ? " (" + detail + ")" : ""), "error");
         return;
+      }
+      /* المحامي المتعاون: رابط تأكيد الإيميل — قواعد الأمان مش هتعرض له أي قضية قبل التأكيد */
+      if (currentIsCollab && cred.user && !cred.user.emailVerified) {
+        try { await sendEmailVerification(cred.user); } catch (e) { console.warn("verification email failed", e); }
       }
       window.location.href = "dashboard.html";
     } catch (err) {

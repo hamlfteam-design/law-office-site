@@ -92,6 +92,7 @@
     <button class="btn-logout" id="logoutBtn">تسجيل الخروج</button>
   </div>
 
+  <div id="collabNotice"></div>
   <div id="content">
     <div class="loading">جارٍ تحميل بياناتك…</div>
   </div>
@@ -99,9 +100,9 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
-    getFirestore, collection, query, where, getDocs
+    getFirestore, collection, query, where, getDocs, getDoc, doc
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
   import { firebaseConfig, COLLECTIONS } from "./portal-config.js";
 
@@ -116,6 +117,35 @@
     await signOut(auth);
     window.location.href = "index.html";
   });
+
+  /* تأكيد الإيميل للمحامي المتعاون: رابط بيتبعت على إيميله، ولما يضغطه
+     يرجع هنا ويدوس «أكّدت» — بنحدّث الجلسة عشان التأكيد يوصل لقواعد الأمان. */
+  function showVerifyNotice(user) {
+    const box = document.getElementById("collabNotice");
+    box.innerHTML = `<div class="empty-state" style="padding:22px 18px;border:1px solid #f0d9a8;background:#fff8e8;border-radius:12px;margin-bottom:18px;color:#7a5c14;line-height:2">
+      <b>أكّد إيميلك عشان تظهر لك القضايا المشتركة مع المكتب.</b><br>
+      بعتنا رابط تأكيد على <span dir="ltr">${user.email}</span> — افتحه (وشيّك على الـSpam)، وبعدين ارجع هنا ودوس «أكّدت».<br>
+      <button class="btn-logout" id="verifiedBtn" style="margin:8px 4px 0;color:#1d6b3a;border-color:#1d6b3a">✓ أكّدت</button>
+      <button class="btn-logout" id="resendBtn" style="margin:8px 4px 0">ابعت الرابط تاني</button>
+      <div id="verifyMsg" style="font-size:.85rem;margin-top:8px"></div></div>`;
+    document.getElementById("verifiedBtn").onclick = async () => {
+      await user.reload();
+      if (auth.currentUser && auth.currentUser.emailVerified) {
+        await auth.currentUser.getIdToken(true);
+        window.location.reload();
+      } else {
+        document.getElementById("verifyMsg").textContent = "لسه الإيميل ما اتأكدش — افتح الرابط اللي في الإيميل الأول.";
+      }
+    };
+    document.getElementById("resendBtn").onclick = async () => {
+      try {
+        await sendEmailVerification(user);
+        document.getElementById("verifyMsg").textContent = "اتبعت رابط جديد على إيميلك.";
+      } catch (e) {
+        document.getElementById("verifyMsg").textContent = "تعذّر الإرسال دلوقتي (" + (e.code || e.message) + ") — جرّب بعد شوية.";
+      }
+    };
+  }
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -137,7 +167,39 @@
       );
       const casesSnap = await getDocs(casesQuery);
 
-      if (casesSnap.empty) {
+      /* محامي متعاون (portalEmails.collab): بيشوف القضايا المكتوب إيميله عليها
+         (collabEmails) — للقراءة بس، وبعد ما يأكّد إيميله (قواعد الأمان بتشترط
+         كده). فشل الاستعلام ده ما يوقفش عرض قضايا الموكل العادية. */
+      const email = (user.email || "").toLowerCase();
+      let isCollab = false;
+      try {
+        const ix = await getDoc(doc(db, "portalEmails", email));
+        isCollab = ix.exists() && !!ix.data().collab;
+      } catch (e) { /* فهرس مش متاح — كمّل كموكل عادي */ }
+      let collabDocs = [];
+      if (isCollab && !user.emailVerified) {
+        showVerifyNotice(user);
+      } else if (isCollab) {
+        try {
+          const cs = await getDocs(query(collection(db, COLLECTIONS.cases),
+            where("collabEmails", "array-contains", email)));
+          collabDocs = cs.docs;
+        } catch (e) { console.warn("collab cases query failed", e); }
+      }
+      const seenIds = {};
+      const allDocs = casesSnap.docs.concat(collabDocs).filter((d) => {
+        if (seenIds[d.id]) return false;
+        seenIds[d.id] = 1;
+        return true;
+      });
+
+      if (!allDocs.length) {
+        if (isCollab) {
+          contentEl.innerHTML = user.emailVerified
+            ? `<div class="empty-state">مفيش قضايا مربوطة بإيميلك حالياً. لو ده غير متوقع، تواصل مع المكتب.</div>`
+            : "";
+          return;
+        }
         contentEl.innerHTML = `<div class="empty-state">مفيش قضايا مرتبطة بحسابك حالياً. لو ده غير متوقع، ممكن قضيتك لسه محدّثتش من تطبيق المكتب — جرّب تاني بعد شوية، أو تواصل معانا.</div>`;
         return;
       }
@@ -267,7 +329,7 @@
 
       PortalStatements.mount({
         el: contentEl, lang: "ar",
-        cases: casesSnap.docs.map((d) => { const c = parseCase(d); if (!c.id) c.id = d.id; return c; })
+        cases: allDocs.map((d) => { const c = parseCase(d); if (!c.id) c.id = d.id; return c; })
       });
     } catch (err) {
       /* بدل رسالة عامة بتخفي السبب الحقيقي — نعرض كود/نص خطأ Firebase
