@@ -270,7 +270,13 @@
         cases: casesSnap.docs.map((d) => { const c = parseCase(d); if (!c.id) c.id = d.id; return c; })
       });
     } catch (err) {
-      contentEl.innerHTML = `<div class="empty-state">حصل خطأ في تحميل البيانات. حاول تاني لاحقاً.</div>`;
+      /* بدل رسالة عامة بتخفي السبب الحقيقي — نعرض كود/نص خطأ Firebase
+         نفسه (زي permission-denied أو unavailable) عشان لو تكررت المشكلة
+         نعرف بالظبط سببها من أول مرة بدل التخمين. */
+      const detail = (err && (err.code || err.message)) ? String(err.code || err.message) : "";
+      contentEl.innerHTML = `<div class="empty-state">حصل خطأ في تحميل البيانات. حاول تاني لاحقاً.` +
+        (detail ? `<br><span style="font-size:.75rem;opacity:.6;direction:ltr;display:inline-block;margin-top:8px">${detail}</span>` : "") +
+        `</div>`;
       console.error(err);
     }
   });
