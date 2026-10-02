@@ -117,6 +117,7 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  auth.languageCode = "ar";   // إيميلات استرجاع كلمة السر والتأكيد بالعربي
   const db = getFirestore(app);
 
   const msgEl = document.getElementById("portalMsg");
@@ -246,9 +247,16 @@
           try {
             cred = await signInWithEmailAndPassword(auth, currentEmail, p1);
           } catch (signInErr) {
-            showMsg("عندك حساب مسجَّل بالفعل بهذا البريد بكلمة سر مختلفة — " +
-              "جرّب كلمة السر اللي استخدمتها قبل كده، أو دوس \"نسيت كلمة السر\" " +
-              "من شاشة الدخول.", "error");
+            /* حساب قديم بكلمة سر منسية: بدل ما نوقفه، نبعت له رابط اختيار كلمة سر جديدة تلقائياً.
+               بعد ما يختارها من الرابط يرجع هنا ويكتبها في الخانتين — الدخول بيها بينجح ويكمّل الربط. */
+            try {
+              await sendPasswordResetEmail(auth, currentEmail);
+              showMsg("عندك حساب قديم بالإيميل ده بكلمة سر تانية. بعتنالك دلوقتي رابط على " + currentEmail +
+                " (شوف الـSpam لو مش لاقيه) — افتحه واختار كلمة سر جديدة، وبعدين ارجع هنا واكتبها في الخانتين ودوس دخول.", "success");
+            } catch (resetErr) {
+              showMsg("عندك حساب مسجَّل بالفعل بهذا البريد بكلمة سر مختلفة — دوس \"نسيت كلمة السر\" من شاشة الدخول (" +
+                (resetErr.code || "") + ").", "error");
+            }
             return;
           }
         } else {
