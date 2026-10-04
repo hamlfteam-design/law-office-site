@@ -266,7 +266,13 @@
           ...(opponents.length ? [["الخصوم", opponents.map(esc).join("، ")]] : []),
         ];
 
-        const sessions = Array.isArray(c.sessions) ? [...c.sessions].sort((a, b) => (a.date || "").localeCompare(b.date || "")) : [];
+        /* جلسة من غير تاريخ صحيح (زي 0000-00-00 من البرنامج القديم) ما تظهرش للموكل */
+        const sessions = Array.isArray(c.sessions)
+          ? c.sessions.filter((s) => /^\d{4}-\d{2}-\d{2}/.test(s.date || "") && !/^0000/.test(s.date))
+              .sort((a, b) => (a.date || "").localeCompare(b.date || ""))
+          : [];
+        /* القرار متخزّن بأكتر من اسم: result / decision، وسبب التأجيل for / reason */
+        const decisionOf = (s) => { const r = s.raw || {}; return r.result || r.decision || r["for"] || r.reason || ""; };
 
         return `
           <div class="case-card" id="case-${idx}">
@@ -318,7 +324,7 @@
                       <td>${toHindi(s.raw?.roll || "")}</td>
                       <td>${formatDate(s.date)}</td>
                       <td>${esc(s.raw?.type || "")}</td>
-                      <td class="session-note-cell">${esc(s.raw?.result || s.raw?.for || "")}</td>
+                      <td class="session-note-cell">${esc(decisionOf(s))}</td>
                     </tr>
                   `).join("")}
                 </tbody>
