@@ -18,6 +18,9 @@
 <script src="../assets/js/pdfbuild.js" defer></script>
 <script src="../assets/js/case-statement.js?v=2" defer></script>
 <script src="../assets/js/portal-statements.js?v=4" defer></script>
+<script>window.PDFVIEW_BASE = "../assets/";</script>
+<script src="../assets/js/pdfview.js?v=1" defer></script>
+<script src="../assets/js/portal-docs.js?v=1" defer></script>
 
 <style>
   .dash-wrap{max-width:960px;margin:0 auto;padding:40px 20px 80px;}
@@ -89,7 +92,7 @@
       <h1>قضاياي</h1>
       <p class="who" id="whoText"></p>
     </div>
-    <button class="btn-logout" id="logoutBtn">تسجيل الخروج</button>
+    <div><span id="docsBtnHost"></span><button class="btn-logout" id="logoutBtn">تسجيل الخروج</button></div>
   </div>
 
   <div id="collabNotice"></div>
@@ -115,6 +118,7 @@
   const whoText = document.getElementById("whoText");
 
   document.getElementById("logoutBtn").addEventListener("click", async () => {
+    if (window.PortalDocs) PortalDocs.logout();
     await signOut(auth);
     window.location.href = "index.html";
   });
@@ -154,6 +158,9 @@
       return;
     }
     whoText.textContent = user.email;
+    /* «📎 مستندات قضاياي» — كود على الإيميل ← مشاهدة بس في القارئ بعلامة مائية */
+    if (window.PortalDocs && !document.getElementById("docsBtnHost").childNodes.length)
+      PortalDocs.init(() => auth.currentUser.getIdToken(), user.email, document.getElementById("docsBtnHost"));
 
     try {
       // مؤكَّد مباشرة من Firestore: كل قضية فيها حقل clientUids (array
