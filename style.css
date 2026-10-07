@@ -248,6 +248,8 @@ padding:24px;text-align:center;
 .tag-cloud span{background:var(--white);border:1px solid #dfe2e7;border-radius:20px;padding:7px 15px;font-size:.85rem;color:var(--navy);}
 .team-card h3{color:var(--navy);margin-bottom:4px;}
 .team-role{display:block;color:var(--gold);font-weight:700;font-size:1.05rem;margin-bottom:10px;}
+.team-specs{list-style:none;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 12px;padding:0;}
+.team-specs li{background:var(--white);border:1px solid #dfe2e7;border-radius:14px;padding:3px 10px;font-size:.78rem;color:var(--navy);}
 .team-card p{color:var(--muted);font-size:.9rem;}
 
 /* Media */
