@@ -21,6 +21,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css?v=20260924">
+<style>
+.article-byline{display:flex;align-items:center;gap:12px;}
+.author-photo{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-light);flex:none;}
+.article-table th{text-align:center;}
+</style>
 </head>
 <body>
 <div id="google_translate_element"></div>
@@ -56,7 +61,9 @@
   <div class="container">
     <div class="breadcrumb"><a href="../index.html">الرئيسية</a> / <a href="index.html">مقالات</a> / [عنوان المقال]</div>
     <h1>[عنوان المقال أو البحث — نفس العنوان اللي في الأعلى]</h1>
-    <p class="article-byline">بقلم د. حسن عبد المنعم حسن — محامي نقض، القاهرة</p>
+    <!-- صورة الكاتب: انسخ صورة الكاتب من assets/images/team/ بحجم 160x160 (قصّة الوجه) باسم <slug>-thumb.jpg
+         واكتب اسم الكاتب كما يظهر في فريق الموقع. المسار في النسخة الإنجليزية: ../../assets/images/team/ -->
+    <p class="article-byline"><img class="author-photo" src="../assets/images/team/[author-slug]-thumb.jpg" alt="[اسم الكاتب]" width="46" height="46" loading="lazy"><span>بقلم [اسم الكاتب كما في صفحة الفريق]</span></p>
   </div>
 </section>
 
