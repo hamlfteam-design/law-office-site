@@ -49,6 +49,14 @@
 .bk-consent{text-align:center;padding:10px 0;}
 .bk-consent .price-box{background:var(--bg);border:2px solid var(--gold);border-radius:10px;padding:20px;margin:18px 0;font-size:1.15rem;font-weight:800;color:var(--navy);}
 .bk-consent p{color:var(--text);font-size:.95rem;line-height:1.8;}
+.pay-box{background:var(--bg);border:2px solid var(--gold);border-radius:12px;padding:20px;margin:18px 0;text-align:center;}
+.pay-box h3{margin:0 0 6px;color:var(--navy);font-size:1.05rem;}
+.pay-box .pay-amount{font-weight:800;color:var(--navy);font-size:1.05rem;margin:8px 0 14px;}
+.pay-box img{width:220px;max-width:70%;height:auto;border-radius:10px;background:#fff;border:1px solid #e7e4dd;}
+.pay-ipa{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:14px 0;}
+.pay-ipa code{direction:ltr;background:#fff;border:1px solid #d8d4cb;border-radius:8px;padding:8px 12px;font-size:.95rem;word-break:break-all;}
+.pay-ipa button{cursor:pointer;font-family:inherit;border:1px solid var(--navy);background:var(--navy);color:var(--gold-light);border-radius:8px;padding:8px 14px;font-weight:700;}
+.pay-steps{text-align:start;font-size:.9rem;line-height:1.9;color:var(--text);margin:10px 0 0;padding-inline-start:20px;}
 [hidden]{display:none !important;}
 </style>
 </head>
@@ -177,11 +185,22 @@
   <section class="bk-card" id="step5" hidden>
     <h2>مراجعة وتأكيد الحجز</h2>
     <div class="bk-summary" id="summaryBox"></div>
+    <div class="pay-box">
+      <h3>السداد عبر انستاباي</h3>
+      <div class="pay-amount">المبلغ المستحق: <span id="payAmount"></span></div>
+      <img src="assets/images/instapay-qr.png" alt="رمز QR للدفع عبر انستاباي" loading="lazy">
+      <div class="pay-ipa"><code id="ipaText">hassan.hamlf.lawyer@instapay</code><button type="button" id="copyIpa">نسخ العنوان</button></div>
+      <ol class="pay-steps">
+        <li>افتح تطبيق انستاباي (أو تطبيق البنك) وامسح الرمز، أو حوّل إلى العنوان أعلاه.</li>
+        <li>سدّد المبلغ المستحق ثم صوّر شاشة الإيصال.</li>
+        <li>اضغط الزر بالأسفل لإرسال الطلب على واتساب وأرفق صورة الإيصال في نفس المحادثة.</li>
+      </ol>
+    </div>
     <div class="bk-note">
-      التكلفة والدفع: هيتم تأكيد التكلفة النهائية معاك على واتساب فور استلام الطلب، وطرق الدفع المتاحة نقداً بالمكتب، أو تحويل بنكي/فودافون كاش، أو أونلاين (قريباً). الاستشارة المكتوبة والزيارة تُخصم من الأتعاب في حالة الاتفاق على التوكيل.
+      يتأكد الحجز بعد مراجعة المكتب للتحويل وتأكيده لك على واتساب. الاستشارة المكتوبة والزيارة تُخصم من الأتعاب في حالة الاتفاق على التوكيل.
     </div>
     <div class="bk-actions">
-      <a href="#" id="sendWhatsapp" class="btn-primary" target="_blank" rel="noopener">إرسال الطلب عبر واتساب</a>
+      <a href="#" id="sendWhatsapp" class="btn-primary" target="_blank" rel="noopener">تم السداد — أرسل الطلب والإيصال عبر واتساب</a>
       <button class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" id="backTo4">تعديل البيانات</button>
     </div>
   </section>
@@ -335,10 +354,17 @@ document.getElementById('toStep5').onclick = ()=>{
     'الهاتف: ' + phone + '\n' +
     'القطاع: ' + cat + '\n' +
     'تفضيل الرد: ' + followup + '\n' +
-    'الموضوع: ' + details
+    'الموضوع: ' + details + '\n\n' +
+    'تم السداد عبر انستاباي إلى hassan.hamlf.lawyer@instapay — مرفق صورة الإيصال.'
   );
   document.getElementById('sendWhatsapp').href = 'https://wa.me/201208555806?text=' + waText;
+  document.getElementById('payAmount').textContent = state.price;
   showStep(5);
+};
+document.getElementById('copyIpa').onclick = function(){
+  const t = document.getElementById('ipaText').textContent, b = this, old = b.textContent;
+  const done = ()=>{ b.textContent = 'تم النسخ ✓'; setTimeout(()=>{ b.textContent = old; }, 1800); };
+  if(navigator.clipboard){ navigator.clipboard.writeText(t).then(done, done); } else { done(); }
 };
 </script>
 </body>

@@ -48,6 +48,14 @@
 .bk-consent{text-align:center;padding:10px 0;}
 .bk-consent .price-box{background:var(--bg);border:2px solid var(--gold);border-radius:10px;padding:20px;margin:18px 0;font-size:1.15rem;font-weight:800;color:var(--navy);}
 .bk-consent p{color:var(--text);font-size:.95rem;line-height:1.8;}
+.pay-box{background:var(--bg);border:2px solid var(--gold);border-radius:12px;padding:20px;margin:18px 0;text-align:center;}
+.pay-box h3{margin:0 0 6px;color:var(--navy);font-size:1.05rem;}
+.pay-box .pay-amount{font-weight:800;color:var(--navy);font-size:1.05rem;margin:8px 0 14px;}
+.pay-box img{width:220px;max-width:70%;height:auto;border-radius:10px;background:#fff;border:1px solid #e7e4dd;}
+.pay-ipa{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:14px 0;}
+.pay-ipa code{direction:ltr;background:#fff;border:1px solid #d8d4cb;border-radius:8px;padding:8px 12px;font-size:.95rem;word-break:break-all;}
+.pay-ipa button{cursor:pointer;font-family:inherit;border:1px solid var(--navy);background:var(--navy);color:var(--gold-light);border-radius:8px;padding:8px 14px;font-weight:700;}
+.pay-steps{text-align:start;font-size:.9rem;line-height:1.9;color:var(--text);margin:10px 0 0;padding-inline-start:20px;}
 [hidden]{display:none !important;}
 </style>
 <link rel="alternate" hreflang="ar" href="https://hamlf.com/booking.html"></head>
@@ -173,9 +181,22 @@
   <section class="bk-card" id="step5" hidden="">
     <h2>Review and Confirm Booking</h2>
     <div class="bk-summary" id="summaryBox"></div>
-    <div class="bk-note"> Cost and payment: the final cost will be confirmed with you on WhatsApp as soon as the request is received, and the available payment methods are cash at the office, bank transfer / Vodafone Cash, or online (coming soon). A written consultation and an office visit are deducted from the fees if a power of attorney is agreed. </div>
+    <div class="pay-box">
+      <h3>Pay via InstaPay</h3>
+      <div class="pay-amount">Amount due: <span id="payAmount"></span></div>
+      <img src="../assets/images/instapay-qr.png" alt="InstaPay payment QR code" loading="lazy">
+      <div class="pay-ipa"><code id="ipaText">hassan.hamlf.lawyer@instapay</code><button type="button" id="copyIpa">Copy address</button></div>
+      <ol class="pay-steps">
+        <li>Open the InstaPay app (or your bank app) and scan the code, or transfer to the address above.</li>
+        <li>Pay the amount due, then take a screenshot of the receipt.</li>
+        <li>Tap the button below to send the request on WhatsApp and attach the receipt in the same chat.</li>
+      </ol>
+    </div>
+    <div class="bk-note">
+      Your booking is confirmed once the office reviews the transfer and confirms it with you on WhatsApp. A written consultation and an office visit are deducted from the fees if a power of attorney is agreed.
+    </div>
     <div class="bk-actions">
-      <a href="#" id="sendWhatsapp" class="btn-primary" target="_blank" rel="noopener">Send Request via WhatsApp</a>
+      <a href="#" id="sendWhatsapp" class="btn-primary" target="_blank" rel="noopener">Paid — Send Request &amp; Receipt via WhatsApp</a>
       <button class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" id="backTo4">Edit Details</button>
     </div>
   </section>
@@ -329,10 +350,17 @@ document.getElementById('toStep5').onclick = ()=>{
     'Phone: ' + phone + '\n' +
     'Sector: ' + cat + '\n' +
     'Reply preference: ' + followup + '\n' +
-    'Subject: ' + details
+    'Subject: ' + details + '\n\n' +
+    'Paid via InstaPay to hassan.hamlf.lawyer@instapay — receipt attached.'
   );
   document.getElementById('sendWhatsapp').href = 'https://wa.me/201208555806?text=' + waText;
+  document.getElementById('payAmount').textContent = state.price;
   showStep(5);
+};
+document.getElementById('copyIpa').onclick = function(){
+  const t = document.getElementById('ipaText').textContent, b = this, old = b.textContent;
+  const done = ()=>{ b.textContent = 'Copied ✓'; setTimeout(()=>{ b.textContent = old; }, 1800); };
+  if(navigator.clipboard){ navigator.clipboard.writeText(t).then(done, done); } else { done(); }
 };
 </script>
 
