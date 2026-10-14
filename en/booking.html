@@ -133,7 +133,7 @@
     <p class="section-note" style="margin:0 0 6px;">Appointments are available on <strong>Sundays and Tuesdays only</strong>, from 2–3 PM and 4–5 PM.</p>
     <div class="bk-cal" id="calDays"></div>
     <div class="bk-slots" id="timeSlots" hidden=""></div>
-    <div class="bk-note" id="depositNote" hidden=""> If the time you chose is not on the available meeting days, a 50% online deposit will be required to confirm the booking, with the remainder paid in cash before the session. </div>
+    <div class="bk-note" id="depositNote">Payment is due in full before the appointment via InstaPay after completing the booking; the slot is confirmed only once the office receives the amount.</div>
     <div class="bk-actions">
       <button class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" id="backTo2">Back</button>
       <button class="btn-primary" id="toStep4" disabled="">Next</button>
@@ -276,7 +276,6 @@ function buildCalendar(){
           el.classList.add('selected');
           state.date = dateCopy;
           state.dateLabel = dayNames[dateCopy.getDay()] + ' ' + dateCopy.getDate() + ' ' + monthNames[dateCopy.getMonth()];
-          document.getElementById('depositNote').hidden = true;
           showSlots();
         };
       }
@@ -284,22 +283,6 @@ function buildCalendar(){
     }
     d.setDate(d.getDate()+1);
   }
-  const other = document.createElement('div');
-  other.className = 'bk-day avail';
-  other.style.background = '#f4f2ec';
-  other.style.color = 'var(--navy)';
-  other.innerHTML = 'Another time<span class="d">🗓️</span>';
-  other.onclick = ()=>{
-    [...calDays.children].forEach(c=>c.classList.remove('selected'));
-    other.classList.add('selected');
-    state.date = null;
-    state.dateLabel = 'By arrangement (outside Sunday/Tuesday)';
-    state.slot = null;
-    document.getElementById('depositNote').hidden = false;
-    document.getElementById('timeSlots').hidden = true;
-    document.getElementById('toStep4').disabled = false;
-  };
-  calDays.appendChild(other);
 }
 
 function showSlots(){

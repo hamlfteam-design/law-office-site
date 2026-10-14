@@ -135,9 +135,7 @@
     <p class="section-note" style="margin:0 0 6px;">المواعيد متاحة أيام <strong>الأحد والثلاثاء فقط</strong>، من 2–3 م ومن 4–5 م.</p>
     <div class="bk-cal" id="calDays"></div>
     <div class="bk-slots" id="timeSlots" hidden></div>
-    <div class="bk-note" id="depositNote" hidden>
-      لو الميعاد اللي اخترته مش في يومي المقابلات المتاحين، هيُطلب سداد 50% أونلاين مقدماً لتأكيد الحجز، والباقي نقداً قبل الجلسة.
-    </div>
+    <div class="bk-note" id="depositNote">السداد يكون كاملاً قبل الميعاد عبر انستاباي بعد إتمام الحجز، ولا يتأكد الميعاد إلا بعد استلام المكتب للمبلغ.</div>
     <div class="bk-actions">
       <button class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" id="backTo2">السابق</button>
       <button class="btn-primary" id="toStep4" disabled>التالي</button>
@@ -280,7 +278,6 @@ function buildCalendar(){
           el.classList.add('selected');
           state.date = dateCopy;
           state.dateLabel = dayNames[dateCopy.getDay()] + ' ' + dateCopy.getDate() + ' ' + monthNames[dateCopy.getMonth()];
-          document.getElementById('depositNote').hidden = true;
           showSlots();
         };
       }
@@ -288,22 +285,6 @@ function buildCalendar(){
     }
     d.setDate(d.getDate()+1);
   }
-  const other = document.createElement('div');
-  other.className = 'bk-day avail';
-  other.style.background = '#f4f2ec';
-  other.style.color = 'var(--navy)';
-  other.innerHTML = 'ميعاد تاني<span class="d">🗓️</span>';
-  other.onclick = ()=>{
-    [...calDays.children].forEach(c=>c.classList.remove('selected'));
-    other.classList.add('selected');
-    state.date = null;
-    state.dateLabel = 'حسب الاتفاق (خارج يومي الأحد/الثلاثاء)';
-    state.slot = null;
-    document.getElementById('depositNote').hidden = false;
-    document.getElementById('timeSlots').hidden = true;
-    document.getElementById('toStep4').disabled = false;
-  };
-  calDays.appendChild(other);
 }
 
 function showSlots(){
