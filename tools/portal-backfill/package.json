@@ -1,0 +1,15 @@
+{
+  "name": "portal-backfill",
+  "private": true,
+  "type": "module",
+  "description": "تكملة بيانات بوابة الموكلين في Firestore (portalEmails + clientEmails)",
+  "scripts": {
+    "inspect": "node backfill.mjs --inspect",
+    "dry-run": "node backfill.mjs",
+    "apply": "node backfill.mjs --apply",
+    "test": "node --test plan.test.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}
