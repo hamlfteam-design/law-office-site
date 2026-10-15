@@ -62,13 +62,15 @@ async function main() {
 
   const ixSnap = await db.collection("portalEmails").get();
   const existingIndex = new Map(ixSnap.docs.map((d) => [d.id, d.data()]));
-  const { portalEmails, caseWrites, report } = buildPlan(clientDocs, caseDocs, existingIndex);
+  const { portalEmails, clientWrites, caseWrites, report } = buildPlan(clientDocs, caseDocs, existingIndex);
 
   const reportFile = join(HERE, `report-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
-  writeFileSync(reportFile, JSON.stringify({ apply: APPLY, report, portalEmails, caseWrites }, null, 2));
+  writeFileSync(reportFile, JSON.stringify({ apply: APPLY, report, portalEmails, clientWrites, caseWrites }, null, 2));
 
   console.log(`
+موكلين ليهم إيميل: ${report.clientsWithEmails} من ${report.clients}
 إيميلات موكلين صالحة: ${report.emails}
+موكلين matchEmails هيتكمّل عندهم:     ${report.clientsToWrite}
 إيميلات مكتوبة غلط (اتسابت):          ${report.invalidEmails.length}
 وثائق portalEmails هتتكتب/تتحدّث:     ${report.portalEmailsToWrite}
 قضايا اتعرف موكلها — بالمعرّف: ${report.casesLinked.byId}، بالحساب: ${report.casesLinked.byUid}، بالاسم: ${report.casesLinked.byName}
@@ -92,6 +94,8 @@ async function main() {
     await add((b) => b.set(db.collection("portalEmails").doc(email),
       { ...data, backfilledAt: FieldValue.serverTimestamp() }, { merge: true }));
   }
+  for (const { clientId, matchEmails } of clientWrites)
+    await add((b) => b.update(db.collection(CLIENTS).doc(clientId), { matchEmails }));
   for (const { caseId, clientEmails } of caseWrites)
     await add((b) => b.update(db.collection(CASES).doc(caseId), { clientEmails }));
   await flush();

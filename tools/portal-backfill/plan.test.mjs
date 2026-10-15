@@ -67,3 +67,27 @@ test("cases: no write when clientEmails already correct", () => {
     [kase("k1", {}, { clientUids: ["u1"], clientEmails: ["a@x.com"] })]);
   assert.equal(caseWrites.length, 0);
 });
+
+test("client emails come from matchEmails and json email/emails; matchEmails filled", () => {
+  const { clientWrites, portalEmails, report } = buildPlan([
+    client("c1", undefined, {}, { email: "Ahmed@Hotmail.com", emails: ["ahmed@hotmail.com", "a2@x.com"] }),
+    client("c2", ["b@x.com"], {}, { emails: "b@x.com, c@x.com" }),
+    client("c3", ["d@x.com"], {}, { email: "d@x.com" }),           // مكتمل
+    client("c4", undefined, {}, { email: "mo hamed@yahoo.com" }),   // مسافة جوه إيميل واحد
+    client("c5", undefined, {}, { emails: "e@x.com f@y.com" }),     // اتنين بمسافة
+  ], []);
+  const by = Object.fromEntries(clientWrites.map((w) => [w.clientId, w.matchEmails]));
+  assert.deepEqual(by.c1, ["ahmed@hotmail.com", "a2@x.com"]);
+  assert.deepEqual(by.c2, ["b@x.com", "c@x.com"]);
+  assert.equal(by.c3, undefined);
+  assert.deepEqual(by.c4, ["mohamed@yahoo.com"]);
+  assert.deepEqual(by.c5, ["e@x.com", "f@y.com"]);
+  assert.equal(report.clientsWithEmails, 5);
+  assert.ok(portalEmails.some((p) => p.email === "a2@x.com"));
+});
+
+test("case client names ignore capacity in parentheses", () => {
+  const { caseWrites } = buildPlan([client("c1", ["a@x.com"], {}, { name: "سامي فؤاد" })],
+    [kase("k1", { clients: "سامي فؤاد (مدعي)" })]);
+  assert.deepEqual(caseWrites[0].clientEmails, ["a@x.com"]);
+});
