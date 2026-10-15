@@ -99,7 +99,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
     getFirestore, collection, query, where, getDocs
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -116,6 +116,34 @@
     await signOut(auth);
     window.location.href = "index.html";
   });
+
+  /* Email confirmation: cases registered under the client's email only show once the email is verified. */
+  function showVerifyNotice(user) {
+    contentEl.innerHTML = `<div class="empty-state" style="padding:22px 18px;border:1px solid #f0d9a8;background:#fff8e8;border-radius:12px;color:#7a5c14;line-height:2">
+      <b>Please confirm your email to see the cases registered with us under it.</b><br>
+      We sent a confirmation link to <span dir="ltr">${escHtml(user.email)}</span> — open it (check Spam too), then come back and press “I confirmed”.<br>
+      <button class="btn-logout" id="verifiedBtn" style="margin:8px 4px 0;color:#1d6b3a;border-color:#1d6b3a">✓ I confirmed</button>
+      <button class="btn-logout" id="resendBtn" style="margin:8px 4px 0">Send the link again</button>
+      <div id="verifyMsg" style="font-size:.85rem;margin-top:8px"></div></div>`;
+    document.getElementById("verifiedBtn").onclick = async () => {
+      await user.reload();
+      if (auth.currentUser && auth.currentUser.emailVerified) {
+        await auth.currentUser.getIdToken(true);
+        window.location.reload();
+      } else {
+        document.getElementById("verifyMsg").textContent = "Your email isn't confirmed yet — open the link in the email first.";
+      }
+    };
+    document.getElementById("resendBtn").onclick = async () => {
+      try {
+        await sendEmailVerification(user);
+        document.getElementById("verifyMsg").textContent = "A new link has been sent to your email.";
+      } catch (e) {
+        document.getElementById("verifyMsg").textContent = "Couldn't send right now (" + (e.code || e.message) + ") — try again in a bit.";
+      }
+    };
+  }
+  function escHtml(v) { return String(v || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -137,7 +165,36 @@
       );
       const casesSnap = await getDocs(casesQuery);
 
-      if (casesSnap.empty) {
+      /* التعرّف على الموكل بإيميله كمعرّف ثابت: أي قضية فيها إيميله في حقل
+         clientEmails (بيكتبه تطبيق المكتب من matchEmails بتاعة موكلي القضية)
+         تظهر له فوراً — من غير ما يستنى ربط clientUid أو مزامنة الـ6 ساعات،
+         وبتفضل ظاهرة حتى لو اتعمل له حساب جديد بنفس الإيميل. الإيميل بيتجرّب
+         بأرقام إنجليزية وعربية (سجلات قديمة). فشل الاستعلام ده (قاعدة أمان مش
+         متفعّلة أو حقل مش موجود لسه) ما يوقفش عرض القضايا المربوطة بالـ uid.
+         قواعد الأمان بتشترط إيميل مؤكَّد — فالاستعلام ده للحسابات المؤكَّدة بس. */
+      const myEmail = (user.email || "").toLowerCase();
+      const myEmailAlt = myEmail.replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]);
+      let emailDocs = [];
+      if (myEmail && user.emailVerified) {
+        try {
+          const es = await getDocs(query(collection(db, COLLECTIONS.cases),
+            where("clientEmails", "array-contains-any", myEmailAlt !== myEmail ? [myEmail, myEmailAlt] : [myEmail])));
+          emailDocs = es.docs;
+        } catch (e) { console.warn("clientEmails cases query failed", e); }
+      }
+      const seenIds = {};
+      const allDocs = casesSnap.docs.concat(emailDocs).filter((d) => {
+        if (seenIds[d.id]) return false;
+        seenIds[d.id] = 1;
+        return true;
+      });
+
+      if (!allDocs.length && !user.emailVerified) {
+        /* إيميل مش مؤكَّد: قضاياه المسجّلة بإيميله مش هتظهر غير بعد التأكيد */
+        showVerifyNotice(user);
+        return;
+      }
+      if (!allDocs.length) {
         contentEl.innerHTML = `<div class="empty-state">No cases are linked to your account yet. If this is unexpected, your case may not have been updated from the office app yet — try again shortly, or contact us.</div>`;
         return;
       }
@@ -294,7 +351,7 @@
 
       PortalStatements.mount({
         el: contentEl, lang: "en",
-        cases: casesSnap.docs.map((d) => { const c = parseCase(d); if (!c.id) c.id = d.id; return c; })
+        cases: allDocs.map((d) => { const c = parseCase(d); if (!c.id) c.id = d.id; return c; })
       });
     } catch (err) {
       contentEl.innerHTML = `<div class="empty-state">An error occurred while loading your data. Please try again later.</div>`;

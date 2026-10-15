@@ -125,10 +125,10 @@
 
   /* تأكيد الإيميل للمحامي المتعاون: رابط بيتبعت على إيميله، ولما يضغطه
      يرجع هنا ويدوس «أكّدت» — بنحدّث الجلسة عشان التأكيد يوصل لقواعد الأمان. */
-  function showVerifyNotice(user) {
+  function showVerifyNotice(user, why) {
     const box = document.getElementById("collabNotice");
     box.innerHTML = `<div class="empty-state" style="padding:22px 18px;border:1px solid #f0d9a8;background:#fff8e8;border-radius:12px;margin-bottom:18px;color:#7a5c14;line-height:2">
-      <b>أكّد إيميلك عشان تظهر لك القضايا المشتركة مع المكتب.</b><br>
+      <b>أكّد إيميلك عشان تظهر لك ${why || "القضايا المشتركة مع المكتب"}.</b><br>
       بعتنا رابط تأكيد على <span dir="ltr">${user.email}</span> — افتحه (وشيّك على الـSpam)، وبعدين ارجع هنا ودوس «أكّدت».<br>
       <button class="btn-logout" id="verifiedBtn" style="margin:8px 4px 0;color:#1d6b3a;border-color:#1d6b3a">✓ أكّدت</button>
       <button class="btn-logout" id="resendBtn" style="margin:8px 4px 0">ابعت الرابط تاني</button>
@@ -175,6 +175,24 @@
       );
       const casesSnap = await getDocs(casesQuery);
 
+      /* التعرّف على الموكل بإيميله كمعرّف ثابت: أي قضية فيها إيميله في حقل
+         clientEmails (بيكتبه تطبيق المكتب من matchEmails بتاعة موكلي القضية)
+         تظهر له فوراً — من غير ما يستنى ربط clientUid أو مزامنة الـ6 ساعات،
+         وبتفضل ظاهرة حتى لو اتعمل له حساب جديد بنفس الإيميل. الإيميل بيتجرّب
+         بأرقام إنجليزية وعربية (سجلات قديمة). فشل الاستعلام ده (قاعدة أمان مش
+         متفعّلة أو حقل مش موجود لسه) ما يوقفش عرض القضايا المربوطة بالـ uid.
+         قواعد الأمان بتشترط إيميل مؤكَّد — فالاستعلام ده للحسابات المؤكَّدة بس. */
+      const myEmail = (user.email || "").toLowerCase();
+      const myEmailAlt = myEmail.replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]);
+      let emailDocs = [];
+      if (myEmail && user.emailVerified) {
+        try {
+          const es = await getDocs(query(collection(db, COLLECTIONS.cases),
+            where("clientEmails", "array-contains-any", myEmailAlt !== myEmail ? [myEmail, myEmailAlt] : [myEmail])));
+          emailDocs = es.docs;
+        } catch (e) { console.warn("clientEmails cases query failed", e); }
+      }
+
       /* محامي متعاون (portalEmails.collab): بيشوف القضايا المكتوب إيميله عليها
          (collabEmails) — للقراءة بس، وبعد ما يأكّد إيميله (قواعد الأمان بتشترط
          كده). فشل الاستعلام ده ما يوقفش عرض قضايا الموكل العادية. */
@@ -195,7 +213,7 @@
         } catch (e) { console.warn("collab cases query failed", e); }
       }
       const seenIds = {};
-      const allDocs = casesSnap.docs.concat(collabDocs).filter((d) => {
+      const allDocs = casesSnap.docs.concat(emailDocs, collabDocs).filter((d) => {
         if (seenIds[d.id]) return false;
         seenIds[d.id] = 1;
         return true;
@@ -206,6 +224,12 @@
           contentEl.innerHTML = user.emailVerified
             ? `<div class="empty-state">مفيش قضايا مربوطة بإيميلك حالياً. لو ده غير متوقع، تواصل مع المكتب.</div>`
             : "";
+          return;
+        }
+        /* إيميل مش مؤكَّد: قضاياه المسجّلة بإيميله مش هتظهر غير بعد التأكيد */
+        if (!user.emailVerified) {
+          showVerifyNotice(user, "قضاياك المسجّلة عندنا بإيميلك");
+          contentEl.innerHTML = "";
           return;
         }
         contentEl.innerHTML = `<div class="empty-state">مفيش قضايا مرتبطة بحسابك حالياً. لو ده غير متوقع، ممكن قضيتك لسه محدّثتش من تطبيق المكتب — جرّب تاني بعد شوية، أو تواصل معانا.</div>`;

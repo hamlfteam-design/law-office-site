@@ -310,8 +310,9 @@
           (detail ? " (" + detail + ")" : ""), "error");
         return;
       }
-      /* المحامي المتعاون: رابط تأكيد الإيميل — قواعد الأمان مش هتعرض له أي قضية قبل التأكيد */
-      if (currentIsCollab && cred.user && !cred.user.emailVerified) {
+      /* رابط تأكيد الإيميل لكل حساب جديد (موكل أو محامي متعاون) — قواعد الأمان مش بتعرض القضايا
+         المسجّلة بالإيميل (clientEmails/collabEmails) غير بعد التأكيد */
+      if (cred.user && !cred.user.emailVerified) {
         try { await sendEmailVerification(cred.user); } catch (e) { console.warn("verification email failed", e); }
       }
       window.location.href = "dashboard.html";

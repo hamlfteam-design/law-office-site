@@ -104,7 +104,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
     getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    sendPasswordResetEmail
+    sendPasswordResetEmail, sendEmailVerification
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
     getFirestore, collection, query, where, limit, getDocs, getDoc, doc, updateDoc
@@ -280,6 +280,10 @@
         console.error("clientUid link failed:", linkErr);
         showMsg("You are signed in, but an error occurred while linking it to your case file — please contact the office.", "error");
         return;
+      }
+      /* confirmation link for every new account — the rules only show cases registered under the email (clientEmails) once it is verified */
+      if (cred.user && !cred.user.emailVerified) {
+        try { await sendEmailVerification(cred.user); } catch (e) { console.warn("verification email failed", e); }
       }
       window.location.href = "dashboard.html";
     } catch (err) {
