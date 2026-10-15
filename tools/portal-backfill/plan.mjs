@@ -52,12 +52,31 @@ export function explicitClientIds(caseJson) {
   return ids;
 }
 
+/* إيميلات الموكل من كل الأماكن اللي التطبيق بيكتبها فيها: matchEmails على الوثيقة،
+   وجوه json: matchEmails و email و emails (قايمة أو نص مفصول بفواصل/مسافات) */
+export function rawClientEmails(data, j) {
+  const out = [];
+  const take = (v) => {
+    if (v == null || v === "") return;
+    if (Array.isArray(v)) { v.forEach(take); return; }
+    if (typeof v === "object") { take(v.email || v.value || v.address); return; }
+    // فواصل واضحة بس؛ المسافة بتفصل لو الجزء فيه أكتر من @ (وإلا «mo hamed@x.com» إيميل واحد فيه مسافة غلط)
+    for (const part of String(v).split(/[,;،؛\n|]+/)) {
+      const bits = (part.match(/@/g) || []).length > 1 ? part.split(/\s+/) : [part];
+      bits.forEach((x) => x.trim() && out.push(x.trim()));
+    }
+  };
+  take(data.matchEmails); take(j.matchEmails); take(j.email); take(j.emails);
+  return out;
+}
+
 /* حقل clients في القضية نص واحد بيجمع أكتر من طرف مفصول بـ «·» (زي dashboard.html) */
 export function caseClientNames(caseJson) {
   const v = caseJson.clients;
   if (Array.isArray(v)) return v.map((x) => (typeof x === "object" && x ? clientName(x) : String(x))).filter(Boolean);
   if (!v) return [];
-  return String(v).split("·").map((s) => s.trim()).filter(Boolean);
+  // الصفة بين قوسين (لو موجودة) مش جزء من الاسم
+  return String(v).split("·").map((s) => s.replace(/\([^)]*\)/g, "").trim()).filter(Boolean);
 }
 
 const FOREIGN_ID = /جواز|إقامة|اقامة/;
@@ -68,6 +87,8 @@ export function buildPlan(clientDocs, caseDocs, existingIndex = new Map()) {
     invalidEmails: [],          // { clientId, raw }
     emails: 0,
     portalEmailsToWrite: 0,
+    clientsWithEmails: 0,
+    clientsToWrite: 0,          // موكلين matchEmails بتاعهم ناقصة إيميلات من json
     casesLinked: { byId: 0, byUid: 0, byName: 0 },
     casesWithoutClient: [],     // { caseId, names }
     ambiguousNames: [],         // { caseId, name, clientIds }
@@ -83,12 +104,13 @@ export function buildPlan(clientDocs, caseDocs, existingIndex = new Map()) {
   for (const { id, data } of clientDocs) {
     const j = parseJson(data.json);
     const emails = [];
-    for (const raw of Array.isArray(data.matchEmails) ? data.matchEmails : []) {
+    for (const raw of rawClientEmails(data, j)) {
       const e = normalizeEmail(raw);
       if (!e) continue;
       if (!isValidEmail(e)) { report.invalidEmails.push({ clientId: id, raw: String(raw) }); continue; }
       if (!emails.includes(e)) emails.push(e);
     }
+    if (emails.length) report.clientsWithEmails++;
     const c = { emails, clientUid: data.clientUid || null, foreign: FOREIGN_ID.test(String(j.idType || "")), name: clientName(j) };
     clients.set(id, c);
     for (const e of emails) (byEmail.get(e) || byEmail.set(e, []).get(e)).push(id);
@@ -97,6 +119,17 @@ export function buildPlan(clientDocs, caseDocs, existingIndex = new Map()) {
     if (n) (byName.get(n) || byName.set(n, []).get(n)).push(id);
   }
   report.emails = byEmail.size;
+
+  // ---------- matchEmails على وثيقة الموكل ----------
+  // قاعدة الأمان بتسمح للموكل يربط حسابه (clientUid) بس لو إيميله في matchEmails،
+  // وأغلب الموكلين إيميلاتهم في json بس. بنضيف المطبّع للموجود (من غير ما نشيل حاجة).
+  const clientWrites = [];
+  for (const { id, data } of clientDocs) {
+    const cur = Array.isArray(data.matchEmails) ? data.matchEmails.map(String) : [];
+    const missing = clients.get(id).emails.filter((e) => !cur.includes(e));
+    if (missing.length) clientWrites.push({ clientId: id, matchEmails: [...cur, ...missing] });
+  }
+  report.clientsToWrite = clientWrites.length;
 
   // ---------- portalEmails/{email} ----------
   // linked: أي سجل للإيميل ده مربوط بحساب (أو الفهرس الحالي بيقول كده)
@@ -149,5 +182,5 @@ export function buildPlan(clientDocs, caseDocs, existingIndex = new Map()) {
   }
   report.casesToWrite = caseWrites.length;
 
-  return { portalEmails, caseWrites, report };
+  return { portalEmails, clientWrites, caseWrites, report };
 }
