@@ -82,22 +82,22 @@
     <div class="bk-step" data-step="2">2. الأتعاب</div>
     <div class="bk-step" data-step="3">3. الميعاد</div>
     <div class="bk-step" data-step="4">4. بياناتك</div>
-    <div class="bk-step" data-step="5">5. التأكيد</div>
+    <div class="bk-step" data-step="5">5. السداد والتأكيد</div>
   </div>
 
   <!-- Step 1: type (no prices shown) -->
   <section class="bk-card" id="step1">
     <h2>نوع الاستشارة</h2>
     <div class="bk-options" id="typeOptions">
-      <label class="bk-opt" data-type="office" data-price="3000 جنيه (تُخصم من الأتعاب عند الاتفاق)">
+      <label class="bk-opt" data-type="office" data-pay="3000" data-price="3000 جنيه (تُخصم من الأتعاب عند الاتفاق)">
         <h3>🏢 زيارة للمكتب</h3>
         <p>30 دقيقة بمقر المؤسسة بوسط البلد، القاهرة. مدة الحد الأقصى ساعة.</p>
       </label>
-      <label class="bk-opt" data-type="video" data-price="6000 جنيه/ساعة (100 جنيه للدقيقة) تُحسب على الدقائق الفعلية، بحد أدنى 2000 جنيه تُسدَّد مقدماً وتغطي حتى 15 دقيقة، وما زاد يُحسب بالدقيقة ويُسدَّد بعد الجلسة">
+      <label class="bk-opt" data-type="video" data-pay="2000" data-price="6000 جنيه/ساعة (100 جنيه للدقيقة) تُحسب على الدقائق الفعلية، بحد أدنى 2000 جنيه تُسدَّد مقدماً وتغطي حتى 15 دقيقة، وما زاد يُحسب بالدقيقة ويُسدَّد بعد الجلسة">
         <h3>💻 فيديو كونفرانس</h3>
         <p>استشارة عن بُعد بالصوت والصورة، وتُحسب الأتعاب على الدقائق الفعلية.</p>
       </label>
-      <label class="bk-opt" data-type="written" data-price="5000 جنيه">
+      <label class="bk-opt" data-type="written" data-pay="5000" data-price="5000 جنيه">
         <h3>📝 استشارة مكتوبة</h3>
         <p>ترسل تفاصيل موضوعك، ونرد عليك كتابةً خلال المدة المتفق عليها.</p>
       </label>
@@ -135,7 +135,7 @@
     <p class="section-note" style="margin:0 0 6px;">المواعيد متاحة أيام <strong>الأحد والثلاثاء فقط</strong>، من 2–3 م ومن 4–5 م.</p>
     <div class="bk-cal" id="calDays"></div>
     <div class="bk-slots" id="timeSlots" hidden></div>
-    <div class="bk-note" id="depositNote">السداد يكون كاملاً قبل الميعاد عبر انستاباي بعد إتمام الحجز، ولا يتأكد الميعاد إلا بعد استلام المكتب للمبلغ.</div>
+    <div class="bk-note" id="depositNote">بعد اختيار الميعاد وكتابة بياناتك، ستظهر لك في <strong>الخطوة الأخيرة</strong> صفحة السداد بكود وعنوان انستاباي. السداد كاملاً قبل الميعاد، ولا يتأكد الميعاد إلا بعد استلام المكتب للمبلغ.</div>
     <div class="bk-actions">
       <button class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" id="backTo2">السابق</button>
       <button class="btn-primary" id="toStep4" disabled>التالي</button>
@@ -185,11 +185,12 @@
     <div class="bk-summary" id="summaryBox"></div>
     <div class="pay-box">
       <h3>السداد عبر انستاباي</h3>
-      <div class="pay-amount">المبلغ المستحق: <span id="payAmount"></span></div>
+      <div class="pay-amount" style="font-size:1.4rem;">المطلوب سداده الآن: <span id="payAmount"></span> جنيه</div>
+      <div class="pay-fee" style="font-size:.85rem;color:var(--muted);margin:-6px 0 12px;" id="payFee"></div>
       <img src="assets/images/instapay-qr.png" alt="رمز QR للدفع عبر انستاباي" loading="lazy">
-      <div class="pay-ipa"><code id="ipaText">hassan.hamlf.lawyer@instapay</code><button type="button" id="copyIpa">نسخ العنوان</button></div>
+      <div class="pay-ipa"><code id="ipaText">hassan.hamlf.lawyer@instapay</code><button type="button" id="copyIpa">نسخ العنوان</button><a href="assets/images/instapay-qr.png" download="hamlf-instapay-qr.png" class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;padding:8px 14px;border-radius:8px;">حفظ الكود كصورة</a></div>
       <ol class="pay-steps">
-        <li>افتح تطبيق انستاباي (أو تطبيق البنك) وامسح الرمز، أو حوّل إلى العنوان أعلاه.</li>
+        <li>من كمبيوتر: افتح تطبيق انستاباي على موبايلك وامسح الرمز. من الموبايل: انسخ العنوان أعلاه، وافتح انستاباي واختر «إرسال» ثم الصق العنوان.</li>
         <li>سدّد المبلغ المستحق ثم صوّر شاشة الإيصال.</li>
         <li>اضغط الزر بالأسفل لإرسال الطلب على واتساب وأرفق صورة الإيصال في نفس المحادثة.</li>
       </ol>
@@ -213,7 +214,7 @@
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-const state = { type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
+const state = { pay:'', type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
 
 // ---- Step 1: type selection ----
 const typeOptions = document.getElementById('typeOptions');
@@ -225,6 +226,7 @@ typeOptions.addEventListener('click', e=>{
   state.type = opt.dataset.type;
   state.typeLabel = opt.querySelector('h3').textContent.trim();
   state.price = opt.dataset.price;
+  state.pay = opt.dataset.pay;
   document.getElementById('toStep2').disabled = false;
 });
 
@@ -339,7 +341,8 @@ document.getElementById('toStep5').onclick = ()=>{
     'تم السداد عبر انستاباي إلى hassan.hamlf.lawyer@instapay — مرفق صورة الإيصال.'
   );
   document.getElementById('sendWhatsapp').href = 'https://wa.me/201208555806?text=' + waText;
-  document.getElementById('payAmount').textContent = state.price;
+  document.getElementById('payAmount').textContent = state.pay;
+  document.getElementById('payFee').textContent = state.price;
   showStep(5);
 };
 document.getElementById('copyIpa').onclick = function(){

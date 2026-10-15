@@ -81,22 +81,22 @@
     <div class="bk-step" data-step="2">2. Fees</div>
     <div class="bk-step" data-step="3">3. Appointment</div>
     <div class="bk-step" data-step="4">4. Your details</div>
-    <div class="bk-step" data-step="5">5. Confirmation</div>
+    <div class="bk-step" data-step="5">5. Payment &amp; Confirmation</div>
   </div>
 
   <!-- Step 1: type (no prices shown) -->
   <section class="bk-card" id="step1">
     <h2>Consultation Type</h2>
     <div class="bk-options" id="typeOptions">
-      <label class="bk-opt" data-type="office" data-price="3000 جنيه (تُخصم من الأتعاب عند الاتفاق)">
+      <label class="bk-opt" data-type="office" data-pay="3000" data-price="3000 جنيه (تُخصم من الأتعاب عند الاتفاق)">
         <h3>🏢 Office Visit</h3>
         <p>30 minutes at the firm's office in Downtown Cairo. Maximum duration one hour.</p>
       </label>
-      <label class="bk-opt" data-type="video" data-price="6000 EGP/hour (100 EGP per minute), calculated on actual minutes, with a 2000 EGP minimum paid in advance covering up to 15 minutes; anything beyond is charged per minute and settled after the session">
+      <label class="bk-opt" data-type="video" data-pay="2000" data-price="6000 EGP/hour (100 EGP per minute), calculated on actual minutes, with a 2000 EGP minimum paid in advance covering up to 15 minutes; anything beyond is charged per minute and settled after the session">
         <h3>💻 Video Conference</h3>
         <p>A remote audio-video consultation, with fees calculated on the actual minutes used.</p>
       </label>
-      <label class="bk-opt" data-type="written" data-price="5000 جنيه">
+      <label class="bk-opt" data-type="written" data-pay="5000" data-price="5000 جنيه">
         <h3>📝 Written Consultation</h3>
         <p>You send the details of your matter, and we reply in writing within the agreed period.</p>
       </label>
@@ -133,7 +133,7 @@
     <p class="section-note" style="margin:0 0 6px;">Appointments are available on <strong>Sundays and Tuesdays only</strong>, from 2–3 PM and 4–5 PM.</p>
     <div class="bk-cal" id="calDays"></div>
     <div class="bk-slots" id="timeSlots" hidden=""></div>
-    <div class="bk-note" id="depositNote">Payment is due in full before the appointment via InstaPay after completing the booking; the slot is confirmed only once the office receives the amount.</div>
+    <div class="bk-note" id="depositNote">After choosing the time and entering your details, the <strong>last step</strong> shows the payment page with the InstaPay code and address. Payment is due in full before the appointment, and the slot is confirmed only once the office receives the amount.</div>
     <div class="bk-actions">
       <button class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" id="backTo2">Back</button>
       <button class="btn-primary" id="toStep4" disabled="">Next</button>
@@ -183,11 +183,12 @@
     <div class="bk-summary" id="summaryBox"></div>
     <div class="pay-box">
       <h3>Pay via InstaPay</h3>
-      <div class="pay-amount">Amount due: <span id="payAmount"></span></div>
+      <div class="pay-amount" style="font-size:1.4rem;">Amount to pay now: <span id="payAmount"></span> EGP</div>
+      <div class="pay-fee" style="font-size:.85rem;color:var(--muted);margin:-6px 0 12px;" id="payFee"></div>
       <img src="../assets/images/instapay-qr.png" alt="InstaPay payment QR code" loading="lazy">
-      <div class="pay-ipa"><code id="ipaText">hassan.hamlf.lawyer@instapay</code><button type="button" id="copyIpa">Copy address</button></div>
+      <div class="pay-ipa"><code id="ipaText">hassan.hamlf.lawyer@instapay</code><button type="button" id="copyIpa">Copy address</button><a href="../assets/images/instapay-qr.png" download="hamlf-instapay-qr.png" class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;padding:8px 14px;border-radius:8px;">Save code as image</a></div>
       <ol class="pay-steps">
-        <li>Open the InstaPay app (or your bank app) and scan the code, or transfer to the address above.</li>
+        <li>On a computer: open InstaPay on your phone and scan the code. On a phone: copy the address above, open InstaPay, choose “Send” and paste it.</li>
         <li>Pay the amount due, then take a screenshot of the receipt.</li>
         <li>Tap the button below to send the request on WhatsApp and attach the receipt in the same chat.</li>
       </ol>
@@ -211,7 +212,7 @@
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-const state = { type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
+const state = { pay:'', type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
 
 // ---- Step 1: type selection ----
 const typeOptions = document.getElementById('typeOptions');
@@ -223,6 +224,7 @@ typeOptions.addEventListener('click', e=>{
   state.type = opt.dataset.type;
   state.typeLabel = opt.querySelector('h3').textContent.trim();
   state.price = opt.dataset.price;
+  state.pay = opt.dataset.pay;
   document.getElementById('toStep2').disabled = false;
 });
 
@@ -337,7 +339,8 @@ document.getElementById('toStep5').onclick = ()=>{
     'Paid via InstaPay to hassan.hamlf.lawyer@instapay — receipt attached.'
   );
   document.getElementById('sendWhatsapp').href = 'https://wa.me/201208555806?text=' + waText;
-  document.getElementById('payAmount').textContent = state.price;
+  document.getElementById('payAmount').textContent = state.pay;
+  document.getElementById('payFee').textContent = state.price;
   showStep(5);
 };
 document.getElementById('copyIpa').onclick = function(){
