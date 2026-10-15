@@ -53,7 +53,7 @@
       <h1>Client Portal</h1>
       <p class="sub">Enter the same email registered with us in your case file.</p>
       <form class="portal-form" id="emailForm">
-        <input type="email" id="checkEmail" placeholder="Email address" required="" autocomplete="email">
+        <input type="text" inputmode="email" dir="ltr" autocapitalize="off" spellcheck="false" id="checkEmail" placeholder="Email address" required="" autocomplete="email">
         <button type="submit" class="btn-primary">Continue</button>
       </form>
     </div>
@@ -104,7 +104,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
     getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    sendPasswordResetEmail
+    sendPasswordResetEmail, sendEmailVerification
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
     getFirestore, collection, query, where, limit, getDocs, getDoc, doc, updateDoc
@@ -130,29 +130,54 @@
     clearMsg();
   }
 
+
+  /* تطبيع الإيميل قبل البحث (كان موجود في 8f70964 واتشال مع إعادة كتابة الصفحة):
+     - يشيل كل المسافات وعلامات الاتجاه/المسافات الخفية اللي بتيجي من النسخ واللصق
+     - أرقام عربية/فارسية (٠-٩ / ۰-۹) ← إنجليزية، و«＠» العريضة ← @
+     - حروف صغيرة (Firebase Auth نفسه بيخزّن الإيميل كده) */
+  function normalizeEmail(str) {
+    const arabicIndic = "٠١٢٣٤٥٦٧٨٩", persian = "۰۱۲۳۴۵۶۷۸۹";
+    return String(str || "")
+      .replace(/[\s\u00a0\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, "")
+      .replace(/[٠-٩۰-۹]/g, (d) => { const i = arabicIndic.indexOf(d); return String(i !== -1 ? i : persian.indexOf(d)); })
+      .replace(/＠/g, "@")
+      .toLowerCase();
+  }
+  // نفس الإيميل بأرقام عربية — لسجلات قديمة اتحفظ فيها الإيميل كده في تطبيق المكتب
+  function toArabicIndicDigits(str) {
+    return String(str).replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]);
+  }
+
   let currentEmail = "";
+  let currentIndexId = "";   // معرّف وثيقة portalEmails فعلياً (ممكن يكون بأرقام عربية في سجل قديم)
   let currentClientDocIds = [];   // كل سجلات الموكل بنفس الإيميل التي لم تُربَط بعد
 
   // ---------- الخطوة 1: اكتب الإيميل ----------
   document.getElementById("emailForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("checkEmail").value.trim().toLowerCase();
+    const email = normalizeEmail(document.getElementById("checkEmail").value);
     if (!email) return;
     clearMsg();
+    if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) { showMsg("Please enter a valid email (e.g. name@example.com).", "error"); return; }
+    const altEmail = toArabicIndicDigits(email);
+    const candidates = altEmail !== email ? [email, altEmail] : [email];
 
     try {
       // تأكيد إن الإيميل ده مسموح له يربط نفسه بسجل موكل عندنا
       // (matchEmails بيتسجل يدوياً في Firestore وقت فتح ملف الموكل)
       // فهرس البريد العام (portalEmails): موكل؟ مربوط؟ أجنبي؟ — بلا قراءة سجلات الموكلين نفسها
       let info = null;
-      try {
-        const ix = await getDoc(doc(db, "portalEmails", email));
-        if (ix.exists()) info = ix.data();
-      } catch (e) { console.warn("portalEmails read failed", e); }
+      let indexId = email;
+      for (const id of candidates) {
+        try {
+          const ix = await getDoc(doc(db, "portalEmails", id));
+          if (ix.exists()) { info = ix.data(); indexId = id; break; }
+        } catch (e) { console.warn("portalEmails read failed", e); }
+      }
       if (!info) {
         // احتياطي مؤقت للنظام القديم (يعمل فقط طالما قراءة سجلات الموكلين مفتوحة)
         try {
-          const snap = await getDocs(query(collection(db, COLLECTIONS.clients), where("matchEmails", "array-contains", email)));
+          const snap = await getDocs(query(collection(db, COLLECTIONS.clients), where("matchEmails", "array-contains-any", candidates)));
           if (!snap.empty) {
             info = {
               linked: snap.docs.some(d => d.data().clientUid),
@@ -168,6 +193,7 @@
       }
       
       currentEmail = email;
+      currentIndexId = indexId;
       const linked = !!info.linked;
       currentClientDocIds = info.pending || [];
 
@@ -249,11 +275,15 @@
         await Promise.all(currentClientDocIds.map(id =>
           updateDoc(doc(db, COLLECTIONS.clients, id), { clientUid: cred.user.uid })
         ));
-        try { await updateDoc(doc(db, "portalEmails", currentEmail), { linked: true, pending: [] }); } catch (ixErr) { console.warn("index update failed", ixErr); }
+        try { await updateDoc(doc(db, "portalEmails", currentIndexId), { linked: true, pending: [] }); } catch (ixErr) { console.warn("index update failed", ixErr); }
       } catch (linkErr) {
         console.error("clientUid link failed:", linkErr);
         showMsg("You are signed in, but an error occurred while linking it to your case file — please contact the office.", "error");
         return;
+      }
+      /* confirmation link for every new account — the rules only show cases registered under the email (clientEmails) once it is verified */
+      if (cred.user && !cred.user.emailVerified) {
+        try { await sendEmailVerification(cred.user); } catch (e) { console.warn("verification email failed", e); }
       }
       window.location.href = "dashboard.html";
     } catch (err) {

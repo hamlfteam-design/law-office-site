@@ -102,12 +102,28 @@
      allow create, delete: if false; // تتعدل من الكونسول يدوياً بس (أو من تطبيق المكتب)
    }
    match /offices/{officeId}/records/cases/items/{itemId} {
-     allow read: if request.auth != null
-       && (resource.data.clientUids is list)
-       && (request.auth.uid in resource.data.clientUids);
+     allow read: if request.auth != null && (
+       ((resource.data.clientUids is list) && request.auth.uid in resource.data.clientUids)
+       // الإيميل كمعرّف للموكل — بشرط إن الإيميل يكون مؤكَّد (رابط التأكيد اتفتح)
+       || (request.auth.token.email_verified == true
+           && (resource.data.clientEmails is list)
+           && request.auth.token.email in resource.data.clientEmails)
+     );
      allow write: if false; // القضايا بتتحدّث من تطبيق المكتب بس، مش من البوابة
    }
    ```
+
+   **التعرّف على الموكل بإيميله (بعد تأكيد الإيميل):** صفحة «قضاياي» بتدوّر كمان على أي قضية فيها
+   إيميل الموكل في حقل `clientEmails`، بس لو الإيميل مؤكَّد. كل حساب جديد بيتبعت له رابط تأكيد تلقائياً،
+   ولو الموكل مأكّدش ومفيش قضايا مربوطة بحسابه، بتظهر له رسالة «أكّد إيميلك» مع زرار إعادة الإرسال.
+   عشان ده يشتغل لازم:
+   - **تطبيق المكتب** يكتب على كل وثيقة قضية حقل `clientEmails` = كل `matchEmails` بتاعة موكلي القضية
+     (حروف صغيرة، أرقام إنجليزية، من غير مسافات)، ويحدّثه كل ما إيميل موكل يتغيّر.
+   - **تطبيق المكتب** يعمل وثيقة `portalEmails/{email}` لكل إيميل في `matchEmails` (بنفس التطبيع) —
+     صفحة الدخول بتقبل أي إيميل له وثيقة هنا.
+   - **إيميلات Firebase توصل لكل الدومينات** (Hotmail/Outlook/Yahoo بيرفضوا غالباً المرسل الافتراضي
+     `noreply@<project>.firebaseapp.com`): من Authentication → Templates → اضبط SMTP مخصص يبعت من
+     عنوان على `hamlf.com`، وظبّط SPF و DKIM للدومين عند مزوّد الإيميل.
 5. لو عايز إضافة تلقائية لمواعيد الجلسات في Google Calendar بتاع الموكل (بالإضافة لعرضها في البوابة)،
    ده محتاج خطوة تكامل إضافية (Google Calendar API) هنضيفها بعد ما تستقر البوابة الأساسية.
 
