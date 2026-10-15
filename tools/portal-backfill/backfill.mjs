@@ -57,6 +57,24 @@ async function main() {
     const c = keysSummary(clientDocs), k = keysSummary(caseDocs);
     console.log("\nحقول وثيقة الموكل:", c.top, "\nجوه json الموكل:", c.json);
     console.log("\nحقول وثيقة القضية:", k.top, "\nجوه json القضية:", k.json);
+
+    // شكل حقول الإيميل جوه json الموكل — أنواع وأعداد بس، من غير أي قيمة
+    const shapes = new Map();
+    const bump = (k) => shapes.set(k, (shapes.get(k) || 0) + 1);
+    const shapeOf = (v) => {
+      if (v === undefined) return "مش موجود";
+      if (v === null) return "null";
+      if (Array.isArray(v)) return v.length ? `قايمة[${[...new Set(v.map(shapeOf))].join("|")}]` : "قايمة فاضية";
+      if (typeof v === "object") return `كائن{${Object.keys(v).sort().join(",")}}`;
+      if (typeof v === "string") return v.trim() === "" ? "نص فاضي" : v.includes("@") ? "نص فيه @" : "نص من غير @";
+      return typeof v;
+    };
+    for (const { data } of clientDocs) {
+      const j = parseJson(data.json);
+      for (const f of ["email", "emails"]) bump(`${f}: ${shapeOf(j[f])}`);
+    }
+    console.log("\nشكل الإيميلات جوه json الموكل:");
+    for (const [k, n] of [...shapes].sort()) console.log(`  ${k} — ${n}`);
     return;
   }
 
