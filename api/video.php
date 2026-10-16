@@ -10,6 +10,7 @@
  */
 
 declare(strict_types=1);
+// متوافق مع PHP 7.4 وأحدث
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -33,13 +34,13 @@ function cfg(): array {
     return $cfg;
 }
 
-function out(array $data, int $code = 200): never {
+function out(array $data, int $code = 200): void {
     http_response_code($code);
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-function fail(int $code, string $error): never {
+function fail(int $code, string $error): void {
     out(['ok' => false, 'error' => $error], $code);
 }
 
