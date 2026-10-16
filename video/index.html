@@ -154,14 +154,26 @@ body{font-family:'Cairo',sans-serif;background:var(--navy-dark);color:var(--text
       showLeaveButton: true,
       iframeStyle: {position:'absolute', inset:'0', width:'100%', height:'100%', border:'0'}
     });
+    let joinError = null;
+    frame.on('error', e => {
+      joinError = (e && e.errorMsg) || 'unknown';
+      console.error('[video] Daily error:', joinError);
+    });
     frame.on('left-meeting', () => {
       if (ended) return;
+      if (joinError) {
+        try { frame.destroy(); } catch(e){}
+        frame = null;
+        showMsg('تعذّر بدء مكالمة الفيديو', 'حصلت مشكلة فنية في خدمة الفيديو. من فضلك بلّغ المكتب على واتساب وهنحلها أو نكمّل الجلسة على Google Meet أو Botim.',
+                'The video service could not start the call. Please let the firm know on WhatsApp; we will fix it or continue on Google Meet or Botim. (' + joinError + ')', true);
+        return;
+      }
       try { frame.destroy(); } catch(e){}
       frame = null;
       showMsg('خرجت من الجلسة', 'لو خرجت بالغلط تقدر ترجع والعداد شغال زي ما هو.', 'You left the call. You can rejoin; the timer keeps running.', false);
       $('msg').querySelector('.box').insertAdjacentHTML('beforeend', '<a class="btn" href="' + location.href + '">إعادة الدخول · Rejoin</a>');
     });
-    frame.join(Object.assign({url: info.url}, userName ? {userName} : {}));
+    frame.join(Object.assign({url: info.url}, userName ? {userName} : {})).catch(e => { console.error('[video] join failed:', e && e.errorMsg); });
     tick();
     setInterval(tick, 250);
     setInterval(poll, 10000);

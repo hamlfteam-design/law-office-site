@@ -210,12 +210,21 @@
     try {
       await call('create', {client: $('client').value, minutes: Number($('minutes').value), scheduled: Math.floor(when.getTime()/1000)});
       $('client').value = '';
+      setNow();
       await load();
     } catch(err) { $('createErr').textContent = err.message; }
     if (b) b.disabled = false;
   });
 
   $('logout').onclick = async () => { try { await call('logout', {}); } catch(e){} $('app').hidden = true; $('loginCard').hidden = false; };
+
+  // الميعاد الافتراضي: دلوقتي (بتوقيت جهاز الموظف)
+  function setNow(){
+    const d = new Date(); d.setSeconds(0, 0);
+    const pad = n => String(n).padStart(2, '0');
+    $('when').value = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+  setNow();
 
   load();
   setInterval(tick, 500);
