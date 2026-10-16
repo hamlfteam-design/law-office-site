@@ -1,0 +1,53 @@
+# تكملة بيانات بوابة الموكلين تلقائياً (portalEmails + matchEmails + clientEmails)
+# بيشغّل tools/portal-backfill كل ٣ ساعات، ويدوياً من تبويب Actions ← Run workflow.
+# محتاج Secret في المستودع اسمه FIREBASE_SERVICE_ACCOUNT = محتوى ملف مفتاح الخدمة (JSON).
+# السجل بيطبع أعداد بس — من غير إيميلات ولا أسماء.
+name: Portal backfill
+
+on:
+  schedule:
+    - cron: "23 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portal-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tools/portal-backfill
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tools/portal-backfill/package-lock.json
+      - name: Check secret
+        id: secret
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::warning::FIREBASE_SERVICE_ACCOUNT secret is not set — skipping."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - run: npm ci --no-audit --no-fund
+        if: steps.secret.outputs.ok == 'true'
+      - run: npm test
+        if: steps.secret.outputs.ok == 'true'
+      - name: Backfill
+        if: steps.secret.outputs.ok == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        # حد ٣٠٠ تعديل في المرة: أكتر من كده يبقى حاجة غريبة — بيقف ويبعتلك إيميل فشل من GitHub
+        run: node backfill.mjs --apply --no-report --max-writes=300

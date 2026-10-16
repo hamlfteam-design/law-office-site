@@ -45,3 +45,11 @@
 
 ## الاختبارات
 `npm test`: بيختبر منطق الربط والتطبيع من غير Firebase.
+
+## التشغيل التلقائي (GitHub Actions)
+المستودع فيه workflow اسمه **Portal backfill** (`.github/workflows/portal-backfill.yml`). بيشغّل السكريبت ويكتب التعديلات **كل ٣ ساعات**، وتقدر تشغّله وقت ما تحب من تبويب **Actions ← Portal backfill ← Run workflow**.
+
+- **المفتاح:** محتاج Secret في المستودع اسمه `FIREBASE_SERVICE_ACCOUNT`، وقيمته محتوى ملف مفتاح الخدمة كله. ضيفه من **Settings ← Secrets and variables ← Actions ← New repository secret**. من غيره الـworkflow بيعدّي من غير ما يعمل حاجة.
+- **السجل:** بيطبع أعداد بس، من غير ملف تقرير (`--no-report`).
+- **حماية من التعديل الجماعي الغلط:** لو التعديلات المطلوبة في مرة واحدة أكتر من ٣٠٠، السكريبت بيقف من غير ما يكتب حاجة، وGitHub بيبعتلك إيميل إن التشغيل فشل. ساعتها شغّله يدوي بـ `npm run dry-run` وراجع التقرير.
+- **إيقاف التشغيل التلقائي:** امسح الـSecret، أو من تبويب **Actions** اختار الـworkflow ← **⋯ ← Disable workflow**.

@@ -21,13 +21,24 @@ const OFFICE_ID = process.env.OFFICE_ID || "office_UDdH9ctTHcd3";   // نفس po
 const CLIENTS = `offices/${OFFICE_ID}/records/clients/items`;
 const CASES = `offices/${OFFICE_ID}/records/cases/items`;
 
-const args = new Set(process.argv.slice(2));
+const argv = process.argv.slice(2);
+const args = new Set(argv);
 const APPLY = args.has("--apply");
 const INSPECT = args.has("--inspect");
+const NO_REPORT = args.has("--no-report");   // التشغيل التلقائي: من غير ملف تقرير (فيه إيميلات)
+// حد أقصى للتعديلات في المرة الواحدة — لو اتعدّاه السكريبت بيقف من غير ما يكتب حاجة
+// (حماية من تعديل جماعي غلط في التشغيل التلقائي). --max-writes=0 = من غير حد.
+const maxArg = argv.find((a) => a.startsWith("--max-writes="));
+const MAX_WRITES = maxArg ? Number(maxArg.split("=")[1]) : 0;
 
+// المفتاح: متغيّر FIREBASE_SERVICE_ACCOUNT (نص JSON — للتشغيل التلقائي على GitHub)،
+// أو service-account.json في الفولدر، أو GOOGLE_APPLICATION_CREDENTIALS
 const keyFile = join(HERE, "service-account.json");
+const credential = process.env.FIREBASE_SERVICE_ACCOUNT
+  ? cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
+  : existsSync(keyFile) ? cert(JSON.parse(readFileSync(keyFile, "utf8"))) : applicationDefault();
 initializeApp({
-  credential: existsSync(keyFile) ? cert(JSON.parse(readFileSync(keyFile, "utf8"))) : applicationDefault(),
+  credential,
   projectId: PROJECT_ID,
 });
 const db = getFirestore();
@@ -82,8 +93,11 @@ async function main() {
   const existingIndex = new Map(ixSnap.docs.map((d) => [d.id, d.data()]));
   const { portalEmails, clientWrites, caseWrites, report } = buildPlan(clientDocs, caseDocs, existingIndex);
 
-  const reportFile = join(HERE, `report-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
-  writeFileSync(reportFile, JSON.stringify({ apply: APPLY, report, portalEmails, clientWrites, caseWrites }, null, 2));
+  let reportFile = "(من غير تقرير)";
+  if (!NO_REPORT) {
+    reportFile = join(HERE, `report-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
+    writeFileSync(reportFile, JSON.stringify({ apply: APPLY, report, portalEmails, clientWrites, caseWrites }, null, 2));
+  }
 
   console.log(`
 موكلين ليهم إيميل: ${report.clientsWithEmails} من ${report.clients}
@@ -100,6 +114,12 @@ async function main() {
   if (!APPLY) {
     console.log("\nده كان تجربة بس — ماتغيّرش حاجة. راجع التقرير وبعدين شغّل: node backfill.mjs --apply");
     return;
+  }
+
+  const planned = portalEmails.length + clientWrites.length + caseWrites.length;
+  if (MAX_WRITES > 0 && planned > MAX_WRITES) {
+    console.error(`\n✗ ${planned} تعديل أكتر من الحد (${MAX_WRITES}) — ماتكتبش حاجة. شغّله يدوي بـ dry-run وراجع التقرير.`);
+    process.exit(2);
   }
 
   // دفعات ≤ 400 كتابة (حد Firestore 500)
