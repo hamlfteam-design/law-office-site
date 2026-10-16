@@ -1,0 +1,40 @@
+# إبلاغ Bing ومحركات IndexNow (Yandex وSeznam وNaver...) بصفحات الموقع بعد كل نشر على main.
+# الملف bd5e01ab2c5792016479bebd4efb128d.txt في جذر الموقع هو مفتاح الملكية، ولازم يفضل منشور على hamlf.com.
+name: IndexNow ping
+
+on:
+  push:
+    branches: [main]
+    paths: ['**.html', 'sitemap.xml', 'llms.txt']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Wait for Hostinger deployment
+        run: sleep 120
+      - name: Submit sitemap URLs to IndexNow
+        env:
+          KEY: bd5e01ab2c5792016479bebd4efb128d
+        run: |
+          python3 - <<'PY'
+          import json, os, re, urllib.request
+          urls = re.findall(r'<loc>(.*?)</loc>', open('sitemap.xml', encoding='utf-8').read())
+          urls += ['https://hamlf.com/llms.txt']
+          body = json.dumps({
+              "host": "hamlf.com",
+              "key": os.environ["KEY"],
+              "keyLocation": f"https://hamlf.com/{os.environ['KEY']}.txt",
+              "urlList": urls,
+          }).encode()
+          req = urllib.request.Request("https://api.indexnow.org/indexnow", data=body,
+                                       headers={"Content-Type": "application/json; charset=utf-8"})
+          with urllib.request.urlopen(req, timeout=30) as r:
+              print("IndexNow status:", r.status, "URLs:", len(urls))
+          PY
