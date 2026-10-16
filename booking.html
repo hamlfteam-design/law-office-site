@@ -93,14 +93,22 @@
         <h3>🏢 زيارة للمكتب</h3>
         <p>30 دقيقة بمقر المؤسسة بوسط البلد، القاهرة. مدة الحد الأقصى ساعة.</p>
       </label>
-      <label class="bk-opt" data-type="video" data-pay="2000" data-price="6000 جنيه/ساعة (100 جنيه للدقيقة) تُحسب على الدقائق الفعلية، بحد أدنى 2000 جنيه تُسدَّد مقدماً وتغطي حتى 15 دقيقة، وما زاد يُحسب بالدقيقة ويُسدَّد بعد الجلسة">
+      <label class="bk-opt" data-type="video" data-pay="" data-price="">
         <h3>💻 فيديو كونفرانس</h3>
-        <p>استشارة عن بُعد بالصوت والصورة، وتُحسب الأتعاب على الدقائق الفعلية.</p>
+        <p>استشارة عن بُعد بالصوت والصورة، بباقات 15 أو 30 أو 60 دقيقة تُسدَّد مقدماً.</p>
       </label>
       <label class="bk-opt" data-type="written" data-pay="5000" data-price="5000 جنيه">
         <h3>📝 استشارة مكتوبة</h3>
         <p>ترسل تفاصيل موضوعك، ونرد عليك كتابةً خلال المدة المتفق عليها.</p>
       </label>
+    </div>
+    <div id="videoPkgs" hidden>
+      <h2 style="margin-top:22px;">مدة جلسة الفيديو</h2>
+      <div class="bk-slots" id="pkgOptions">
+        <button type="button" class="bk-slot" data-mins="15" data-pay="2000" data-price="2000 جنيه — باقة 15 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">15 دقيقة</button>
+        <button type="button" class="bk-slot" data-mins="30" data-pay="3000" data-price="3000 جنيه — باقة 30 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">30 دقيقة</button>
+        <button type="button" class="bk-slot" data-mins="60" data-pay="6000" data-price="6000 جنيه — باقة 60 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">60 دقيقة</button>
+      </div>
     </div>
     <div class="bk-actions">
       <button class="btn-primary" id="toStep2" disabled>التالي</button>
@@ -172,6 +180,13 @@
         <option value="written">رد مكتوب فقط</option>
         <option value="visit">زيارة للمكتب بعد الرد</option>
       </select>
+      <div id="appWrap" hidden>
+        <label>تطبيق مكالمة الفيديو</label>
+        <select id="fApp">
+          <option>Google Meet</option>
+          <option>Botim</option>
+        </select>
+      </div>
     </form>
     <div class="bk-actions">
       <button class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" id="backTo3">السابق</button>
@@ -229,6 +244,23 @@ typeOptions.addEventListener('click', e=>{
   state.typeLabel = opt.querySelector('h3').textContent.trim();
   state.price = opt.dataset.price;
   state.pay = opt.dataset.pay;
+  const isVideo = state.type === 'video';
+  document.getElementById('videoPkgs').hidden = !isVideo;
+  document.getElementById('appWrap').hidden = !isVideo;
+  [...pkgOptions.children].forEach(p=>p.classList.remove('selected'));
+  document.getElementById('toStep2').disabled = isVideo;
+});
+
+// ---- Step 1b: video package selection ----
+const pkgOptions = document.getElementById('pkgOptions');
+pkgOptions.addEventListener('click', e=>{
+  const pkg = e.target.closest('.bk-slot');
+  if(!pkg) return;
+  [...pkgOptions.children].forEach(p=>p.classList.remove('selected'));
+  pkg.classList.add('selected');
+  state.typeLabel = '💻 فيديو كونفرانس — ' + pkg.dataset.mins + ' دقيقة';
+  state.price = pkg.dataset.price;
+  state.pay = pkg.dataset.pay;
   document.getElementById('toStep2').disabled = false;
 });
 
@@ -319,6 +351,7 @@ document.getElementById('toStep5').onclick = ()=>{
   const cat = document.getElementById('fCategory').value || '—';
   const details = document.getElementById('fDetails').value.trim() || '—';
   const followup = document.getElementById('fFollowup').value === 'visit' ? 'زيارة للمكتب بعد الرد' : 'رد مكتوب';
+  const app = state.type === 'video' ? document.getElementById('fApp').value : '';
 
   document.getElementById('summaryBox').innerHTML =
     '<p><strong>نوع الاستشارة:</strong> ' + state.typeLabel + '</p>' +
@@ -328,6 +361,7 @@ document.getElementById('toStep5').onclick = ()=>{
     '<p><strong>الهاتف:</strong> ' + phone + '</p>' +
     '<p><strong>القطاع:</strong> ' + cat + '</p>' +
     '<p><strong>تفضيل الرد:</strong> ' + followup + '</p>' +
+    (app ? '<p><strong>تطبيق المكالمة:</strong> ' + app + '</p>' : '') +
     '<p><strong>ملخص الموضوع:</strong> ' + details + '</p>';
 
   const waText = encodeURIComponent(
@@ -339,6 +373,7 @@ document.getElementById('toStep5').onclick = ()=>{
     'الهاتف: ' + phone + '\n' +
     'القطاع: ' + cat + '\n' +
     'تفضيل الرد: ' + followup + '\n' +
+    (app ? 'تطبيق المكالمة: ' + app + '\n' : '') +
     'الموضوع: ' + details + '\n\n' +
     'تم السداد عبر انستاباي إلى hassan.hamlf.lawyer@instapay — مرفق صورة الإيصال.'
   );
