@@ -385,6 +385,27 @@ document.getElementById('copyIpa').onclick = function(){
   const done = ()=>{ b.textContent = 'Copied ✓'; setTimeout(()=>{ b.textContent = old; }, 1800); };
   if(navigator.clipboard){ navigator.clipboard.writeText(t).then(done, done); } else { done(); }
 };
+// ---- Conversion tracking (Google Analytics → Google Ads) — added 2026-10-16 ----
+// No personal data is sent: only the consultation type and the package amount.
+(function(){
+  function trk(n,p){try{if(typeof gtag==='function')gtag('event',n,p||{});}catch(e){}}
+  var leadSent=false, paySent=false;
+  var b5=document.getElementById('toStep5');
+  if(b5) b5.addEventListener('click',function(){
+    var s5=document.getElementById('step5');
+    if(s5 && !s5.hidden) trk('booking_review',{consult_type:state.type||''});
+  });
+  var ipn=document.getElementById('ipnLink');
+  if(ipn) ipn.addEventListener('click',function(){
+    if(paySent) return; paySent=true;
+    trk('booking_pay_click',{consult_type:state.type||'',currency:'EGP',value:Number(state.pay)||0});
+  });
+  var wa=document.getElementById('sendWhatsapp');
+  if(wa) wa.addEventListener('click',function(){
+    if(leadSent) return; leadSent=true;
+    trk('generate_lead',{lead_source:'booking',consult_type:state.type||'',currency:'EGP',value:Number(state.pay)||0});
+  });
+})();
 </script>
 
 
