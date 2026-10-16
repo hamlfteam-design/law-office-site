@@ -3,5 +3,7 @@ Allow: /
 Disallow: /portal/
 Disallow: /app.html
 Disallow: /consult.html
+Disallow: /video/
+Disallow: /api/
 
 Sitemap: https://hamlf.com/sitemap.xml

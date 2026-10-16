@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>إدارة جلسات الفيديو | مؤسسة د. حسن عبد المنعم حسن</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=20260924">
+<style>
+.va-wrap{max-width:900px;margin:0 auto;padding:30px 16px 80px;}
+.va-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:22px;margin-bottom:18px;}
+.va-card h2{font-size:1.1rem;color:var(--navy);margin-bottom:14px;}
+.va-form{display:grid;grid-template-columns:2fr 1fr 1.4fr auto;gap:10px;align-items:end;}
+@media(max-width:720px){.va-form{grid-template-columns:1fr;}}
+.va-form label{display:block;font-size:.8rem;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.va-form input,.va-form select{width:100%;font-family:inherit;padding:10px 12px;border-radius:8px;border:1px solid #d8d4cb;font-size:.95rem;background:var(--white);}
+.va-btn{font-family:inherit;font-weight:700;border-radius:8px;padding:9px 14px;cursor:pointer;border:1px solid var(--navy);background:var(--navy);color:var(--gold-light);font-size:.85rem;white-space:nowrap;}
+.va-btn.ghost{background:var(--white);color:var(--navy);border-color:#d8d4cb;}
+.va-btn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy-dark);}
+.va-btn.danger{background:#fff;color:#a33;border-color:#e3b9b9;}
+.va-btn:disabled{opacity:.45;cursor:not-allowed;}
+.va-room{border:1px solid #e7e4dd;border-radius:10px;padding:14px;margin-bottom:12px;background:var(--bg);}
+.va-room .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.va-room .name{font-weight:800;color:var(--navy);font-size:1rem;}
+.va-room .meta{color:var(--muted);font-size:.82rem;margin:4px 0 10px;}
+.va-badge{font-size:.75rem;font-weight:800;border-radius:999px;padding:2px 10px;}
+.va-badge.waiting{background:#fbf3df;color:#8a6a1f;}
+.va-badge.live{background:#e8f6ec;color:#1e7a3d;}
+.va-badge.ended{background:#eee;color:#666;}
+.va-left{margin-inline-start:auto;font-weight:900;font-size:1.2rem;color:var(--navy);direction:ltr;font-variant-numeric:tabular-nums;}
+.va-note{font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:10px;}
+.va-err{color:#a33;font-weight:700;font-size:.85rem;margin-top:8px;min-height:1em;}
+[hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand"><a href="../index.html"><img src="../assets/images/logo.png" alt="مؤسسة د. حسن عبد المنعم حسن" class="brand-logo"></a></div>
+  </div>
+</header>
+
+<div class="va-wrap">
+  <h1 class="section-title">جلسات الفيديو</h1>
+
+  <!-- دخول -->
+  <section class="va-card" id="loginCard" hidden>
+    <h2>دخول الإدارة</h2>
+    <form class="va-form" id="loginForm" style="grid-template-columns:1fr auto;">
+      <div><label>كلمة السر</label><input type="password" id="pw" autocomplete="current-password" required></div>
+      <button class="va-btn" type="submit">دخول</button>
+    </form>
+    <div class="va-err" id="loginErr"></div>
+  </section>
+
+  <div id="app" hidden>
+    <!-- إنشاء -->
+    <section class="va-card">
+      <h2>غرفة جديدة (بعد تأكيد التحويل)</h2>
+      <form class="va-form" id="createForm">
+        <div><label>اسم العميل</label><input type="text" id="client" maxlength="80" required></div>
+        <div><label>الباقة</label>
+          <select id="minutes"><option value="15">15 دقيقة</option><option value="30" selected>30 دقيقة</option><option value="60">60 دقيقة</option></select>
+        </div>
+        <div><label>الميعاد</label><input type="datetime-local" id="when" required></div>
+        <button class="va-btn gold" type="submit">إنشاء الغرفة</button>
+      </form>
+      <div class="va-err" id="createErr"></div>
+      <p class="va-note">
+        • ابعت «رابط العميل» للعميل على واتساب، وافتح «رابط المستشار» على جهاز المستشار.<br>
+        • العداد مابيبدأش لوحده: اضغط <strong>بدء العداد</strong> أول ما الطرفين يدخلوا. وقتها بيبدأ من مدة الباقة لحد الصفر، والمكالمة بتتقفل تلقائيًا من السيرفر.<br>
+        • التمديد: بعد ما العميل يحوّل قيمة التمديد، اضغط <strong>+15 دقيقة</strong>، والعداد بيزيد عند الطرفين خلال ثواني.
+      </p>
+    </section>
+
+    <!-- الغرف -->
+    <section class="va-card">
+      <div class="row" style="display:flex;align-items:center;margin-bottom:12px;">
+        <h2 style="margin:0;">الغرف</h2>
+        <button class="va-btn ghost" id="logout" style="margin-inline-start:auto;">خروج</button>
+      </div>
+      <div id="rooms"><p class="va-note">لا توجد غرف بعد.</p></div>
+      <div class="va-err" id="listErr"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  const API = '../api/video.php';
+  const $ = id => document.getElementById(id);
+  let rooms = [], offset = 0;
+  const statusAr = {waiting:'في الانتظار', live:'جارية', ended:'انتهت'};
+  const errAr = {
+    wrong_password:'كلمة السر غير صحيحة', unauthorized:'انتهت الجلسة، ادخل تاني',
+    bad_input:'راجع البيانات', daily_error:'خطأ في الاتصال بخدمة الفيديو، حاول تاني',
+    config_missing:'ملف الإعدادات مش موجود على السيرفر', config_incomplete:'ملف الإعدادات ناقص',
+    already_started:'العداد بدأ بالفعل', not_started:'ابدأ العداد الأول'
+  };
+
+  async function call(action, body){
+    const opt = body ? {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)} : {};
+    const res = await fetch(API + '?action=' + action, Object.assign({cache:'no-store', credentials:'same-origin'}, opt));
+    let data = {};
+    try { data = await res.json(); } catch(e){}
+    if (!res.ok || !data.ok) {
+      const err = new Error(errAr[data.error] || 'حصل خطأ (' + res.status + ')');
+      err.code = data.error; throw err;
+    }
+    return data;
+  }
+
+  function fmt(sec){
+    sec = Math.max(0, Math.ceil(sec));
+    return Math.floor(sec/60) + ':' + String(sec%60).padStart(2,'0');
+  }
+  function links(name){
+    const base = location.origin + location.pathname.replace(/admin\.html$/, '') + '?r=' + name;
+    return {client: base, counsel: base + '&n=' + encodeURIComponent('المستشار')};
+  }
+  function copy(text, btn){
+    const old = btn.textContent;
+    const done = () => { btn.textContent = 'تم النسخ ✓'; setTimeout(()=>btn.textContent = old, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done); else done();
+  }
+
+  function render(){
+    if (!rooms.length) { $('rooms').innerHTML = '<p class="va-note">لا توجد غرف بعد.</p>'; return; }
+    $('rooms').innerHTML = rooms.map(r => {
+      const when = new Date(r.scheduled*1000).toLocaleString('ar-EG', {weekday:'long', day:'numeric', month:'long', hour:'numeric', minute:'2-digit'});
+      return '<div class="va-room" data-name="'+r.name+'">' +
+        '<div class="row"><span class="name"></span><span class="va-badge '+r.status+'">'+statusAr[r.status]+'</span><span class="va-left" data-left></span></div>' +
+        '<div class="meta">باقة '+r.minutes+' دقيقة · '+when+'</div>' +
+        '<div class="row">' +
+          '<button class="va-btn ghost" data-act="copyClient">نسخ رابط العميل</button>' +
+          '<button class="va-btn ghost" data-act="wa">إرسال للعميل على واتساب</button>' +
+          '<button class="va-btn ghost" data-act="openCounsel">فتح رابط المستشار</button>' +
+          '<button class="va-btn gold" data-act="start" '+(r.status!=='waiting'?'disabled':'')+'>بدء العداد</button>' +
+          '<button class="va-btn" data-act="extend" '+(r.status==='waiting'?'disabled':'')+'>+15 دقيقة</button>' +
+          '<button class="va-btn danger" data-act="end" '+(r.status!=='live'?'disabled':'')+'>إنهاء الآن</button>' +
+        '</div></div>';
+    }).join('');
+    // اسم العميل كنص (مش HTML)
+    rooms.forEach(r => { document.querySelector('.va-room[data-name="'+r.name+'"] .name').textContent = r.client; });
+    tick();
+  }
+
+  function tick(){
+    const now = Date.now()/1000 + offset;
+    rooms.forEach(r => {
+      const el = document.querySelector('.va-room[data-name="'+r.name+'"] [data-left]');
+      if (!el) return;
+      if (r.status === 'live') {
+        const left = r.ends_at - now;
+        el.textContent = left > 0 ? fmt(left) : '0:00';
+        if (left <= 0 && r.status === 'live') { r.status = 'ended'; render(); }
+      } else el.textContent = r.status === 'waiting' ? fmt(r.minutes*60) : '';
+    });
+  }
+
+  async function load(){
+    try {
+      const data = await call('list');
+      rooms = data.rooms;
+      if (rooms.length) offset = rooms[0].now - Date.now()/1000;
+      $('listErr').textContent = '';
+      $('loginCard').hidden = true; $('app').hidden = false;
+      render();
+    } catch(e) {
+      if (e.code === 'unauthorized') { $('app').hidden = true; $('loginCard').hidden = false; }
+      else $('listErr').textContent = e.message;
+    }
+  }
+
+  $('rooms').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-act]'); if (!btn) return;
+    const name = btn.closest('.va-room').dataset.name;
+    const r = rooms.find(x => x.name === name);
+    const l = links(name);
+    const act = btn.dataset.act;
+    if (act === 'copyClient') return copy(l.client, btn);
+    if (act === 'openCounsel') return window.open(l.counsel, '_blank', 'noopener');
+    if (act === 'wa') {
+      const msg = 'أهلًا بحضرتك، ده رابط جلسة الفيديو مع مؤسسة د. حسن عبد المنعم حسن (باقة ' + r.minutes + ' دقيقة):\n' + l.client +
+        '\nافتحه من المتصفح في الميعاد واسمح بالكاميرا والمايك. العداد بيبدأ مع بداية الجلسة والمكالمة بتتقفل تلقائيًا في نهاية المدة.' +
+        '\n\nYour video session link (' + r.minutes + ' min): ' + l.client;
+      return window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    }
+    if (act === 'end' && !confirm('إنهاء الجلسة الآن وقطع الاتصال عند الطرفين؟')) return;
+    if (act === 'extend' && !confirm('تأكدت من استلام قيمة التمديد؟ هيتزود 15 دقيقة.')) return;
+    btn.disabled = true;
+    try { await call(act, {name}); await load(); }
+    catch(err) { $('listErr').textContent = err.message; btn.disabled = false; }
+  });
+
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault(); $('loginErr').textContent = '';
+    try { await call('login', {password: $('pw').value}); $('pw').value = ''; load(); }
+    catch(err) { $('loginErr').textContent = err.message; }
+  });
+
+  $('createForm').addEventListener('submit', async e => {
+    e.preventDefault(); $('createErr').textContent = '';
+    const when = new Date($('when').value);
+    if (isNaN(when)) { $('createErr').textContent = 'اختار الميعاد'; return; }
+    const b = e.submitter; if (b) b.disabled = true;
+    try {
+      await call('create', {client: $('client').value, minutes: Number($('minutes').value), scheduled: Math.floor(when.getTime()/1000)});
+      $('client').value = '';
+      await load();
+    } catch(err) { $('createErr').textContent = err.message; }
+    if (b) b.disabled = false;
+  });
+
+  $('logout').onclick = async () => { try { await call('logout', {}); } catch(e){} $('app').hidden = true; $('loginCard').hidden = false; };
+
+  load();
+  setInterval(tick, 500);
+  setInterval(() => { if (!$('app').hidden) load(); }, 15000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>جلسة فيديو | مؤسسة د. حسن عبد المنعم حسن</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#141414;--navy-dark:#0a0a0a;--gold:#c9a35f;--gold-light:#e0c184;--danger:#c0392b;--text:#f3efe6;--muted:#b9b2a3;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Cairo',sans-serif;background:var(--navy-dark);color:var(--text);display:flex;flex-direction:column;}
+.vr-top{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--navy);border-bottom:1px solid #2a2a2a;}
+.vr-top img{height:40px;width:40px;}
+.vr-brand{font-weight:800;font-size:.95rem;line-height:1.3;}
+.vr-brand small{display:block;font-weight:600;color:var(--muted);font-size:.72rem;}
+.vr-timer{margin-inline-start:auto;text-align:center;background:#1f1f1f;border:1.5px solid var(--gold);border-radius:12px;padding:4px 14px;min-width:120px;}
+.vr-timer .lbl{font-size:.68rem;color:var(--muted);display:block;}
+.vr-timer .val{font-size:1.5rem;font-weight:900;color:var(--gold-light);font-variant-numeric:tabular-nums;direction:ltr;display:block;line-height:1.2;}
+.vr-timer.warn{border-color:var(--danger);}
+.vr-timer.warn .val{color:#ff8a7a;}
+.vr-banner{display:none;text-align:center;padding:10px 16px;font-weight:800;font-size:1rem;}
+.vr-banner small{display:block;font-weight:600;font-size:.8rem;opacity:.9;}
+.vr-banner.show{display:block;}
+.vr-banner.wait{background:#2b2618;color:var(--gold-light);}
+.vr-banner.warn{background:var(--danger);color:#fff;animation:pulse 1s ease-in-out infinite alternate;}
+@keyframes pulse{from{opacity:1}to{opacity:.82}}
+.vr-call{flex:1;position:relative;min-height:0;}
+.vr-call iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+.vr-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;}
+.vr-msg .box{max-width:460px;}
+.vr-msg h1{font-size:1.4rem;color:var(--gold-light);margin-bottom:10px;}
+.vr-msg p{color:var(--muted);line-height:1.9;font-size:.95rem;}
+.vr-msg .en{direction:ltr;margin-top:8px;font-size:.85rem;}
+.vr-msg a.btn{display:inline-block;margin-top:18px;background:var(--gold);color:var(--navy-dark);font-weight:800;padding:10px 22px;border-radius:999px;text-decoration:none;}
+[hidden]{display:none !important;}
+@media(max-width:520px){.vr-brand small{display:none}.vr-timer{min-width:96px;padding:3px 10px}.vr-timer .val{font-size:1.25rem}}
+</style>
+</head>
+<body>
+<header class="vr-top">
+  <img src="../assets/images/logo.png" alt="مؤسسة د. حسن عبد المنعم حسن">
+  <div class="vr-brand">مؤسسة د. حسن عبد المنعم حسن<small>Dr. Hassan Abdel Moneim Hassan Law Firm</small></div>
+  <div class="vr-timer" id="timer" hidden>
+    <span class="lbl">الوقت المتبقي · Time left</span>
+    <span class="val" id="timerVal">--:--</span>
+  </div>
+</header>
+
+<div class="vr-banner wait" id="waitBanner">
+  في انتظار بدء الجلسة — العداد هيبدأ أول ما المستشار يبدأ الجلسة
+  <small>Waiting for the counsel to start the session — the timer starts then</small>
+</div>
+<div class="vr-banner warn" id="warnBanner">
+  سيتم قطع الاتصال تلقائيًا بعد <span id="warnVal" dir="ltr">1:00</span>
+  <small>The call will end automatically in <span id="warnValEn">1:00</span></small>
+</div>
+
+<main class="vr-call" id="call">
+  <div class="vr-msg" id="msg">
+    <div class="box"><h1>جارٍ التحميل…</h1><p class="en">Loading…</p></div>
+  </div>
+</main>
+
+<script src="https://unpkg.com/@daily-co/daily-js"></script>
+<script>
+(function(){
+  const API = '../api/video.php';
+  const params = new URLSearchParams(location.search);
+  const room = params.get('r') || '';
+  const userName = (params.get('n') || '').slice(0, 40);
+  const WA = 'https://wa.me/201208555806';
+
+  const $ = id => document.getElementById(id);
+  let info = null, offset = 0, frame = null, ended = false;
+
+  function showMsg(titleAr, bodyAr, bodyEn, withWa){
+    $('msg').hidden = false;
+    $('msg').innerHTML = '<div class="box"><h1>' + titleAr + '</h1><p>' + bodyAr + '</p><p class="en">' + bodyEn + '</p>' +
+      (withWa ? '<a class="btn" href="' + WA + '" target="_blank" rel="noopener">تواصل مع المكتب على واتساب · WhatsApp</a>' : '') + '</div>';
+  }
+
+  function fmt(sec){
+    sec = Math.max(0, Math.ceil(sec));
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  async function fetchInfo(){
+    const res = await fetch(API + '?action=info&r=' + encodeURIComponent(room), {cache:'no-store'});
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    offset = data.now - Date.now() / 1000;
+    return data;
+  }
+
+  function finish(){
+    if (ended) return;
+    ended = true;
+    $('warnBanner').classList.remove('show');
+    $('waitBanner').classList.remove('show');
+    $('timerVal').textContent = '0:00';
+    if (frame) { try { frame.leave(); frame.destroy(); } catch(e){} frame = null; }
+    showMsg('انتهت مدة الجلسة', 'شكرًا لحضرتك. لو محتاج تمديد أو متابعة، تواصل مع المكتب على واتساب.',
+            'Your session time has ended. For an extension or follow-up, please contact the firm on WhatsApp.', true);
+  }
+
+  function tick(){
+    if (!info || ended) return;
+    if (info.status === 'waiting') {
+      $('timer').hidden = false;
+      $('timerVal').textContent = fmt(info.minutes * 60);
+      $('waitBanner').classList.add('show');
+      return;
+    }
+    $('waitBanner').classList.remove('show');
+    $('timer').hidden = false;
+    const left = info.ends_at - (Date.now() / 1000 + offset);
+    $('timerVal').textContent = fmt(left);
+    const warn = left <= 60;
+    $('timer').classList.toggle('warn', warn);
+    $('warnBanner').classList.toggle('show', warn && left > 0);
+    $('warnVal').textContent = fmt(left);
+    $('warnValEn').textContent = fmt(left);
+    if (left <= 0) finish();
+  }
+
+  async function poll(){
+    try {
+      const data = await fetchInfo();
+      // تمديد بعد الانتهاء على الشاشة: لو المكتب مدّد، الصفحة محتاجة إعادة تحميل للدخول تاني
+      if (ended && data.status === 'live' && data.ends_at > data.now) { location.reload(); return; }
+      info = data;
+      tick();
+    } catch(e) { /* نحاول تاني في الدورة الجاية */ }
+  }
+
+  async function init(){
+    if (!/^hamlf-[a-f0-9]{16}$/.test(room)) {
+      showMsg('الرابط غير صحيح', 'تأكد من الرابط اللي وصلك من المكتب على واتساب.', 'This link is not valid. Please check the link the firm sent you on WhatsApp.', true);
+      return;
+    }
+    try { info = await fetchInfo(); }
+    catch(e) {
+      showMsg('الرابط غير متاح', 'الرابط غير صحيح أو انتهت صلاحيته.', 'This link is not valid or has expired.', true);
+      return;
+    }
+    if (info.status === 'ended') { finish(); return; }
+    $('msg').hidden = true;
+    frame = window.DailyIframe.createFrame($('call'), {
+      showLeaveButton: true,
+      iframeStyle: {position:'absolute', inset:'0', width:'100%', height:'100%', border:'0'}
+    });
+    frame.on('left-meeting', () => {
+      if (ended) return;
+      try { frame.destroy(); } catch(e){}
+      frame = null;
+      showMsg('خرجت من الجلسة', 'لو خرجت بالغلط تقدر ترجع والعداد شغال زي ما هو.', 'You left the call. You can rejoin; the timer keeps running.', false);
+      $('msg').querySelector('.box').insertAdjacentHTML('beforeend', '<a class="btn" href="' + location.href + '">إعادة الدخول · Rejoin</a>');
+    });
+    frame.join(Object.assign({url: info.url}, userName ? {userName} : {}));
+    tick();
+    setInterval(tick, 250);
+    setInterval(poll, 10000);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
