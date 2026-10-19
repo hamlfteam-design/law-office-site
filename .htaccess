@@ -1,0 +1,15 @@
+# تحويل دائم (301) للصفحات المكررة القديمة في جذر الموقع إلى نسخها الصحيحة
+<IfModule mod_alias.c>
+RedirectMatch 301 ^/index_1\.html$ /
+RedirectMatch 301 ^/index_2\.html$ /
+RedirectMatch 301 ^/app_1\.html$ /app.html
+RedirectMatch 301 ^/consult_1\.html$ /consult.html
+RedirectMatch 301 ^/article-1\.html$ /articles/article-1.html
+RedirectMatch 301 ^/corporate\.html$ /services/corporate.html
+RedirectMatch 301 ^/criminal\.html$ /services/criminal.html
+RedirectMatch 301 ^/foreign-judgments\.html$ /services/foreign-judgments.html
+RedirectMatch 301 ^/inheritance\.html$ /services/inheritance.html
+RedirectMatch 301 ^/naqd\.html$ /services/naqd.html
+RedirectMatch 301 ^/poa-abroad\.html$ /services/poa-abroad.html
+RedirectMatch 301 ^/dashboard\.html$ /portal/dashboard.html
+</IfModule>
