@@ -93,6 +93,10 @@
         <h3>🏢 زيارة للمكتب</h3>
         <p>30 دقيقة بمقر المؤسسة بوسط البلد، القاهرة. مدة الحد الأقصى ساعة.</p>
       </label>
+      <label class="bk-opt" data-type="criminal" data-pay="5000" data-price="5000 جنيه — استشارة وفحص ملف القضية الجنائية، تُخصم من الأتعاب عند الاتفاق">
+        <h3>⚖️ قضية جنائية — استشارة وفحص ملف</h3>
+        <p>استشارة مع فحص ملف قضيتك الجنائية بمقر المؤسسة، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      </label>
       <label class="bk-opt" data-type="video" data-pay="" data-price="">
         <h3>💻 فيديو كونفرانس</h3>
         <p>استشارة عن بُعد بالصوت والصورة، بباقات 15 أو 30 أو 60 دقيقة تُسدَّد مقدماً.</p>
@@ -263,6 +267,9 @@ pkgOptions.addEventListener('click', e=>{
   state.pay = pkg.dataset.pay;
   document.getElementById('toStep2').disabled = false;
 });
+
+// ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
+(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='القضايا الجنائية';}}}catch(e){}})();
 
 function showStep(n){
   [1,2,3,4,5].forEach(i=>{
