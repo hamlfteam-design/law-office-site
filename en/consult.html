@@ -113,6 +113,8 @@
     const subject = document.getElementById("subject").value;
     const message = document.getElementById("message").value.trim();
     const method = document.querySelector('input[name="method"]:checked').value;
+    // Conversion tracking (Google Analytics → Google Ads) — no personal data, only the consultation type and channel
+    try{ if(typeof gtag==='function') gtag('event','generate_lead',{lead_source:'consult_form',consult_type:subject,contact_method:method,transport_type:'beacon'}); }catch(err){}
 
     const bodyText =
       `Legal consultation request from the firm website\n` +
