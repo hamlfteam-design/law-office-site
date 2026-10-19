@@ -66,9 +66,23 @@
     <div class="brand">
       <a href="index.html"><img src="assets/images/logo.png" alt="مؤسسة د. حسن عبد المنعم حسن" class="brand-logo"></a>
     </div>
-    <a href="en/index.html" class="lang-icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.2 2.4 3.4 5.6 3.4 9s-1.2 6.6-3.4 9c-2.2-2.4-3.4-5.6-3.4-9S9.8 5.4 12 3Z"></path></svg><span>EN</span></a>
+    <a href="en/booking.html" id="toEnBooking" class="lang-icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.2 2.4 3.4 5.6 3.4 9s-1.2 6.6-3.4 9c-2.2-2.4-3.4-5.6-3.4-9S9.8 5.4 12 3Z"></path></svg><span>EN</span></a>
   </div>
 </header>
+
+<div id="enBanner" hidden dir="ltr" style="background:var(--navy,#141414);color:#fff;text-align:center;padding:12px 16px;font-family:Arial,sans-serif;font-size:.95rem;">
+  This page is in Arabic. <a id="enBannerLink" href="en/booking.html" style="color:var(--gold-light,#e2c48a);font-weight:700;text-decoration:underline;">View the booking page in English &rarr;</a>
+</div>
+<script>
+// Keep the chosen consultation type when switching to English; offer English to visitors whose browser language is not Arabic
+(function(){try{
+  var q=location.search||'', url='en/booking.html'+q;
+  document.getElementById('toEnBooking').href=url;
+  document.getElementById('enBannerLink').href=url;
+  var langs=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'']).join(',').toLowerCase();
+  if(langs && !/(^|,)ar/.test(langs)) document.getElementById('enBanner').hidden=false;
+}catch(e){}})();
+</script>
 
 <div class="bk-wrap">
   <p class="lp-hero" style="background:none;padding:0;margin-bottom:24px;">
