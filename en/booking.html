@@ -92,6 +92,10 @@
         <h3>🏢 Office Visit</h3>
         <p>30 minutes at the firm's office in Downtown Cairo. Maximum duration one hour.</p>
       </label>
+      <label class="bk-opt" data-type="criminal" data-pay="5000" data-price="5000 EGP — consultation and review of the criminal case file, deducted from the fees once an engagement is agreed">
+        <h3>⚖️ Criminal Case — Consultation &amp; File Review</h3>
+        <p>A consultation with a review of your criminal case file at the firm's office; the fee is deducted from the legal fees once an engagement is agreed.</p>
+      </label>
       <label class="bk-opt" data-type="video" data-pay="" data-price="">
         <h3>💻 Video Conference</h3>
         <p>A remote audio-video consultation, in 15, 30 or 60-minute packages paid in advance.</p>
@@ -261,6 +265,9 @@ pkgOptions.addEventListener('click', e=>{
   state.pay = pkg.dataset.pay;
   document.getElementById('toStep2').disabled = false;
 });
+
+// ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
+(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='Criminal Cases';}}}catch(e){}})();
 
 function showStep(n){
   [1,2,3,4,5].forEach(i=>{
