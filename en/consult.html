@@ -62,76 +62,18 @@
   <a class="back" href="app.html">← Back</a>
   <a href="../consult.html" style="float:left;font-size:.78rem;color:var(--gold-light);text-decoration:underline;">العربية</a>
   <h1>Online Legal Consultation</h1>
-  <p class="sub">Write the details of your inquiry or case and we will reply within 48 working hours at most. The reply to an initial inquiry is brief and in writing; a detailed consultation is paid, with the fee shown when you book through the appointment page. Your message is sent directly to the firm's WhatsApp or email, as you choose.</p>
+  <p class="sub">A written consultation is a <strong>paid</strong> service: we review the facts of your matter and your documents and send you a written legal opinion. The fee is shown during booking once you accept that the service is paid, and you send your documents after payment.</p>
 
-  <form id="consultForm">
-    <div>
-      <label for="name">Name</label>
-      <input type="text" id="name" placeholder="Your full name" required="">
-    </div>
-    <div>
-      <label for="phone">Mobile number</label>
-      <input type="tel" id="phone" placeholder="01xxxxxxxxx" required="">
-    </div>
-    <div>
-      <label for="subject">Consultation type</label>
-      <select id="subject">
-        <option>Civil cases</option>
-        <option>Criminal cases</option>
-        <option>Corporate cases</option>
-        <option>Personal status</option>
-        <option>Cassation / Supreme Administrative Court / Constitutional Court appeal</option>
-        <option>Other inquiry</option>
-      </select>
-    </div>
-    <div>
-      <label for="message">Consultation details</label>
-      <textarea id="message" placeholder="Briefly describe the subject of your consultation..." required=""></textarea>
-    </div>
-
-    <div>
-      <label>How would you like to reach us?</label>
-      <div class="method-choice">
-        <label><input type="radio" name="method" value="whatsapp" checked=""> WhatsApp</label>
-        <label><input type="radio" name="method" value="email"> Email</label>
-      </div>
-    </div>
-
-    <button type="submit" class="submit-btn">Send Consultation</button>
-    <p class="note">WhatsApp or your email app will open with a ready message — you can review it and add details before sending.</p>
-  </form>
+  <ol class="note" style="text-align:start;font-size:.85rem;line-height:1.9;padding-inline-start:20px;">
+    <li>Choose "Written Consultation" on the booking page and accept that the service is paid.</li>
+    <li>The fee is then shown to you; once you accept it, you pay via InstaPay.</li>
+    <li>After payment, send us the facts of your matter and your documents on WhatsApp, and you receive our written legal opinion within the agreed period.</li>
+  </ol>
+  <a class="submit-btn" style="display:block;text-align:center;text-decoration:none;" href="booking.html?type=written">Book a Written Consultation</a>
+  <p class="note">If your matter involves an approaching legal deadline (such as a time limit for appeal), we recommend booking as soon as possible.</p>
 </div>
 
-<script>
-  const OFFICE_PHONE = "201208555806";
-  const OFFICE_EMAIL = "info@hamlf.com";
 
-  document.getElementById("consultForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const subject = document.getElementById("subject").value;
-    const message = document.getElementById("message").value.trim();
-    const method = document.querySelector('input[name="method"]:checked').value;
-    // Conversion tracking (Google Analytics → Google Ads) — no personal data, only the consultation type and channel
-    try{ if(typeof gtag==='function') gtag('event','generate_lead',{lead_source:'consult_form',consult_type:subject,contact_method:method,transport_type:'beacon'}); }catch(err){}
-
-    const bodyText =
-      `Legal consultation request from the firm website\n` +
-      `Name: ${name}\n` +
-      `Mobile: ${phone}\n` +
-      `Consultation type: ${subject}\n` +
-      `Details: ${message}`;
-
-    if (method === "whatsapp") {
-      const url = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
-      window.location.href = url;
-    } else {
-      const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("Legal consultation request - " + subject)}&body=${encodeURIComponent(bodyText)}`;
-      window.location.href = mailUrl;
-    }
-  });
-</script>
 
 
 </body></html>
