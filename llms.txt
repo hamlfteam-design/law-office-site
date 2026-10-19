@@ -43,6 +43,7 @@ Cairo-based Egyptian law firm (downtown, 48 Kasr El Nil St.). Represents compani
 - [القضايا التجارية والمحاكم الاقتصادية](https://hamlf.com/services/commercial.html)
 - [التأمينات والمعاشات ومطالبات التأمين](https://hamlf.com/services/insurance.html)
 - [قضايا العمال وعلاقات العمل](https://hamlf.com/services/labor.html)
+- [المنازعات والطعون الضريبية](https://hamlf.com/services/tax.html)
 - [منازعات المجتمعات العمرانية الجديدة](https://hamlf.com/services/urban-communities.html)
 - [الملكية الفكرية والعلامات التجارية](https://hamlf.com/services/intellectual-property.html)
 - [التعاون مع مكاتب المحاماة (محامٍ مراسل وشراكة)](https://hamlf.com/services/law-firm-cooperation.html)
@@ -78,6 +79,7 @@ Cairo-based Egyptian law firm (downtown, 48 Kasr El Nil St.). Represents compani
 - [Commercial Litigation & the Economic Courts](https://hamlf.com/en/services/commercial.html)
 - [Social Insurance, Pensions & Insurance Claims](https://hamlf.com/en/services/insurance.html)
 - [Labor & Employment](https://hamlf.com/en/services/labor.html)
+- [Tax Disputes & Appeals](https://hamlf.com/en/services/tax.html)
 - [New Urban Communities Disputes](https://hamlf.com/en/services/urban-communities.html)
 - [Intellectual Property & Trademarks](https://hamlf.com/en/services/intellectual-property.html)
 

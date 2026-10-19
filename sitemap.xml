@@ -333,6 +333,12 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/labor.html"/>
   </url>
   <url>
+    <loc>https://hamlf.com/services/tax.html</loc>
+    <lastmod>2026-10-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/tax.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/tax.html"/>
+  </url>
+  <url>
     <loc>https://hamlf.com/services/urban-communities.html</loc>
     <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/urban-communities.html"/>
@@ -445,6 +451,12 @@
     <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/labor.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/labor.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/services/tax.html</loc>
+    <lastmod>2026-10-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/tax.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/tax.html"/>
   </url>
   <url>
     <loc>https://hamlf.com/en/services/urban-communities.html</loc>
