@@ -63,75 +63,17 @@
   <a class="back" href="app.html">→ رجوع</a>
   <a href="en/consult.html" style="float:left;font-size:.78rem;color:var(--gold-light);text-decoration:underline;">English</a>
   <h1>استشارة قانونية أونلاين</h1>
-  <p class="sub">اكتب تفاصيل استفسارك أو قضيتك، وهنرد عليك خلال ٤٨ ساعة عمل بحد أقصى. الرد المختصر على الاستفسار المبدئي بيكون كتابةً، والاستشارة المفصلة مدفوعة وتظهر أتعابها عند الحجز عبر صفحة حجز موعد. الرسالة هتتبعت مباشرة على واتساب أو إيميل المكتب حسب اختيارك.</p>
+  <p class="sub">الاستشارة المكتوبة خدمة <strong>مدفوعة</strong>: بنراجع وقائع موضوعك ومستنداتك ونبعتلك رأي قانوني مكتوب. الأتعاب بتظهر لك في خطوات الحجز بعد موافقتك على مبدأ الدفع، والمستندات بتبعتها بعد السداد.</p>
 
-  <form id="consultForm">
-    <div>
-      <label for="name">الاسم</label>
-      <input type="text" id="name" placeholder="اسمك بالكامل" required>
-    </div>
-    <div>
-      <label for="phone">رقم الموبايل</label>
-      <input type="tel" id="phone" placeholder="01xxxxxxxxx" required>
-    </div>
-    <div>
-      <label for="subject">نوع الاستشارة</label>
-      <select id="subject">
-        <option>قضايا مدنية</option>
-        <option>قضايا جنائية</option>
-        <option>قضايا شركات</option>
-        <option>أحوال شخصية</option>
-        <option>الطعن بالنقض / الإدارية العليا / الدستورية</option>
-        <option>استفسار آخر</option>
-      </select>
-    </div>
-    <div>
-      <label for="message">تفاصيل الاستشارة</label>
-      <textarea id="message" placeholder="اشرح موضوع الاستشارة باختصار..." required></textarea>
-    </div>
-
-    <div>
-      <label>هتوصلنا إزاي؟</label>
-      <div class="method-choice">
-        <label><input type="radio" name="method" value="whatsapp" checked> واتساب</label>
-        <label><input type="radio" name="method" value="email"> إيميل</label>
-      </div>
-    </div>
-
-    <button type="submit" class="submit-btn">إرسال الاستشارة</button>
-    <p class="note">هيفتحلك واتساب أو برنامج الإيميل عندك برسالة جاهزة — تقدر تراجعها وتضيف تفاصيل قبل الإرسال.</p>
-  </form>
+  <ol class="note" style="text-align:start;font-size:.85rem;line-height:1.9;padding-inline-start:20px;">
+    <li>اختار «الاستشارة المكتوبة» من صفحة الحجز ووافق على مبدأ الأتعاب.</li>
+    <li>تظهر لك قيمة الأتعاب، وبعد موافقتك تسدد عبر انستاباي.</li>
+    <li>بعد السداد تبعت لنا وقائع موضوعك ومستنداتك على واتساب، ويصلك الرأي القانوني مكتوبًا خلال المدة المتفق عليها.</li>
+  </ol>
+  <a class="submit-btn" style="display:block;text-align:center;text-decoration:none;" href="booking.html?type=written">احجز استشارة مكتوبة</a>
+  <p class="note">لو موضوعك فيه ميعاد قانوني قريب (زي ميعاد طعن)، يُفضّل الحجز في أقرب وقت.</p>
 </div>
 
-<script>
-  const OFFICE_PHONE = "201208555806";
-  const OFFICE_EMAIL = "info@hamlf.com";
 
-  document.getElementById("consultForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const subject = document.getElementById("subject").value;
-    const message = document.getElementById("message").value.trim();
-    const method = document.querySelector('input[name="method"]:checked').value;
-    // Conversion tracking (Google Analytics → Google Ads) — no personal data, only the consultation type and channel
-    try{ if(typeof gtag==='function') gtag('event','generate_lead',{lead_source:'consult_form',consult_type:subject,contact_method:method,transport_type:'beacon'}); }catch(err){}
-
-    const bodyText =
-      `طلب استشارة قانونية من موقع المؤسسة\n` +
-      `الاسم: ${name}\n` +
-      `رقم الموبايل: ${phone}\n` +
-      `نوع الاستشارة: ${subject}\n` +
-      `التفاصيل: ${message}`;
-
-    if (method === "whatsapp") {
-      const url = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
-      window.location.href = url;
-    } else {
-      const mailUrl = `mailto:${OFFICE_EMAIL}?subject=${encodeURIComponent("طلب استشارة قانونية - " + subject)}&body=${encodeURIComponent(bodyText)}`;
-      window.location.href = mailUrl;
-    }
-  });
-</script>
 </body>
 </html>
