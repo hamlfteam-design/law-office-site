@@ -236,11 +236,15 @@
   </url>
   <url>
     <loc>https://hamlf.com/services/cybercrime.html</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/cybercrime.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/cybercrime.html"/>
   </url>
   <url>
     <loc>https://hamlf.com/services/public-funds.html</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/public-funds.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/public-funds.html"/>
   </url>
   <url>
     <loc>https://hamlf.com/services/foreign-property.html</loc>
@@ -469,5 +473,47 @@
     <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/intellectual-property.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/intellectual-property.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/services/cybercrime.html</loc>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/cybercrime.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/cybercrime.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/services/public-funds.html</loc>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/public-funds.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/public-funds.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/articles/arrival-watchlist-travel-ban-egypt.html</loc>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/arrival-watchlist-travel-ban-egypt.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/arrival-watchlist-travel-ban-egypt.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/articles/online-fraud-bank-transfer-egypt.html</loc>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/online-fraud-bank-transfer-egypt.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/online-fraud-bank-transfer-egypt.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/articles/online-defamation-insult-egypt.html</loc>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/online-defamation-insult-egypt.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/online-defamation-insult-egypt.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/booking.html</loc>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/booking.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/booking.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/booking.html</loc>
+    <lastmod>2026-10-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/booking.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/booking.html"/>
   </url>
 </urlset>
