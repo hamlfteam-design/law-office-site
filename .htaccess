@@ -1,3 +1,10 @@
+# تحويل دائم (301) من www.hamlf.com إلى hamlf.com لتوحيد عنوان الموقع في محركات البحث
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.hamlf\.com$ [NC]
+RewriteRule ^(.*)$ https://hamlf.com/$1 [R=301,L]
+</IfModule>
+
 # تحويل دائم (301) للصفحات المكررة القديمة في جذر الموقع إلى نسخها الصحيحة
 <IfModule mod_alias.c>
 RedirectMatch 301 ^/index_1\.html$ /
