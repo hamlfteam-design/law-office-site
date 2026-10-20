@@ -65,7 +65,7 @@
     <div class="brand">
       <a href="index.html"><img src="../assets/images/logo.png" alt="Dr. Hassan Abdelmoneim Hassan Law Firm" class="brand-logo"></a>
     </div>
-    <a href="../booking.html" class="lang-icon-btn" aria-label="التبديل إلى العربية" title="العربية"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.2 2.4 3.4 5.6 3.4 9s-1.2 6.6-3.4 9c-2.2-2.4-3.4-5.6-3.4-9S9.8 5.4 12 3Z"></path></svg><span>AR</span></a>
+    <a href="../booking.html" id="toArBooking" class="lang-icon-btn" aria-label="التبديل إلى العربية" title="العربية"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.2 2.4 3.4 5.6 3.4 9s-1.2 6.6-3.4 9c-2.2-2.4-3.4-5.6-3.4-9S9.8 5.4 12 3Z"></path></svg><span>AR</span></a>
   </div>
 </header>
 
@@ -266,6 +266,7 @@ pkgOptions.addEventListener('click', e=>{
   document.getElementById('toStep2').disabled = false;
 });
 
+try{document.getElementById('toArBooking').href='../booking.html'+(location.search||'');}catch(e){}
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
 (function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='Criminal Cases';}}}catch(e){}})();
 
