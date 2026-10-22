@@ -108,9 +108,25 @@
         <h3>🏢 زيارة للمكتب</h3>
         <p>30 دقيقة بمقر المؤسسة بوسط البلد، القاهرة. مدة الحد الأقصى ساعة.</p>
       </label>
-      <label class="bk-opt" data-type="criminal" data-pay="5000" data-price="5000 جنيه — استشارة وفحص ملف القضية الجنائية، تُخصم من الأتعاب عند الاتفاق">
-        <h3>⚖️ قضية جنائية — استشارة وفحص ملف</h3>
-        <p>استشارة مع فحص ملف قضيتك الجنائية بمقر المؤسسة، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      <label class="bk-opt" data-type="criminal" data-pay="10000" data-price="10000 جنيه — استشارة في قضية جناية، تُخصم من الأتعاب عند الاتفاق">
+        <h3>⚖️ جناية — استشارة</h3>
+        <p>استشارة في قضية جناية بمقر المؤسسة، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      </label>
+      <label class="bk-opt" data-type="criminal_review" data-pay="20000" data-price="20000 جنيه — استشارة وفحص ملف القضية (جناية)، تُخصم من الأتعاب عند الاتفاق">
+        <h3>⚖️ جناية — استشارة وفحص ملف القضية</h3>
+        <p>استشارة مع قراءة وفحص ملف قضيتك في الجناية، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      </label>
+      <label class="bk-opt" data-type="misdemeanor" data-pay="5000" data-price="5000 جنيه — استشارة في قضية جنحة، تُخصم من الأتعاب عند الاتفاق">
+        <h3>⚖️ جنحة — استشارة</h3>
+        <p>استشارة في قضية جنحة بمقر المؤسسة، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      </label>
+      <label class="bk-opt" data-type="misdemeanor_review" data-pay="10000" data-price="10000 جنيه — استشارة وفحص ملف القضية (جنحة)، تُخصم من الأتعاب عند الاتفاق">
+        <h3>⚖️ جنحة — استشارة وفحص ملف القضية</h3>
+        <p>استشارة مع قراءة وفحص ملف قضيتك في الجنحة، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      </label>
+      <label class="bk-opt" data-type="naqd_review" data-pay="20000" data-price="20000 جنيه — فحص ملف الطعن بالنقض وتقدير فرصه، تُخصم من الأتعاب عند الاتفاق">
+        <h3>🏛️ طعن بالنقض — فحص ملف</h3>
+        <p>فحص الحكم وأوراق القضية وتقدير فرص الطعن بالنقض ومهلته، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
       </label>
       <label class="bk-opt" data-type="video" data-pay="" data-price="">
         <h3>💻 فيديو كونفرانس</h3>
@@ -284,7 +300,7 @@ pkgOptions.addEventListener('click', e=>{
 });
 
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
-(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='القضايا الجنائية';}}}catch(e){}})();
+(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();var c=document.getElementById('fCategory');if(c){if(t==='naqd_review')c.value='الطعن بالنقض والمحاكم العليا';else if(/^(criminal|misdemeanor)/.test(t))c.value='القضايا الجنائية';}}}catch(e){}})();
 
 function showStep(n){
   [1,2,3,4,5].forEach(i=>{
