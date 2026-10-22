@@ -435,6 +435,45 @@ document.getElementById('copyIpa').onclick = function(){
     if(priceSent) return; priceSent=true;
     trk('booking_price_view',{consult_type:state.type||'',currency:'EGP',value:Number(state.pay)||0});
   });
+  var lastStep=1, backAsked=false, abSent=false;
+  var SN={1:'type',2:'fees',3:'date',4:'details',5:'payment'};
+  var _sh=showStep;
+  showStep=function(n){_sh(n); lastStep=n; trk('booking_step',{step_number:n,step_name:SN[n],consult_type:state.type||''});};
+  trk('booking_step',{step_number:1,step_name:'type',consult_type:''});
+  var WHY_SERVICE=[['not_aware_paid','لم أكن أعلم أن الخدمة مدفوعة'],['want_free','كنت أبحث عن معلومة أو استشارة مجانية'],['wrong_service','اخترت الخدمة بالخطأ'],['other','سبب آخر']];
+  var WHY_PRICE=[['price_high','الأتعاب أعلى من ميزانيتي'],['just_checking','كنت أريد معرفة السعر فقط'],['want_free','كنت أبحث عن استشارة مجانية'],['unsure_fit','لست متأكداً أن الخدمة تناسب قضيتي'],['prefer_call','أفضّل التواصل بالهاتف أو واتساب أولاً'],['other','سبب آخر']];
+  var WHY_BACK=[['change_choice','أريد تغيير اختياري'],['check_data','أراجع بياناتي'],['question_first','عندي سؤال قبل أن أكمل'],['other','سبب آخر']];
+  function askReason(stage,opts){
+    if(document.getElementById('bkWhy')) return;
+    var w=document.createElement('div'); w.id='bkWhy';
+    w.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px';
+    var h='<div style="background:#fff;border-radius:12px;max-width:420px;width:100%;padding:22px;direction:rtl;font-family:inherit"><h3 style="margin:0 0 6px;color:#141414">ممكن نعرف السبب؟</h3><p style="margin:0 0 12px;font-size:.9rem;color:#555">إجابتك تساعدنا نحسّن الخدمة (اختياري).</p>';
+    opts.forEach(function(o){h+='<button type="button" data-r="'+o[0]+'" style="display:block;width:100%;text-align:start;margin:0 0 8px;padding:11px 14px;border:1px solid #d8d4cb;border-radius:8px;background:#fff;cursor:pointer;font:inherit">'+o[1]+'</button>';});
+    h+='<button type="button" data-r="" style="background:none;border:0;color:#888;cursor:pointer;font:inherit;margin-top:4px">تخطي</button></div>';
+    w.innerHTML=h; document.body.appendChild(w);
+    w.addEventListener('click',function(e){
+      var b=e.target.closest('button');
+      if(!b && e.target!==w) return;
+      var r=b?b.getAttribute('data-r'):'';
+      if(r) trk('booking_exit_reason',{exit_stage:stage,exit_reason:r,consult_type:state.type||''});
+      w.remove();
+    });
+  }
+  var dS=document.getElementById('disagreeService');
+  if(dS) dS.addEventListener('click',function(){trk('booking_declined',{exit_stage:'fees_consent',consult_type:state.type||''}); askReason('fees_consent',WHY_SERVICE);});
+  var dP=document.getElementById('disagreePrice');
+  if(dP) dP.addEventListener('click',function(){trk('booking_declined',{exit_stage:'fees_price',consult_type:state.type||''}); askReason('fees_price',WHY_PRICE);});
+  [['backTo2','back_from_date'],['backTo3','back_from_details'],['backTo4','back_from_payment']].forEach(function(p){
+    var el=document.getElementById(p[0]);
+    if(el) el.addEventListener('click',function(){
+      trk('booking_back',{exit_stage:p[1],consult_type:state.type||''});
+      if(!backAsked){backAsked=true; askReason(p[1],WHY_BACK);}
+    });
+  });
+  window.addEventListener('pagehide',function(){
+    if(abSent||leadSent) return; abSent=true;
+    trk('booking_abandon',{step_number:lastStep,step_name:SN[lastStep],consult_type:state.type||'',transport_type:'beacon'});
+  });
 })();
 </script>
 </body>
