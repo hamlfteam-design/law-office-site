@@ -316,6 +316,7 @@ content:'';position:absolute;inline-size:8px;block-size:8px;border-radius:50%;
 background:var(--gold);inset-inline-start:0;top:9px;
 }
 .lp-note{background:var(--bg);border-inline-start:3px solid var(--gold);padding:14px 18px;border-radius:6px;color:var(--muted);font-size:.92rem;margin:20px 0;}
+.lp-note p{margin:0 0 8px;}.lp-note p:last-child{margin-bottom:0;}
 .lp-cta{
 background:var(--navy);color:var(--white);border-radius:var(--radius);
 padding:36px 30px;text-align:center;margin-top:40px;
