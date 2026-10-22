@@ -441,7 +441,7 @@ document.getElementById('copyIpa').onclick = function(){
   showStep=function(n){_sh(n); lastStep=n; trk('booking_step',{step_number:n,step_name:SN[n],consult_type:state.type||''});};
   trk('booking_step',{step_number:1,step_name:'type',consult_type:''});
   var WHY_SERVICE=[['not_aware_paid','لم أكن أعلم أن الخدمة مدفوعة'],['want_free','كنت أبحث عن معلومة أو استشارة مجانية'],['wrong_service','اخترت الخدمة بالخطأ'],['other','سبب آخر']];
-  var WHY_PRICE=[['price_high','الأتعاب أعلى من ميزانيتي'],['just_checking','كنت أريد معرفة السعر فقط'],['want_free','كنت أبحث عن استشارة مجانية'],['unsure_fit','لست متأكداً أن الخدمة تناسب قضيتي'],['prefer_call','أفضّل التواصل بالهاتف أو واتساب أولاً'],['other','سبب آخر']];
+  var WHY_PRICE=[['consult_fee_high','رسم الاستشارة أعلى من ميزانيتي'],['fees_concern','أخشى أن تكون أتعاب القضية نفسها مرتفعة'],['just_checking','كنت أريد معرفة السعر فقط'],['want_free','كنت أبحث عن استشارة مجانية'],['unsure_fit','لست متأكداً أن الخدمة تناسب قضيتي'],['prefer_call','أفضّل التواصل بالهاتف أو واتساب أولاً'],['other','سبب آخر']];
   var WHY_BACK=[['change_choice','أريد تغيير اختياري'],['check_data','أراجع بياناتي'],['question_first','عندي سؤال قبل أن أكمل'],['other','سبب آخر']];
   function askReason(stage,opts){
     if(document.getElementById('bkWhy')) return;
