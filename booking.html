@@ -429,6 +429,12 @@ document.getElementById('copyIpa').onclick = function(){
     if(leadSent) return; leadSent=true;
     trk('generate_lead',{lead_source:'booking',consult_type:state.type||'',currency:'EGP',value:Number(state.pay)||0});
   });
+  var ag=document.getElementById('agreeService');
+  var priceSent=false;
+  if(ag) ag.addEventListener('click',function(){
+    if(priceSent) return; priceSent=true;
+    trk('booking_price_view',{consult_type:state.type||'',currency:'EGP',value:Number(state.pay)||0});
+  });
 })();
 </script>
 </body>
