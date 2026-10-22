@@ -470,4 +470,16 @@
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/intellectual-property.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/intellectual-property.html"/>
   </url>
+  <url>
+    <loc>https://hamlf.com/booking.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/booking.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/booking.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/booking.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/booking.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/booking.html"/>
+  </url>
 </urlset>
