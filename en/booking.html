@@ -93,9 +93,25 @@
         <h3>🏢 Office Visit</h3>
         <p>30 minutes at the firm's office in Downtown Cairo. Maximum duration one hour.</p>
       </label>
-      <label class="bk-opt" data-type="criminal" data-pay="5000" data-price="5000 EGP — consultation and review of the criminal case file, deducted from the fees once an engagement is agreed">
-        <h3>⚖️ Criminal Case — Consultation &amp; File Review</h3>
-        <p>A consultation with a review of your criminal case file at the firm's office; the fee is deducted from the legal fees once an engagement is agreed.</p>
+      <label class="bk-opt" data-type="criminal" data-pay="10000" data-price="10000 EGP — consultation on a felony case, deducted from the fees once an engagement is agreed">
+        <h3>⚖️ Felony — Consultation</h3>
+        <p>A consultation on a felony case at the firm's office; the fee is deducted from the fees once an engagement is agreed.</p>
+      </label>
+      <label class="bk-opt" data-type="criminal_review" data-pay="20000" data-price="20000 EGP — consultation and review of the felony case file, deducted from the fees once an engagement is agreed">
+        <h3>⚖️ Felony — Consultation &amp; File Review</h3>
+        <p>A consultation with a review of your felony case file; the fee is deducted from the fees once an engagement is agreed.</p>
+      </label>
+      <label class="bk-opt" data-type="misdemeanor" data-pay="5000" data-price="5000 EGP — consultation on a misdemeanor case, deducted from the fees once an engagement is agreed">
+        <h3>⚖️ Misdemeanor — Consultation</h3>
+        <p>A consultation on a misdemeanor case at the firm's office; the fee is deducted from the fees once an engagement is agreed.</p>
+      </label>
+      <label class="bk-opt" data-type="misdemeanor_review" data-pay="10000" data-price="10000 EGP — consultation and review of the misdemeanor case file, deducted from the fees once an engagement is agreed">
+        <h3>⚖️ Misdemeanor — Consultation &amp; File Review</h3>
+        <p>A consultation with a review of your misdemeanor case file; the fee is deducted from the fees once an engagement is agreed.</p>
+      </label>
+      <label class="bk-opt" data-type="naqd_review" data-pay="20000" data-price="20000 EGP — review of the file for a cassation appeal and assessment of its prospects, deducted from the fees once an engagement is agreed">
+        <h3>🏛️ Cassation Appeal — File Review</h3>
+        <p>A review of the judgment and case papers, with an assessment of the prospects and deadline for a cassation appeal; the fee is deducted from the fees once an engagement is agreed.</p>
       </label>
       <label class="bk-opt" data-type="video" data-pay="" data-price="">
         <h3>💻 Video Conference</h3>
@@ -269,7 +285,7 @@ pkgOptions.addEventListener('click', e=>{
 
 try{document.getElementById('toArBooking').href='../booking.html'+(location.search||'');}catch(e){}
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
-(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='Criminal Cases';}}}catch(e){}})();
+(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();var c=document.getElementById('fCategory');if(c){if(t==='naqd_review')c.value='Cassation Appeals & Supreme Courts';else if(/^(criminal|misdemeanor)/.test(t))c.value='Criminal Cases';}}}catch(e){}})();
 
 function showStep(n){
   [1,2,3,4,5].forEach(i=>{
