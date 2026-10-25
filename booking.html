@@ -217,6 +217,13 @@
   <section class="bk-card" id="step5" hidden>
     <h2>مراجعة وتأكيد الحجز</h2>
     <div class="bk-summary" id="summaryBox"></div>
+    <div class="pay-box" id="opayBox">
+      <h3>الدفع أونلاين بالبطاقة أو المحفظة</h3>
+      <div class="pay-amount" style="font-size:1.2rem;">المبلغ: <span class="opayAmt"></span> جنيه</div>
+      <button type="button" class="btn-primary" id="opayBtn" style="border:0;cursor:pointer;font:inherit;">ادفع الآن أونلاين عبر OPay</button>
+      <p style="font-size:.85rem;color:var(--muted);margin:10px 0 0;">الدفع يتم على صفحة OPay الآمنة، ويتأكد للمكتب تلقائياً. أو ادفع عبر انستاباي بالأسفل.</p>
+      <p id="opayErr" style="color:#b3261e;font-size:.9rem;margin:8px 0 0;" hidden>تعذر فتح صفحة الدفع الآن. جرّب مرة أخرى أو ادفع عبر انستاباي.</p>
+    </div>
     <div class="pay-box">
       <h3>السداد عبر انستاباي</h3>
       <div class="pay-amount" style="font-size:1.4rem;">المطلوب سداده الآن: <span id="payAmount"></span> جنيه</div>
@@ -473,6 +480,50 @@ document.getElementById('copyIpa').onclick = function(){
   window.addEventListener('pagehide',function(){
     if(abSent||leadSent) return; abSent=true;
     trk('booking_abandon',{step_number:lastStep,step_name:SN[lastStep],consult_type:state.type||'',transport_type:'beacon'});
+  });
+})();
+</script>
+<script>
+// ---- Online payment via OPay Checkout (added 2026-10-25) — amount is set on the server (api/opay.php) ----
+(function(){
+  var mins = '';
+  var pk = document.getElementById('pkgOptions');
+  if(pk) pk.addEventListener('click', function(e){ var b = e.target.closest('.bk-slot'); if(b) mins = b.dataset.mins; });
+  var b5 = document.getElementById('toStep5');
+  if(b5) b5.addEventListener('click', function(){
+    document.querySelectorAll('.opayAmt').forEach(function(el){ el.textContent = state.pay; });
+    var ob = document.getElementById('opayBox');
+    if(ob) ob.hidden = !ready || (state.region === 'abroad') || !state.pay;
+  });
+  var ready = false;
+  fetch('api/opay.php?action=ping',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){ ready = !!d.ok; }).catch(function(){});
+  var btn = document.getElementById('opayBtn');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var v = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    var fu = document.getElementById('fFollowup');
+    var appEl = document.getElementById('fApp');
+    var body = {
+      lang: 'ar', type: state.type, mins: (document.querySelector('#pkgOptions .bk-slot.selected')||{dataset:{}}).dataset.mins || mins,
+      name: v('fName'), phone: v('fPhone'), email: v('fEmail'),
+      category: v('fCategory'), details: v('fDetails'),
+      followup: fu ? fu.options[fu.selectedIndex].text : '',
+      app: (state.type === 'video' && appEl) ? appEl.value : '',
+      appointment: (state.dateLabel || '') + (state.slot ? ' - ' + state.slot : '')
+    };
+    var wa = ''; try { wa = decodeURIComponent((document.getElementById('sendWhatsapp').href.split('text=')[1] || '')); } catch(e){}
+    wa = wa.split('\n\nتم السداد عبر انستاباي')[0];
+    btn.disabled = true; var old = btn.textContent; btn.textContent = '…';
+    document.getElementById('opayErr').hidden = true;
+    try{ if(typeof gtag==='function') gtag('event','booking_pay_click',{pay_method:'opay',consult_type:state.type||'',currency:'EGP',value:Number(state.pay)||0}); }catch(e){}
+    fetch('api/opay.php?action=create', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d.ok || !d.cashierUrl) throw 0;
+        try { sessionStorage.setItem('hamlfBooking_' + d.ref, wa); } catch(e){}
+        location.href = d.cashierUrl;
+      })
+      .catch(function(){ btn.disabled = false; btn.textContent = old; document.getElementById('opayErr').hidden = false; });
   });
 })();
 </script>
