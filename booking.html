@@ -485,6 +485,7 @@ document.getElementById('copyIpa').onclick = function(){
 </script>
 <script>
 // ---- Online payment via OPay Checkout (added 2026-10-25) — amount is set on the server (api/opay.php) ----
+// The button shows to visitors only when opay-config.php has mode 'live'; in test mode add ?opaytest=1 to the URL to see it.
 (function(){
   var mins = '';
   var pk = document.getElementById('pkgOptions');
@@ -496,7 +497,7 @@ document.getElementById('copyIpa').onclick = function(){
     if(ob) ob.hidden = !ready || (state.region === 'abroad') || !state.pay;
   });
   var ready = false;
-  fetch('api/opay.php?action=ping',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){ ready = !!d.ok; }).catch(function(){});
+  fetch('api/opay.php?action=ping',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){ var t = false; try { t = /[?&]opaytest=1/.test(location.search); } catch(e){} ready = !!d.ok && (d.live || t); }).catch(function(){});
   var btn = document.getElementById('opayBtn');
   if(!btn) return;
   btn.addEventListener('click', function(){
