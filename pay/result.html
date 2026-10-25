@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>نتيجة الدفع | مؤسسة د. حسن عبد المنعم حسن</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=20260924">
+<style>
+.pr-wrap{max-width:620px;margin:0 auto;padding:40px 20px 80px;}
+.pr-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:28px;text-align:center;}
+.pr-card h1{font-size:1.3rem;color:var(--navy);margin:10px 0 12px;}
+.pr-icon{font-size:2.6rem;line-height:1;}
+.pr-card p{line-height:1.9;margin:6px 0;}
+.pr-ref{direction:ltr;display:inline-block;background:var(--bg);border:1px solid #d8d4cb;border-radius:8px;padding:6px 12px;font-weight:700;}
+.pr-test{background:#fff4d6;border:1px solid #e2c48a;border-radius:8px;padding:8px 12px;font-size:.85rem;margin-bottom:14px;}
+.pr-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+[hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand"><a href="../index.html"><img src="../assets/images/logo.png" alt="مؤسسة د. حسن عبد المنعم حسن" class="brand-logo"></a></div>
+  </div>
+</header>
+<div class="pr-wrap">
+  <div class="pr-card">
+    <div class="pr-test" id="prTest" hidden>وضع الاختبار — لم يتم خصم أي مبلغ حقيقي.</div>
+    <div class="pr-icon" id="prIcon">⏳</div>
+    <h1 id="prTitle">جارٍ التحقق من عملية الدفع…</h1>
+    <p id="prText">من فضلك لا تغلق الصفحة.</p>
+    <p id="prRefRow" hidden>رقم المرجع: <span class="pr-ref" id="prRef"></span></p>
+    <div class="pr-actions">
+      <a href="#" id="prWa" class="btn-primary" target="_blank" rel="noopener" hidden>أرسل تأكيد الحجز على واتساب</a>
+      <a href="../booking.html" id="prRetry" class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" hidden>العودة لصفحة الحجز</a>
+    </div>
+  </div>
+</div>
+<footer class="site-footer"><div class="container"><p>© <span id="year"></span> مؤسسة د. حسن عبد المنعم حسن — محامون ومستشارون.</p></div></footer>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear().toLocaleString('ar-EG',{useGrouping:false});
+(function(){
+  var q = new URLSearchParams(location.search), ref = q.get('ref') || '', tries = 0;
+  var $ = function(id){ return document.getElementById(id); };
+  function n(x){ return Number(x).toLocaleString('ar-EG'); }
+  function show(icon, title, text){ $('prIcon').textContent = icon; $('prTitle').textContent = title; $('prText').textContent = text; }
+  if(!/^HB[0-9A-F]{18}$/.test(ref)){ show('⚠️','رابط غير صحيح','لم نجد رقم مرجع لعملية الدفع.'); $('prRetry').hidden = false; return; }
+  $('prRef').textContent = ref; $('prRefRow').hidden = false;
+  function check(){
+    fetch('../api/opay.php?action=status&ref=' + encodeURIComponent(ref), {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d.ok) throw 0;
+        $('prTest').hidden = !d.test;
+        if(d.status === 'SUCCESS'){
+          show('✅','تم السداد بنجاح','تم سداد ' + n(d.amount) + ' جنيه مقابل: ' + d.label + '. أرسل تأكيد الحجز على واتساب ليؤكد لك المكتب الميعاد.');
+          var details = ''; try { details = sessionStorage.getItem('hamlfBooking_' + ref) || ''; } catch(e){}
+          var msg = (details ? details + '\n\n' : 'طلب حجز من الموقع\n') + 'تم السداد أونلاين عبر OPay — رقم المرجع: ' + ref;
+          $('prWa').href = 'https://wa.me/201208555806?text=' + encodeURIComponent(msg);
+          $('prWa').hidden = false;
+          try{ if(typeof gtag==='function') gtag('event','purchase',{transaction_id:ref,currency:'EGP',value:d.amount}); }catch(e){}
+        } else if(d.status === 'FAIL' || d.status === 'CLOSE' || q.get('cancel')){
+          show('❌','لم تكتمل عملية الدفع','لم يتم خصم أي مبلغ. يمكنك المحاولة مرة أخرى أو السداد عبر انستاباي من صفحة الحجز.');
+          $('prRetry').hidden = false;
+        } else if(d.status === 'MISMATCH'){
+          show('⚠️','نراجع عملية الدفع','سيتواصل معك المكتب لتأكيد العملية. احتفظ برقم المرجع.');
+        } else if(++tries < 10){
+          setTimeout(check, 3000);
+        } else {
+          show('⏳','العملية قيد المعالجة','لو تم الخصم من حسابك سيصل التأكيد للمكتب تلقائياً. احتفظ برقم المرجع وتواصل معنا على واتساب.');
+          $('prWa').href = 'https://wa.me/201208555806?text=' + encodeURIComponent('استفسار عن عملية دفع — رقم المرجع: ' + ref);
+          $('prWa').textContent = 'تواصل مع المكتب على واتساب'; $('prWa').hidden = false;
+        }
+      })
+      .catch(function(){ show('⚠️','تعذر التحقق الآن','حاول تحديث الصفحة بعد دقيقة، أو تواصل معنا على واتساب برقم المرجع.'); });
+  }
+  check();
+})();
+</script>
+</body>
+</html>
