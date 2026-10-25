@@ -87,13 +87,21 @@
 
   <!-- Step 1: type (no prices shown) -->
   <section class="bk-card" id="step1">
-    <h2>Consultation Type</h2>
+    <div id="regionBox">
+      <h2>Where are you based?</h2>
+      <div class="bk-slots" id="regionOptions">
+        <button type="button" class="bk-slot" data-region="egypt">Inside Egypt</button>
+        <button type="button" class="bk-slot" data-region="abroad">Outside Egypt</button>
+      </div>
+    </div>
+    <div id="typeWrap" hidden>
+    <h2 style="margin-top:22px;">Consultation Type</h2>
     <div class="bk-options" id="typeOptions">
       <label class="bk-opt" data-type="office" data-pay="3000" data-price="3000 EGP (deducted from the fees if a power of attorney is agreed)">
         <h3>🏢 Office Visit</h3>
         <p>30 minutes at the firm's office in Downtown Cairo. Maximum duration one hour.</p>
       </label>
-      <label class="bk-opt" data-type="criminal" data-pay="5000" data-price="5000 EGP — consultation and review of the criminal case file, deducted from the fees once an engagement is agreed">
+      <label class="bk-opt" data-type="criminal" data-usd-pay="500" data-usd-price="USD 500 — criminal case (felony) consultation: a reply within hours and immediate coverage in urgent cases. Travel and procedural intervention are at fees agreed separately, and the consultation fee paid is deducted from them. Please send any case documents or information you have so that we can follow up. The consultation fee does not include any official fees or expenses of work carried out officially. Payable in USD, or its equivalent in EUR or GBP at the exchange rate on the day of payment." data-usd-title="⚖️ Criminal Case (Felony) — Urgent Consultation" data-usd-desc="A reply within hours and immediate coverage in urgent cases. Travel and procedural intervention are at fees agreed separately, and the consultation fee is deducted from them. Please send any case documents or information you have so that we can follow up. The fee does not include any official fees or expenses of work carried out officially." data-pay="5000" data-price="5000 EGP — consultation and review of the criminal case file, deducted from the fees once an engagement is agreed">
         <h3>⚖️ Criminal Case — Consultation &amp; File Review</h3>
         <p>A consultation with a review of your criminal case file at the firm's office; the fee is deducted from the legal fees once an engagement is agreed.</p>
       </label>
@@ -101,7 +109,7 @@
         <h3>💻 Video Conference</h3>
         <p>A remote audio-video consultation, in 15, 30 or 60-minute packages paid in advance.</p>
       </label>
-      <label class="bk-opt" data-type="written" data-pay="5000" data-price="5000 EGP">
+      <label class="bk-opt" data-type="written" data-usd-pay="250" data-usd-price="USD 250 — payable in USD, or its equivalent in EUR or GBP at the exchange rate on the day of payment. Deducted from the fees if an engagement is agreed." data-pay="5000" data-price="5000 EGP">
         <h3>📝 Written Consultation</h3>
         <p>You send the details of your matter, and we reply in writing within the agreed period.</p>
       </label>
@@ -113,6 +121,7 @@
         <button type="button" class="bk-slot" data-mins="30" data-pay="3000" data-price="3000 EGP — 30-minute package, paid in advance. The session can be extended by 15 minutes for 1500 EGP, paid before it continues, subject to the counsel's availability.">30 minutes</button>
         <button type="button" class="bk-slot" data-mins="60" data-pay="6000" data-price="6000 EGP — 60-minute package, paid in advance. The session can be extended by 15 minutes for 1500 EGP, paid before it continues, subject to the counsel's availability.">60 minutes</button>
       </div>
+    </div>
     </div>
     <div class="bk-actions">
       <button class="btn-primary" id="toStep2" disabled="">Next</button>
@@ -156,6 +165,7 @@
   <!-- Step 4: details -->
   <section class="bk-card" id="step4" hidden="">
     <h2>Your Details and Consultation Subject</h2>
+    <div class="bk-note" id="criminalDocsNote" hidden>Please send us any documents or information you have about the criminal case (attach a PDF below, or send them on WhatsApp after submitting the request) so that we can follow up. The consultation fee does not include any official fees or expenses of work carried out officially.</div>
     <form class="bk-form" id="detailsForm" onsubmit="return false;">
       <label>Full name</label>
       <input type="text" id="fName" required="">
@@ -201,7 +211,18 @@
   <section class="bk-card" id="step5" hidden="">
     <h2>Review and Confirm Booking</h2>
     <div class="bk-summary" id="summaryBox"></div>
-    <div class="pay-box">
+    <div class="pay-box" id="payAbroad" hidden>
+      <h3>International Payment</h3>
+      <div class="pay-amount" style="font-size:1.4rem;">Amount due: USD <span id="payAmountUsd"></span></div>
+      <div class="pay-fee" style="font-size:.85rem;color:var(--muted);margin:-6px 0 12px;">You may pay the equivalent in EUR or GBP at the exchange rate on the day of payment.</div>
+      <ol class="pay-steps">
+        <li>Tap the button below to send your booking request to the firm on WhatsApp.</li>
+        <li>The firm will reply with the payment details: an international bank transfer (SWIFT) or a card payment link.</li>
+        <li>Pay the amount due, then send the transfer confirmation or receipt in the same chat.</li>
+        <li>Your booking is confirmed once the firm receives the payment and confirms it with you.</li>
+      </ol>
+    </div>
+    <div class="pay-box" id="payEgypt">
       <h3>Pay via InstaPay</h3>
       <div class="pay-amount" style="font-size:1.4rem;">Amount to pay now: <span id="payAmount"></span> EGP</div>
       <div class="pay-fee" style="font-size:.85rem;color:var(--muted);margin:-6px 0 12px;" id="payFee"></div>
@@ -234,7 +255,7 @@
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-const state = { pay:'', type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
+const state = { region:null, pay:'', type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
 
 // ---- Step 1: type selection ----
 const typeOptions = document.getElementById('typeOptions');
@@ -245,13 +266,53 @@ typeOptions.addEventListener('click', e=>{
   opt.classList.add('selected');
   state.type = opt.dataset.type;
   state.typeLabel = opt.querySelector('h3').textContent.trim();
-  state.price = opt.dataset.price;
-  state.pay = opt.dataset.pay;
+  const usd = state.region === 'abroad' && opt.dataset.usdPrice;
+  state.price = usd ? opt.dataset.usdPrice : opt.dataset.price;
+  state.pay = usd ? opt.dataset.usdPay : opt.dataset.pay;
   const isVideo = state.type === 'video';
   document.getElementById('videoPkgs').hidden = !isVideo;
   document.getElementById('appWrap').hidden = !isVideo;
   [...pkgOptions.children].forEach(p=>p.classList.remove('selected'));
   document.getElementById('toStep2').disabled = isVideo;
+});
+
+// ---- Step 0: client location (Egypt = EGP / InstaPay, abroad = USD / international payment) ----
+const regionOptions = document.getElementById('regionOptions');
+const egyptDepositNote = document.getElementById('depositNote').innerHTML;
+const abroadDepositNote = 'After choosing the time and entering your details, the <strong>last step</strong> explains how to pay: after receiving your request, the firm sends you the international payment details (bank transfer or card payment link). The slot is confirmed once the payment is received.';
+let pendingType = null;
+function applyRegion(r){
+  state.region = r;
+  [...regionOptions.children].forEach(b=>b.classList.toggle('selected', b.dataset.region===r));
+  document.getElementById('typeWrap').hidden = false;
+  const abroad = r === 'abroad';
+  [...typeOptions.children].forEach(o=>{
+    o.classList.remove('selected');
+    o.hidden = abroad && (o.dataset.type==='office' || o.dataset.type==='video');
+    if(o.dataset.usdTitle){
+      const h = o.querySelector('h3'), p = o.querySelector('p');
+      if(!o._orig) o._orig = [h.textContent, p.textContent];
+      h.textContent = abroad ? o.dataset.usdTitle : o._orig[0];
+      p.textContent = abroad ? o.dataset.usdDesc : o._orig[1];
+    }
+  });
+  document.getElementById('videoPkgs').hidden = true;
+  document.getElementById('appWrap').hidden = true;
+  state.type = null; state.price = ''; state.pay = '';
+  document.getElementById('toStep2').disabled = true;
+  document.getElementById('depositNote').innerHTML = abroad ? abroadDepositNote : egyptDepositNote;
+  if(pendingType){
+    const o = typeOptions.querySelector('.bk-opt[data-type="'+pendingType+'"]');
+    if(o && !o.hidden){
+      o.click();
+      if(pendingType==='criminal'){ const c = document.getElementById('fCategory'); if(c) c.value = 'Criminal Cases'; }
+    }
+    pendingType = null;
+  }
+}
+regionOptions.addEventListener('click', e=>{
+  const b = e.target.closest('.bk-slot');
+  if(b) applyRegion(b.dataset.region);
 });
 
 // ---- Step 1b: video package selection ----
@@ -269,7 +330,7 @@ pkgOptions.addEventListener('click', e=>{
 
 try{document.getElementById('toArBooking').href='../booking.html'+(location.search||'');}catch(e){}
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
-(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='Criminal Cases';}}}catch(e){}})();
+(function(){try{var t=new URLSearchParams(location.search).get('type');if(t&&typeOptions.querySelector('.bk-opt[data-type="'+t+'"]'))pendingType=t;}catch(e){}})();
 
 function showStep(n){
   [1,2,3,4,5].forEach(i=>{
@@ -348,7 +409,7 @@ function showSlots(){
     box.appendChild(el);
   });
 }
-document.getElementById('toStep4').onclick = ()=> showStep(4);
+document.getElementById('toStep4').onclick = ()=>{ document.getElementById('criminalDocsNote').hidden = !(state.region==='abroad' && state.type==='criminal'); showStep(4); };
 
 // ---- Step 4 -> 5 ----
 document.getElementById('toStep5').onclick = ()=>{
@@ -382,10 +443,19 @@ document.getElementById('toStep5').onclick = ()=>{
     'Reply preference: ' + followup + '\n' +
     (app ? 'Call app: ' + app + '\n' : '') +
     'Subject: ' + details + '\n\n' +
-    'Paid via InstaPay to hassan.hamlf.lawyer@instapay — receipt attached.'
+    (state.region==='abroad'
+      ? 'Client based outside Egypt — please send me the international payment details (bank transfer or card payment link).'
+      : 'Paid via InstaPay to hassan.hamlf.lawyer@instapay — receipt attached.')
   );
   document.getElementById('sendWhatsapp').href = 'https://wa.me/201208555806?text=' + waText;
+  const abroad = state.region === 'abroad';
+  document.getElementById('payEgypt').hidden = abroad;
+  document.getElementById('payAbroad').hidden = !abroad;
+  const waBtn = document.getElementById('sendWhatsapp');
+  if(!waBtn.dataset.orig) waBtn.dataset.orig = waBtn.innerHTML;
+  waBtn.innerHTML = abroad ? 'Send Booking Request via WhatsApp' : waBtn.dataset.orig;
   document.getElementById('payAmount').textContent = state.pay;
+  document.getElementById('payAmountUsd').textContent = abroad ? state.pay : '';
   document.getElementById('payFee').textContent = state.price;
   showStep(5);
 };
@@ -407,12 +477,12 @@ document.getElementById('copyIpa').onclick = function(){
   var ipn=document.getElementById('ipnLink');
   if(ipn) ipn.addEventListener('click',function(){
     if(paySent) return; paySent=true;
-    trk('booking_pay_click',{consult_type:state.type||'',currency:'EGP',value:Number(state.pay)||0});
+    trk('booking_pay_click',{consult_type:state.type||'',currency:(state.region==='abroad'?'USD':'EGP'),value:Number(state.pay)||0});
   });
   var wa=document.getElementById('sendWhatsapp');
   if(wa) wa.addEventListener('click',function(){
     if(leadSent) return; leadSent=true;
-    trk('generate_lead',{lead_source:'booking',consult_type:state.type||'',currency:'EGP',value:Number(state.pay)||0});
+    trk('generate_lead',{lead_source:'booking',consult_type:state.type||'',currency:(state.region==='abroad'?'USD':'EGP'),value:Number(state.pay)||0});
   });
 })();
 </script>
