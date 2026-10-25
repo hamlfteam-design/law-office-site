@@ -175,7 +175,7 @@ function notify_office(string $ref, array $o): bool {
 
 $action = $_GET['action'] ?? '';
 
-if ($action === 'ping') { cfg(); out(['ok' => true]); }   // صفحة الحجز بتظهر زر OPay بس لو الإعدادات موجودة
+if ($action === 'ping') { out(['ok' => true, 'live' => cfg()['mode'] === 'live']); }   // صفحة الحجز بتظهر زر OPay بس لو الإعدادات موجودة
 
 if ($action === 'create') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') fail(405, 'method');
