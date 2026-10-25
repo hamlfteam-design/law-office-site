@@ -51,7 +51,6 @@ Cairo-based Egyptian law firm (downtown, 48 Kasr El Nil St.). Represents compani
 ## مقالات قانونية
 
 - [التحكيم كقضاء بديل لحل المنازعات: من القضاء العرفي إلى التحكيم الدولي](https://hamlf.com/articles/arbitration-alternative-dispute-resolution.html)
-- [إيه معنى ترقب الوصول والمنع من السفر؟ وإزاي أعرف إن اسمي على القوائم وأتظلم منها أو أطلب منع زوجي أو زوجتي أو طفلي من السفر؟](https://hamlf.com/articles/arrival-watchlist-travel-ban-egypt.html)
 - [الفرق بين المعارضة والاستئناف والنقض وإعادة الإجراءات والتماس إعادة النظر](https://hamlf.com/articles/article-1.html)
 - [قوانين الأسرة في مصر بين التمييز العنصري ورأب الصدع الأسري](https://hamlf.com/articles/family-laws-egypt-discrimination-family-cohesion.html)
 - [تنفيذ الأحكام الأجنبية في مصر: الشروط والإجراءات](https://hamlf.com/articles/foreign-judgments-enforcement.html)
@@ -86,7 +85,6 @@ Cairo-based Egyptian law firm (downtown, 48 Kasr El Nil St.). Represents compani
 ## Articles in English
 
 - [Arbitration as an Alternative Justice: From Customary Justice to International Arbitration](https://hamlf.com/en/articles/arbitration-alternative-dispute-resolution.html)
-- [What Do Arrival Watch-Listing and a Travel Ban Mean in Egypt? How Do I Find Out Whether My Name Is on the Lists and Challenge It, or Apply to Bar My Spouse or Child From Traveling?](https://hamlf.com/en/articles/arrival-watchlist-travel-ban-egypt.html)
 - [The Difference Between Opposition, Appeal, Cassation, Retrial and Petition for Reconsideration](https://hamlf.com/en/articles/article-1.html)
 - [Egypt's Family Laws: Between Discrimination and Mending the Family Rift](https://hamlf.com/en/articles/family-laws-egypt-discrimination-family-cohesion.html)
 - [Enforcing Foreign Judgments in Egypt: Conditions and Procedures](https://hamlf.com/en/articles/foreign-judgments-enforcement.html)
