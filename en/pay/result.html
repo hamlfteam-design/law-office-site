@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Payment Result | Dr. Hassan Abdel Moneim Hassan Law Firm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=20260924">
+<style>
+.pr-wrap{max-width:620px;margin:0 auto;padding:40px 20px 80px;}
+.pr-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:28px;text-align:center;}
+.pr-card h1{font-size:1.3rem;color:var(--navy);margin:10px 0 12px;}
+.pr-icon{font-size:2.6rem;line-height:1;}
+.pr-card p{line-height:1.8;margin:6px 0;}
+.pr-ref{display:inline-block;background:var(--bg);border:1px solid #d8d4cb;border-radius:8px;padding:6px 12px;font-weight:700;}
+.pr-test{background:#fff4d6;border:1px solid #e2c48a;border-radius:8px;padding:8px 12px;font-size:.85rem;margin-bottom:14px;}
+.pr-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+[hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand"><a href="../index.html"><img src="../../assets/images/logo.png" alt="Dr. Hassan Abdel Moneim Hassan Law Firm" class="brand-logo"></a></div>
+  </div>
+</header>
+<div class="pr-wrap">
+  <div class="pr-card">
+    <div class="pr-test" id="prTest" hidden>Test mode — no real money was charged.</div>
+    <div class="pr-icon" id="prIcon">⏳</div>
+    <h1 id="prTitle">Verifying your payment…</h1>
+    <p id="prText">Please do not close this page.</p>
+    <p id="prRefRow" hidden>Reference: <span class="pr-ref" id="prRef"></span></p>
+    <div class="pr-actions">
+      <a href="#" id="prWa" class="btn-primary" target="_blank" rel="noopener" hidden>Confirm your booking on WhatsApp</a>
+      <a href="../booking.html" id="prRetry" class="btn-outline" style="color:var(--navy);border-color:#d8d4cb;" hidden>Back to booking</a>
+    </div>
+  </div>
+</div>
+<footer class="site-footer"><div class="container"><p>© <span id="year"></span> Dr. Hassan Abdel Moneim Hassan — Attorneys &amp; Counsellors.</p></div></footer>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+(function(){
+  var q = new URLSearchParams(location.search), ref = q.get('ref') || '', tries = 0;
+  var $ = function(id){ return document.getElementById(id); };
+  function show(icon, title, text){ $('prIcon').textContent = icon; $('prTitle').textContent = title; $('prText').textContent = text; }
+  if(!/^HB[0-9A-F]{18}$/.test(ref)){ show('⚠️','Invalid link','No payment reference was found.'); $('prRetry').hidden = false; return; }
+  $('prRef').textContent = ref; $('prRefRow').hidden = false;
+  function check(){
+    fetch('../../api/opay.php?action=status&ref=' + encodeURIComponent(ref), {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d.ok) throw 0;
+        $('prTest').hidden = !d.test;
+        if(d.status === 'SUCCESS'){
+          show('✅','Payment successful','EGP ' + Number(d.amount).toLocaleString('en') + ' has been paid. Send your booking confirmation on WhatsApp and the office will confirm your appointment.');
+          var details = ''; try { details = sessionStorage.getItem('hamlfBooking_' + ref) || ''; } catch(e){}
+          var msg = (details ? details + '\n\n' : 'Booking request from the website\n') + 'Paid online via OPay — reference: ' + ref;
+          $('prWa').href = 'https://wa.me/201208555806?text=' + encodeURIComponent(msg);
+          $('prWa').hidden = false;
+          try{ if(typeof gtag==='function') gtag('event','purchase',{transaction_id:ref,currency:'EGP',value:d.amount}); }catch(e){}
+        } else if(d.status === 'FAIL' || d.status === 'CLOSE' || q.get('cancel')){
+          show('❌','Payment not completed','No amount was charged. You can try again or pay via InstaPay from the booking page.');
+          $('prRetry').hidden = false;
+        } else if(d.status === 'MISMATCH'){
+          show('⚠️','We are reviewing this payment','The office will contact you to confirm it. Please keep your reference number.');
+        } else if(++tries < 10){
+          setTimeout(check, 3000);
+        } else {
+          show('⏳','Payment is being processed','If your account was charged, the office will be notified automatically. Keep your reference and contact us on WhatsApp.');
+          $('prWa').href = 'https://wa.me/201208555806?text=' + encodeURIComponent('Payment enquiry — reference: ' + ref);
+          $('prWa').textContent = 'Contact the office on WhatsApp'; $('prWa').hidden = false;
+        }
+      })
+      .catch(function(){ show('⚠️','Unable to verify right now','Please refresh in a minute, or contact us on WhatsApp with your reference.'); });
+  }
+  check();
+})();
+</script>
+</body>
+</html>
