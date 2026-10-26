@@ -278,11 +278,15 @@
   </url>
   <url>
     <loc>https://hamlf.com/services/cybercrime.html</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/cybercrime.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/cybercrime.html"/>
   </url>
   <url>
     <loc>https://hamlf.com/services/public-funds.html</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/public-funds.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/public-funds.html"/>
   </url>
   <url>
     <loc>https://hamlf.com/services/foreign-property.html</loc>
@@ -583,5 +587,17 @@
     <lastmod>2026-10-13</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/online-defamation-insult-egypt.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/online-defamation-insult-egypt.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/services/cybercrime.html</loc>
+    <lastmod>2026-10-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/cybercrime.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/cybercrime.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/services/public-funds.html</loc>
+    <lastmod>2026-10-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/public-funds.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/public-funds.html"/>
   </url>
 </urlset>
