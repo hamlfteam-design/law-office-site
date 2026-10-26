@@ -139,6 +139,9 @@ function refresh_order(string $ref): ?array {
             if ($o['status'] === 'SUCCESS' && empty($o['notified'])) {
                 $o['notified'] = notify_office($ref, $o);
             }
+            if ($o['status'] === 'SUCCESS' && empty($o['clientNotified'])) {
+                $o['clientNotified'] = notify_client($ref, $o);
+            }
         }
         return $o;
     });
@@ -169,6 +172,71 @@ function notify_office(string $ref, array $o): bool {
     $subject = '=?UTF-8?B?' . base64_encode('حجز مدفوع عبر OPay — ' . $ref) . '?=';
     $headers = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nFrom: hamlf.com <info@hamlf.com>\r\n";
     return @mail($to, $subject, implode("\n", $lines), $headers);
+}
+
+function ar_digits(string $s): string {
+    return strtr($s, ['0'=>'٠','1'=>'١','2'=>'٢','3'=>'٣','4'=>'٤','5'=>'٥','6'=>'٦','7'=>'٧','8'=>'٨','9'=>'٩']);
+}
+
+/** إيميل تأكيد للعميل نفسه — بس لو كاتب إيميل صحيح في الحجز */
+function notify_client(string $ref, array $o): bool {
+    $b = $o['booking'];
+    $to = $b['email'] ?? '';
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return false;
+    $en = ($o['lang'] ?? 'ar') === 'en';
+    $service = PRICES[$o['type']][$en ? 'en' : 'ar'] ?? $o['label'];
+    $test = cfg()['mode'] !== 'live';
+    if ($en) {
+        $subject = 'Your booking is confirmed — Dr. Hassan Abdel Moneim Hassan Law Firm';
+        $lines = [
+            'Dear ' . $b['name'] . ',',
+            '',
+            'Welcome. We are glad to stand by your side, to help you and to protect your rights. We value your trust, and your rights are in safe hands with us.',
+            '',
+            'We have received your payment and your service is booked:',
+            '• Service: ' . $service,
+            '• Amount paid: EGP ' . number_format((float)$o['amount']),
+            '• Requested appointment: ' . ($b['appointment'] !== '' ? $b['appointment'] : '—'),
+            '• Reference: ' . $ref,
+            '',
+            'The office will contact you on WhatsApp to confirm your appointment. Please keep your reference number.',
+            'For any enquiry: WhatsApp +20 120 855 5806 or info@hamlf.com',
+            '',
+            'Your opinion matters to us — you can rate the firm on Google: https://hamlf.com/review/',
+            '',
+            'Kind regards,',
+            'Dr. Hassan Abdel Moneim Hassan — Attorneys & Counsellors',
+            'https://hamlf.com',
+        ];
+        if ($test) array_unshift($lines, '[TEST MODE — no real payment was made]', '');
+    } else {
+        $subject = 'تم حجز خدمتك — مؤسسة د. حسن عبد المنعم حسن';
+        $lines = [
+            'الأستاذ/ة ' . $b['name'] . '،',
+            '',
+            'مرحباً بك. يسعدنا أن نكون إلى جانبك، وأن نساعدك ونحافظ على حقوقك. ثقتك بنا محل تقديرنا، وحقك أمانة عندنا.',
+            '',
+            'تم استلام سدادك وحجز خدمتك بنجاح:',
+            '• الخدمة: ' . ar_digits($service),
+            '• المبلغ المدفوع: ' . ar_digits(number_format((float)$o['amount'], 0, '', '٬')) . ' جنيه',
+            '• الميعاد المطلوب: ' . ($b['appointment'] !== '' ? ar_digits($b['appointment']) : '—'),
+            '• رقم المرجع: ' . $ref,
+            '',
+            'سيتواصل معك المكتب على واتساب لتأكيد الميعاد، ونرجو الاحتفاظ برقم المرجع.',
+            'للاستفسار: واتساب ‎+20 120 855 5806‎ أو info@hamlf.com',
+            '',
+            'رأيك يهمنا، ويسعدنا تقييمك للمؤسسة على جوجل: https://hamlf.com/review/',
+            '',
+            'مع خالص التحية،',
+            'مؤسسة د. حسن عبد المنعم حسن — محامون ومستشارون',
+            'https://hamlf.com',
+        ];
+        if ($test) array_unshift($lines, '[وضع الاختبار — لم يتم سداد أي مبلغ حقيقي]', '');
+    }
+    $headers = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n"
+             . "From: =?UTF-8?B?" . base64_encode($en ? 'Dr. Hassan Abdel Moneim Hassan Law Firm' : 'مؤسسة د. حسن عبد المنعم حسن') . "?= <info@hamlf.com>\r\n"
+             . "Reply-To: info@hamlf.com\r\n";
+    return @mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', implode("\n", $lines), $headers);
 }
 
 /* ---------- المسارات ---------- */
