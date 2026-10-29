@@ -120,6 +120,10 @@
         <h3>💻 Video Conference</h3>
         <p>A remote audio-video consultation, in 15, 30 or 60-minute packages paid in advance.</p>
       </label>
+      <label class="bk-opt" data-type="urgent" data-abroad-only="1" hidden data-hb="HB-Urgent" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=5c2e8db08b6c44e19c2029ab1e603a3e&amp;vidToken=1a5a740e0aa2fb7ee9ad4528db6e822c06d66fabc3545cbfb9ae053101d6b067" data-usd-pay="500" data-usd-price="USD 500 — criminal case (felony) urgent consultation: a reply within hours and immediate coverage in urgent cases. Travel and procedural intervention are at fees agreed separately, and the consultation fee paid is deducted from them. Please send any case documents or information you have so that we can follow up. The consultation fee does not include any official fees or expenses of work carried out officially. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="" data-price="">
+        <h3>🚨 Criminal Case (Felony) — Urgent Consultation</h3>
+        <p>A reply within hours and immediate coverage in urgent cases. Travel and procedural intervention are at fees agreed separately, and the consultation fee is deducted from them. Please send any case documents or information you have so that we can follow up. The fee does not include any official fees or expenses of work carried out officially.</p>
+      </label>
       <label class="bk-opt" data-type="written" data-hb="HB-Written" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=8c52c8a58c1b4670a341732b508313c6&amp;vidToken=4150fea8f61e4b5ae524b6c65e3d6062f8965f27ba17dfdbb683287fa06035df" data-usd-pay="300" data-usd-price="USD 300 — written legal opinion, deducted from the fees if an engagement is agreed. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="5000" data-price="5000 EGP">
         <h3>📝 Written Consultation</h3>
         <p>You send the details of your matter, and we reply in writing within the agreed period.</p>
@@ -313,7 +317,7 @@ function applyRegion(r){
   const abroad = r === 'abroad';
   [...typeOptions.children].forEach(o=>{
     o.classList.remove('selected');
-    o.hidden = false;
+    o.hidden = !abroad && o.dataset.abroadOnly === '1';
     if(o.dataset.usdTitle){
       const h = o.querySelector('h3'), p = o.querySelector('p');
       if(!o._orig) o._orig = [h.textContent, p.textContent];
@@ -438,7 +442,7 @@ function showSlots(){
     box.appendChild(el);
   });
 }
-document.getElementById('toStep4').onclick = ()=>{ document.getElementById('criminalDocsNote').hidden = !(state.region==='abroad' && state.type==='criminal'); showStep(4); };
+document.getElementById('toStep4').onclick = ()=>{ document.getElementById('criminalDocsNote').hidden = !(state.region==='abroad' && (state.type==='criminal' || state.type==='urgent')); showStep(4); };
 
 // ---- Step 4 -> 5 ----
 document.getElementById('toStep5').onclick = ()=>{
