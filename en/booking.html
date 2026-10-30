@@ -116,6 +116,10 @@
         <h3>⚖️ Felony Case — Document Review &amp; Opinion</h3>
         <p>A review of your felony case documents and a legal opinion on it; the fee is deducted from the legal fees once an engagement is agreed.</p>
       </label>
+      <label class="bk-opt" data-type="cassation" data-hb="HB-Cassation" data-usd-link="" data-usd-pay="500" data-usd-price="USD 500 — cassation appeal: document review and written legal opinion, deducted from the fees if an engagement is agreed. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="20000" data-price="20000 EGP — cassation appeal: document review and written legal opinion, deducted from the fees once an engagement is agreed">
+        <h3>🏛️ Cassation Appeal — Document Review &amp; Written Opinion</h3>
+        <p>A review of your cassation appeal documents and a written legal opinion; the fee is deducted from the legal fees once an engagement is agreed.</p>
+      </label>
       <label class="bk-opt" data-type="video" data-pay="" data-price="">
         <h3>💻 Video Conference</h3>
         <p>A remote audio-video consultation, in 15, 30 or 60-minute packages paid in advance.</p>
@@ -124,9 +128,13 @@
         <h3>🚨 Criminal Case (Felony) — Urgent Consultation</h3>
         <p>A reply within hours and immediate coverage in urgent cases. Travel and procedural intervention are at fees agreed separately, and the consultation fee is deducted from them. Please send any case documents or information you have so that we can follow up. The fee does not include any official fees or expenses of work carried out officially.</p>
       </label>
-      <label class="bk-opt" data-type="written" data-hb="HB-Written" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=8c52c8a58c1b4670a341732b508313c6&amp;vidToken=4150fea8f61e4b5ae524b6c65e3d6062f8965f27ba17dfdbb683287fa06035df" data-usd-pay="300" data-usd-price="USD 300 — written legal opinion, deducted from the fees if an engagement is agreed. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="5000" data-price="5000 EGP">
-        <h3>📝 Written Consultation</h3>
-        <p>You send the details of your matter, and we reply in writing within the agreed period.</p>
+      <label class="bk-opt" data-type="written" data-hb="HB-Written" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=8c52c8a58c1b4670a341732b508313c6&amp;vidToken=4150fea8f61e4b5ae524b6c65e3d6062f8965f27ba17dfdbb683287fa06035df" data-usd-pay="300" data-usd-price="USD 300 — written reply in a civil case with document research, deducted from the fees if an engagement is agreed. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="5000" data-price="5000 EGP — written reply in a civil case with document research, deducted from the fees once an engagement is agreed">
+        <h3>📝 Civil Case — Written Reply + Document Research</h3>
+        <p>You send the documents of your civil case; we research them and reply in writing. The fee is deducted from the legal fees once an engagement is agreed.</p>
+      </label>
+      <label class="bk-opt" data-type="inquiry" data-hb="HB-Inquiry" data-usd-pay="" data-usd-price="Free — written reply to an inquiry that needs no document review" data-pay="" data-price="Free — written reply to an inquiry that needs no document review">
+        <h3>💬 Written Reply to an Inquiry (Free)</h3>
+        <p>For a simple inquiry that needs no document review, we reply in writing at no charge.</p>
       </label>
     </div>
     <div id="videoPkgs" hidden>
@@ -264,8 +272,11 @@
         <li>Tap the button below to send the request on WhatsApp and attach the receipt in the same chat.</li>
       </ol>
     </div>
-    <div class="bk-note">
+    <div class="bk-note" id="payNote">
       Your booking is confirmed once the office reviews the transfer and confirms it with you on WhatsApp. A written consultation and an office visit are deducted from the fees if a power of attorney is agreed.
+    </div>
+    <div class="bk-note" id="freeNote" hidden>
+      A reply to an inquiry is free and needs no payment. Tap the button below to send your inquiry on WhatsApp, and the office will reply in writing.
     </div>
     <div class="bk-actions">
       <a href="#" id="sendWhatsapp" class="btn-primary" target="_blank" rel="noopener">Paid — Send Request &amp; Receipt via WhatsApp</a>
@@ -373,14 +384,18 @@ function showStep(n){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
+// Free inquiry: no fees and no appointment, so it skips steps 2 and 3
+const isFree = ()=> state.type === 'inquiry';
+
 document.getElementById('toStep2').onclick = ()=>{
+  if(isFree()){ state.date = null; state.dateLabel = ''; state.slot = null; document.getElementById('criminalDocsNote').hidden = true; showStep(4); return; }
   document.getElementById('chosenTypeLabel').textContent = state.typeLabel;
   document.getElementById('consentPhaseA').hidden = false;
   document.getElementById('consentPhaseB').hidden = true;
   showStep(2);
 };
 document.getElementById('backTo2').onclick = ()=> showStep(2);
-document.getElementById('backTo3').onclick = ()=> showStep(3);
+document.getElementById('backTo3').onclick = ()=> showStep(isFree() ? 1 : 3);
 document.getElementById('backTo4').onclick = ()=> showStep(4);
 
 // ---- Step 2: two-stage consent ----
@@ -442,7 +457,7 @@ function showSlots(){
     box.appendChild(el);
   });
 }
-document.getElementById('toStep4').onclick = ()=>{ document.getElementById('criminalDocsNote').hidden = !(state.region==='abroad' && (state.type==='criminal' || state.type==='urgent')); showStep(4); };
+document.getElementById('toStep4').onclick = ()=>{ document.getElementById('criminalDocsNote').hidden = !(state.region==='abroad' && (state.type==='criminal' || state.type==='cassation' || state.type==='urgent')); showStep(4); };
 
 // ---- Step 4 -> 5 ----
 document.getElementById('toStep5').onclick = ()=>{
@@ -457,7 +472,7 @@ document.getElementById('toStep5').onclick = ()=>{
   document.getElementById('summaryBox').innerHTML =
     '<p><strong>Consultation type:</strong> ' + state.typeLabel + '</p>' +
     '<p><strong>Fees:</strong> ' + state.price + '</p>' +
-    '<p><strong>Appointment:</strong> ' + (state.dateLabel||'—') + (state.slot ? ' — ' + state.slot : '') + '</p>' +
+    (isFree() ? '' : '<p><strong>Appointment:</strong> ' + (state.dateLabel||'—') + (state.slot ? ' — ' + state.slot : '') + '</p>') +
     '<p><strong>Name:</strong> ' + name + '</p>' +
     '<p><strong>Phone:</strong> ' + phone + '</p>' +
     '<p><strong>Sector:</strong> ' + cat + '</p>' +
@@ -466,27 +481,29 @@ document.getElementById('toStep5').onclick = ()=>{
     '<p><strong>Summary:</strong> ' + details + '</p>';
 
   const waText = encodeURIComponent(
-    'New appointment booking request from the website:\n' +
+    (isFree() ? 'New inquiry from the website (free written reply):\n' : 'New appointment booking request from the website:\n') +
     'Type: ' + state.typeLabel + '\n' +
     'Fees: ' + state.price + '\n' +
-    'Appointment: ' + (state.dateLabel||'—') + (state.slot ? ' - ' + state.slot : '') + '\n' +
+    (isFree() ? '' : 'Appointment: ' + (state.dateLabel||'—') + (state.slot ? ' - ' + state.slot : '') + '\n') +
     'Name: ' + name + '\n' +
     'Phone: ' + phone + '\n' +
     'Sector: ' + cat + '\n' +
     'Reply preference: ' + followup + '\n' +
     (app ? 'Call app: ' + app + '\n' : '') +
-    'Subject: ' + details + '\n\n' +
-    (state.region==='abroad'
+    'Subject: ' + details +
+    (isFree() ? '' : '\n\n' + (state.region==='abroad'
       ? 'Client based outside Egypt — paid USD ' + state.pay + ' by card via the OPay link (confirmation attached), or please send me bank transfer details.'
-      : 'Paid via InstaPay to hassan.hamlf.lawyer@instapay — receipt attached.')
+      : 'Paid via InstaPay to hassan.hamlf.lawyer@instapay — receipt attached.'))
   );
   document.getElementById('sendWhatsapp').href = 'https://wa.me/201208555806?text=' + waText;
   const abroad = state.region === 'abroad';
-  document.getElementById('payEgypt').hidden = abroad;
-  document.getElementById('payAbroad').hidden = !abroad;
+  document.getElementById('payEgypt').hidden = abroad || isFree();
+  document.getElementById('payAbroad').hidden = !abroad || isFree();
+  document.getElementById('payNote').hidden = isFree();
+  document.getElementById('freeNote').hidden = !isFree();
   const waBtn = document.getElementById('sendWhatsapp');
   if(!waBtn.dataset.orig) waBtn.dataset.orig = waBtn.innerHTML;
-  waBtn.innerHTML = abroad ? 'Send Booking Request via WhatsApp' : waBtn.dataset.orig;
+  waBtn.innerHTML = isFree() ? 'Send Your Inquiry via WhatsApp' : abroad ? 'Send Booking Request via WhatsApp' : waBtn.dataset.orig;
   document.getElementById('payAmount').textContent = state.pay;
   document.getElementById('payAmountUsd').textContent = abroad ? state.pay : '';
   document.querySelectorAll('.usdAmt').forEach(function(el){ el.textContent = abroad ? state.pay : ''; });
