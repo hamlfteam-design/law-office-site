@@ -28,8 +28,9 @@ const SITE = 'https://hamlf.com';
 /** الأسعار بالجنيه — لازم تطابق booking.html و en/booking.html */
 const PRICES = [
     'office'   => ['amount' => 3000, 'ar' => 'استشارة بالمكتب',                       'en' => 'Office consultation'],
-    'criminal' => ['amount' => 5000, 'ar' => 'استشارة وفحص ملف قضية جنائية',           'en' => 'Criminal case consultation & file review'],
-    'written'  => ['amount' => 5000, 'ar' => 'استشارة مكتوبة',                         'en' => 'Written consultation'],
+    'criminal' => ['amount' => 20000, 'ar' => 'فحص مستندي ورأي في جناية',              'en' => 'Felony case — document review & opinion'],
+    'cassation'=> ['amount' => 20000, 'ar' => 'فحص مستندي ورأي مكتوب في نقض',          'en' => 'Cassation appeal — document review & written opinion'],
+    'written'  => ['amount' => 5000, 'ar' => 'رد مكتوب في قضية مدنية + بحث مستندي',    'en' => 'Written consultation'],
     'video15'  => ['amount' => 2000, 'ar' => 'فيديو كونفرانس — 15 دقيقة',              'en' => 'Video conference — 15 minutes'],
     'video30'  => ['amount' => 3000, 'ar' => 'فيديو كونفرانس — 30 دقيقة',              'en' => 'Video conference — 30 minutes'],
     'video60'  => ['amount' => 6000, 'ar' => 'فيديو كونفرانس — 60 دقيقة',              'en' => 'Video conference — 60 minutes'],

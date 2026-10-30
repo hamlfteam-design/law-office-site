@@ -119,17 +119,25 @@
         <h3>🏢 زيارة للمكتب</h3>
         <p>30 دقيقة بمقر المؤسسة بوسط البلد، القاهرة. مدة الحد الأقصى ساعة.</p>
       </label>
-      <label class="bk-opt" data-type="criminal" data-pay="5000" data-price="5000 جنيه — استشارة وفحص ملف القضية الجنائية، تُخصم من الأتعاب عند الاتفاق">
-        <h3>⚖️ قضية جنائية — استشارة وفحص ملف</h3>
-        <p>استشارة مع فحص ملف قضيتك الجنائية بمقر المؤسسة، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      <label class="bk-opt" data-type="criminal" data-pay="20000" data-price="20000 جنيه — فحص مستندي ورأي في جناية، تُخصم من الأتعاب عند الاتفاق">
+        <h3>⚖️ جناية — فحص مستندي ورأي</h3>
+        <p>فحص مستندات قضية الجناية وإبداء الرأي القانوني فيها، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      </label>
+      <label class="bk-opt" data-type="cassation" data-pay="20000" data-price="20000 جنيه — فحص مستندي ورأي مكتوب في نقض، تُخصم من الأتعاب عند الاتفاق">
+        <h3>🏛️ نقض — فحص مستندي ورأي مكتوب</h3>
+        <p>فحص مستندات الطعن بالنقض وإعداد رأي قانوني مكتوب، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
       </label>
       <label class="bk-opt" data-type="video" data-pay="" data-price="">
         <h3>💻 فيديو كونفرانس</h3>
         <p>استشارة عن بُعد بالصوت والصورة، بباقات 15 أو 30 أو 60 دقيقة تُسدَّد مقدماً.</p>
       </label>
-      <label class="bk-opt" data-type="written" data-pay="5000" data-price="5000 جنيه">
-        <h3>📝 استشارة مكتوبة</h3>
-        <p>ترسل تفاصيل موضوعك، ونرد عليك كتابةً خلال المدة المتفق عليها.</p>
+      <label class="bk-opt" data-type="written" data-pay="5000" data-price="5000 جنيه — رد مكتوب في قضية مدنية مع بحث مستندي، تُخصم من الأتعاب عند الاتفاق">
+        <h3>📝 رد مكتوب في قضية مدنية + بحث مستندي</h3>
+        <p>ترسل مستندات قضيتك المدنية، ونبحثها ونرد عليك كتابةً، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
+      </label>
+      <label class="bk-opt" data-type="inquiry" data-pay="" data-price="مجاناً — رد مكتوب على استفسار لا يحتاج فحص مستندي">
+        <h3>💬 رد مكتوب على استفسار (مجاناً)</h3>
+        <p>لمجرد استفسار لا يحتاج فحص مستندات، نرد عليك كتابةً بدون رسوم.</p>
       </label>
     </div>
     <div id="videoPkgs" hidden>
@@ -237,7 +245,7 @@
       <p style="font-size:.85rem;color:var(--muted);margin:10px 0 0;">الدفع يتم على صفحة OPay الآمنة، ويتأكد للمكتب تلقائياً. أو ادفع عبر انستاباي بالأسفل.</p>
       <p id="opayErr" style="color:#b3261e;font-size:.9rem;margin:8px 0 0;" hidden>تعذر فتح صفحة الدفع الآن. جرّب مرة أخرى أو ادفع عبر انستاباي.</p>
     </div>
-    <div class="pay-box">
+    <div class="pay-box" id="ipaBox">
       <h3>السداد عبر انستاباي</h3>
       <div class="pay-amount" style="font-size:1.4rem;">المطلوب سداده الآن: <span id="payAmount"></span> جنيه</div>
       <div class="pay-fee" style="font-size:.85rem;color:var(--muted);margin:-6px 0 12px;" id="payFee"></div>
@@ -251,8 +259,11 @@
         <li>اضغط الزر بالأسفل لإرسال الطلب على واتساب وأرفق صورة الإيصال في نفس المحادثة.</li>
       </ol>
     </div>
-    <div class="bk-note">
+    <div class="bk-note" id="payNote">
       يتأكد الحجز بعد مراجعة المكتب للتحويل وتأكيده لك على واتساب. الاستشارة المكتوبة والزيارة تُخصم من الأتعاب في حالة الاتفاق على التوكيل.
+    </div>
+    <div class="bk-note" id="freeNote" hidden>
+      الرد على الاستفسار مجاني ولا يحتاج سداد. اضغط الزر بالأسفل لإرسال استفسارك على واتساب، وسيرد عليك المكتب كتابةً.
     </div>
     <div class="bk-actions">
       <a href="#" id="sendWhatsapp" class="btn-primary" target="_blank" rel="noopener">تم السداد — أرسل الطلب والإيصال عبر واتساب</a>
@@ -314,14 +325,18 @@ function showStep(n){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
+// Free inquiry: no fees and no appointment, so it skips steps 2 and 3
+const isFree = ()=> state.type === 'inquiry';
+
 document.getElementById('toStep2').onclick = ()=>{
+  if(isFree()){ state.date = null; state.dateLabel = ''; state.slot = null; showStep(4); return; }
   document.getElementById('chosenTypeLabel').textContent = state.typeLabel;
   document.getElementById('consentPhaseA').hidden = false;
   document.getElementById('consentPhaseB').hidden = true;
   showStep(2);
 };
 document.getElementById('backTo2').onclick = ()=> showStep(2);
-document.getElementById('backTo3').onclick = ()=> showStep(3);
+document.getElementById('backTo3').onclick = ()=> showStep(isFree() ? 1 : 3);
 document.getElementById('backTo4').onclick = ()=> showStep(4);
 
 // ---- Step 2: two-stage consent ----
@@ -398,7 +413,7 @@ document.getElementById('toStep5').onclick = ()=>{
   document.getElementById('summaryBox').innerHTML =
     '<p><strong>نوع الاستشارة:</strong> ' + state.typeLabel + '</p>' +
     '<p><strong>الأتعاب:</strong> ' + state.price + '</p>' +
-    '<p><strong>الميعاد:</strong> ' + (state.dateLabel||'—') + (state.slot ? ' — ' + state.slot : '') + '</p>' +
+    (isFree() ? '' : '<p><strong>الميعاد:</strong> ' + (state.dateLabel||'—') + (state.slot ? ' — ' + state.slot : '') + '</p>') +
     '<p><strong>الاسم:</strong> ' + name + '</p>' +
     '<p><strong>الهاتف:</strong> ' + phone + '</p>' +
     '<p><strong>القطاع:</strong> ' + cat + '</p>' +
@@ -407,19 +422,24 @@ document.getElementById('toStep5').onclick = ()=>{
     '<p><strong>ملخص الموضوع:</strong> ' + details + '</p>';
 
   const waText = encodeURIComponent(
-    'طلب حجز موعد جديد من الموقع:\n' +
+    (isFree() ? 'استفسار جديد من الموقع (رد مكتوب مجاني):\n' : 'طلب حجز موعد جديد من الموقع:\n') +
     'النوع: ' + state.typeLabel + '\n' +
     'الأتعاب: ' + state.price + '\n' +
-    'الميعاد: ' + (state.dateLabel||'—') + (state.slot ? ' - ' + state.slot : '') + '\n' +
+    (isFree() ? '' : 'الميعاد: ' + (state.dateLabel||'—') + (state.slot ? ' - ' + state.slot : '') + '\n') +
     'الاسم: ' + name + '\n' +
     'الهاتف: ' + phone + '\n' +
     'القطاع: ' + cat + '\n' +
     'تفضيل الرد: ' + followup + '\n' +
     (app ? 'تطبيق المكالمة: ' + app + '\n' : '') +
-    'الموضوع: ' + details + '\n\n' +
-    'تم السداد عبر انستاباي إلى hassan.hamlf.lawyer@instapay — مرفق صورة الإيصال.'
+    'الموضوع: ' + details +
+    (isFree() ? '' : '\n\nتم السداد عبر انستاباي إلى hassan.hamlf.lawyer@instapay — مرفق صورة الإيصال.')
   );
-  document.getElementById('sendWhatsapp').href = 'https://wa.me/201208555806?text=' + waText;
+  const wa = document.getElementById('sendWhatsapp');
+  wa.href = 'https://wa.me/201208555806?text=' + waText;
+  wa.textContent = isFree() ? 'أرسل استفسارك عبر واتساب' : 'تم السداد — أرسل الطلب والإيصال عبر واتساب';
+  document.getElementById('ipaBox').hidden = isFree();
+  document.getElementById('payNote').hidden = isFree();
+  document.getElementById('freeNote').hidden = !isFree();
   document.getElementById('payAmount').textContent = state.pay;
   document.getElementById('payFee').textContent = state.price;
   showStep(5);
