@@ -315,7 +315,7 @@ pkgOptions.addEventListener('click', e=>{
 });
 
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
-(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='القضايا الجنائية';}}}catch(e){}})();
+(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='القضايا الجنائية';}if(t==='cassation'){var n=document.getElementById('fCategory');if(n)n.value='الطعن بالنقض والمحاكم العليا';}}}catch(e){}})();
 
 function showStep(n){
   [1,2,3,4,5].forEach(i=>{

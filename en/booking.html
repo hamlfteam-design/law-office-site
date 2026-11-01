@@ -346,6 +346,7 @@ function applyRegion(r){
     if(o && !o.hidden){
       o.click();
       if(pendingType==='criminal'){ const c = document.getElementById('fCategory'); if(c) c.value = 'Criminal Cases'; }
+      if(pendingType==='cassation'){ const c = document.getElementById('fCategory'); if(c) c.value = 'Cassation Appeals & Supreme Courts'; }
     }
     pendingType = null;
   }
