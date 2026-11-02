@@ -99,11 +99,12 @@
   <!-- Step 1: type (no prices shown) -->
   <section class="bk-card" id="step1">
     <div id="regionBox">
-      <h2>Where are you based?</h2>
+      <h2>Your nationality</h2>
       <div class="bk-slots" id="regionOptions">
-        <button type="button" class="bk-slot" data-region="egypt">Inside Egypt</button>
-        <button type="button" class="bk-slot" data-region="abroad">Outside Egypt</button>
+        <button type="button" class="bk-slot" data-region="egypt">Egyptian</button>
+        <button type="button" class="bk-slot" data-region="abroad">Non-Egyptian</button>
       </div>
+      <p class="section-note" id="regionHint" style="margin:8px 0 0;font-size:.85rem;" hidden>We pre-selected an answer based on where you are connecting from — you can change it.</p>
     </div>
     <div id="typeWrap" hidden>
     <h2 style="margin-top:22px;">Consultation Type</h2>
@@ -371,8 +372,39 @@ pkgOptions.addEventListener('click', e=>{
   document.getElementById('toStep2').disabled = false;
 });
 
-// ---- Pre-select location from the visitor's time zone (Cairo = Inside Egypt, otherwise Outside Egypt). The visitor can change it. Added 2026-10-29 ----
-(function(){try{var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';if(!tz)return;setTimeout(function(){if(!state.region)applyRegion(tz==='Africa/Cairo'?'egypt':'abroad');},0);}catch(e){}})();
+// ---- Nationality (updated 2026-11-02): initial answer from the visitor's country (api/geo.php, IP-based) or device time zone. The visitor can change it; the phone number only asks for confirmation. ----
+let regionChosenByUser = false;
+regionOptions.addEventListener('click', e=>{ if(e.target.closest('.bk-slot')){ regionChosenByUser = true; document.getElementById('regionHint').hidden = true; } });
+(function(){
+  let forced = '';
+  try{ forced = new URLSearchParams(location.search).get('nat') || ''; }catch(e){}
+  function guess(r){ if(regionChosenByUser || state.region) return; applyRegion(r); document.getElementById('regionHint').hidden = false; }
+  if(forced==='eg' || forced==='intl'){ guess(forced==='eg' ? 'egypt' : 'abroad'); return; }
+  let tzGuess = '';
+  try{ const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; if(tz) tzGuess = tz==='Africa/Cairo' ? 'egypt' : 'abroad'; }catch(e){}
+  let done = false;
+  const fallback = ()=>{ if(done) return; done = true; if(tzGuess) guess(tzGuess); };
+  setTimeout(fallback, 2500);
+  fetch('../api/geo.php', {cache:'no-store'}).then(r=>r.json()).then(d=>{
+    if(done) return;
+    const cc = (d && d.country) || '';
+    if(cc){ done = true; guess(cc==='EG' ? 'egypt' : 'abroad'); } else fallback();
+  }).catch(fallback);
+})();
+function phoneKind(p){
+  const d = String(p).replace(/[٠-٩]/g, c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[^\d+]/g,'');
+  if(/^(\+|00)/.test(d)){ const n = d.replace(/^(\+|00)/,''); return n ? (n.indexOf('20')===0 ? 'eg' : 'intl') : ''; }
+  if(/^01[0125]\d{8}$/.test(d) || /^201[0125]\d{8}$/.test(d)) return 'eg';
+  return '';
+}
+function switchRegion(r){
+  pendingType = state.type;
+  regionChosenByUser = true;
+  document.getElementById('regionHint').hidden = true;
+  applyRegion(r);
+  showStep(1);
+  alert(r==='abroad' ? 'Your answer was changed to “Non-Egyptian”. Please review the consultation type and continue.' : 'Your answer was changed to “Egyptian”. Please review the consultation type and continue.');
+}
 try{document.getElementById('toArBooking').href='../booking.html'+(location.search||'');}catch(e){}
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
 (function(){try{var t=new URLSearchParams(location.search).get('type');if(t&&typeOptions.querySelector('.bk-opt[data-type="'+t+'"]'))pendingType=t;}catch(e){}})();
@@ -513,6 +545,28 @@ document.getElementById('toStep5').onclick = ()=>{
   document.getElementById('payFee').textContent = state.price;
   showStep(5);
 };
+// ---- Nationality: phone confirmation (added 2026-11-02) ----
+(function(){
+  const b5 = document.getElementById('toStep5');
+  const orig = b5.onclick;
+  b5.onclick = function(){
+    const phone = document.getElementById('fPhone').value.trim();
+    const k = phoneKind(phone);
+    let flag = '';
+    if(phone && state.region==='egypt' && k==='intl'){
+      if(!confirm('Your phone number is from outside Egypt. Are you an Egyptian national?\n\nOK = continue as Egyptian. Cancel = change your answer to “Non-Egyptian”.')){ switchRegion('abroad'); return; }
+      flag = 'Review: chose “Egyptian” with a non-Egyptian phone number.';
+    } else if(phone && state.region==='abroad' && k==='eg'){
+      if(!confirm('Your phone number is Egyptian. Are you a non-Egyptian national?\n\nOK = continue as Non-Egyptian. Cancel = change your answer to “Egyptian”.')){ switchRegion('egypt'); return; }
+      flag = 'Review: chose “Non-Egyptian” with an Egyptian phone number.';
+    }
+    orig.call(this);
+    const wa = document.getElementById('sendWhatsapp');
+    let txt = decodeURIComponent(wa.href.split('?text=')[1] || '');
+    txt += '\nNationality: ' + (state.region==='abroad' ? 'Non-Egyptian' : 'Egyptian') + (flag ? '\n⚠️ ' + flag : '');
+    wa.href = 'https://wa.me/201208555806?text=' + encodeURIComponent(txt);
+  };
+})();
 document.getElementById('copyIpa').onclick = function(){
   const t = document.getElementById('ipaText').textContent, b = this, old = b.textContent;
   const done = ()=>{ b.textContent = 'Copied ✓'; setTimeout(()=>{ b.textContent = old; }, 1800); };
