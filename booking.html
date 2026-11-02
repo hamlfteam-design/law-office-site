@@ -113,17 +113,26 @@
 
   <!-- Step 1: type (no prices shown) -->
   <section class="bk-card" id="step1">
-    <h2>نوع الاستشارة</h2>
+    <div id="regionBox">
+      <h2>جنسيتك</h2>
+      <div class="bk-slots" id="regionOptions">
+        <button type="button" class="bk-slot" data-region="egypt">مصري</button>
+        <button type="button" class="bk-slot" data-region="abroad">غير مصري</button>
+      </div>
+      <p class="section-note" id="regionHint" style="margin:8px 0 0;font-size:.85rem;" hidden>اخترنا لك إجابة مبدئية حسب مكان اتصالك، ويمكنك تغييرها.</p>
+    </div>
+    <div id="typeWrap" hidden>
+    <h2 style="margin-top:22px;">نوع الاستشارة</h2>
     <div class="bk-options" id="typeOptions">
-      <label class="bk-opt" data-type="office" data-pay="3000" data-price="3000 جنيه (تُخصم من الأتعاب عند الاتفاق)">
+      <label class="bk-opt" data-type="office" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=6eea23cc42324ae4afcf9beb61de88dc&amp;vidToken=8cb5918064457787a77d912daceb33ff1ae80b71c8e72ab182882a2995ced8c0" data-usd-pay="150" data-usd-price="150 دولار — استشارة بمقر المؤسسة بوسط البلد، تُخصم من الأتعاب عند الاتفاق على التوكيل. تُحصَّل بالبطاقة بما يعادلها بالجنيه المصري، وبنكك يحوّلها لعملتك تلقائياً." data-pay="3000" data-price="3000 جنيه (تُخصم من الأتعاب عند الاتفاق)">
         <h3>🏢 زيارة للمكتب</h3>
         <p>30 دقيقة بمقر المؤسسة بوسط البلد، القاهرة. مدة الحد الأقصى ساعة.</p>
       </label>
-      <label class="bk-opt" data-type="criminal" data-pay="20000" data-price="20000 جنيه — فحص مستندي ورأي في جناية، تُخصم من الأتعاب عند الاتفاق">
+      <label class="bk-opt" data-type="criminal" data-usd-link="" data-usd-pay="500" data-usd-price="500 دولار — فحص مستندي ورأي في جناية، تُخصم من الأتعاب عند الاتفاق. الانتقال والتدخل الإجرائي بأتعاب يُتفق عليها منفصلة، ولا تشمل الرسوم أي رسوم أو مصروفات رسمية. تُحصَّل بالبطاقة بما يعادلها بالجنيه المصري، وبنكك يحوّلها لعملتك تلقائياً." data-pay="20000" data-price="20000 جنيه — فحص مستندي ورأي في جناية، تُخصم من الأتعاب عند الاتفاق">
         <h3>⚖️ جناية — فحص مستندي ورأي</h3>
         <p>فحص مستندات قضية الجناية وإبداء الرأي القانوني فيها، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
       </label>
-      <label class="bk-opt" data-type="cassation" data-pay="20000" data-price="20000 جنيه — فحص مستندي ورأي مكتوب في نقض، تُخصم من الأتعاب عند الاتفاق">
+      <label class="bk-opt" data-type="cassation" data-usd-link="" data-usd-pay="500" data-usd-price="500 دولار — فحص مستندي ورأي مكتوب في الطعن بالنقض، تُخصم من الأتعاب عند الاتفاق. تُحصَّل بالبطاقة بما يعادلها بالجنيه المصري، وبنكك يحوّلها لعملتك تلقائياً." data-pay="20000" data-price="20000 جنيه — فحص مستندي ورأي مكتوب في نقض، تُخصم من الأتعاب عند الاتفاق">
         <h3>🏛️ نقض — فحص مستندي ورأي مكتوب</h3>
         <p>فحص مستندات الطعن بالنقض وإعداد رأي قانوني مكتوب، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
       </label>
@@ -131,7 +140,11 @@
         <h3>💻 فيديو كونفرانس</h3>
         <p>استشارة عن بُعد بالصوت والصورة، بباقات 15 أو 30 أو 60 دقيقة تُسدَّد مقدماً.</p>
       </label>
-      <label class="bk-opt" data-type="written" data-pay="5000" data-price="5000 جنيه — رد مكتوب في قضية مدنية مع بحث مستندي، تُخصم من الأتعاب عند الاتفاق">
+      <label class="bk-opt" data-type="urgent" data-abroad-only="1" hidden data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=5c2e8db08b6c44e19c2029ab1e603a3e&amp;vidToken=1a5a740e0aa2fb7ee9ad4528db6e822c06d66fabc3545cbfb9ae053101d6b067" data-usd-pay="500" data-usd-price="500 دولار — استشارة عاجلة في جناية: رد خلال ساعات وتغطية فورية في الحالات العاجلة. الانتقال والتدخل الإجرائي بأتعاب يُتفق عليها منفصلة وتُخصم منها رسوم الاستشارة، ولا تشمل الرسوم أي رسوم أو مصروفات رسمية. تُحصَّل بالبطاقة بما يعادلها بالجنيه المصري، وبنكك يحوّلها لعملتك تلقائياً." data-pay="" data-price="">
+        <h3>🚨 جناية — استشارة عاجلة</h3>
+        <p>رد خلال ساعات وتغطية فورية في الحالات العاجلة. أرسل لنا أي مستندات أو معلومات عن القضية لنتابعها.</p>
+      </label>
+      <label class="bk-opt" data-type="written" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=8c52c8a58c1b4670a341732b508313c6&amp;vidToken=4150fea8f61e4b5ae524b6c65e3d6062f8965f27ba17dfdbb683287fa06035df" data-usd-pay="300" data-usd-price="300 دولار — رد مكتوب في قضية مدنية مع بحث مستندي، تُخصم من الأتعاب عند الاتفاق. تُحصَّل بالبطاقة بما يعادلها بالجنيه المصري، وبنكك يحوّلها لعملتك تلقائياً." data-pay="5000" data-price="5000 جنيه — رد مكتوب في قضية مدنية مع بحث مستندي، تُخصم من الأتعاب عند الاتفاق">
         <h3>📝 رد مكتوب في قضية مدنية + بحث مستندي</h3>
         <p>ترسل مستندات قضيتك المدنية، ونبحثها ونرد عليك كتابةً، والرسوم تُخصم من الأتعاب عند الاتفاق.</p>
       </label>
@@ -143,10 +156,11 @@
     <div id="videoPkgs" hidden>
       <h2 style="margin-top:22px;">مدة جلسة الفيديو</h2>
       <div class="bk-slots" id="pkgOptions">
-        <button type="button" class="bk-slot" data-mins="15" data-pay="2000" data-price="2000 جنيه — باقة 15 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">15 دقيقة</button>
-        <button type="button" class="bk-slot" data-mins="30" data-pay="3000" data-price="3000 جنيه — باقة 30 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">30 دقيقة</button>
-        <button type="button" class="bk-slot" data-mins="60" data-pay="6000" data-price="6000 جنيه — باقة 60 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">60 دقيقة</button>
+        <button type="button" class="bk-slot" data-mins="15" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=a729488ea79c433882397d5357d16993&amp;vidToken=fe2837b8a455eda466da410faeba5910119230d217cf37a22d0dcbb1590d887d" data-usd-pay="60" data-usd-price="60 دولار — باقة 15 دقيقة تُسدَّد مقدماً. تُحصَّل بالبطاقة بما يعادلها بالجنيه المصري، وبنكك يحوّلها لعملتك تلقائياً." data-pay="2000" data-price="2000 جنيه — باقة 15 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">15 دقيقة</button>
+        <button type="button" class="bk-slot" data-mins="30" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=04bf801e73e343cc9fd8db7e26672517&amp;vidToken=5f6cfe073b6c87da37e21569894d36c6e7556100e55cfe6b1895abd3651cd2f3" data-usd-pay="100" data-usd-price="100 دولار — باقة 30 دقيقة تُسدَّد مقدماً. تُحصَّل بالبطاقة بما يعادلها بالجنيه المصري، وبنكك يحوّلها لعملتك تلقائياً." data-pay="3000" data-price="3000 جنيه — باقة 30 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">30 دقيقة</button>
+        <button type="button" class="bk-slot" data-mins="60" data-usd-link="https://cashier.opaycheckout.com/shareableLink?vid=babe300e1e694246bf2560c6119d3b60&amp;vidToken=2ed73c5d3d9a9a9ef9a6ac00fa0204b850a6b3b1754b062739d614114bbff493" data-usd-pay="180" data-usd-price="180 دولار — باقة 60 دقيقة تُسدَّد مقدماً. تُحصَّل بالبطاقة بما يعادلها بالجنيه المصري، وبنكك يحوّلها لعملتك تلقائياً." data-pay="6000" data-price="6000 جنيه — باقة 60 دقيقة تُسدَّد مقدماً. ويمكن تمديد الجلسة 15 دقيقة إضافية مقابل 1500 جنيه تُسدَّد قبل استكمالها، حسب إتاحة المستشار.">60 دقيقة</button>
       </div>
+    </div>
     </div>
     <div class="bk-actions">
       <button class="btn-primary" id="toStep2" disabled>التالي</button>
@@ -238,6 +252,20 @@
   <section class="bk-card" id="step5" hidden>
     <h2>مراجعة وتأكيد الحجز</h2>
     <div class="bk-summary" id="summaryBox"></div>
+    <div class="pay-box" id="payAbroad" hidden>
+      <h3>الدفع أونلاين بالبطاقة</h3>
+      <div class="pay-amount" style="font-size:1.4rem;">المبلغ المستحق: <span id="payAmountUsd"></span> دولار</div>
+      <div style="margin:4px 0 12px;"><a href="#" id="usdPayLink" class="btn-primary" target="_blank" rel="noopener">ادفع <span class="usdAmt"></span> دولار الآن بالبطاقة</a></div>
+      <div class="pay-fee" style="font-size:.85rem;color:var(--muted);margin:0 0 12px;">دفع آمن عبر OPay (فيزا / ماستركارد). المبلغ يظهر في صفحة الدفع بما يعادله بالجنيه المصري، وبنكك يحوّله لعملتك تلقائياً.</div>
+      <ol class="pay-steps">
+        <li>اضغط «ادفع الآن بالبطاقة» — هتفتح صفحة الدفع الآمنة للخدمة اللي اخترتها.</li>
+        <li>اكتب اسمك، واختر كود دولتك في خانة الهاتف، وبريدك الإلكتروني، ثم <b>Pay Now</b>.</li>
+        <li>اختر <b>Bank Card</b> وأدخل بيانات البطاقة.</li>
+        <li>ارجع هنا واضغط الزر بالأسفل لإرسال طلبك على واتساب مع صورة تأكيد الدفع.</li>
+      </ol>
+      <p style="font-size:.88rem;margin:10px 0 0;"><strong>أتعاب متفق عليها لخدمة أخرى؟</strong> استخدم <a href="https://cashier.opaycheckout.com/shareableLink?vid=a354a96b4e9f459288821a5d82c55938&amp;vidToken=5483d578f0a35375dc8d71a35c5b762c570fb602d5b0c36800a8ba6a21fd89bd" target="_blank" rel="noopener" id="usdGeneralLink">رابط الدفع العام</a> واكتب في خانة <b>Quantity</b> قيمة الأتعاب بالدولار (الوحدة = 1 دولار).</p>
+      <p style="font-size:.85rem;margin:8px 0 0;"><strong>الأسعار قابلة للتغيير في أي وقت دون إشعار مسبق، ويُطبَّق السعر الظاهر وقت الدفع.</strong></p>
+    </div>
     <div class="pay-box" id="opayBox">
       <h3>الدفع أونلاين بالبطاقة أو المحفظة</h3>
       <div class="pay-amount" style="font-size:1.2rem;">المبلغ: <span class="opayAmt"></span> جنيه</div>
@@ -281,7 +309,7 @@
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-const state = { pay:'', type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
+const state = { region:null, usdLink:'', phoneFlag:'', pay:'', type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
 
 // ---- Step 1: type selection ----
 const typeOptions = document.getElementById('typeOptions');
@@ -292,8 +320,10 @@ typeOptions.addEventListener('click', e=>{
   opt.classList.add('selected');
   state.type = opt.dataset.type;
   state.typeLabel = opt.querySelector('h3').textContent.trim();
-  state.price = opt.dataset.price;
-  state.pay = opt.dataset.pay;
+  const usd = state.region === 'abroad' && opt.dataset.usdPrice;
+  state.price = usd ? opt.dataset.usdPrice : opt.dataset.price;
+  state.pay = usd ? opt.dataset.usdPay : opt.dataset.pay;
+  state.usdLink = usd ? (opt.dataset.usdLink||'') : '';
   const isVideo = state.type === 'video';
   document.getElementById('videoPkgs').hidden = !isVideo;
   document.getElementById('appWrap').hidden = !isVideo;
@@ -309,13 +339,75 @@ pkgOptions.addEventListener('click', e=>{
   [...pkgOptions.children].forEach(p=>p.classList.remove('selected'));
   pkg.classList.add('selected');
   state.typeLabel = '💻 فيديو كونفرانس — ' + pkg.dataset.mins + ' دقيقة';
-  state.price = pkg.dataset.price;
-  state.pay = pkg.dataset.pay;
+  const usdP = state.region === 'abroad' && pkg.dataset.usdPay;
+  state.price = usdP ? pkg.dataset.usdPrice : pkg.dataset.price;
+  state.pay = usdP ? pkg.dataset.usdPay : pkg.dataset.pay;
+  state.usdLink = usdP ? (pkg.dataset.usdLink||'') : '';
   document.getElementById('toStep2').disabled = false;
 });
 
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
-(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){o.click();if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='القضايا الجنائية';}if(t==='cassation'){var n=document.getElementById('fCategory');if(n)n.value='الطعن بالنقض والمحاكم العليا';}}}catch(e){}})();
+(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){window.__pendingType=t;if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='القضايا الجنائية';}if(t==='cassation'){var n=document.getElementById('fCategory');if(n)n.value='الطعن بالنقض والمحاكم العليا';}}}catch(e){}})();
+
+// ---- Nationality (added 2026-11-02): Egyptian = EGP prices; non-Egyptian = fixed USD prices + card payment link ----
+// Initial answer from the visitor's country (api/geo.php, IP-based) or device time zone; the visitor can change it,
+// and the phone number is used only to ask for confirmation (never to decide alone).
+const regionOptions = document.getElementById('regionOptions');
+const egyptDepositNote = document.getElementById('depositNote').innerHTML;
+const abroadDepositNote = 'بعد اختيار الميعاد وكتابة بياناتك، سيظهر لك في <strong>الخطوة الأخيرة</strong> رابط دفع آمن بالبطاقة (فيزا / ماستركارد) للخدمة التي اخترتها. يتأكد الميعاد بعد استلام المبلغ.';
+function applyRegion(r){
+  state.region = r;
+  [...regionOptions.children].forEach(b=>b.classList.toggle('selected', b.dataset.region===r));
+  document.getElementById('typeWrap').hidden = false;
+  const abroad = r === 'abroad';
+  [...typeOptions.children].forEach(o=>{ o.classList.remove('selected'); o.hidden = !abroad && o.dataset.abroadOnly === '1'; });
+  [...pkgOptions.children].forEach(p=>p.classList.remove('selected'));
+  document.getElementById('videoPkgs').hidden = true;
+  document.getElementById('appWrap').hidden = true;
+  state.type = null; state.price = ''; state.pay = ''; state.usdLink = '';
+  document.getElementById('toStep2').disabled = true;
+  document.getElementById('depositNote').innerHTML = abroad ? abroadDepositNote : egyptDepositNote;
+  const t = window.__pendingType; window.__pendingType = null;
+  if(t){ const o = typeOptions.querySelector('.bk-opt[data-type="'+t+'"]'); if(o && !o.hidden) o.click(); }
+}
+let regionChosenByUser = false;
+regionOptions.addEventListener('click', e=>{
+  const b = e.target.closest('.bk-slot'); if(!b) return;
+  regionChosenByUser = true;
+  document.getElementById('regionHint').hidden = true;
+  applyRegion(b.dataset.region);
+});
+(function(){
+  let forced = '';
+  try{ forced = new URLSearchParams(location.search).get('nat') || ''; }catch(e){}
+  function guess(r){ if(regionChosenByUser || state.region) return; applyRegion(r); document.getElementById('regionHint').hidden = false; }
+  if(forced==='eg' || forced==='intl'){ guess(forced==='eg' ? 'egypt' : 'abroad'); return; }
+  let tzGuess = '';
+  try{ const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; if(tz) tzGuess = tz==='Africa/Cairo' ? 'egypt' : 'abroad'; }catch(e){}
+  let done = false;
+  const fallback = ()=>{ if(done) return; done = true; if(tzGuess) guess(tzGuess); };
+  setTimeout(fallback, 2500);
+  fetch('api/geo.php', {cache:'no-store'}).then(r=>r.json()).then(d=>{
+    if(done) return;
+    const cc = (d && d.country) || '';
+    if(cc){ done = true; guess(cc==='EG' ? 'egypt' : 'abroad'); } else fallback();
+  }).catch(fallback);
+})();
+// Phone: Egyptian (+20 / 01x) or international (+xx / 00xx other than 20); '' if unclear
+function phoneKind(p){
+  const d = String(p).replace(/[٠-٩]/g, c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[^\d+]/g,'');
+  if(/^(\+|00)/.test(d)){ const n = d.replace(/^(\+|00)/,''); return n ? (n.indexOf('20')===0 ? 'eg' : 'intl') : ''; }
+  if(/^01[0125]\d{8}$/.test(d) || /^201[0125]\d{8}$/.test(d)) return 'eg';
+  return '';
+}
+function switchRegion(r){
+  window.__pendingType = state.type;
+  regionChosenByUser = true;
+  document.getElementById('regionHint').hidden = true;
+  applyRegion(r);
+  showStep(1);
+  alert(r==='abroad' ? 'تم تغيير اختيارك إلى «غير مصري» — راجع نوع الاستشارة وأكمل الخطوات من جديد.' : 'تم تغيير اختيارك إلى «مصري» — راجع نوع الاستشارة وأكمل الخطوات من جديد.');
+}
 
 function showStep(n){
   [1,2,3,4,5].forEach(i=>{
@@ -444,6 +536,39 @@ document.getElementById('toStep5').onclick = ()=>{
   document.getElementById('payFee').textContent = state.price;
   showStep(5);
 };
+
+// ---- Nationality: phone confirmation + payment box for non-Egyptians (added 2026-11-02) ----
+(function(){
+  const b5 = document.getElementById('toStep5');
+  const orig = b5.onclick;
+  b5.onclick = function(){
+    const phone = document.getElementById('fPhone').value.trim();
+    const k = phoneKind(phone);
+    state.phoneFlag = '';
+    if(phone && state.region==='egypt' && k==='intl'){
+      if(!confirm('رقم هاتفك من خارج مصر. هل أنت مصري الجنسية؟\n\nاضغط «موافق» للمتابعة كمصري، أو «إلغاء» لتغيير اختيارك إلى «غير مصري».')){ switchRegion('abroad'); return; }
+      state.phoneFlag = 'تنبيه للمراجعة: اختار «مصري» ورقم الهاتف من خارج مصر.';
+    } else if(phone && state.region==='abroad' && k==='eg'){
+      if(!confirm('رقم هاتفك مصري. هل أنت غير مصري الجنسية؟\n\nاضغط «موافق» للمتابعة كغير مصري، أو «إلغاء» لتغيير اختيارك إلى «مصري».')){ switchRegion('egypt'); return; }
+      state.phoneFlag = 'تنبيه للمراجعة: اختار «غير مصري» ورقم الهاتف مصري.';
+    }
+    orig.call(this);
+    const abroad = state.region === 'abroad';
+    const free = isFree();
+    document.getElementById('payAbroad').hidden = !abroad || free;
+    if(abroad) document.getElementById('ipaBox').hidden = true;
+    document.getElementById('payAmountUsd').textContent = abroad ? state.pay : '';
+    document.querySelectorAll('.usdAmt').forEach(el=>{ el.textContent = abroad ? state.pay : ''; });
+    const ul = document.getElementById('usdPayLink');
+    if(ul) ul.href = (abroad && state.usdLink) ? state.usdLink : document.getElementById('usdGeneralLink').href;
+    const wa = document.getElementById('sendWhatsapp');
+    let txt = decodeURIComponent(wa.href.split('?text=')[1] || '');
+    if(abroad) txt = txt.replace('تم السداد عبر انستاباي إلى hassan.hamlf.lawyer@instapay — مرفق صورة الإيصال.', 'عميل غير مصري — تم الدفع بالبطاقة عبر رابط OPay (' + state.pay + ' دولار) — مرفق صورة التأكيد.');
+    txt += '\nالجنسية: ' + (abroad ? 'غير مصري' : 'مصري') + (state.phoneFlag ? '\n⚠️ ' + state.phoneFlag : '');
+    wa.href = 'https://wa.me/201208555806?text=' + encodeURIComponent(txt);
+    if(abroad && !free) wa.textContent = 'تم الدفع — أرسل الطلب وصورة التأكيد عبر واتساب';
+  };
+})();
 document.getElementById('copyIpa').onclick = function(){
   const t = document.getElementById('ipaText').textContent, b = this, old = b.textContent;
   const done = ()=>{ b.textContent = 'تم النسخ ✓'; setTimeout(()=>{ b.textContent = old; }, 1800); };
