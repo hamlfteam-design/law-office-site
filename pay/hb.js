@@ -84,8 +84,13 @@
 
   if (usd) {
     el('payAmountLabel').textContent = T.amount;
-    el('payUsd').textContent = (ar ? n(usd) + ' ' + T.usdUnit : 'USD ' + n(usd));
-    el('payEgp').textContent = egp ? T.egpLine(egp) : '';
+    if (ar && egp) {   // العربي: المبلغ بالجنيه المصري بما يعادل السعر الثابت بالدولار
+      el('payUsd').textContent = n(egp) + ' جنيه مصري';
+      el('payEgp').textContent = 'تعادل ' + n(usd) + ' دولار أمريكي، أو ما يعادلها بعملتك';
+    } else {
+      el('payUsd').textContent = (ar ? n(usd) + ' ' + T.usdUnit : 'USD ' + n(usd));
+      el('payEgp').textContent = egp ? T.egpLine(egp) : '';
+    }
     el('payHowTitle').textContent = T.howTitle;
     el('payHow').innerHTML = T.how(egp);
     el('paySteps').innerHTML = T.steps.filter(Boolean).map(function (s) { return '<li>' + s + '</li>'; }).join('');

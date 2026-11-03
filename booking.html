@@ -119,7 +119,7 @@
         <button type="button" class="bk-slot" data-region="egypt">مصري</button>
         <button type="button" class="bk-slot" data-region="abroad">غير مصري</button>
       </div>
-      <p class="section-note" id="regionHint" style="margin:8px 0 0;font-size:.85rem;" hidden>اخترنا لك إجابة مبدئية حسب مكان اتصالك، ويمكنك تغييرها.</p>
+      <p class="section-note" id="regionHint" style="margin:8px 0 0;font-size:.85rem;" >من فضلك اختر جنسيتك أولاً لعرض أنواع الاستشارة والأتعاب.</p>
     </div>
     <div id="typeWrap" hidden>
     <h2 style="margin-top:22px;">نوع الاستشارة</h2>
@@ -254,8 +254,8 @@
     <div class="bk-summary" id="summaryBox"></div>
     <div class="pay-box" id="payAbroad" hidden>
       <h3>الدفع أونلاين بالبطاقة</h3>
-      <div class="pay-amount" style="font-size:1.4rem;">المبلغ المستحق: <span id="payAmountUsd"></span> دولار <span id="payAmountEgp" style="display:block;font-size:.95rem;color:var(--muted);font-weight:600;"></span></div>
-      <div style="margin:4px 0 12px;"><a href="#" id="usdPayLink" class="btn-primary" target="_blank" rel="noopener">ادفع <span class="usdAmt"></span> دولار الآن بالبطاقة</a></div>
+      <div class="pay-amount" style="font-size:1.4rem;">المبلغ المستحق: <span id="payAmountArEgp"></span> جنيه مصري<span id="payAmountUsd" hidden></span> <span id="payAmountEgp" style="display:block;font-size:.95rem;color:var(--muted);font-weight:600;"></span></div>
+      <div style="margin:4px 0 12px;"><a href="#" id="usdPayLink" class="btn-primary" target="_blank" rel="noopener">ادفع الآن بالبطاقة<span class="usdAmt" hidden></span></a></div>
       <div class="pay-fee" style="font-size:.85rem;color:var(--muted);margin:0 0 12px;">دفع آمن عبر OPay (فيزا / ماستركارد). المبلغ يظهر في صفحة الدفع بما يعادله بالجنيه المصري، وبنكك يحوّله لعملتك تلقائياً.</div>
       <ol class="pay-steps">
         <li>اضغط «ادفع الآن بالبطاقة» — هتفتح صفحة الدفع الآمنة للخدمة اللي اخترتها.</li>
@@ -311,6 +311,18 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 const state = { region:null, usdLink:'', phoneFlag:'', pay:'', type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
 
+// ---- غير المصري على الصفحة العربي: السعر يظهر بالجنيه المصري بما يعادل السعر الثابت بالدولار (من pay/links.js) ----
+function hbEgpFor(link, usd){
+  const m = /\/pay\/(\w+)\//.exec(link||''); const P = m && window.HB_PAY && window.HB_PAY[m[1]];
+  if(P && P.url && P.egp) return P.egp;
+  return (usd && window.HB_PAY_RATE) ? Math.round(usd * window.HB_PAY_RATE) : 0;
+}
+function hbFmt(n){ n = Number(n); return n.toLocaleString('en-US', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2}); }
+function arAbroadPrice(text, link, usd){
+  const egp = hbEgpFor(link, Number(usd));
+  if(!egp) return text;
+  return text.replace(/^\s*[\d.,]+\s*دولار/, hbFmt(egp) + ' جنيه مصري (تعادل ' + usd + ' دولار أمريكي، أو ما يعادلها بعملتك)');
+}
 // ---- Step 1: type selection ----
 const typeOptions = document.getElementById('typeOptions');
 typeOptions.addEventListener('click', e=>{
@@ -321,7 +333,7 @@ typeOptions.addEventListener('click', e=>{
   state.type = opt.dataset.type;
   state.typeLabel = opt.querySelector('h3').textContent.trim();
   const usd = state.region === 'abroad' && opt.dataset.usdPrice;
-  state.price = usd ? opt.dataset.usdPrice : opt.dataset.price;
+  state.price = usd ? arAbroadPrice(opt.dataset.usdPrice, opt.dataset.usdLink, opt.dataset.usdPay) : opt.dataset.price;
   state.pay = usd ? opt.dataset.usdPay : opt.dataset.pay;
   state.usdLink = usd ? (opt.dataset.usdLink||'') : '';
   const isVideo = state.type === 'video';
@@ -340,7 +352,7 @@ pkgOptions.addEventListener('click', e=>{
   pkg.classList.add('selected');
   state.typeLabel = '💻 فيديو كونفرانس — ' + pkg.dataset.mins + ' دقيقة';
   const usdP = state.region === 'abroad' && pkg.dataset.usdPay;
-  state.price = usdP ? pkg.dataset.usdPrice : pkg.dataset.price;
+  state.price = usdP ? arAbroadPrice(pkg.dataset.usdPrice, pkg.dataset.usdLink, pkg.dataset.usdPay) : pkg.dataset.price;
   state.pay = usdP ? pkg.dataset.usdPay : pkg.dataset.pay;
   state.usdLink = usdP ? (pkg.dataset.usdLink||'') : '';
   document.getElementById('toStep2').disabled = false;
@@ -357,6 +369,7 @@ const egyptDepositNote = document.getElementById('depositNote').innerHTML;
 const abroadDepositNote = 'بعد اختيار الميعاد وكتابة بياناتك، سيظهر لك في <strong>الخطوة الأخيرة</strong> رابط دفع آمن بالبطاقة (فيزا / ماستركارد) للخدمة التي اخترتها. يتأكد الميعاد بعد استلام المبلغ.';
 function applyRegion(r){
   state.region = r;
+  [...regionOptions.children].forEach(x=>{ x.style.outline=''; });
   [...regionOptions.children].forEach(b=>b.classList.toggle('selected', b.dataset.region===r));
   document.getElementById('typeWrap').hidden = false;
   const abroad = r === 'abroad';
@@ -380,7 +393,8 @@ regionOptions.addEventListener('click', e=>{
 (function(){
   let forced = '';
   try{ forced = new URLSearchParams(location.search).get('nat') || ''; }catch(e){}
-  function guess(r){ if(regionChosenByUser || state.region) return; applyRegion(r); document.getElementById('regionHint').hidden = false; }
+  // الموقع مابيختارش بالنيابة عن العميل: بيعلّم الإجابة المقترحة بس، وأنواع الاستشارة والأسعار مابتظهرش إلا بعد ما العميل يختار بنفسه.
+  function guess(r){ if(regionChosenByUser || state.region) return; const b = regionOptions.querySelector('[data-region="'+r+'"]'); if(!b) return; b.style.outline = '2px dashed var(--gold)'; const h = document.getElementById('regionHint'); h.textContent = 'اقتراحنا حسب مكان اتصالك: «' + b.textContent.trim() + '» — من فضلك اختر جنسيتك للمتابعة.'; h.hidden = false; }
   if(forced==='eg' || forced==='intl'){ guess(forced==='eg' ? 'egypt' : 'abroad'); return; }
   let tzGuess = '';
   try{ const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; if(tz) tzGuess = tz==='Africa/Cairo' ? 'egypt' : 'abroad'; }catch(e){}
@@ -558,10 +572,10 @@ document.getElementById('toStep5').onclick = ()=>{
     document.getElementById('payAbroad').hidden = !abroad || free;
     if(abroad) document.getElementById('ipaBox').hidden = true;
     document.getElementById('payAmountUsd').textContent = abroad ? state.pay : '';
-    (function(){ var e = document.getElementById('payAmountEgp'); if(!e) return; e.textContent = '';
-      var m = /\/pay\/(\w+)\//.exec(state.usdLink||''); var P = m && window.HB_PAY && window.HB_PAY[m[1]];
-      var v = P && (P.url && P.egp ? P.egp : (P.usd && window.HB_PAY_RATE ? Math.round(P.usd*window.HB_PAY_RATE) : 0));
-      if(abroad && v) e.textContent = 'تعادل ' + (P.url && P.egp ? '' : 'حوالي ') + Number(v).toLocaleString('en-US') + ' جنيه مصري — وبنكك يخصمها من كارتك بعملتك بما يعادل ' + state.pay + ' دولار'; })();
+    (function(){ var e = document.getElementById('payAmountEgp'), a = document.getElementById('payAmountArEgp'); if(!e || !a) return;
+      var v = abroad ? hbEgpFor(state.usdLink, Number(state.pay)) : 0;
+      a.textContent = v ? hbFmt(v) : '';
+      e.textContent = (abroad && v) ? 'تعادل ' + state.pay + ' دولار أمريكي — وبنكك يخصمها من كارتك بعملتك بما يعادلها' : ''; })();
     document.querySelectorAll('.usdAmt').forEach(el=>{ el.textContent = abroad ? state.pay : ''; });
     const ul = document.getElementById('usdPayLink');
     if(ul) ul.href = (abroad && state.usdLink) ? state.usdLink : document.getElementById('usdGeneralLink').href;

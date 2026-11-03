@@ -104,7 +104,7 @@
         <button type="button" class="bk-slot" data-region="egypt">Egyptian</button>
         <button type="button" class="bk-slot" data-region="abroad">Non-Egyptian</button>
       </div>
-      <p class="section-note" id="regionHint" style="margin:8px 0 0;font-size:.85rem;" hidden>We pre-selected an answer based on where you are connecting from — you can change it.</p>
+      <p class="section-note" id="regionHint" style="margin:8px 0 0;font-size:.85rem;" >Please choose your nationality first to see the consultation types and fees.</p>
     </div>
     <div id="typeWrap" hidden>
     <h2 style="margin-top:22px;">Consultation Type</h2>
@@ -324,6 +324,7 @@ const abroadDepositNote = 'After choosing the time and entering your details, th
 let pendingType = null;
 function applyRegion(r){
   state.region = r;
+  [...regionOptions.children].forEach(x=>{ x.style.outline=''; });
   [...regionOptions.children].forEach(b=>b.classList.toggle('selected', b.dataset.region===r));
   document.getElementById('typeWrap').hidden = false;
   const abroad = r === 'abroad';
@@ -378,7 +379,8 @@ regionOptions.addEventListener('click', e=>{ if(e.target.closest('.bk-slot')){ r
 (function(){
   let forced = '';
   try{ forced = new URLSearchParams(location.search).get('nat') || ''; }catch(e){}
-  function guess(r){ if(regionChosenByUser || state.region) return; applyRegion(r); document.getElementById('regionHint').hidden = false; }
+  // The site never answers for the visitor: it only marks the suggested answer; consultation types and fees appear only after the visitor chooses.
+  function guess(r){ if(regionChosenByUser || state.region) return; const b = regionOptions.querySelector('[data-region="'+r+'"]'); if(!b) return; b.style.outline = '2px dashed var(--gold)'; const h = document.getElementById('regionHint'); h.textContent = 'Suggested from where you are connecting: “' + b.textContent.trim() + '” — please choose your nationality to continue.'; h.hidden = false; }
   if(forced==='eg' || forced==='intl'){ guess(forced==='eg' ? 'egypt' : 'abroad'); return; }
   let tzGuess = '';
   try{ const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; if(tz) tzGuess = tz==='Africa/Cairo' ? 'egypt' : 'abroad'; }catch(e){}
