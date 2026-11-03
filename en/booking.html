@@ -322,6 +322,14 @@ const regionOptions = document.getElementById('regionOptions');
 const egyptDepositNote = document.getElementById('depositNote').innerHTML;
 const abroadDepositNote = 'After choosing the time and entering your details, the <strong>last step</strong> shows a secure card payment link (Visa / Mastercard) for the service you chose. The slot is confirmed once the payment is received.';
 let pendingType = null;
+function updateInquiryCard(){
+  const o = typeOptions.querySelector('.bk-opt[data-type="inquiry"]'); if(!o) return;
+  const ab = state.region === 'abroad';
+  o.querySelector('h3').textContent = ab ? "💬 Written Reply to an Inquiry (Free)" : "📞 Free Phone Reply to an Urgent Inquiry";
+  o.querySelector('p').textContent = ab ? "Write your question or inquiry that needs no document review, and we reply in writing at no charge." : "A call of up to 10 minutes to answer an urgent question that needs no document review, at the time you choose. If your matter needs details or documents, we will ask you to book a consultation.";
+  o.dataset.price = ab ? "Free — written reply to an inquiry that needs no document review" : "Free — phone reply (a call of up to 10 minutes) to an urgent inquiry that needs no document review";
+  if(o.dataset.usdPrice !== undefined) o.dataset.usdPrice = o.dataset.price;
+}
 function applyRegion(r){
   state.region = r;
   [...regionOptions.children].forEach(x=>{ x.style.outline=''; });
@@ -343,6 +351,7 @@ function applyRegion(r){
   state.type = null; state.price = ''; state.pay = '';
   document.getElementById('toStep2').disabled = true;
   document.getElementById('depositNote').innerHTML = abroad ? abroadDepositNote : egyptDepositNote;
+  updateInquiryCard();
   if(pendingType){
     const o = typeOptions.querySelector('.bk-opt[data-type="'+pendingType+'"]');
     if(o && !o.hidden){
@@ -421,16 +430,21 @@ function showStep(n){
 
 // Free inquiry: no fees and no appointment, so it skips steps 2 and 3
 const isFree = ()=> state.type === 'inquiry';
+// Inquiry (added 2026-11-03): Egyptians get a free phone reply (up to 10 minutes) at a booked time; non-Egyptians write their inquiry (free written reply, no appointment)
+const isOral = ()=> isFree() && state.region !== 'abroad';
+const isWritten = ()=> isFree() && state.region === 'abroad';
 
 document.getElementById('toStep2').onclick = ()=>{
-  if(isFree()){ state.date = null; state.dateLabel = ''; state.slot = null; document.getElementById('criminalDocsNote').hidden = true; showStep(4); return; }
+  if(isOral()){ state.date = null; state.dateLabel = ''; state.slot = null; document.getElementById('depositNote').innerHTML = "Choose a time for the call. The phone reply to an inquiry is <strong>free</strong> and lasts up to 10 minutes."; showStep(3); return; }
+  if(isWritten()){ state.date = null; state.dateLabel = ''; state.slot = null; document.getElementById('criminalDocsNote').hidden = true; showStep(4); return; }
+  document.getElementById('depositNote').innerHTML = state.region==='abroad' ? abroadDepositNote : egyptDepositNote;
   document.getElementById('chosenTypeLabel').textContent = state.typeLabel;
   document.getElementById('consentPhaseA').hidden = false;
   document.getElementById('consentPhaseB').hidden = true;
   showStep(2);
 };
-document.getElementById('backTo2').onclick = ()=> showStep(2);
-document.getElementById('backTo3').onclick = ()=> showStep(isFree() ? 1 : 3);
+document.getElementById('backTo2').onclick = ()=> showStep(isOral() ? 1 : 2);
+document.getElementById('backTo3').onclick = ()=> showStep(isWritten() ? 1 : 3);
 document.getElementById('backTo4').onclick = ()=> showStep(4);
 
 // ---- Step 2: two-stage consent ----
@@ -507,7 +521,7 @@ document.getElementById('toStep5').onclick = ()=>{
   document.getElementById('summaryBox').innerHTML =
     '<p><strong>Consultation type:</strong> ' + state.typeLabel + '</p>' +
     '<p><strong>Fees:</strong> ' + state.price + '</p>' +
-    (isFree() ? '' : '<p><strong>Appointment:</strong> ' + (state.dateLabel||'—') + (state.slot ? ' — ' + state.slot : '') + '</p>') +
+    (isWritten() ? '' : '<p><strong>Appointment:</strong> ' + (state.dateLabel||'—') + (state.slot ? ' — ' + state.slot : '') + '</p>') +
     '<p><strong>Name:</strong> ' + name + '</p>' +
     '<p><strong>Phone:</strong> ' + phone + '</p>' +
     '<p><strong>Sector:</strong> ' + cat + '</p>' +
@@ -516,10 +530,10 @@ document.getElementById('toStep5').onclick = ()=>{
     '<p><strong>Summary:</strong> ' + details + '</p>';
 
   const waText = encodeURIComponent(
-    (isFree() ? 'New inquiry from the website (free written reply):\n' : 'New appointment booking request from the website:\n') +
+    (isOral() ? "Free phone reply to an inquiry (a call of up to 10 minutes):\n" : isFree() ? 'New inquiry from the website (free written reply):\n' : 'New appointment booking request from the website:\n') +
     'Type: ' + state.typeLabel + '\n' +
     'Fees: ' + state.price + '\n' +
-    (isFree() ? '' : 'Appointment: ' + (state.dateLabel||'—') + (state.slot ? ' - ' + state.slot : '') + '\n') +
+    (isWritten() ? '' : 'Appointment: ' + (state.dateLabel||'—') + (state.slot ? ' - ' + state.slot : '') + '\n') +
     'Name: ' + name + '\n' +
     'Phone: ' + phone + '\n' +
     'Sector: ' + cat + '\n' +
@@ -539,6 +553,8 @@ document.getElementById('toStep5').onclick = ()=>{
   const waBtn = document.getElementById('sendWhatsapp');
   if(!waBtn.dataset.orig) waBtn.dataset.orig = waBtn.innerHTML;
   waBtn.innerHTML = isFree() ? 'Send Your Inquiry via WhatsApp' : abroad ? 'Send Booking Request via WhatsApp' : waBtn.dataset.orig;
+  if(isOral()) waBtn.innerHTML = "Send Your Call Request via WhatsApp";
+  document.getElementById('freeNote').textContent = isOral() ? "The phone reply to an inquiry is free and needs no payment; the call lasts up to 10 minutes at the time you chose. Tap the button below to send your request on WhatsApp, and the office will call you at that time." : "A reply to an inquiry is free and needs no payment. Tap the button below to send your inquiry on WhatsApp, and the office will reply in writing.";
   document.getElementById('payAmount').textContent = state.pay;
   document.getElementById('payAmountUsd').textContent = abroad ? state.pay : '';
     (function(){ var e = document.getElementById('payAmountEgp'); if(!e) return; e.textContent = '';
