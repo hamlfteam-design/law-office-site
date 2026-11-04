@@ -26,7 +26,7 @@
   </url>
   <url>
     <loc>https://hamlf.com/articles/index.html</loc>
-    <lastmod>2026-10-11</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/index.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/index.html"/>
   </url>
@@ -206,7 +206,7 @@
   </url>
   <url>
     <loc>https://hamlf.com/en/articles/index.html</loc>
-    <lastmod>2026-10-11</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/index.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/index.html"/>
   </url>
@@ -647,5 +647,29 @@
     <lastmod>2026-10-26</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/public-funds.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/public-funds.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/articles/administrative-investigation-discipline-egypt.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/administrative-investigation-discipline-egypt.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/administrative-investigation-discipline-egypt.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/articles/administrative-investigation-discipline-egypt.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/administrative-investigation-discipline-egypt.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/administrative-investigation-discipline-egypt.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/articles/digital-transformation-lawyers-egypt.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/digital-transformation-lawyers-egypt.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/digital-transformation-lawyers-egypt.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/articles/digital-transformation-lawyers-egypt.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/digital-transformation-lawyers-egypt.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/digital-transformation-lawyers-egypt.html"/>
   </url>
 </urlset>
