@@ -340,7 +340,8 @@ padding:36px 30px;text-align:center;margin-top:40px;
 .article-meta{font-size:.78rem;color:var(--muted);font-weight:700;}
 .article-byline{color:var(--gold-light);font-weight:700;}
 .article-hero-img{width:100%;max-width:900px;height:auto;border-radius:var(--radius);margin-top:20px;display:block;box-shadow:0 10px 30px rgba(0,0,0,.15);}
-.print-btn{margin-bottom:24px;cursor:pointer;border:2px solid var(--navy);background:none;font-family:inherit;font-size:.95rem;}
+.print-btn{margin-bottom:24px;cursor:pointer;border:2px solid var(--navy);background:none;color:var(--navy);font-family:inherit;font-size:.95rem;}
+.print-btn:hover{background:var(--navy);color:var(--gold-light);}
 
 /* تمييز نص القانون عن نص حكم النقض داخل المقالات (بخطوط وألوان هوية المكتب) */
 .law-quote{background:#f4f2ec;border-inline-start:4px solid var(--gold);border-radius:8px;
