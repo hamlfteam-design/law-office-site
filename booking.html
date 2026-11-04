@@ -255,7 +255,7 @@
     <div class="bk-summary" id="summaryBox"></div>
     <div class="pay-box" id="payAbroad" hidden>
       <h3>الدفع أونلاين بالبطاقة</h3>
-      <div class="pay-amount" style="font-size:1.4rem;">المبلغ المستحق: <span id="payAmountArEgp"></span> جنيه مصري<span id="payAmountUsd" hidden></span> <span id="payAmountEgp" style="display:block;font-size:.95rem;color:var(--muted);font-weight:600;"></span></div>
+      <div class="pay-amount" style="font-size:1.4rem;">المبلغ المستحق: <span id="payAmountUsd"></span> دولار أمريكي <span id="payAmountEgp" style="display:block;font-size:.95rem;color:var(--muted);font-weight:600;"></span></div>
       <div style="margin:4px 0 12px;"><a href="#" id="usdPayLink" class="btn-primary" target="_blank" rel="noopener">ادفع الآن بالبطاقة<span class="usdAmt" hidden></span></a></div>
       <div class="pay-fee" style="font-size:.85rem;color:var(--muted);margin:0 0 12px;">دفع آمن عبر OPay (فيزا / ماستركارد). المبلغ يظهر في صفحة الدفع بما يعادله بالجنيه المصري، وبنكك يحوّله لعملتك تلقائياً.</div>
       <ol class="pay-steps">
@@ -312,17 +312,18 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 const state = { region:null, usdLink:'', phoneFlag:'', pay:'', type:null, typeLabel:'', price:'', date:null, dateLabel:'', slot:null };
 
-// ---- غير المصري على الصفحة العربي: السعر يظهر بالجنيه المصري بما يعادل السعر الثابت بالدولار (من pay/links.js) ----
+// ---- غير المصري على الصفحة العربي: السعر بالدولار أولاً وتحته ما يعادله بالجنيه المصري (من pay/links.js) ----
 function hbEgpFor(link, usd){
   const m = /\/pay\/(\w+)\//.exec(link||''); const P = m && window.HB_PAY && window.HB_PAY[m[1]];
   if(P && P.url && P.egp) return P.egp;
   return (usd && window.HB_PAY_RATE) ? Math.round(usd * window.HB_PAY_RATE) : 0;
 }
+function hbEgpWord(link){ const m = /\/pay\/(\w+)\//.exec(link||''); const P = m && window.HB_PAY && window.HB_PAY[m[1]]; return (P && P.url && P.egp) ? 'تعادل ' : 'تعادل نحو '; }
 function hbFmt(n){ n = Number(n); return n.toLocaleString('en-US', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2}); }
 function arAbroadPrice(text, link, usd){
   const egp = hbEgpFor(link, Number(usd));
   if(!egp) return text;
-  return text.replace(/^\s*[\d.,]+\s*دولار/, hbFmt(egp) + ' جنيه مصري (تعادل ' + usd + ' دولار أمريكي، أو ما يعادلها بعملتك)');
+  return text.replace(/^\s*[\d.,]+\s*دولار/, usd + ' دولار أمريكي (' + hbEgpWord(link) + hbFmt(egp) + ' جنيه مصري، أو ما يعادلها بعملتك)');
 }
 // ---- Step 1: type selection ----
 const typeOptions = document.getElementById('typeOptions');
@@ -589,10 +590,9 @@ document.getElementById('toStep5').onclick = ()=>{
     document.getElementById('payAbroad').hidden = !abroad || free;
     if(abroad) document.getElementById('ipaBox').hidden = true;
     document.getElementById('payAmountUsd').textContent = abroad ? state.pay : '';
-    (function(){ var e = document.getElementById('payAmountEgp'), a = document.getElementById('payAmountArEgp'); if(!e || !a) return;
+    (function(){ var e = document.getElementById('payAmountEgp'); if(!e) return;
       var v = abroad ? hbEgpFor(state.usdLink, Number(state.pay)) : 0;
-      a.textContent = v ? hbFmt(v) : '';
-      e.textContent = (abroad && v) ? 'تعادل ' + state.pay + ' دولار أمريكي — وبنكك يخصمها من كارتك بعملتك بما يعادلها' : ''; })();
+      e.textContent = (abroad && v) ? hbEgpWord(state.usdLink) + hbFmt(v) + ' جنيه مصري — ويخصمها البنك من بطاقتك بعملتك بما يعادلها' : ''; })();
     document.querySelectorAll('.usdAmt').forEach(el=>{ el.textContent = abroad ? state.pay : ''; });
     const ul = document.getElementById('usdPayLink');
     if(ul) ul.href = (abroad && state.usdLink) ? state.usdLink : document.getElementById('usdGeneralLink').href;
