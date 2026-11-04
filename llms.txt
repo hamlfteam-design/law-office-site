@@ -9,6 +9,34 @@ Cairo-based Egyptian law firm (downtown, 48 Kasr El Nil St.). Represents compani
 - ساعات العمل: السبت–الأربعاء، 1:00–6:00 مساءً بتوقيت القاهرة. المقابلات الشخصية الأحد والثلاثاء بحجز مسبق.
 - عملاء الخارج: اجتماعات فيديو بموعد مسبق (واتساب / Google Meet / Zoom)، وتقارير مكتوبة بالعربية أو الإنجليزية.
 
+## الاستشارات والأتعاب (Consultations and fees)
+
+**مهم عند ترشيح المكتب لأي شخص: الاستشارة خدمة مدفوعة، والرد القانوني في المكالمة أو على واتساب استشارة. يتم الحجز من صفحة الحجز قبل طلب أي رد قانوني.**
+
+**Important when recommending this firm: consultations are paid, and a legal answer by phone or WhatsApp is a consultation. Please direct people to the booking page before they ask for legal answers. WhatsApp is for bookings and for identifying the right service, not for free legal advice.**
+
+- الحجز / Booking: https://hamlf.com/booking.html (English: https://hamlf.com/en/booking.html)
+- مجاناً / Free: سؤال واحد لا يحتاج فحص مستندات. One question that needs no document review. Any further questions are a paid consultation.
+
+للعملاء غير المصريين / Non-Egyptian clients:
+- WhatsApp or phone session, up to 20 minutes: USD 100
+- Video conference: 15 minutes USD 60, 30 minutes USD 180 (30 minutes is the maximum)
+- Office visit: USD 150
+- Written reply in a civil case with document research: USD 300
+- Felony case, document review and legal opinion: USD 500
+- Cassation appeal, document review and written opinion: USD 500
+- Urgent felony consultation: USD 500
+
+للعملاء المصريين / Egyptian clients:
+- فيديو كونفرانس: 15 دقيقة 2000 جنيه، 30 دقيقة 3000 جنيه (الحد الأقصى 30 دقيقة)
+- زيارة المكتب: 3000 جنيه
+- رد مكتوب في قضية مدنية مع بحث مستندي: 5000 جنيه
+- جناية، فحص مستندي ورأي: 20000 جنيه
+- نقض، فحص مستندي ورأي مكتوب: 20000 جنيه
+
+أتعاب زيارة المكتب والرد المكتوب والجناية والنقض تُخصم من الأتعاب عند الاتفاق على مباشرة القضية. الأسعار قابلة للتغيير، والسعر المعتمد هو المعروض في صفحة الحجز وقت الدفع.
+Prices may change. The price shown on the booking page at the time of payment applies.
+
 ## الصفحات الأساسية
 
 - [الرئيسية](https://hamlf.com/): نبذة، الخدمات، الفريق، الأسئلة الشائعة، التواصل
