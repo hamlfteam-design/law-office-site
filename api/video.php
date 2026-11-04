@@ -16,7 +16,8 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Robots-Tag: noindex, nofollow');
 
-const PACKAGES = [15, 30, 60];      // مدد الباقات بالدقيقة
+const PACKAGES = [15, 30];          // مدد الباقات بالدقيقة
+const MAX_MINUTES = 30;             // الحد الأقصى للجلسة شامل التمديد
 const EXTENSION_MINUTES = 15;       // مدة التمديد
 const PRE_START_WINDOW = 3 * 3600;  // الغرفة مفتوحة قبل بدء العداد بحد أقصى ٣ ساعات من الميعاد
 
@@ -228,6 +229,8 @@ switch ($action) {
                 $r['ends_at'] = $now + $r['minutes'] * 60;
             } elseif ($action === 'extend') {
                 if ($r['status'] === 'waiting') fail(409, 'not_started');
+                if ($r['minutes'] + EXTENSION_MINUTES > MAX_MINUTES) fail(409, 'max_duration');
+                $r['minutes'] += EXTENSION_MINUTES;
                 $r['ends_at'] = max((int) $r['ends_at'], $now) + EXTENSION_MINUTES * 60;
             } else {
                 $r['ends_at'] = $now + 5;
