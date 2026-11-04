@@ -31,8 +31,8 @@ const PRICES = [
     'criminal' => ['amount' => 20000, 'ar' => 'فحص مستندي ورأي في جناية',              'en' => 'Felony case — document review & opinion'],
     'cassation'=> ['amount' => 20000, 'ar' => 'فحص مستندي ورأي مكتوب في نقض',          'en' => 'Cassation appeal — document review & written opinion'],
     'written'  => ['amount' => 5000, 'ar' => 'رد مكتوب في قضية مدنية + بحث مستندي',    'en' => 'Written consultation'],
-    'video15'  => ['amount' => 2000, 'ar' => 'فيديو كونفرانس — 15 دقيقة',              'en' => 'Video conference — 15 minutes'],
-    'video30'  => ['amount' => 3000, 'ar' => 'فيديو كونفرانس — 30 دقيقة',              'en' => 'Video conference — 30 minutes'],
+    'video20'  => ['amount' => 2000, 'ar' => 'جلسة أونلاين — 20 دقيقة',                'en' => 'Online session — 20 minutes'],
+    'video30'  => ['amount' => 3000, 'ar' => 'جلسة أونلاين — 30 دقيقة',                'en' => 'Online session — 30 minutes'],
 ];
 
 const FINAL_STATUSES = ['SUCCESS', 'FAIL', 'CLOSE'];

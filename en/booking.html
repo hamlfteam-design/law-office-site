@@ -122,10 +122,10 @@
         <p>A review of your cassation appeal documents and a written legal opinion; the fee is deducted from the legal fees once an engagement is agreed.</p>
       </label>
       <label class="bk-opt" data-type="video" data-pay="" data-price="">
-        <h3>💻 Video Conference</h3>
-        <p>A remote audio-video consultation, in 15 or 30-minute packages paid in advance, with a 30-minute maximum per session.</p>
+        <h3>💻 Online Session</h3>
+        <p>By video, phone or WhatsApp, at a booked time with a fixed start and end. 20 or 30 minutes at most, paid in advance and deducted from the legal fees once they are agreed.</p>
       </label>
-      <label class="bk-opt" data-type="urgent" data-abroad-only="1" hidden data-hb="HB-Urgent" data-usd-link="https://hamlf.com/pay/urgent/" data-usd-pay="500" data-usd-price="USD 500 — criminal case (felony) urgent consultation: a reply within hours and immediate coverage in urgent cases. Travel and procedural intervention are at fees agreed separately, and the consultation fee paid is deducted from them. Please send any case documents or information you have so that we can follow up. The consultation fee does not include any official fees or expenses of work carried out officially. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="" data-price="">
+      <label class="bk-opt" data-type="urgent" data-abroad-only="1" hidden data-hb="HB-Urgent" data-usd-link="https://hamlf.com/pay/urgent/" data-usd-pay="750" data-usd-price="USD 750 — criminal case (felony) urgent consultation: a reply within hours and immediate coverage in urgent cases. Travel and procedural intervention are at fees agreed separately, and the consultation fee paid is deducted from them. Please send any case documents or information you have so that we can follow up. The consultation fee does not include any official fees or expenses of work carried out officially. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="" data-price="">
         <h3>🚨 Criminal Case (Felony) — Urgent Consultation</h3>
         <p>A reply within hours and immediate coverage in urgent cases. Travel and procedural intervention are at fees agreed separately, and the consultation fee is deducted from them. Please send any case documents or information you have so that we can follow up. The fee does not include any official fees or expenses of work carried out officially.</p>
       </label>
@@ -135,14 +135,14 @@
       </label>
       <label class="bk-opt" data-type="inquiry" data-hb="HB-Inquiry" data-usd-pay="" data-usd-price="Free — written reply to one question that needs no document review" data-pay="" data-price="Free — written reply to one question that needs no document review">
         <h3>💬 Written Reply to an Inquiry (Free)</h3>
-        <p>For one question that needs no document review, we reply in writing at no charge.</p>
+        <p>For one question that needs no document review, we reply in writing with general information at no charge.</p>
       </label>
     </div>
     <div id="videoPkgs" hidden>
-      <h2 style="margin-top:22px;">Video Session Length</h2>
+      <h2 style="margin-top:22px;">Session Length</h2>
       <div class="bk-slots" id="pkgOptions">
-        <button type="button" class="bk-slot" data-mins="15" data-hb="HB-Video15" data-usd-link="https://hamlf.com/pay/video15/" data-usd-pay="60" data-usd-price="USD 60 — 15-minute video package, paid in advance. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="2000" data-price="2000 EGP — 15-minute package, paid in advance. The session can be extended by 15 minutes for 1500 EGP, paid before it continues, subject to the counsel's availability.">15 minutes</button>
-        <button type="button" class="bk-slot" data-mins="30" data-hb="HB-Video30" data-usd-link="https://hamlf.com/pay/video30/" data-usd-pay="180" data-usd-price="USD 180 — 30-minute video package (the maximum session length), paid in advance. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="3000" data-price="3000 EGP — 30-minute package, paid in advance. This is the maximum session length.">30 minutes</button>
+        <button type="button" class="bk-slot" data-mins="20" data-hb="HB-Video20" data-usd-link="https://hamlf.com/pay/video20/" data-usd-pay="100" data-usd-price="USD 100 — 20-minute session, paid in advance and deducted from the legal fees once they are agreed. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="2000" data-price="2000 EGP — 20-minute session, paid in advance and deducted from the legal fees once they are agreed.">20 minutes</button>
+        <button type="button" class="bk-slot" data-mins="30" data-hb="HB-Video30" data-usd-link="https://hamlf.com/pay/video30/" data-usd-pay="180" data-usd-price="USD 180 — 30-minute session (the maximum length), paid in advance and deducted from the legal fees once they are agreed. Charged by card in the equivalent Egyptian pounds; your bank converts it to your currency." data-pay="3000" data-price="3000 EGP — 30-minute session (the maximum length), paid in advance and deducted from the legal fees once they are agreed.">30 minutes</button>
       </div>
     </div>
     </div>
@@ -219,10 +219,12 @@
         <option value="visit">An office visit after the reply</option>
       </select>
       <div id="appWrap" hidden>
-        <label>Video call app</label>
+        <label>Session method</label>
         <select id="fApp">
           <option>Google Meet</option>
           <option>Botim</option>
+          <option>WhatsApp</option>
+          <option>Phone call</option>
         </select>
       </div>
     </form>
@@ -273,7 +275,7 @@
       </ol>
     </div>
     <div class="bk-note" id="payNote">
-      Your booking is confirmed once the office reviews the transfer and confirms it with you on WhatsApp. A written consultation and an office visit are deducted from the fees if a power of attorney is agreed.
+      Your booking is confirmed once the office reviews the transfer and confirms it with you on WhatsApp. All paid consultation fees are deducted from the legal fees once they are agreed.
     </div>
     <div class="bk-note" id="freeNote" hidden>
       A reply to an inquiry is free and needs no payment. Tap the button below to send your inquiry on WhatsApp, and the office will reply in writing.
@@ -325,7 +327,7 @@ function updateInquiryCard(){
   const o = typeOptions.querySelector('.bk-opt[data-type="inquiry"]'); if(!o) return;
   const ab = state.region === 'abroad';
   o.querySelector('h3').textContent = ab ? "💬 Written Reply to an Inquiry (Free)" : "📞 Free Phone Reply to an Urgent Inquiry";
-  o.querySelector('p').textContent = ab ? "Write one question that needs no document review, and we reply in writing at no charge. Any further questions are handled as a paid consultation." : "A call of up to 10 minutes to answer one urgent question that needs no document review, at the time you choose. If your matter needs details or documents, we will ask you to book a consultation.";
+  o.querySelector('p').textContent = ab ? "Write one question that needs no document review, and we reply in writing with general information at no charge. Advice on your own case, or any further questions, is a paid consultation." : "A call of up to 10 minutes for general information on one urgent question that needs no document review, at the time you choose. If your matter needs details or documents, we will ask you to book a consultation.";
   o.dataset.price = ab ? "Free — written reply to one question that needs no document review" : "Free — phone reply (a call of up to 10 minutes) to one urgent question that needs no document review";
   if(o.dataset.usdPrice !== undefined) o.dataset.usdPrice = o.dataset.price;
 }
@@ -373,7 +375,7 @@ pkgOptions.addEventListener('click', e=>{
   if(!pkg) return;
   [...pkgOptions.children].forEach(p=>p.classList.remove('selected'));
   pkg.classList.add('selected');
-  state.typeLabel = '💻 Video Conference — ' + pkg.dataset.mins + ' minutes';
+  state.typeLabel = '💻 Online Session — ' + pkg.dataset.mins + ' minutes';
   const usdP = state.region === 'abroad' && pkg.dataset.usdPay;
   state.price = usdP ? pkg.dataset.usdPrice : pkg.dataset.price;
   state.pay = usdP ? pkg.dataset.usdPay : pkg.dataset.pay;
@@ -525,7 +527,7 @@ document.getElementById('toStep5').onclick = ()=>{
     '<p><strong>Phone:</strong> ' + phone + '</p>' +
     '<p><strong>Sector:</strong> ' + cat + '</p>' +
     '<p><strong>Reply preference:</strong> ' + followup + '</p>' +
-    (app ? '<p><strong>Call app:</strong> ' + app + '</p>' : '') +
+    (app ? '<p><strong>Session method:</strong> ' + app + '</p>' : '') +
     '<p><strong>Summary:</strong> ' + details + '</p>';
 
   const waText = encodeURIComponent(
@@ -537,7 +539,7 @@ document.getElementById('toStep5').onclick = ()=>{
     'Phone: ' + phone + '\n' +
     'Sector: ' + cat + '\n' +
     'Reply preference: ' + followup + '\n' +
-    (app ? 'Call app: ' + app + '\n' : '') +
+    (app ? 'Session method: ' + app + '\n' : '') +
     'Subject: ' + details +
     (isFree() ? '' : '\n\n' + (state.region==='abroad'
       ? 'Client based outside Egypt — paid USD ' + state.pay + ' by card via the OPay link (confirmation attached), or please send me bank transfer details.'
@@ -662,5 +664,5 @@ document.getElementById('copyIpa').onclick = function(){
   });
 })();
 </script>
-<script src="../pay/links.js?v=20261104"></script>
+<script src="../pay/links.js?v=20261104b"></script>
 </body></html>

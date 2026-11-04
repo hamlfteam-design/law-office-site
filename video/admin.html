@@ -63,7 +63,7 @@
       <form class="va-form" id="createForm">
         <div><label>اسم العميل</label><input type="text" id="client" maxlength="80" required></div>
         <div><label>الباقة</label>
-          <select id="minutes"><option value="15">15 دقيقة</option><option value="30" selected>30 دقيقة</option></select>
+          <select id="minutes"><option value="20">20 دقيقة</option><option value="30" selected>30 دقيقة</option></select>
         </div>
         <div><label>الميعاد</label><input type="datetime-local" id="when" required></div>
         <button class="va-btn gold" type="submit">إنشاء الغرفة</button>
@@ -72,7 +72,7 @@
       <p class="va-note">
         • ابعت «رابط العميل» للعميل على واتساب، وافتح «رابط المستشار» على جهاز المستشار.<br>
         • العداد مابيبدأش لوحده: اضغط <strong>بدء العداد</strong> أول ما الطرفين يدخلوا. وقتها بيبدأ من مدة الباقة لحد الصفر، والمكالمة بتتقفل تلقائيًا من السيرفر.<br>
-        • التمديد: بعد ما العميل يحوّل قيمة التمديد، اضغط <strong>+15 دقيقة</strong>، والعداد بيزيد عند الطرفين خلال ثواني. الحد الأقصى للجلسة 30 دقيقة، فالتمديد متاح لباقة الـ15 دقيقة بس.
+        • مفيش تمديد: الجلسة بتنتهي في ميعادها (الحد الأقصى 30 دقيقة)، وأي وقت زيادة جلسة جديدة.
       </p>
     </section>
 
@@ -139,7 +139,7 @@
           '<button class="va-btn ghost" data-act="wa">إرسال للعميل على واتساب</button>' +
           '<button class="va-btn ghost" data-act="openCounsel">فتح رابط المستشار</button>' +
           '<button class="va-btn gold" data-act="start" '+(r.status!=='waiting'?'disabled':'')+'>بدء العداد</button>' +
-          '<button class="va-btn" data-act="extend" '+(r.status==='waiting'||r.minutes>=30?'disabled':'')+'>+15 دقيقة</button>' +
+          '<button class="va-btn" data-act="extend" '+(r.status==='waiting'||r.minutes+15>30?'disabled':'')+'>+15 دقيقة</button>' +
           '<button class="va-btn danger" data-act="end" '+(r.status!=='live'?'disabled':'')+'>إنهاء الآن</button>' +
         '</div></div>';
     }).join('');

@@ -16,7 +16,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Robots-Tag: noindex, nofollow');
 
-const PACKAGES = [15, 30];          // مدد الباقات بالدقيقة
+const PACKAGES = [20, 30];          // مدد الباقات بالدقيقة
 const MAX_MINUTES = 30;             // الحد الأقصى للجلسة شامل التمديد
 const EXTENSION_MINUTES = 15;       // مدة التمديد
 const PRE_START_WINDOW = 3 * 3600;  // الغرفة مفتوحة قبل بدء العداد بحد أقصى ٣ ساعات من الميعاد
