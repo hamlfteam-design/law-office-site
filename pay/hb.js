@@ -36,24 +36,24 @@
   var T = ar ? {
     welcome: 'يسعدنا أن نكون إلى جانبك، وأن نساعدك ونحافظ على حقوقك. ثقتك بنا محل تقديرنا، وحقك أمانة عندنا.',
     amount: 'قيمة الخدمة', usdUnit: 'دولار أمريكي',
-    egpLine: function (e) { return (egpExact ? 'تعادل ' : 'تعادل حوالي ') + n(e) + ' جنيه مصري'; },
-    howTitle: 'هتدفع إزاي؟',
+    egpLine: function (e) { return (egpExact ? 'تعادل ' : 'تعادل نحو ') + n(e) + ' جنيه مصري، أو ما يعادلها بعملتك'; },
+    howTitle: 'طريقة الدفع',
     how: function (e) {
-      return 'صفحة الدفع الآمنة (OPay) بتعرض المبلغ بالجنيه المصري' + (e ? ' (' + n(e) + ' جنيه)' : '') +
-        ' — وده نفس قيمة ' + n(usd) + ' دولار. بنكك بيخصم المبلغ من كارتك <strong>بعملتك</strong> بما يعادل حوالي ' + n(usd) +
-        ' دولار، وممكن البنك يضيف رسوم تحويل بسيطة حسب سياسته.';
+      return 'تعرض صفحة الدفع الآمنة (OPay) المبلغ بالجنيه المصري' + (e ? ' (' + n(e) + ' جنيه)' : '') +
+        '، وهو يعادل ' + n(usd) + ' دولار. ويخصم البنك المبلغ من بطاقتك <strong>بعملتك</strong> بما يعادل نحو ' + n(usd) +
+        ' دولار، وقد يضيف رسوم تحويل بسيطة حسب سياسته.';
     },
     steps: [
       useGeneral ? 'في خانة <b>Quantity</b> اكتب <b>' + (usd || '…') + '</b> (كل وحدة = 1 دولار).' : null,
-      'اكتب اسمك، واختر <b>كود دولتك</b> في خانة الهاتف (مثلاً +212 المغرب، +966 السعودية، +971 الإمارات) واكتب رقمك، ثم بريدك الإلكتروني.',
-      'اضغط <b>Pay Now</b>، واختر <b>Bank Card</b>.',
+      'اكتب اسمك، ثم اختر <b>كود دولتك</b> في خانة الهاتف (مثلاً +212 المغرب، +966 السعودية، +971 الإمارات) واكتب رقمك، ثم بريدك الإلكتروني.',
+      'اضغط <b>Pay Now</b>، ثم اختر <b>Bank Card</b>.',
       'أدخل بيانات البطاقة (فيزا / ماستركارد) واضغط <b>Pay Now</b>.',
-      'ابعت لنا صورة تأكيد الدفع على واتساب.'
+      'أرسل إلينا صورة تأكيد الدفع عبر واتساب.'
     ],
-    go: 'متابعة للدفع الآمن', wa: 'إرسال تأكيد الدفع على واتساب',
+    go: 'المتابعة إلى الدفع الآمن', wa: 'إرسال تأكيد الدفع عبر واتساب',
     note: 'الأسعار قابلة للتغيير في أي وقت دون إشعار مسبق، ويُطبَّق السعر الظاهر وقت الدفع.',
     askAmount: 'اكتب قيمة الأتعاب المتفق عليها بالدولار:', show: 'عرض', other: 'English',
-    noAmount: 'من فضلك اكتب قيمة الأتعاب المتفق عليها مع المكتب.'
+    noAmount: 'يرجى كتابة قيمة الأتعاب المتفق عليها مع المكتب.'
   } : {
     welcome: 'We are pleased to stand by your side, to help you and protect your rights. Your trust is highly valued, and your rights are a trust we hold dear.',
     amount: 'Fee', usdUnit: 'US dollars',
@@ -84,13 +84,8 @@
 
   if (usd) {
     el('payAmountLabel').textContent = T.amount;
-    if (ar && egp) {   // العربي: المبلغ بالجنيه المصري بما يعادل السعر الثابت بالدولار
-      el('payUsd').textContent = n(egp) + ' جنيه مصري';
-      el('payEgp').textContent = 'تعادل ' + n(usd) + ' دولار أمريكي، أو ما يعادلها بعملتك';
-    } else {
-      el('payUsd').textContent = (ar ? n(usd) + ' ' + T.usdUnit : 'USD ' + n(usd));
-      el('payEgp').textContent = egp ? T.egpLine(egp) : '';
-    }
+    el('payUsd').textContent = (ar ? n(usd) + ' ' + T.usdUnit : 'USD ' + n(usd));
+    el('payEgp').textContent = egp ? T.egpLine(egp) : '';
     el('payHowTitle').textContent = T.howTitle;
     el('payHow').innerHTML = T.how(egp);
     el('paySteps').innerHTML = T.steps.filter(Boolean).map(function (s) { return '<li>' + s + '</li>'; }).join('');
