@@ -23,8 +23,8 @@ window.HB_PAY = {
                url: 'https://cashier.opaycheckout.com/shareableLink?vid=8c52c8a58c1b4670a341732b508313c6&vidToken=4150fea8f61e4b5ae524b6c65e3d6062f8965f27ba17dfdbb683287fa06035df' },
   video20:   { usd: 100, egp: 5611.90,  ar: 'جلسة أونلاين — 20 دقيقة',          en: 'Online session — 20 minutes',
                url: 'https://cashier.opaycheckout.com/shareableLink?vid=04bf801e73e343cc9fd8db7e26672517&vidToken=5f6cfe073b6c87da37e21569894d36c6e7556100e55cfe6b1895abd3651cd2f3' },
-  video30:   { usd: 180, egp: 10101.42,  ar: 'جلسة أونلاين — 30 دقيقة',          en: 'Online session — 30 minutes',
-               url: 'https://cashier.opaycheckout.com/shareableLink?vid=babe300e1e694246bf2560c6119d3b60&vidToken=2ed73c5d3d9a9a9ef9a6ac00fa0204b850a6b3b1754b062739d614114bbff493' },
+  video30:   { usd: 150, egp: null,  ar: 'جلسة أونلاين — 30 دقيقة',          en: 'Online session — 30 minutes',
+               url: null },
   general:   { usd: null, egp: null,    ar: 'أتعاب متفق عليها',                   en: 'Agreed legal fees',
                url: 'https://cashier.opaycheckout.com/shareableLink?vid=a354a96b4e9f459288821a5d82c55938&vidToken=5483d578f0a35375dc8d71a35c5b762c570fb602d5b0c36800a8ba6a21fd89bd' }
 };
