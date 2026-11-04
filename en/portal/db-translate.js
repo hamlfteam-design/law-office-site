@@ -11,3 +11,4 @@ var MAP=[
 var RE=MAP.filter(function(m){return m[0].length>1}).sort(function(a,b){return b[0].length-a[0].length}).map(function(m){return [new RegExp("(?<![\\u0621-\\u064A])(?:و?(?:بال|لل|ال|ب|ل))?"+m[0]+"(?![\\u0621-\\u064A])","g"),m[1]]});
 window.DBT=function(v){if(v===null||v===undefined)return v;var s=String(v);if(!/[\u0600-\u06FF]/.test(s))return s;RE.forEach(function(p){s=s.replace(p[0],p[1])});return s};
 })();
+
