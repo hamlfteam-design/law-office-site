@@ -133,9 +133,9 @@
         <h3>📝 Civil Case — Written Reply + Document Research</h3>
         <p>You send the documents of your civil case; we research them and reply in writing. The fee is deducted from the legal fees once an engagement is agreed.</p>
       </label>
-      <label class="bk-opt" data-type="inquiry" data-hb="HB-Inquiry" data-usd-pay="" data-usd-price="Free — written reply to an inquiry that needs no document review" data-pay="" data-price="Free — written reply to an inquiry that needs no document review">
+      <label class="bk-opt" data-type="inquiry" data-hb="HB-Inquiry" data-usd-pay="" data-usd-price="Free — written reply to one question that needs no document review" data-pay="" data-price="Free — written reply to one question that needs no document review">
         <h3>💬 Written Reply to an Inquiry (Free)</h3>
-        <p>For a simple inquiry that needs no document review, we reply in writing at no charge.</p>
+        <p>For one question that needs no document review, we reply in writing at no charge.</p>
       </label>
     </div>
     <div id="videoPkgs" hidden>
@@ -325,8 +325,8 @@ function updateInquiryCard(){
   const o = typeOptions.querySelector('.bk-opt[data-type="inquiry"]'); if(!o) return;
   const ab = state.region === 'abroad';
   o.querySelector('h3').textContent = ab ? "💬 Written Reply to an Inquiry (Free)" : "📞 Free Phone Reply to an Urgent Inquiry";
-  o.querySelector('p').textContent = ab ? "Write your question or inquiry that needs no document review, and we reply in writing at no charge." : "A call of up to 10 minutes to answer an urgent question that needs no document review, at the time you choose. If your matter needs details or documents, we will ask you to book a consultation.";
-  o.dataset.price = ab ? "Free — written reply to an inquiry that needs no document review" : "Free — phone reply (a call of up to 10 minutes) to an urgent inquiry that needs no document review";
+  o.querySelector('p').textContent = ab ? "Write one question that needs no document review, and we reply in writing at no charge. Any further questions are handled as a paid consultation." : "A call of up to 10 minutes to answer one urgent question that needs no document review, at the time you choose. If your matter needs details or documents, we will ask you to book a consultation.";
+  o.dataset.price = ab ? "Free — written reply to one question that needs no document review" : "Free — phone reply (a call of up to 10 minutes) to one urgent question that needs no document review";
   if(o.dataset.usdPrice !== undefined) o.dataset.usdPrice = o.dataset.price;
 }
 function applyRegion(r){
