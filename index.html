@@ -1413,6 +1413,7 @@ location.replace("https://hamlf.com/");
 <form class="contact-form" id="contactForm" action="https://formsubmit.co/info@hamlf.com" method="POST">
 <input type="text" name="name" placeholder="الاسم" required>
 <input type="tel" name="phone" placeholder="رقم الهاتف" required>
+<input type="email" name="email" placeholder="البريد الإلكتروني" required>
 <textarea name="message" placeholder="رسالتك" rows="4" required></textarea>
 <input type="hidden" name="_subject" value="رسالة جديدة من موقع hamlf.com">
 <input type="hidden" name="_captcha" value="false">
@@ -1427,7 +1428,7 @@ var f=document.getElementById('contactForm'); if(!f) return;
 var st=document.getElementById('formStatus'); var btn=f.querySelector('button[type=submit]');
 f.addEventListener('submit',function(e){
 e.preventDefault(); btn.disabled=true; var old=btn.textContent; btn.textContent='جارٍ الإرسال...';
-fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:f.name.value,phone:f.phone.value,message:f.message.value,_subject:'رسالة جديدة من موقع hamlf.com',_captcha:'false',_template:'table',_honey:f._honey.value})})
+fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:f.name.value,phone:f.phone.value,email:f.email.value,message:f.message.value,_subject:'رسالة جديدة من موقع hamlf.com',_captcha:'false',_template:'table',_honey:f._honey.value})})
 .then(function(r){return r.json();})
 .then(function(j){ if(j&&(j.success===true||j.success==='true')){ st.textContent='تم إرسال رسالتك بنجاح، وسنتواصل معك خلال ٤٨ ساعة عمل بحد أقصى.'; f.reset(); } else { throw new Error('fail'); } })
 .catch(function(){ st.textContent='تعذّر الإرسال حاليًا، برجاء المراسلة على info@hamlf.com مباشرة.'; })
