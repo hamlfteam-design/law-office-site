@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المحامي المحترف — الدخول للمحادثات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">→</a>
+    <h1>الدخول للمحادثات</h1>
+    <span class="screen-id">CNT</span>
+  </div>
+
+  <main>
+
+    <div id="notConfigured" class="alertbox"
+         style="background:#fff5f4;border-color:#f0cfcb;color:#8c1d18" hidden>
+      <strong>المحادثات غير مفعّلة بعد.</strong> يحتاج المكتب إنشاء مشروع Firebase
+      مجاني وملء مفاتيحه في ملف <code>assets/firebase-config.js</code> أولاً
+      (راجع التعليق أعلى الملف لخطوات الإعداد). باقي شاشات البرنامج تعمل عادةً.
+    </div>
+
+    <div id="formBox">
+      <div class="alertbox" style="background:#fff8e6;border-color:#eddaa8;color:#6b5330">
+        <strong>نموذج.</strong> ادخل بنفس الإيميل المسجَّل لك في «الفريق»
+        (أو المسجَّل لك كموكل) — به تُربط محادثاتك بحسابك المحلي في البرنامج.
+      </div>
+
+      <div class="fld">
+        <label for="email">البريد الإلكتروني</label>
+        <input type="email" id="email" data-latin="1" dir="ltr" lang="en"
+               placeholder="name@example.com" inputmode="email">
+      </div>
+
+      <div class="fld">
+        <label for="pass">كلمة المرور</label>
+        <input type="password" id="pass" data-latin="1" dir="ltr" placeholder="••••••••">
+        <div class="note" style="font-size:12.5px;color:var(--muted);margin-top:5px">
+          أول مرة تدخل بها بهذا الإيميل؟ اكتب كلمة مرور جديدة وسيُنشأ حسابك تلقائياً.
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="go"
+              style="width:100%;min-height:50px;font-size:16px">دخول</button>
+
+      <div id="err" style="color:#b3261e;font-size:13.5px;margin-top:10px;line-height:1.8"></div>
+    </div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="81-assignments.html"><span class="bi">📋</span>التكليفات</a>
+    <a href="99-chat.html"><span class="bi">💬</span>المحادثات</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/firebase-config.js?v=3"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/chat.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  if (!window.FIREBASE_READY) {
+    document.getElementById("notConfigured").hidden = false;
+    document.getElementById("formBox").hidden = true;
+    return;
+  }
+
+  var link = Chat.myLink();
+  if (link) { location.href = "99-chat.html"; return; }
+
+  document.getElementById("go").onclick = function () {
+    var email = document.getElementById("email").value.trim();
+    var pass  = document.getElementById("pass").value;
+    var err   = document.getElementById("err");
+    err.textContent = "";
+
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      err.textContent = "اكتب بريداً إلكترونياً صحيحاً."; return;
+    }
+    if (!pass || pass.length < 6) {
+      err.textContent = "كلمة المرور 6 أحرف على الأقل."; return;
+    }
+
+    Chat.signIn(email, pass).then(function () {
+      location.href = "99-chat.html";
+    }).catch(function (e) {
+      if (e.message === "NO_LOCAL_MATCH") {
+        err.textContent = "هذا البريد غير مسجَّل في «الفريق» ولا في جهات اتصال " +
+          "الموكلين على هذا الجهاز. أضِفه أولاً ثم أعد المحاولة.";
+      } else if (e.code === "auth/wrong-password") {
+        err.textContent = "كلمة المرور غير صحيحة.";
+      } else if (e.code === "auth/email-already-in-use") {
+        err.textContent = "هذا البريد مسجَّل بكلمة مرور مختلفة. جرّب كلمة المرور الصحيحة.";
+      } else if ((e.code || "").indexOf("auth/api-key-not-valid") === 0 ||
+                 e.code === "auth/invalid-api-key" || e.code === "auth/configuration-not-found") {
+        err.textContent = "مفاتيح Firebase في assets/firebase-config.js غير صحيحة. " +
+          "راجعها مع مدير المكتب من إعدادات مشروع Firebase.";
+      } else if (e.code === "auth/network-request-failed") {
+        err.textContent = "تعذّر الدخول. تأكد من الاتصال بالإنترنت وحاول مرة أخرى.";
+      } else {
+        err.textContent = "تعذّر الدخول (" + (e.code || e.message || "خطأ غير معروف") + ").";
+      }
+    });
+  };
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

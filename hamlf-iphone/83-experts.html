@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٨٣ · سجل الخبراء</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="20-cases-hub.html">&rarr;</a>
+    <h1>سجل الخبراء</h1>
+    <span class="screen-id">SCR-83</span>
+  </div>
+
+  <main>
+  <form>
+
+    <div class="soundbar">
+      <span>تنبيه صوتي قبل الموعد</span>
+      <button type="button" class="btn sm" data-sound-toggle>الصوت: مفعّل 🔊</button>
+      <button type="button" class="btn sm ghost" data-sound-test="urgent">تجربة</button>
+    </div>
+
+    <section class="card">
+      <header>القضية المرتبطة</header>
+      <div class="body">
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="xCase">القضية <span class="req">*</span></label>
+            <select id="xCase" name="xCase"><option>— اختر قضية متداولة —</option></select>
+            <div class="note">تُعرض القضايا المحفوظة في صفحة القضايا.</div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="xCaseNo">رقم الدعوى</label>
+            <input type="text" id="xCaseNo" name="xCaseNo">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>بيانات الخبير</header>
+      <div class="body">
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="xName">اسم الخبير <span class="req">*</span></label>
+            <input type="text" id="xName" name="xName" placeholder="">
+          </div>
+          <div class="field">
+            <label class="lbl" for="xBody">جهة الخبرة</label>
+            <select id="xBody" name="xBody">
+              <option>— اختر —</option>
+              <option>مكتب خبراء وزارة العدل</option>
+              <option>الطب الشرعي</option>
+              <option>المعمل الجنائي</option>
+              <option>خبير حسابي</option>
+              <option>خبير هندسي</option>
+              <option>خبير زراعي</option>
+              <option>الأدلة الجنائية</option>
+              <option>خبير منتدب آخر</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="xOrderDate">تاريخ الندب</label>
+            <input type="date" id="xOrderDate" name="xOrderDate">
+          </div>
+          <div class="field">
+            <label class="lbl" for="xFeeDep">الأمانة المودعة</label>
+            <input type="text" id="xFeeDep" name="xFeeDep" placeholder="">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="xTask">مهمة الخبير</label>
+            <textarea id="xTask" name="xTask" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>سير المأمورية</header>
+      <div class="body">
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="xNextDate">موعد الانتقال / الجلسة القادمة</label>
+            <input type="date" id="xNextDate" name="xNextDate">
+          </div>
+          <div class="field">
+            <label class="lbl" for="xReportDate">تاريخ إيداع التقرير</label>
+            <input type="date" id="xReportDate" name="xReportDate">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="xState">الحالة</label>
+            <select id="xState" name="xState">
+              <option>— اختر —</option>
+              <option>لم يبدأ</option>
+              <option>جارٍ</option>
+              <option>أُودع التقرير</option>
+              <option>اعتُرض عليه</option>
+              <option>أُعيد للخبير</option>
+              <option>انتهى</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="lbl" for="xResult">نتيجة التقرير</label>
+            <select id="xResult" name="xResult">
+              <option>— اختر —</option>
+              <option>لصالح موكلنا</option>
+              <option>ضد موكلنا</option>
+              <option>جزئي</option>
+              <option>لم يحسم</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="xNotes">ملاحظات</label>
+            <textarea id="xNotes" name="xNotes" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+  </form>
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html" class="active"><span class="bi">⚖</span>القضايا</a>
+    <a href="81-assignments.html"><span class="bi">📋</span>التكليفات</a>
+    <a href="80-team.html"><span class="bi">👤</span>الفريق</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+/* تعبئة قائمة القضايا من السجلات المحفوظة في صفحة القضايا */
+(function () {
+  var sel = document.getElementById("xCase");
+  if (!sel) return;
+  var db;
+  try { db = JSON.parse(localStorage.getItem("proflawyer.screens.v1")) || {}; }
+  catch (e) { db = {}; }
+  var recs = db["01-cases"] || [];
+  recs.forEach(function (r) {
+    var vals = (r.v || []).map(function (c) { return c && c.x; }).filter(Boolean);
+    var o = document.createElement("option");
+    o.value = r._id;
+    o.textContent = "ملف " + (vals[0] || "؟") + (vals[3] ? " — " + vals[3] : "");
+    sel.appendChild(o);
+  });
+  if (!recs.length) {
+    var o = document.createElement("option");
+    o.disabled = true;
+    o.textContent = "لا توجد قضايا محفوظة بعد — سجّل قضية أولاً";
+    sel.appendChild(o);
+  }
+})();
+</script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

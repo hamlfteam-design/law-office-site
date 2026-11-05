@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٤ · سجل أوراق المحضرين</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="index.html">→</a>
+    <h1>سجل أوراق المحضرين</h1>
+    <span class="screen-id">SCR-04</span>
+  </div>
+
+  <main>
+  <form>
+
+    <div class="soundbar">
+      <span>صوت التنبيه قبل الجلسة</span>
+      <button type="button" class="btn sm" data-sound-toggle>الصوت: مفعّل 🔊</button>
+      <button type="button" class="btn sm ghost" data-sound-test="urgent">تجربة</button>
+    </div>
+
+    <div class="alertbox" id="sessionAlert" hidden></div>
+
+    <section class="card">
+      <header>بيانات الورقة</header>
+      <div class="body">
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="serial">مسلسل <span class="badge auto">تلقائي</span></label>
+            <input type="number" id="serial" class="readonly" value="" readonly>
+            <div class="note">رقم تلقائي متسلسل لا يدخله المستخدم.</div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="paperNo">رقم الورقة <span class="req">*</span></label>
+            <input type="number" id="paperNo" placeholder="رقم">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="bailiffOffice">قلم محضري <span class="badge lookup">من سجلات المحاكم — بدون "محكمة"/"الجزئية"</span></label>
+          <input type="text" id="bailiffOffice" list="dlBailiffOffices" placeholder="مثال: شمال القاهرة">
+          <datalist id="dlBailiffOffices"></datalist>
+          <div class="note">اسم المحكمة الجزئية بلا "محكمة" ولا "الجزئية"، ويقبل الكتابة الحرة لو مش موجود.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="paperCourt">محكمة <span class="badge lookup">من سجلات المحاكم — الجزئية والابتدائية/الكلية</span></label>
+          <input type="text" id="paperCourt" list="dlPaperCourts" placeholder="اسم المحكمة">
+          <datalist id="dlPaperCourts"></datalist>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="paperCaseNo">رقم القضية / السنة <span class="badge">اختياري</span></label>
+            <input type="text" id="paperCaseNo" placeholder="مثال: ١٢٣ لسنة ٢٠٢٦">
+          </div>
+          <div class="field">
+            <label class="lbl" for="paperFileNo">رقم الملف <span class="badge">اختياري</span></label>
+            <input type="text" id="paperFileNo" placeholder="رقم الملف بالمكتب">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="paperKind">نوع الورقة</label>
+          <select id="paperKind">
+            <option value="">— اختر —</option>
+            <option>صحيفة</option>
+            <option>إنذار</option>
+            <option>أوراق قضائية</option>
+          </select>
+          <div class="note">قائمة ثابتة (٣ قيم).</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="paperSubject">موضوع الورقة <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <input type="text" id="paperSubject" list="dlPaperSubjects" placeholder="مثال: إعلان صحيفة دعوى">
+          <datalist id="dlPaperSubjects">
+            <option value="إعلان صحيفة دعوى"></option>
+            <option value="إنذار بعدم الرغبة في التجديد"></option>
+            <option value="إعلان بالصيغة التنفيذية"></option>
+          </datalist>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="paperClient">العميل <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <input type="text" id="paperClient" list="dlPaperClients" placeholder="اسم العميل">
+          <datalist id="dlPaperClients">
+            <option value="حسن عبد المنعم حسن"></option>
+            <option value="محمد أحمد السيد"></option>
+          </datalist>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="deliveryDate">تاريخ التسليم</label>
+            <input type="date" id="deliveryDate">
+          </div>
+          <div class="field">
+            <label class="lbl" for="paperSessionDate">
+              تاريخ الجلسة <span class="badge alert">تنبيه</span>
+            </label>
+            <input type="date" id="paperSessionDate" data-session-date="#sessionAlert">
+          </div>
+        </div>
+        <div class="note" style="margin-top:-8px">
+          تنبيه يومي يبدأ قبل تاريخ الجلسة بـ <strong>٥ أيام</strong> ويستمر حتى تمام استلام الورقة.
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label class="lbl" for="paperNotes">ملاحظات الإعلان</label>
+          <textarea id="paperNotes" maxlength="1000" placeholder="ملاحظات على الإعلان…"></textarea>
+          <div class="note">نص حتى ١٠٠٠ حرف.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">حالة الاستلام</label>
+          <div class="choices">
+            <label><input type="radio" name="received" value="yes"><span>تم الاستلام</span></label>
+            <label><input type="radio" name="received" value="no" checked><span>لم يتم</span></label>
+          </div>
+          <div class="note">عند «تم الاستلام» يتوقف التنبيه اليومي.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card">
+      <header>السجل <span class="hint">عرض</span></header>
+      <div class="body">
+        <div class="table-wrap">
+          <table class="grid">
+            <thead>
+              <tr>
+                <th>مسلسل</th>
+                <th>رقم الورقة</th>
+                <th>نوعها</th>
+                <th>العميل</th>
+                <th>تاريخ الجلسة</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn">حفظ</button>
+      <button type="reset" class="btn ghost">تفريغ</button>
+    </div>
+
+  </form>
+  </main>
+
+  <footer class="legal">SCR-04 · سجل أوراق المحضرين · V1</footer>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/people-suggest.js?v=3"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+/* «قلم محضري»: أسماء المحاكم الجزئية من نفس قاعدة بيانات المحاكم (COURT_DATA)
+   بدون كلمة "محكمة" ولا "الجزئية" — القلم بيتسمى باسم المنطقة بس (مثال:
+   "المنتزة" مش "محكمة المنتزة الجزئية"). و«محكمة»: كل محاكم الجزئي
+   والابتدائي/الكلي بالاسم الكامل، نفس تسلسل سجلات المحاكم. */
+(function () {
+  if (!window.Courts) return;
+  function stripOffice(name) {
+    return String(name || "").replace(/^محكمة\s+/, "").replace(/\s+الجزئية$/, "").trim();
+  }
+  var dlOffices = document.getElementById("dlBailiffOffices");
+  var dlCourts = document.getElementById("dlPaperCourts");
+  if (dlOffices) {
+    window.Courts.courtsOf("جزئي").forEach(function (name) {
+      var o = document.createElement("option"); o.value = stripOffice(name); dlOffices.appendChild(o);
+    });
+  }
+  if (dlCourts) {
+    ["جزئي", "ابتدائي"].forEach(function (lv) {
+      window.Courts.courtsOf(lv).forEach(function (name) {
+        var o = document.createElement("option"); o.value = name; dlCourts.appendChild(o);
+      });
+    });
+  }
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٨٨ · مركز السجلات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .tot   { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .tot div{ flex:1 1 30%; background:var(--card); border:1px solid var(--line);
+            border-radius:11px; padding:11px 8px; text-align:center; }
+  .tot .n{ font-family:var(--f-title); font-size:20px; color:var(--brand-dark); }
+  .tot .l{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+  .grp   { background:var(--card); border:1px solid var(--line); border-radius:12px;
+           margin-bottom:9px; overflow:hidden; }
+  .grp > button { width:100%; display:flex; align-items:center; gap:9px; padding:14px 12px;
+           border:0; background:transparent; font-family:inherit; color:var(--text);
+           text-align:right; min-height:54px; }
+  .grp .nm { flex:1; font-family:var(--f-title); font-size:15px; }
+  .grp .ct { font-size:12.5px; color:var(--muted); }
+  .rec   { padding:11px 12px; border-top:1px solid var(--line); }
+  .rec .t{ font-size:14px; line-height:1.7; word-break:break-word; }
+  .rec .s{ font-size:12px; color:var(--muted); margin-top:4px; line-height:1.9;
+           word-break:break-word; }
+  .rec .a{ display:flex; gap:7px; margin-top:9px; }
+  .rec .a button { flex:1; min-height:40px; border:1px solid var(--line);
+           border-radius:8px; background:transparent; color:var(--brand);
+           font-family:inherit; font-size:12.5px; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">&rarr;</a>
+    <h1>مركز السجلات</h1>
+    <span class="screen-id">SCR-88</span>
+  </div>
+
+  <main>
+
+
+
+    <div class="infobox">
+      هنا تتجمّع <strong>كل</strong> البيانات التي أدخلتها في التطبيق مهما كانت
+      الشاشة التي أُدخلت منها — سجلات الشاشات والمواعيد والتكليفات والجلسات
+      المستوردة.
+    </div>
+
+    <div class="tot" id="tot"></div>
+
+    <div id="dupBox" data-nosave="1" hidden
+         style="background:var(--card);border:1px solid var(--line);border-radius:12px;
+                padding:13px;margin-bottom:12px;line-height:1.95;font-size:13.5px"></div>
+
+    <input type="text" id="f" data-nosave="1" lang="ar" dir="rtl"
+           placeholder="تصفية سريعة…" autocomplete="off"
+           style="width:100%;min-height:48px;font-size:16px;padding:10px 14px;
+                  border:1px solid var(--line);border-radius:10px;
+                  background:var(--card);direction:rtl;text-align:right;
+                  font-family:inherit;margin-bottom:12px">
+<div id="groups"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="87-calendar.html"><span class="bi">📅</span>التقويم</a>
+    <a href="88-records.html" class="active"><span class="bi">🗄</span>السجلات</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+  <script src="assets/fixups.js?v=1"></script>
+  <script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+/* مركز واحد لكل ما أُدخل — مجمّعاً حسب مصدره، مع فتح وحذف لكل سجل */
+(function () {
+  "use strict";
+
+  var openGroups = {};
+
+  function ar(n) {
+    return String(n).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; });
+  }
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  function draw() {
+    var q = document.getElementById("f").value.trim();
+    var all = LawyerStore.all();
+    if (q) {
+      var words = LawyerStore.norm(q).split(" ").filter(Boolean);
+      all = all.filter(function (r) {
+        var hay = LawyerStore.norm(r.text);
+        return words.every(function (w) { return hay.indexOf(w) >= 0; });
+      });
+    }
+
+    /* الملخّص */
+    var tot = document.getElementById("tot");
+    tot.textContent = "";
+    var dated = all.filter(function (r) { return r.dates.length; }).length;
+    [[all.length, "سجل"], [Object.keys(LawyerStore.counts()).length, "مصدر"],
+     [dated, "له تاريخ"]].forEach(function (p) {
+      var d = el("div");
+      d.appendChild(el("div", "", ar(p[0]))).className = "n";
+      d.appendChild(el("div", "", p[1])).className = "l";
+      tot.appendChild(d);
+    });
+
+    /* التجميع */
+    var groups = {};
+    all.forEach(function (r) { (groups[r.name] = groups[r.name] || []).push(r); });
+
+    var box = document.getElementById("groups");
+    box.textContent = "";
+
+    var names = Object.keys(groups).sort(function (a, b) {
+      return groups[b].length - groups[a].length;
+    });
+
+    if (!names.length) {
+      box.appendChild(el("div",
+        "text-align:center;color:var(--muted);padding:30px;font-size:14px",
+        q ? "لا يوجد ما يطابق «" + q + "»"
+          : "لم تُدخل أي بيانات بعد.\nابدأ من أي شاشة واضغط «حفظ»."));
+      box.firstChild.style.whiteSpace = "pre-line";
+      return;
+    }
+
+    names.forEach(function (name) {
+      var list = groups[name];
+      var g = el("div"); g.className = "grp";
+
+      var head = document.createElement("button");
+      head.type = "button";
+      var isOpen = !!openGroups[name] || !!q;
+      head.appendChild(el("span", "font-size:17px", isOpen ? "▾" : "▸"));
+      head.appendChild(el("span", "", name)).className = "nm";
+      head.appendChild(el("span", "", ar(list.length) + " سجل")).className = "ct";
+      head.onclick = function () { openGroups[name] = !openGroups[name]; draw(); };
+      g.appendChild(head);
+
+      if (isOpen) {
+        list.slice(0, 100).forEach(function (r) {
+          var row = el("div"); row.className = "rec";
+          var head2 = r.title || r.values[0] || "سجل";
+          row.appendChild(el("div", "", head2)).className = "t";
+
+          var rest = r.values.filter(function (v) { return v !== head2; })
+                             .slice(0, 5).join("  ·  ");
+          var meta = [];
+          if (rest) meta.push(rest);
+          if (r.dates.length) meta.push("📅 " + ar(r.dates[0].replace(/-/g, "/")));
+          if (meta.length) row.appendChild(el("div", "", meta.join("\n"))).className = "s";
+          if (row.lastChild.className === "s") row.lastChild.style.whiteSpace = "pre-line";
+
+          var act = el("div"); act.className = "a";
+
+          if (r.store === "screens") {
+            var open = document.createElement("button");
+            open.type = "button"; open.textContent = "فتح الشاشة";
+            open.onclick = function () { location.href = r.screen + ".html"; };
+            act.appendChild(open);
+          }
+          var del = document.createElement("button");
+          del.type = "button"; del.textContent = "حذف";
+          del.style.color = "#b3261e";
+          del.onclick = function () {
+            Ask.confirm("حذف هذا السجل نهائياً؟",
+                        { detail: head2, ok: "حذف السجل" }, function () {
+              LawyerStore.remove(r);
+              draw();
+            });
+          };
+          act.appendChild(del);
+          row.appendChild(act);
+          g.appendChild(row);
+        });
+
+        if (list.length > 100) {
+          g.appendChild(el("div",
+            "padding:11px;color:var(--muted);font-size:12.5px;text-align:center",
+            "…و" + ar(list.length - 100) + " سجلاً — استخدم التصفية"));
+        }
+      }
+
+      box.appendChild(g);
+    });
+  }
+
+  /* ------------------------------------------- دمج المكرَّر
+
+     الاستيراد كان يصنع من كل جلسة موعداً مستقلاً، فتكرّرت الجلسة. اللوحة
+     تعرض ما سيحدث قبل تنفيذه: يُكمَّل الناقص أولاً من البيان الأوفى، ثم
+     يُحذف المكرَّر — والجلسة هي التي تبقى. */
+
+  function drawDupes() {
+    var box = document.getElementById("dupBox");
+    box.textContent = "";
+
+    var p = Cleanup.preview();
+    var total = p.appts.removed + p.cases.merged;
+    if (!total) { box.hidden = true; return; }
+    box.hidden = false;
+
+    box.appendChild(el("div",
+      "font-family:var(--f-title);font-size:15px;color:var(--brand-dark);margin-bottom:6px",
+      "بيانات مكرَّرة — " + ar(total)));
+
+    var lines = [];
+    if (p.appts.removed) {
+      lines.push("• " + ar(p.appts.removed) +
+                 " موعداً مصنوعاً آلياً من جلسة، تظهر الجلسة بسببها مرتين.");
+      if (p.appts.filledCase) {
+        lines.push("   يُكمَّل من بياناتها " + ar(p.appts.filledCase) +
+                   " حقلاً ناقصاً في القضايا (الدائرة · القاعة · مقرّ المحكمة · الخصوم).");
+      }
+      if (p.appts.filledSession) {
+        lines.push("   ويُنقل منها قرار " + ar(p.appts.filledSession) + " جلسة.");
+      }
+      lines.push("   والتذكير ينتقل إلى الجلسة نفسها فلا يضيع.");
+    }
+    if (p.cases.merged) {
+      lines.push("• " + ar(p.cases.merged) + " ملفاً مكرَّراً لقضايا موجودة — " +
+                 "يبقى صاحب رقم الملف بالمكتب ويُكمَّل منه الناقص" +
+                 (p.cases.sessions ? "، وتُضمّ " + ar(p.cases.sessions) + " جلسة" : "") + ".");
+    }
+    lines.forEach(function (t) {
+      box.appendChild(el("div", "color:var(--muted);white-space:pre-line", t));
+    });
+
+    var go = document.createElement("button");
+    go.type = "button";
+    go.textContent = "دمج المكرَّر الآن";
+    go.style.cssText = "width:100%;min-height:50px;margin-top:11px;border:0;" +
+      "border-radius:11px;background:var(--brand);color:#fff;font-family:inherit;" +
+      "font-size:15px;font-weight:600";
+    go.onclick = function () {
+      Ask.confirm("دمج المكرَّر الآن؟", {
+        danger: false, ok: "دمج",
+        detail: "يُكمَّل الناقص أولاً من البيان الأوفى، ثم يُحذف المكرَّر. " +
+                "خُذ نسخة احتياطية قبلها إن أحببت."
+      }, function () {
+        var r = Cleanup.apply();
+        alert("تم الدمج." + String.fromCharCode(10) +
+              "حُذف " + ar(r.appts.removed) + " موعداً مكرَّراً، " +
+              "وأُكمِل " + ar(r.appts.filledCase + r.appts.filledSession + r.cases.filled) +
+              " بياناً ناقصاً.");
+        drawDupes();
+        draw();
+      });
+    };
+    box.appendChild(go);
+  }
+
+  var timer;
+  document.getElementById("f").addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(draw, 180);
+  });
+
+  draw();
+  drawDupes();
+})();
+</script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/autofit.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

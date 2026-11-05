@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مقترح ٤ · النسخ الاحتياطي</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar proposal">
+    <a class="back" href="index.html">→</a>
+    <h1>النسخ الاحتياطي</h1>
+    <span class="screen-id">PRO-04</span>
+  </div>
+
+  <div class="proposal-bar">
+    <strong>شاشة مقترحة</strong> — المواصفة لا تتناول النسخ الاحتياطي.
+    التخزين المحلي وحده يعني أن ضياع الجهاز = ضياع سجل المكتب بالكامل.
+  </div>
+
+  <main>
+
+    <div class="alertbox" id="bkAlert" hidden></div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">—</div><div class="l">ملف قضية</div></div>
+      <div class="stat"><div class="n">—</div><div class="l">ورقة محضرين</div></div>
+      <div class="stat"><div class="n">—</div><div class="l">توكيل</div></div>
+    </div>
+
+    <section class="card" id="lanCard" data-nosave="1" hidden>
+      <header>💻 مزامنة مع HAMLF على الكمبيوتر <span class="hint">نفس الواي فاي · من غير إنترنت</span></header>
+      <div class="body" id="lanBody"></div>
+    </section>
+
+    <section class="card">
+      <header>أخذ نسخة احتياطية</header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl">محتوى النسخة</label>
+          <div class="choices">
+            <label><input type="radio" name="bkScope" value="all" checked><span>كل البيانات + المرفقات</span></label>
+            <label><input type="radio" name="bkScope" value="data"><span>البيانات فقط</span></label>
+          </div>
+          <div class="note">المرفقات = صور التوكيلات (PDF / JPG) وهي الأكبر حجماً.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">الوجهة</label>
+          <div class="choices">
+            <label><input type="radio" name="bkDest" value="device" checked><span>ذاكرة الجهاز</span></label>
+            <label><input type="radio" name="bkDest" value="share"><span>مشاركة (بريد / درايف)</span></label>
+          </div>
+        </div>
+
+        <button type="button" class="btn block" id="doBackup">أخذ نسخة احتياطية الآن</button>
+        <div class="note" style="text-align:center;margin-top:8px">
+          الحجم التقديري: ٣٤ ميجابايت
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card">
+      <header>النسخ السابقة</header>
+      <div class="body" style="padding:0">
+        <div id="backupHistory">
+          <div class="note" style="padding:12px">لا توجد نسخ سابقة على هذا الجهاز بعد.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>الاستعادة</header>
+      <div class="body">
+        <div class="upload">
+          اختر ملف نسخة احتياطية للاستعادة
+          <div><button type="button" class="btn sm ghost" id="pickRestore">اختيار ملف</button><input type="file" id="restoreFile" accept=".json,application/json" hidden></div>
+        </div>
+        <div class="note">
+          الاستعادة تستبدل البيانات الحالية بالكامل — يجب تأكيدها بخطوة إضافية.
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>مزامنة الأجهزة <span class="hint">كمبيوتر ⇄ موبايل</span></header>
+      <div class="body">
+        <div class="note" style="margin-bottom:12px">
+          ملفٌ واحد يُصدَّر من جهاز ويُستورد في الآخر عبر الواي فاي أو مجلد مشترك.
+          <b>الدمج الآمن</b> يضيف الجديد فقط — لا يحذف ولا يستبدل أي بيانات محليّة، فالإضافة والتعديل من الجهازين يتراكمان بلا فقدان.
+        </div>
+        <button type="button" class="btn block" id="syncExport"
+                style="margin-bottom:10px">⬇ تصدير كل البيانات (مزامنة)</button>
+        <div class="upload">
+          استيراد ملف مزامنة من الجهاز الآخر
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+            <button type="button" class="btn sm" id="syncMerge">🔀 استيراد ودمج آمن</button>
+            <button type="button" class="btn sm ghost" id="syncReplace">♻ استبدال كامل</button>
+            <input type="file" id="syncFile" accept=".json,application/json" hidden>
+          </div>
+        </div>
+        <div id="syncMsg" class="note" style="margin-top:10px;display:none"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>لماذا هذه الشاشة؟ <span class="hint">مبرر المقترح</span></header>
+      <div class="body" style="font-size:13px">
+        <ul style="padding-inline-start:18px;margin:0">
+          <li>سجل المكتب (قضايا · مواعيد جلسات · توكيلات) بيانات <strong>لا تُعوَّض</strong> — وفقدها يعطّل العمل فعلياً.</li>
+          <li>المواصفة لا تذكر مزامنة ولا سيرفر، أي أن البيانات على جهاز واحد فقط.</li>
+          <li>تصدير ملف واحد (قاعدة البيانات + مجلد المرفقات) يكفي في V1 — بلا سيرفر ولا حسابات.</li>
+          <li>هذه أرخص خطوة تأمين ممكنة، وأخطر بند لو أُهمل.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>رفع التعديلات للسحابة (Firebase)</header>
+      <div class="body">
+        <div class="note">
+          البرنامج بيراجع كل القضايا والموكلين <strong>على الموبايل الأول</strong> من غير أي
+          قراءة من السحابة، ويعرض عليك عدد اللي اتغيّر، ويرفع اللي اتغيّر بس.
+        </div>
+        <div class="note" id="storeInfo" style="margin-top:8px"></div>
+        <button type="button" class="btn block" id="doBulkPush" style="margin-top:10px">
+          راجع وارفع اللي اتغيّر
+        </button>
+        <div id="bulkMsg" class="note" style="margin-top:10px;display:none"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>دمج الموكلين المكرَّرين</header>
+      <div class="body">
+        <div class="note">
+          يكتشف الموكل المسجَّل مرتين (نفس رقم المكتب ونفس الاسم) ويدمجهما في
+          سجل واحد، مع نسخة احتياطية تلقائية قبل أي حذف. يعرض لك العدد أولاً
+          ولا ينفّذ إلا بعد موافقتك.
+        </div>
+        <button type="button" class="btn block" id="doDedupe" style="margin-top:10px">
+          فحص التكرار في الموكلين
+        </button>
+        <div id="dedupeMsg" class="note" style="margin-top:10px;display:none"></div>
+      </div>
+    </section>
+
+      <div class="section-title">استيراد من تطبيق آخر</div>
+    <a class="btn" href="86-import.html"
+       style="display:block;width:100%;min-height:52px;line-height:52px;text-align:center;
+              text-decoration:none;font-size:16px">📥 استيراد جلسات التقويم</a>
+
+  </main>
+
+  <footer class="legal">PRO-04 · النسخ الاحتياطي · مقترح خارج المواصفة</footer>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=2"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/lan-sync.js?v=2"></script>
+<script>
+/* زرار مزامنة البيانات مع نسخة الكمبيوتر (tools/pc-app) — راجع lan-sync.js */
+(function () {
+  "use strict";
+  var card = document.getElementById("lanCard"), body = document.getElementById("lanBody");
+  if (!card || window.HAMLF_PC || !window.LanSync) return;
+  card.hidden = false;
+  function ar(n) { return String(n).replace(/\d/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[d]; }); }
+  function el(t, css, txt) { var e = document.createElement(t); if (css) e.style.cssText = css; if (txt != null) e.textContent = txt; return e; }
+  function btn(txt, cls) { var b = el("button", "min-height:48px;margin-top:8px", txt); b.type = "button"; b.className = "btn " + (cls || ""); b.setAttribute("data-plain-save", "1"); return b; }
+  function input(ph, ltr) {
+    var i = el("input", "width:100%;min-height:48px;font-size:16px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;" +
+      (ltr ? "direction:ltr;text-align:left" : ""));
+    i.type = "text"; i.placeholder = ph; i.setAttribute("data-latin", "1"); i.setAttribute("lang", "en"); i.setAttribute("dir", "ltr");
+    return i;
+  }
+  var msg = el("div", "font-size:13px;line-height:1.9;margin-top:8px;min-height:1em");
+  function say(t, bad) { msg.textContent = t || ""; msg.style.color = bad ? "#b3261e" : "var(--brand-dark)"; }
+
+  function draw() {
+    body.textContent = "";
+    var c = LanSync.cfg();
+    if (!LanSync.available()) {
+      body.appendChild(el("div", "font-size:13.5px;line-height:1.9",
+        "الميزة دي محتاجة نسخة أحدث من التطبيق على الموبايل (١٫٥٣ أو بعدها)."));
+      return;
+    }
+    if (!c.token) {
+      body.appendChild(el("div", "font-size:13px;color:var(--muted);line-height:1.9;margin-bottom:8px",
+        "شغّل «HAMLF على الكمبيوتر» واضغط زرار 💻 تحت على الشمال، هتلاقي عنوان الكمبيوتر وكود الإقران. مرة واحدة بس."));
+      var h = input("عنوان الكمبيوتر — مثال 192.168.1.5:8770", true); h.value = c.host || "";
+      var code = input("كود الإقران (٦ أرقام)", true); code.style.marginTop = "8px"; code.inputMode = "numeric";
+      var go = btn("🔗 اربط الموبايل بالكمبيوتر");
+      go.style.width = "100%";
+      go.onclick = function () {
+        var hv = h.value.trim().replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x660; });
+        var cv = code.value.trim().replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x660; });
+        if (!/^\d{1,3}(\.\d{1,3}){3}(:\d+)?$/.test(hv)) { say("اكتب عنوان الكمبيوتر زي اللي ظاهر عليه (أرقام ونقط).", true); return; }
+        if (!/^\d{6}$/.test(cv)) { say("كود الإقران ٦ أرقام.", true); return; }
+        go.disabled = true; say("بنربط…");
+        LanSync.pair(hv, cv, function (err) { go.disabled = false; if (err) say(err, true); else { draw(); say("✓ اتربط. دوس «مزامنة البيانات» دلوقتي."); } });
+      };
+      body.appendChild(h); body.appendChild(code); body.appendChild(go); body.appendChild(msg);
+      return;
+    }
+    body.appendChild(el("div", "font-size:13.5px;line-height:1.9",
+      "مربوط بالكمبيوتر: " + c.host + (c.lastAt ? " — آخر مزامنة " + ar(new Date(c.lastAt).toLocaleString("en-GB").slice(0, 17)) : " — لسه ما اتزامنش")));
+    var run = btn("🔄 مزامنة البيانات مع الكمبيوتر");
+    run.style.width = "100%"; run.style.minHeight = "54px"; run.style.fontSize = "16.5px";
+    var first = el("div");
+    function start(mode) {
+      run.disabled = true; first.textContent = "";
+      LanSync.sync(function (t) { say("⏳ " + t); }, function (err, sum) {
+        run.disabled = false;
+        if (err) { say(err, true); return; }
+        if (sum && sum.needFirst) { askFirst(); return; }
+        say("✓ تمت المزامنة — للموبايل: " + ar(sum.toPhone) + " · للكمبيوتر: " + ar(sum.toPc) +
+            (sum.conflicts ? " · اخترت في " + ar(sum.conflicts) + " سجل" : ""));
+        if (window.PL && PL.toast) PL.toast("تمت المزامنة مع الكمبيوتر", "", "ok");
+        var c2 = LanSync.cfg(); info.textContent = "مربوط بالكمبيوتر: " + c2.host + " — آخر مزامنة دلوقتي";
+      }, mode);
+    }
+    function askFirst() {
+      say("أول مزامنة والجهازين فيهم بيانات. مين الأساس؟");
+      first.textContent = "";
+      [["📱 الموبايل هو الأساس (الكمبيوتر ياخد نسخته)", "phone", ""],
+       ["💻 الكمبيوتر هو الأساس (الموبايل ياخد نسخته)", "pc", "ghost"],
+       ["قارن واسألني في كل سجل مختلف", "ask", "ghost"]].forEach(function (o) {
+        var b = btn(o[0], o[2]); b.style.width = "100%";
+        b.onclick = function () {
+          if (o[1] === "pc" && !confirm("بيانات الموبايل اللي مختلفة هتتبدّل بنسخة الكمبيوتر (ونسخة منها بتتحفظ على الكمبيوتر). نكمّل؟")) return;
+          start(o[1]);
+        };
+        first.appendChild(b);
+      });
+    }
+    var info = body.firstChild;
+    run.onclick = function () { start(); };
+    var row = el("div", "display:flex;gap:8px");
+    var chg = btn("تغيير العنوان", "ghost sm"), un = btn("فك الربط", "ghost sm");
+    chg.onclick = function () {
+      var v = prompt("عنوان الكمبيوتر الجديد (زي 192.168.1.5:8770):", LanSync.cfg().host || "");
+      if (!v) return;
+      var c3 = LanSync.cfg(); c3.host = v.trim(); localStorage.setItem("hamlflan.cfg.v1", JSON.stringify(c3)); draw();
+    };
+    un.onclick = function () { if (confirm("فك ربط الموبايل بالكمبيوتر؟")) { LanSync.unpair(); draw(); } };
+    row.appendChild(chg); row.appendChild(un);
+    body.appendChild(run); body.appendChild(first); body.appendChild(msg); body.appendChild(row);
+  }
+  draw();
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  /* أرقام البطاقات (ملف قضية · ورقة محضرين · توكيل) كانت ثابتة وهمية —
+     window.LawyerStats يملأها بأرقام حقيقية من التخزين الفعلي، ويخفي أي
+     بطاقة ما يعرفش يحسبها بدل ما يسيب رقماً وهمياً. */
+  if (window.LawyerStats && LawyerStats.apply) LawyerStats.apply();
+
+  /* تنبيه "لم يُؤخذ نسخة منذ..." كان نصاً ثابتاً "١٤ يوماً" دايماً — دلوقتي
+     بيتحسب فعليًا من آخر نسخة حقيقية مسجَّلة في proflawyer.lastBackup
+     (بيتسجَّل في backup-page.js وقت الضغط على «أخذ نسخة احتياطية الآن»). */
+  var box = document.getElementById("bkAlert");
+  if (box) {
+    var last = null;
+    try { last = localStorage.getItem("proflawyer.lastBackup"); } catch (e) { }
+    var days = last ? Math.floor((Date.now() - new Date(last).getTime()) / 86400000) : null;
+    if (days == null) {
+      box.hidden = false;
+      box.innerHTML = "لم تُؤخذ أي نسخة احتياطية على هذا الجهاز بعد. يُنصح بأخذ نسخة الآن.";
+    } else if (days >= 7) {
+      box.hidden = false;
+      box.innerHTML = "لم يتم أخذ نسخة احتياطية منذ <strong>" +
+        String(days).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }) +
+        " يوماً</strong>. يُنصح بأخذ نسخة الآن.";
+    }
+  }
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  if (!window.Sync) return;
+  var msg = document.getElementById("syncMsg");
+  function show(t, good) {
+    if (!msg) return;
+    msg.style.display = ""; msg.textContent = t;
+    msg.style.color = good ? "#1c6b4a" : "#b3261e";
+  }
+  function stamp() {
+    var d = new Date(), p = function (n) { return String(n).padStart(2, "0"); };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+           "-" + p(d.getHours()) + p(d.getMinutes());
+  }
+
+  var exp = document.getElementById("syncExport");
+  if (exp) exp.onclick = function () {
+    try {
+      Sync.saveFile("مزامنة-المحامي-المحترف-" + stamp() + ".json", Sync.exportAll());
+      show("تم تصدير ملف المزامنة إلى مجلد التنزيلات — انقله للجهاز الآخر ثم استورده.", true);
+    } catch (e) { show("تعذّر التصدير.", false); }
+  };
+
+  var fileInp = document.getElementById("syncFile");
+  var pending = null;   /* "merge" | "replace" */
+  function pick(mode) { pending = mode; if (fileInp) fileInp.click(); }
+  var mBtn = document.getElementById("syncMerge");
+  var rBtn = document.getElementById("syncReplace");
+  if (mBtn) mBtn.onclick = function () { pick("merge"); };
+  if (rBtn) rBtn.onclick = function () { pick("replace"); };
+
+  if (fileInp) fileInp.onchange = function () {
+    var f = fileInp.files && fileInp.files[0];
+    if (!f) return;
+    var mode = pending || "merge";
+    var rd = new FileReader();
+    rd.onload = function () {
+      var text = String(rd.result);
+      var n = Sync.countRecords(text);
+      if (n == null) { show("الملف ليس JSON صالحاً.", false); fileInp.value = ""; return; }
+      var detail = "يحتوي الملف نحو " + n + " سجلاً." + String.fromCharCode(10) +
+        (mode === "replace"
+          ? "الاستبدال يحلّ محتوى الملف محل كل المحفوظ (تُؤخذ نسخة أمان أولاً)."
+          : "الدمج الآمن يضيف الجديد فقط — لا يحذف ولا يستبدل أي بيانات محليّة.");
+      Ask.confirm(mode === "replace" ? "استبدال كامل بالبيانات المستوردة؟" : "دمج بيانات الجهاز الآخر؟",
+        { ok: mode === "replace" ? "استبدال" : "دمج آمن", danger: mode === "replace", detail: detail },
+        function () {
+          var r = Sync.importText(text, mode);
+          fileInp.value = "";
+          if (!r.ok) { show(r.msg, false); return; }
+          show((mode === "replace" ? "تم الاستبدال" : "تم الدمج الآمن") +
+               " — " + r.changed + " موضعاً محدَّثاً. أعِد فتح الشاشات لتظهر البيانات.", true);
+        });
+    };
+    rd.readAsText(f, "utf-8");
+  };
+})();
+</script>
+<script src="assets/backup-page.js?v=2"></script>
+<script>
+(function () {
+  "use strict";
+  var btn = document.getElementById("doBulkPush");
+  var msg = document.getElementById("bulkMsg");
+  if (!btn) return;
+
+  function show(text, ok) {
+    msg.style.display = "";
+    msg.textContent = text;
+    msg.style.color = ok ? "" : "#b3261e";
+  }
+
+  function ar(n) { return String(n).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }); }
+  function gb(b) { return ar((b / 1073741824).toFixed(1)) + " جيجا"; }
+  function info() {
+    var box = document.getElementById("storeInfo"), L = [];
+    if (window.AndroidStore && AndroidStore.space) {
+      var sp = JSON.parse(AndroidStore.space());
+      L.push("البيانات محفوظة على مساحة الموبايل — فاضي " + gb(sp.phoneFree) + " من " + gb(sp.phoneTotal) +
+        (sp.card ? " · كارت الذاكرة: فاضي " + gb(sp.card.free) + " من " + gb(sp.card.total) : " · مفيش كارت ذاكرة"));
+    }
+    if (window.CloudStore && CloudStore.budget) {
+      var b = CloudStore.budget();
+      L.push("حد النهارده: كتابة " + ar(b.writes) + " من " + ar(b.capWrites) + " · قراءة " + ar(b.reads) + " من " + ar(b.capReads) +
+        " · مستني الرفع: " + ar(CloudStore.pendingCount()));
+    }
+    box.textContent = L.join(" — ");
+    box.style.display = L.length ? "" : "none";
+  }
+  setTimeout(info, 800);
+
+  /* الرفع على دفعات ٨ بمهلة، زي قاعدة التعديل الجماعي */
+  function pushIds(ids, onStep, done) {
+    var i = 0;
+    (function step() {
+      if (i >= ids.length) { done(); return; }
+      ids.slice(i, i + 8).forEach(function (x) { x.mod.pushUnsynced(x.id); });
+      i = Math.min(i + 8, ids.length);
+      onStep(i);
+      setTimeout(step, 1200);
+    })();
+  }
+
+  btn.onclick = function () {
+    if (!(window.Team && Team.can && Team.can("team") && Team.canView && Team.canView("backup"))) { show("غير مسموح — النسخ الاحتياطي والاستيراد للمدير فقط.", false); return; }
+    if (!window.CloudStore || !window.Auth || !window.CaseFile || !CaseFile.unsynced || !window.ClientsPOA || !ClientsPOA.unsynced) { show("السحابة غير متاحة على هذه الشاشة.", false); return; }
+    btn.disabled = true;
+    show("جارٍ التحقق من تسجيل الدخول…", true);
+    Auth.whenKnown(function (user) {
+      if (!user) { btn.disabled = false; show("سجّل الدخول أولاً.", false); return; }
+      CloudStore.whenReady(function (ok) {
+        btn.disabled = false;
+        if (!ok) { show("تعذّر الاتصال بالسحابة — تحقق من الإنترنت.", false); return; }
+        var cases = CaseFile.unsynced(), clients = ClientsPOA.unsynced(), n = cases.length + clients.length;
+        var total = CaseFile.all().length + ClientsPOA.all().length, q = CloudStore.pendingCount(), b = CloudStore.budget();
+        var head = "راجعت " + ar(total) + " سجل على الموبايل: اتغيّر " + ar(cases.length) + " قضية و" + ar(clients.length) + " موكل";
+        if (q) { CloudStore.flushPending(); head += "، و" + ar(q) + " مستنيين في طابور الرفع"; }
+        info();
+        if (!n) { show(head + ". مفيش حاجة جديدة ترفع، ومفيش رصيد اتخصم.", true); return; }
+        /* القضية = قراءة + كتابة (دمج آمن)، والموكل = كتابة */
+        var leftW = Math.max(0, b.capWrites - b.writes), leftR = Math.max(0, b.capReads - b.reads);
+        var nCases = Math.min(cases.length, leftW, leftR), nClients = Math.min(clients.length, leftW - nCases), send = nCases + nClients;
+        if (!send) { show(head + ". حد النهارده خلص، فالرفع بيتجدد الساعة ١٠ الصبح، والبيانات محفوظة على الموبايل.", false); return; }
+        var ids = cases.slice(0, nCases).map(function (id) { return { mod: CaseFile, id: id }; })
+          .concat(clients.slice(0, nClients).map(function (id) { return { mod: ClientsPOA, id: id }; }));
+        Ask.confirm("رفع " + ar(send) + " سجل؟", {
+          ok: "ارفع " + ar(send), danger: false,
+          detail: head + ".\nهيتخصم حوالي " + ar(send) + " كتابة و" + ar(nCases) + " قراءة." +
+            (send < n ? "\nالباقي (" + ar(n - send) + ") أكبر من حد النهارده، ارفعه بعد ١٠ الصبح." : "")
+        }, function () {
+          btn.disabled = true;
+          pushIds(ids, function (i) { show("جارٍ الرفع: " + ar(i) + " من " + ar(send) + "… لا تُغلق الشاشة.", true); }, function () {
+            btn.disabled = false; info();
+            show("تم إرسال " + ar(send) + " سجل. أي سجل ما اترفعش بيفضل في الطابور ويتعاد لوحده.", true);
+          });
+        });
+      });
+    });
+  };
+})();
+</script>
+<script>
+(function () {
+  var b = document.getElementById("doDedupe");
+  var m = document.getElementById("dedupeMsg");
+  if (!b) return;
+  function show(t) { m.style.display = ""; m.textContent = t; }
+  b.onclick = function () {
+    if (!window.ClientsPOA || !ClientsPOA.dedupePreview) { show("وحدة الموكلين غير محمَّلة."); return; }
+    var pv = ClientsPOA.dedupePreview();
+    if (!pv.groups && !pv.poaDupes) { show("لا يوجد تكرار — كل الموكلين (" + pv.total + ") فريدون."); return; }
+    var NL = String.fromCharCode(10);
+    Ask.confirm("دمج الموكلين المكرَّرين؟", {
+      ok: "دمج وحذف المكرَّر", danger: true,
+      detail: "موكلون: " + pv.total + " · مجموعات مكرَّرة: " + pv.groups +
+        " · سجلات ستُحذف: " + pv.drop + " · توكيلات مكرَّرة داخل نفس الموكل: " + pv.poaDupes + NL +
+        "مثال: " + pv.sample.join(" | ") + NL + NL +
+        "تُحفظ نسخة احتياطية في التنزيلات قبل التنفيذ، ويُحذف المكرَّر من السحابة أيضاً."
+    }, function () {
+      b.disabled = true; show("جارٍ الدمج… لا تُغلق الشاشة.");
+      ClientsPOA.dedupeApply(function (r) {
+        b.disabled = false;
+        show(r ? "تم — دُمجت " + r.merged + " مجموعة، وحُذف " + r.dropped + " سجل مكرَّر. الموكلون الآن: " + r.total
+               : "لم يتم الدمج.");
+      });
+    });
+  };
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

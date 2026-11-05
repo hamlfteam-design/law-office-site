@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>سجل التعديلات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<style>
+  .filters{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .filters select, .filters input{ flex:1 1 30%; min-height:46px; font-size:15px; padding:8px 11px; border:1px solid var(--line);
+        border-radius:9px; background:var(--card); font-family:inherit; direction:rtl; text-align:right; color:var(--text); }
+  .au{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px 12px; margin-bottom:9px; }
+  .au .hd{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; font-size:13px; }
+  .au .hd b{ font-family:var(--f-title); color:var(--brand-dark); }
+  .au .op{ font-size:11.5px; padding:2px 10px; border-radius:20px; color:#fff; background:#5b3a21; }
+  .au .op.del{ background:#b3261e; } .au .op.add{ background:#1e5b33; }
+  .au .lb{ font-size:12.5px; color:var(--muted); margin:3px 0 6px; }
+  .au table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  .au td{ border-top:1px solid var(--line); padding:5px 6px; vertical-align:top; word-break:break-word; }
+  .au td.f{ width:22%; color:var(--muted); } .au td.b{ background:rgba(179,38,30,.08); } .au td.a{ background:rgba(30,91,51,.10); }
+  .note{ font-size:13px; color:var(--muted); line-height:1.9; margin-bottom:10px; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+  <div class="appbar">
+    <a class="back" href="80-team.html">&rarr;</a>
+    <h1>سجل التعديلات</h1>
+    <span class="screen-id">SCR-95</span>
+  </div>
+  <main>
+    <div class="note">كل تعديل أو إضافة من أي حد غير مدير المكتب بيتسجّل هنا: مين، إمتى، الخانة، كانت إيه وبقت إيه. والحذف ممنوع على غير المدير — بيظهر هنا كـ«محاولة حذف».</div>
+    <div class="filters" data-nosave="1">
+      <select id="fWho"><option value="">— كل الأشخاص —</option></select>
+      <select id="fOp"><option value="">— كل العمليات —</option><option>تعديل</option><option>إضافة</option><option>محاولة حذف (اتمنعت)</option></select>
+      <input id="fQ" placeholder="بحث: رقم ملف / دعوى / خانة">
+    </div>
+    <div id="list"><div class="note">جارٍ التحميل…</div></div>
+  </main>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script>
+(function () {
+  "use strict";
+  var listEl = document.getElementById("list");
+  var rows = [];
+  function ar(s) { return String(s == null ? "" : s).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }); }
+  function when(iso) {
+    var d = new Date(iso); if (isNaN(d)) return iso || "";
+    function p(n) { return (n < 10 ? "0" : "") + n; }
+    return ar(d.getFullYear() + "/" + p(d.getMonth() + 1) + "/" + p(d.getDate()) + " — " + p(d.getHours()) + ":" + p(d.getMinutes()));
+  }
+  function el(t, c, txt) { var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
+  var COLL = { cases: "القضايا", clients: "الموكلون", attendance: "الحضور", "general-tasks": "المهام العامة" };
+  function render() {
+    var who = document.getElementById("fWho").value, op = document.getElementById("fOp").value;
+    var q = window.lawyerNorm ? lawyerNorm(document.getElementById("fQ").value) : document.getElementById("fQ").value;
+    listEl.innerHTML = "";
+    var shown = rows.filter(function (r) {
+      if (who && (r.email || r.by) !== who) return false;
+      if (op && r.op !== op) return false;
+      if (q) {
+        var t = (r.label || "") + " " + (r.id || "") + " " + (r.changes || []).map(function (c) { return c.field + " " + c.before + " " + c.after; }).join(" ");
+        if ((window.lawyerNorm ? lawyerNorm(t) : t).indexOf(q) < 0) return false;
+      }
+      return true;
+    });
+    if (!shown.length) { listEl.appendChild(el("div", "note", "مفيش تعديلات مسجّلة بالشروط دي.")); return; }
+    shown.forEach(function (r) {
+      var box = el("div", "au");
+      var hd = el("div", "hd");
+      hd.appendChild(el("b", "", r.by || r.email || "—"));
+      hd.appendChild(el("span", "op" + (/حذف/.test(r.op) ? " del" : (r.op === "إضافة" ? " add" : "")), r.op || ""));
+      hd.appendChild(el("span", "", when(r.at)));
+      box.appendChild(hd);
+      box.appendChild(el("div", "lb", (COLL[r.collection] || r.collection || "") + (r.label ? " · " + r.label : "") + " · " + (r.id || "")));
+      if ((r.changes || []).length) {
+        var t = el("table");
+        (r.changes || []).forEach(function (c) {
+          var tr = el("tr");
+          tr.appendChild(el("td", "f", c.field));
+          tr.appendChild(el("td", "b", c.before || "—"));
+          tr.appendChild(el("td", "a", c.after || "—"));
+          t.appendChild(tr);
+        });
+        box.appendChild(t);
+      }
+      listEl.appendChild(box);
+    });
+  }
+  ["fWho", "fOp"].forEach(function (id) { document.getElementById(id).onchange = render; });
+  document.getElementById("fQ").oninput = render;
+
+  function load() {
+    if (!window.CloudStore) { listEl.innerHTML = '<div class="note">السحابة غير متاحة على هذه الشاشة.</div>'; return; }
+    var u = window.Team && Team.current ? Team.current() : null;
+    if (u && u.role && u.role !== "owner") { listEl.innerHTML = '<div class="note">السجل ده لمدير المكتب بس.</div>'; return; }
+    CloudStore.collection.list("audit", function (list) {
+      if (!list) { listEl.innerHTML = '<div class="note">تعذّر التحميل — تأكد من الإنترنت وحاول تاني.</div>'; return; }
+      rows = list.sort(function (a, b) { return String(b.at || "").localeCompare(String(a.at || "")); });
+      var whoSel = document.getElementById("fWho"), seen = {};
+      rows.forEach(function (r) { var k = r.email || r.by; if (k && !seen[k]) { seen[k] = 1; var o = el("option", "", r.by && r.by !== k ? r.by + " — " + k : k); o.value = k; whoSel.appendChild(o); } });
+      render();
+    });
+  }
+  if (window.Auth && Auth.whenKnown) Auth.whenKnown(function () { setTimeout(load, 300); }); else load();
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

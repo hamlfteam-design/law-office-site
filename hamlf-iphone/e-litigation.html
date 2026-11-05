@@ -1,0 +1,2070 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>بوابة التقاضي الإلكتروني</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --paper:#faf7f1;
+  --surface:#ffffff;
+  --surface-2:#f2ede2;
+  --ink:#1e2430;
+  --ink-soft:#5c5648;
+  --slate:#75705f;
+  --line:#e5ddcc;
+  --brass:#9c7a2e;
+  --brass-deep:#7a5e22;
+  --brass-ghost:#f1e6cd;
+  --good:#3f7d5c;
+  --good-bg:#e7f2ec;
+  --warn:#b5792b;
+  --warn-bg:#f6ecda;
+  --bad:#ae4141;
+  --bad-bg:#f7e9e8;
+  --shadow: 0 1px 2px rgba(30,25,10,.06), 0 8px 24px -12px rgba(30,25,10,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14161c;
+    --surface:#1b1e26;
+    --surface-2:#22262f;
+    --ink:#ece7dc;
+    --ink-soft:#c7c0ac;
+    --slate:#948d78;
+    --line:#2d313c;
+    --brass:#d1a94f;
+    --brass-deep:#e8c374;
+    --brass-ghost:#2c2617;
+    --good:#6bbf95;
+    --good-bg:#173226;
+    --warn:#e0a75a;
+    --warn-bg:#332612;
+    --bad:#e08080;
+    --bad-bg:#33191a;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 30px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14161c;
+  --surface:#1b1e26;
+  --surface-2:#22262f;
+  --ink:#ece7dc;
+  --ink-soft:#c7c0ac;
+  --slate:#948d78;
+  --line:#2d313c;
+  --brass:#d1a94f;
+  --brass-deep:#e8c374;
+  --brass-ghost:#2c2617;
+  --good:#6bbf95;
+  --good-bg:#173226;
+  --warn:#e0a75a;
+  --warn-bg:#332612;
+  --bad:#e08080;
+  --bad-bg:#33191a;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 30px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'IBM Plex Sans Arabic','Segoe UI',sans-serif;
+  direction:rtl;
+  line-height:1.6;
+}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;text-align:right}
+h1,h2,h3{font-family:'Cairo',sans-serif;text-wrap:balance;margin:0}
+::selection{background:var(--brass-ghost)}
+
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(6px);
+}
+.topbar-inner{
+  max-width:1040px;margin:0 auto;padding:14px 20px;
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:space-between;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{
+  width:36px;height:36px;border-radius:9px;
+  background:linear-gradient(155deg,var(--brass),var(--brass-deep));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:#fff;flex:none;
+  box-shadow:var(--shadow);
+}
+.brand .txt h1{font-size:17px;font-weight:800}
+.brand .txt p{margin:1px 0 0;font-size:12px;color:var(--slate)}
+
+.tabs{display:flex;gap:6px;background:var(--surface-2);padding:4px;border-radius:11px}
+.tabs[hidden]{display:none!important}
+.tab-select{
+  flex:1 1 220px;min-height:46px;font-family:inherit;font-size:15px;font-weight:600;
+  padding:8px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);
+}
+.topbar-inner{padding:10px 14px}
+main{padding:18px 14px 80px}
+.hub-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr))}
+.tab{
+  border:none;background:transparent;cursor:pointer;
+  font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink-soft);
+  padding:8px 16px;border-radius:8px;transition:background .15s,color .15s;
+  white-space:nowrap;
+}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--brass-deep);box-shadow:var(--shadow)}
+.tab:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+main{max-width:1040px;margin:0 auto;padding:28px 20px 80px}
+.view{display:none}
+.view.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view.active{animation:none}}
+
+.view-head{margin-bottom:22px}
+.view-head h2{font-size:23px;font-weight:800}
+.view-head p{margin:6px 0 0;color:var(--slate);font-size:14px;max-width:62ch}
+
+/* ---------- HUB VIEW ---------- */
+.sync-note{font-size:12px;color:var(--slate);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.sync-note .dot2{width:7px;height:7px;border-radius:50%;background:var(--slate);flex:none}
+.sync-note.live .dot2{background:var(--good)}
+.sync-note.off .dot2{background:var(--bad)}
+.upd-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:-4px 0 12px}
+.upd-last{font-size:12px;color:var(--slate)}
+.upd-box{border:1px solid var(--line,#e3d9c6);border-radius:12px;padding:12px 14px;margin-bottom:14px;background:#fffdf8;font-size:13px;line-height:1.8}
+.upd-box h4{margin:4px 0 6px;font-size:14px}
+.upd-box ul{margin:0 0 8px;padding-inline-start:18px}
+.upd-box .new{color:#1e7a3c;font-weight:700}
+.upd-box .err{color:#b3261e}
+.hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.plat-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);
+}
+.plat-card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.plat-card h3{font-size:16px}
+.plat-card .org{font-size:12px;color:var(--slate);margin-top:2px}
+.badge{
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.badge.good{background:var(--good-bg);color:var(--good)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.optional{background:var(--surface-2);color:var(--slate)}
+.plat-card p.desc{font-size:13px;color:var(--ink-soft);margin:0;flex:1}
+.plat-card .meta{font-size:12px;color:var(--slate);display:flex;gap:14px;flex-wrap:wrap}
+.plat-card .actions{display:flex;gap:8px;margin-top:4px}
+.btn{
+  font-family:inherit;font-size:13px;font-weight:700;border-radius:9px;
+  padding:9px 14px;cursor:pointer;border:1px solid transparent;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;transition:filter .15s,background .15s;
+}
+.btn:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.btn.primary{background:var(--brass);color:#fff}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn.ghost:hover{background:var(--brass-ghost)}
+.btn.sm{padding:6px 10px;font-size:12px}
+
+/* ---------- PROFILE VIEW ---------- */
+.profile-layout{display:grid;grid-template-columns:1fr;gap:26px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.card h3{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h3 .n{
+  width:22px;height:22px;border-radius:6px;background:var(--brass-ghost);color:var(--brass-deep);
+  font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex:none;
+}
+.field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--slate);font-weight:600}
+.field input,.field select{
+  font-family:inherit;font-size:14px;padding:9px 11px;border-radius:8px;
+  border:1px solid var(--line);background:var(--paper);color:var(--ink);
+}
+.field input:focus,.field select:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass)}
+.field.wide{grid-column:1/-1}
+.doc-list{display:flex;flex-direction:column;gap:8px}
+.doc-item{display:flex;align-items:center;gap:9px;font-size:13.5px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--paper)}
+.doc-item input{accent-color:var(--brass);width:16px;height:16px}
+.save-row{display:flex;align-items:center;gap:12px;justify-content:flex-end}
+.save-note{font-size:12px;color:var(--slate);margin-inline-end:auto}
+
+.pay-note{
+  font-size:12.5px;color:var(--warn);background:var(--warn-bg);border:1px solid transparent;
+  padding:10px 12px;border-radius:10px;margin-bottom:14px;line-height:1.7;
+}
+
+/* ---------- per-platform requirement cards ---------- */
+.req-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.req-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;user-select:none}
+.req-head h3{font-size:15px}
+.req-head .org{font-size:12px;color:var(--slate);font-weight:500}
+.req-progress{display:flex;align-items:center;gap:10px}
+.bar{width:74px;height:6px;border-radius:100px;background:var(--surface-2);overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--brass);border-radius:inherit;transition:width .3s}
+.req-pct{font-size:12px;color:var(--slate);font-weight:700;min-width:32px;text-align:left;font-family:'IBM Plex Mono',monospace}
+.req-body{border-top:1px solid var(--line);padding:16px 18px 18px;display:none}
+.req-body.open{display:block}
+.req-section{margin-bottom:14px}
+.req-section h4{font-size:12px;color:var(--slate);text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px;font-weight:700}
+.chip-list{display:flex;flex-wrap:wrap;gap:7px}
+.chip{
+  font-size:12.5px;padding:6px 11px;border-radius:9px;border:1px solid var(--line);
+  background:var(--paper);display:flex;align-items:center;gap:6px;
+}
+.chip .val{color:var(--slate);font-family:'IBM Plex Mono',monospace}
+.chip.missing{border-color:var(--bad);color:var(--bad);background:var(--bad-bg)}
+.chip.missing .dot{width:6px;height:6px;border-radius:50%;background:var(--bad)}
+.chip.ok .dot{width:6px;height:6px;border-radius:50%;background:var(--good)}
+.req-extra-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:6px}
+.req-fee{font-size:12.5px;color:var(--ink-soft);display:flex;gap:6px;align-items:center}
+.req-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--ink);color:var(--paper);font-size:13px;font-weight:600;
+  padding:10px 18px;border-radius:100px;box-shadow:var(--shadow);
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- COMPARE VIEW ---------- */
+.compare-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow)}
+table.compare{border-collapse:collapse;width:100%;min-width:720px;font-size:13px}
+table.compare th,table.compare td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+table.compare thead th{
+  background:var(--surface-2);font-family:'Cairo',sans-serif;font-weight:700;font-size:12.5px;
+  position:sticky;top:0;
+}
+table.compare tbody tr:last-child td{border-bottom:none}
+table.compare td:first-child,table.compare th:first-child{
+  position:sticky;right:0;background:var(--surface);font-weight:700;min-width:150px;
+  border-left:1px solid var(--line);
+}
+table.compare thead th:first-child{background:var(--surface-2)}
+.tag-shared{color:var(--good);font-weight:700}
+.tag-order{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:6px;background:var(--brass-ghost);color:var(--brass-deep);
+  font-size:11px;font-weight:800;margin-inline-end:6px;
+}
+.order-list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.order-item{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
+.order-item .why{font-size:12.5px;color:var(--slate);margin-top:3px}
+
+/* ---------- DEVICE CHECK VIEW ---------- */
+.disclaimer{
+  font-size:12.5px;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--line);
+  padding:12px 14px;border-radius:12px;margin-bottom:20px;line-height:1.75;
+}
+.device-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat-tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
+.stat-tile .lbl{font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:.03em;font-weight:700}
+.stat-tile .val{font-size:15px;font-weight:700;margin-top:4px;font-family:'Cairo',sans-serif}
+.stat-tile .val.mono2{font-family:'IBM Plex Mono',monospace;direction:ltr;text-align:right;font-size:13px}
+
+.check-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:22px}
+.check-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.check-card .chead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.check-card h3{font-size:14.5px;display:flex;align-items:center;gap:8px}
+.status-pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px}
+.status-pill.idle{background:var(--surface-2);color:var(--slate)}
+.status-pill.ok{background:var(--good-bg);color:var(--good)}
+.status-pill.bad{background:var(--bad-bg);color:var(--bad)}
+.status-pill.testing{background:var(--warn-bg);color:var(--warn)}
+.cam-preview{
+  width:100%;aspect-ratio:4/3;border-radius:10px;background:var(--surface-2);
+  object-fit:cover;display:block;border:1px solid var(--line);
+}
+.mic-meter{width:100%;height:14px;border-radius:100px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+.mic-meter > span{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--good),var(--brass));transition:width .08s linear}
+.check-note{font-size:12px;color:var(--slate);line-height:1.6}
+
+.spec-list{display:flex;flex-direction:column;gap:9px}
+.spec-item{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.spec-item .ic{flex:none;width:20px;height:20px;border-radius:6px;background:var(--brass-ghost);color:var(--brass-deep);display:flex;align-items:center;justify-content:center;font-size:12px}
+.spec-item b{display:block;margin-bottom:2px}
+.spec-item span.d{color:var(--slate);font-size:12.5px}
+
+/* ---------- POA + DOCUMENT PREP VIEW ---------- */
+.two-col{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:860px){.two-col{grid-template-columns:1fr 1fr;align-items:start}}
+.poa-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.poa-item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--paper);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.poa-item.active{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass-ghost) inset}
+.poa-item .who{font-weight:700;font-size:13.5px}
+.poa-item .meta2{font-size:12px;color:var(--slate);margin-top:3px;display:flex;flex-wrap:wrap;gap:8px}
+.poa-item .meta2 .mono{font-size:11.5px}
+.poa-actions2{display:flex;gap:6px;flex:none}
+.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
+.icon-btn:hover{background:var(--brass-ghost)}
+.empty-note{font-size:12.5px;color:var(--slate);padding:14px;text-align:center;border:1px dashed var(--line);border-radius:10px}
+
+.drop-zone{
+  border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;
+  cursor:pointer;transition:border-color .15s,background .15s;background:var(--paper);
+}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--brass);background:var(--brass-ghost)}
+.drop-zone .hint{font-size:12.5px;color:var(--slate);margin-top:4px}
+.prep-preview{display:flex;gap:14px;align-items:center;margin-top:14px}
+.prep-preview img{width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:var(--surface-2)}
+.prep-preview .info{font-size:12.5px;color:var(--ink-soft);line-height:1.7}
+.prep-preview .info b{color:var(--ink)}
+.result-box{
+  margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--good-bg);color:var(--good);
+  font-size:13px;display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.result-box.show{display:flex}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="mark">⚖</div>
+      <div class="txt">
+        <h1>بوابة التقاضي الإلكتروني</h1>
+        <p>مركز واحد لمنصات القضاء المصرية وبيانات تسجيلك</p>
+      </div>
+    </div>
+    <select id="tabSelect" class="tab-select" aria-label="أقسام الصفحة">
+      <option value="hub">التقاضي الإلكتروني</option>
+      <option value="profile">تسجيل بيانات المحامي</option>
+      <option value="compare">مقارنة المتطلبات</option>
+      <option value="device">فحص الجهاز للجلسات عن بُعد</option>
+      <option value="prep">التوكيلات وتجهيز المستندات</option>
+      <option value="courts">متابعة تغطية المحاكم</option>
+    </select>
+    <div class="tabs" role="tablist" aria-label="أقسام الصفحة" hidden>
+      <button class="tab" role="tab" data-view="hub" aria-selected="true">التقاضي الإلكتروني</button>
+      <button class="tab" role="tab" data-view="profile" aria-selected="false">تسجيل بيانات المحامي</button>
+      <button class="tab" role="tab" data-view="compare" aria-selected="false">مقارنة المتطلبات</button>
+      <button class="tab" role="tab" data-view="device" aria-selected="false">فحص الجهاز للجلسات عن بُعد</button>
+      <button class="tab" role="tab" data-view="prep" aria-selected="false">التوكيلات وتجهيز المستندات</button>
+      <button class="tab" role="tab" data-view="courts" aria-selected="false">متابعة تغطية المحاكم</button>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ================= HUB ================= -->
+  <section class="view active" id="view-hub">
+    <div class="view-head">
+      <h2>منصات التقاضي والخدمات الإلكترونية</h2>
+      <p>الروابط الرسمية لكل منصة، مع حالة جاهزية بياناتك لكل واحدة منها بناءً على ملفك المحفوظ في تبويب "تسجيل بيانات المحامي".</p>
+    </div>
+    <div class="sync-note" id="syncNote">جاري الاتصال بقاعدة تحديثات المنصات…</div>
+    <div class="upd-bar">
+      <button class="btn primary sm" id="updBtn" type="button">🔄 استكشف تحديثات التقاضي الإلكتروني</button>
+      <span class="upd-last" id="updLast"></span>
+    </div>
+    <div class="upd-box" id="updBox" hidden></div>
+    <div class="hub-grid" id="hubGrid"></div>
+  </section>
+
+  <!-- ================= PROFILE ================= -->
+  <section class="view" id="view-profile">
+    <div class="view-head">
+      <h2>ملف بيانات المحامي</h2>
+      <p>املأ بياناتك مرة واحدة هنا — تتحفظ على جهازك بس (localStorage)، ومنها هيتكوّن ملخّص جاهز للنسخ لكل منصة تسجّل عليها.</p>
+    </div>
+
+    <div class="profile-layout">
+      <div class="card">
+        <h3><span class="n">1</span> الهوية الشخصية</h3>
+        <div class="field-grid" id="grp-identity"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="n">2</span> التواصل</h3>
+        <div class="field-grid" id="grp-contact"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="n">3</span> عنوان المكتب</h3>
+        <div class="field-grid" id="grp-address"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="n">4</span> البيانات المهنية</h3>
+        <div class="field-grid" id="grp-legal"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="n">5</span> المستندات الجاهزة</h3>
+        <div class="doc-list" id="grp-docs"></div>
+      </div>
+
+      <div class="card" id="dynamicFieldsCard" hidden>
+        <h3><span class="n">+</span> بيانات إضافية اكتشفتها منصات جديدة</h3>
+        <p style="font-size:12px;color:var(--slate);margin:-6px 0 12px">
+          حقول طلبتها منصة أو أكتر من غير ما تكون موجودة في القسم الأساسي — اتحفظ هنا مرة واحدة وبتتعاد تلقائيًا لأي منصة تانية تطلب نفس البيان.
+        </p>
+        <div class="field-grid" id="grp-dynamic"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="n">6</span> مرجع وسيلة الدفع</h3>
+        <p class="pay-note">
+          ⚠ بيتخزن هنا اسم صاحب البطاقة وآخر 4 أرقام فقط — للتذكير بأي كارت هتستخدمه.
+          البرنامج <strong>مبيخزنش الرقم الكامل أو CVV ومبيدفعش نيابة عنك</strong>؛ الدفع الفعلي بتعمله بنفسك يدويًا جوه موقع كل جهة.
+        </p>
+        <div class="field-grid">
+          <div class="field"><label for="p_cardHolder">اسم حامل البطاقة</label><input id="p_cardHolder" data-key="cardHolder" placeholder="كما هو مكتوب على الكارت"></div>
+          <div class="field"><label for="p_cardLast4">آخر 4 أرقام</label><input id="p_cardLast4" data-key="cardLast4" class="mono" maxlength="4" inputmode="numeric" placeholder="••••"></div>
+        </div>
+      </div>
+
+      <div class="save-row">
+        <span class="save-note" id="saveNote">لسه محفظتش تعديلاتك</span>
+        <button class="btn primary" id="saveProfileBtn">حفظ البيانات على الجهاز</button>
+      </div>
+    </div>
+
+    <div class="view-head" style="margin-top:34px">
+      <h2>بيانات كل منصة على حدة</h2>
+      <p>افتح أي منصة عشان تشوف بالظبط إيه اللي عندك جاهز وإيه الناقص، وانسخ ملخص بياناتك جاهز للّصق في نموذج التسجيل.</p>
+    </div>
+    <div id="reqList" style="display:flex;flex-direction:column;gap:12px"></div>
+  </section>
+
+  <!-- ================= COMPARE ================= -->
+  <section class="view" id="view-compare">
+    <div class="view-head">
+      <h2>مقارنة المتطلبات بين المنصات</h2>
+      <p>البيانات المشتركة (بالأخضر) موجودة في أغلب المنصات، وكل عمود بيوضح احتياج المنصة الفعلي منها.</p>
+    </div>
+    <div class="compare-scroll">
+      <table class="compare" id="compareTable"></table>
+    </div>
+
+    <div class="view-head" style="margin-top:30px">
+      <h2>الترتيب المقترح للتسجيل</h2>
+    </div>
+    <div class="order-list" id="orderList"></div>
+  </section>
+
+  <!-- ================= DEVICE CHECK ================= -->
+  <section class="view" id="view-device">
+    <div class="view-head">
+      <h2>فحص الجهاز للجلسات عن بُعد</h2>
+      <p>اختبار سريع للكاميرا والميكروفون والسماعة على نفس الجهاز اللي هتحضر بيه الجلسة — موبايل أو تابلت أو كمبيوتر.</p>
+    </div>
+
+    <div class="disclaimer">
+      ℹ هذا الفحص بيستخدم إذن الكاميرا/الميكروفون القياسي في المتصفح نفسه — وهو الأساس اللي بتشتغل بيه أي منصة فيديو (المحكمة الرقمية، المحاكم الاقتصادية، النيابة العامة). صفحة إعدادات الجهاز التفصيلية الخاصة بكل منصة موجودة داخل حسابك بعد تسجيل الدخول ومش متاحة قبل كده، فده بديل عملي تتأكد بيه إن جهازك جاهز <strong>قبل ما تدخل الجلسة فعليًا</strong>.
+    </div>
+
+    <div class="device-summary" id="deviceSummary"></div>
+
+    <div class="check-grid">
+      <div class="check-card">
+        <div class="chead"><h3>🎥 الكاميرا</h3><span class="status-pill idle" id="camStatus">لم يُختبر</span></div>
+        <video id="camPreview" class="cam-preview" autoplay playsinline muted></video>
+        <button class="btn primary" id="camTestBtn">اختبار الكاميرا</button>
+        <p class="check-note">لازم تشوف صورتك واضحة وثابتة قبل بدء أي جلسة فيديو.</p>
+      </div>
+
+      <div class="check-card">
+        <div class="chead"><h3>🎙 الميكروفون</h3><span class="status-pill idle" id="micStatus">لم يُختبر</span></div>
+        <div class="mic-meter"><span id="micBar"></span></div>
+        <button class="btn primary" id="micTestBtn">اختبار الميكروفون</button>
+        <p class="check-note">اتكلم بصوت عادي وشوف الشريط بيتحرك — لو فضل ثابت يبقى فيه مشكلة صلاحيات أو الميكروفون مغلق.</p>
+      </div>
+
+      <div class="check-card">
+        <div class="chead"><h3>🔊 السماعة</h3><span class="status-pill idle" id="spkStatus">لم يُختبر</span></div>
+        <button class="btn primary" id="spkTestBtn">تشغيل نغمة اختبار</button>
+        <p class="check-note">لو سمعت نغمة قصيرة، السماعة شغالة. لو مسمعتش حاجة راجع مستوى الصوت أو السماعات المتصلة.</p>
+      </div>
+
+      <div class="check-card">
+        <div class="chead"><h3>🌐 الاتصال بالإنترنت</h3><span class="status-pill idle" id="netStatus">جاري الفحص…</span></div>
+        <p class="check-note" id="netDetail">—</p>
+        <p class="check-note">التقاضي عن بُعد بيحتاج اتصال مستقر؛ يُفضّل شبكة Wi-Fi على بيانات الموبايل وقت الجلسة.</p>
+      </div>
+    </div>
+
+    <div class="view-head">
+      <h2>المتطلبات العامة لجلسة تقاضٍ عن بُعد</h2>
+      <p>وفقًا للممارسات المعلنة من منصات التقاضي الإلكتروني المصرية للجلسات المرئية.</p>
+    </div>
+    <div class="spec-list">
+      <div class="spec-item"><span class="ic">🎥</span><div><b>كاميرا واضحة (مدمجة أو خارجية)</b><span class="d">إضاءة كافية على الوجه، وخلفية هادئة تناسب طبيعة الجلسة القضائية.</span></div></div>
+      <div class="spec-item"><span class="ic">🎙</span><div><b>ميكروفون شغّال بدون تشويش</b><span class="d">يفضَّل استخدام سماعة رأس بميكروفون لتقليل الصدى في أماكن مفتوحة.</span></div></div>
+      <div class="spec-item"><span class="ic">🌐</span><div><b>إنترنت مستقر</b><span class="d">سرعة رفع/تنزيل لا تقل عمليًا عن 2 ميجابت للثانية، وتفضَّل شبكة سلكية أو Wi-Fi ثابت عن بيانات الموبايل.</span></div></div>
+      <div class="spec-item"><span class="ic">🧭</span><div><b>متصفح محدَّث</b><span class="d">Chrome أو Edge أو Safari بأحدث إصدار — بعض المتصفحات القديمة أو أوضاع التصفح الخاص تمنع إذن الكاميرا/الميكروفون.</span></div></div>
+      <div class="spec-item"><span class="ic">🔓</span><div><b>سماح صريح بأذونات الكاميرا والميكروفون</b><span class="d">تأكد إن إذن الموقع في إعدادات المتصفح على "سماح" مش "حظر"، سواء على الموبايل أو الكمبيوتر.</span></div></div>
+      <div class="spec-item"><span class="ic">🔋</span><div><b>شحن كافٍ أو توصيل بالكهرباء</b><span class="d">خصوصًا على الموبايل والتابلت — الجلسات ممكن تاخد وقت أطول من المتوقع.</span></div></div>
+      <div class="spec-item"><span class="ic">🤫</span><div><b>مكان هادئ ومغلق</b><span class="d">يحافظ على سرية الجلسة ويقلل ضوضاء الخلفية أثناء الفيديو.</span></div></div>
+    </div>
+  </section>
+
+  <!-- ================= POA + DOC PREP ================= -->
+  <section class="view" id="view-prep">
+    <div class="view-head">
+      <h2>التوكيلات وتجهيز المستندات</h2>
+      <p>خزّن بيانات توكيلاتك مرة واحدة، وحوّل صور المستندات لنفس الصيغة والحجم اللي كل منصة طالباه — قبل ما تروح ترفعها بنفسك.</p>
+    </div>
+
+    <div class="disclaimer">
+      ℹ حاولت أدخل بنفسي على خدمات النيابة العامة الخاصة باستخراج الشهادات والأحكام والمحاضر، وكذلك رفع دعاوى الأسرة — لقيتها <strong>محجوبة خلف تسجيل دخول محامٍ فعلي</strong> ("متاحة للمحامين المسجلين بالنظام" فقط)، فمقدرتش أوصل لخطواتها التفصيلية من غير حسابك الحقيقي. ومن حيث المبدأ، مش هستخدم بيانات دخولك على أي منصة حكومية حتى لو اديتهالي — ده حد أماني ثابت. كمان **الصفحة دي متقدرش "تدخل" فعليًا على موقع الحكومة وتملأ نموذجه أو ترفع له حاجة تلقائيًا** — المتصفح نفسه بيمنع أي صفحة من التعامل مع موقع تاني (Cross-Origin)، وده تصميم أمان أساسي في كل المتصفحات مش قابل للتجاوز.
+      <br><br>
+      اللي ينفع فعليًا ويشتغل هنا: تجهّز بياناتك وتوكيلاتك ومستنداتك <strong>بالشكل بالظبط اللي كل منصة طالباه</strong>، وبعدين تدخل المنصة بنفسك وتلصق/ترفع الجاهز — بدل ما تدوّر وتحوّل كل مرة من الأول. لو دخلت أي خدمة من دول بحسابك وشفت خطواتها بالتفصيل، ابعتهالي (نسخ/لقطة) وهضيفها هنا بنفس الشكل التاني.
+    </div>
+
+    <div class="two-col">
+      <!-- POA manager -->
+      <div class="card">
+        <h3><span class="n">🖋</span> قاعدة بيانات التوكيلات</h3>
+        <div class="poa-list" id="poaList"></div>
+        <div class="field-grid">
+          <div class="field"><label for="poa_client">اسم الموكّل</label><input id="poa_client"></div>
+          <div class="field"><label for="poa_number">رقم التوكيل</label><input id="poa_number" class="mono"></div>
+          <div class="field"><label for="poa_date">تاريخ التوكيل</label><input id="poa_date" type="date"></div>
+          <div class="field"><label for="poa_scope">نوع/نطاق التوكيل</label><input id="poa_scope" placeholder="مثال: توكيل عام في التقاضي"></div>
+        </div>
+        <div class="save-row" style="margin-top:12px">
+          <span class="save-note" id="poaNote"></span>
+          <button class="btn primary" id="poaAddBtn">إضافة التوكيل</button>
+        </div>
+        <p style="font-size:12px;color:var(--slate);margin-top:10px">
+          التوكيل "النشط" (🟢) هو اللي بيتاخد منه رقم التوكيل تلقائيًا في ملخص بيانات أي منصة تطلب "رقم التوكيل" (زي المحكمة الرقمية).
+        </p>
+      </div>
+
+      <!-- Document prep -->
+      <div class="card">
+        <h3><span class="n">🖼</span> تجهيز صورة/مستند لمنصة معينة</h3>
+        <div class="field" style="margin-bottom:12px">
+          <label for="prepPlatform">جهّز الملف على مقاس المنصة</label>
+          <select id="prepPlatform"></select>
+        </div>
+        <div class="drop-zone" id="dropZone">
+          <div>📎 اضغط هنا لاختيار صورة (أو JPG/PNG جاهزة)</div>
+          <div class="hint">هيتم تصغيرها/تحويلها تلقائيًا للصيغة والحجم المطلوبين — الملف بيتعالج على جهازك بس، مبيتبعتش لأي سيرفر</div>
+          <input type="file" id="fileInput" accept="image/*" hidden>
+        </div>
+        <div class="prep-preview" id="prepPreview" style="display:none">
+          <img id="prepImg" alt="معاينة">
+          <div class="info" id="prepInfo"></div>
+        </div>
+        <button class="btn primary" id="prepBtn" style="margin-top:14px" disabled>تجهيز الملف حسب متطلبات المنصة</button>
+        <div class="result-box" id="prepResult">
+          <span id="prepResultText"></span>
+          <button class="btn ghost sm" id="prepSaveBtn">حفظ الملف الجاهز</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ متابعة تغطية المحاكم ============ -->
+  <section class="view" id="view-courts">
+    <style>
+      .courts-legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+      .cbadge{font-size:12.5px;padding:5px 11px;border-radius:100px;border:1px solid var(--line);background:var(--surface)}
+      .cbadge.good{background:var(--good-bg);color:var(--good);border-color:transparent}
+      .cbadge.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+      .cbadge.bad{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+      .courts-search{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;margin-bottom:12px}
+      .courts-summary{font-size:13.5px;color:var(--ink-soft);margin-bottom:12px}
+      .courts-list{display:grid;gap:8px}
+      .court-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--line);border-radius:12px;padding:11px 14px;box-shadow:var(--shadow)}
+      .court-row.good{border-inline-start-color:var(--good)}
+      .court-row.warn{border-inline-start-color:var(--warn)}
+      .court-row.bad{border-inline-start-color:var(--bad)}
+      .court-name{font-weight:600;font-size:14.5px}
+      .court-sel{padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--ink);font:inherit}
+    </style>
+    <div class="view-head">
+      <h2>متابعة تغطية المحاكم بالتقاضي الإلكتروني</h2>
+      <p>حالة كل محكمة ابتدائية في خدمة «إقامة دعوى مدنية» على مصر الرقمية (digital.gov.eg — خدمة CRT-09). المؤكَّدة مستخرجة من قائمة الخدمة الفعلية؛ الباقي «غير مؤكد» لحين ظهوره في القائمة أو إعلان رسمي. تقدر تحدّث الحالة يدوياً وتتحفظ للجميع. الحالة الحيّة الكاملة محجوبة خلف الدخول بالهوية الرقمية.</p>
+    </div>
+    <div class="courts-legend">
+      <span class="cbadge good">🟢 متاحة (مؤكدة)</span>
+      <span class="cbadge warn">⚪ غير مؤكدة</span>
+      <span class="cbadge bad">🔴 غير متاحة بعد</span>
+    </div>
+    <input id="courtsSearch" class="courts-search" placeholder="ابحث باسم المحكمة…" oninput="renderCourts()">
+    <div id="courtsSummary" class="courts-summary"></div>
+    <div id="courtsList" class="courts-list"></div>
+    <p id="courtsNote" class="sync-note" style="margin-top:14px"></p>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- data model ---------------- */
+
+const PROFILE_FIELDS = {
+  identity:[
+    {key:'firstName', label:'الاسم الأول'},
+    {key:'secondName', label:'الاسم الثاني'},
+    {key:'thirdName', label:'الاسم الثالث'},
+    {key:'lastName', label:'الاسم الأخير'},
+    {key:'nationalId', label:'الرقم القومي', mono:true},
+    {key:'gender', label:'النوع', select:['ذكر','أنثى']},
+    {key:'nationality', label:'الجنسية'},
+  ],
+  contact:[
+    {key:'mobile', label:'رقم الهاتف المحمول', mono:true},
+    {key:'email', label:'البريد الإلكتروني', mono:true},
+  ],
+  address:[
+    {key:'governorate', label:'المحافظة'},
+    {key:'city', label:'المدينة'},
+    {key:'district', label:'الحي'},
+    {key:'street', label:'الشارع'},
+    {key:'buildingNo', label:'رقم المبنى'},
+    {key:'floorNo', label:'رقم الطابق'},
+    {key:'apartmentNo', label:'رقم الشقة'},
+  ],
+  legal:[
+    {key:'officeName', label:'اسم مكتب المحاماة / السمة التجارية', wide:true},
+    {key:'barNumber', label:'رقم القيد بنقابة المحامين', mono:true},
+    {key:'barRegDate', label:'تاريخ القيد', type:'date'},
+    {key:'barDegree', label:'نوع القيد', select:['ابتدائي','استئناف','نقض']},
+    {key:'taxId', label:'الرقم الضريبي', mono:true},
+    {key:'poaNumber', label:'رقم التوكيل العام (لو متاح)', mono:true},
+  ],
+};
+
+const DOCS = [
+  {key:'docNationalId', label:'صورة بطاقة الرقم القومي'},
+  {key:'docBarCard', label:'صورة كارنيه نقابة المحامين'},
+  {key:'docTaxCard', label:'صورة البطاقة الضريبية'},
+  {key:'docPoa', label:'صورة/رقم التوكيل العام'},
+];
+
+// keys used from PROFILE_FIELDS per platform + platform-only extra fields
+// PLATFORMS starts with the built-in set; renderDbSync() merges in any
+// platform documents discovered later and written to the shared db by the
+// weekly scan agent, so new platforms appear without editing this file.
+let PLATFORMS = [
+  {
+    id:'moj', name:'التقاضي المدني عن بُعد — المحكمة الرقمية', org:'وزارة العدل — civil.moj.gov.eg',
+    url:'https://civil.moj.gov.eg/#/homePage?entry=oneDayCase', mandatory:true,
+    desc:'منصة الدعوى المدنية كاملة (قبل التقاضي، التقاضي، بعده). المفعّل حالياً خدمة واحدة: <b>صحة التوقيع</b> أمام المحاكم الجزئية — تختار المحكمة، تدخل بيانات العقد والأطراف، ترفع الصحيفة والمستندات، <b>تختار موعد الجلسة من تقويم</b>، وتدفع، وتطلع لك رقم القضية والموعد. التسجيل نوعين: شخص طبيعي أو محامي (بالرخصة وكارنيه النقابة والتوكيل). التحقق بشريط سحب وكود SMS. نفس الحساب بيدخل منه «المطالبات القضائية».',
+    requires:['firstName','secondName','thirdName','lastName','mobile','gender','nationality','nationalId','officeName','barNumber','barDegree','governorate','district','street','buildingNo','floorNo','apartmentNo'],
+    extra:[{key:'idDocType', label:'نوع مستند الهوية'}],
+    docs:['docNationalId','docBarCard','docPoa'],
+    fee:'50 جنيه رسوم التسجيل (وإعادة تعيين كلمة المرور 50 جنيه كمان)، ورسوم دعوى صحة التوقيع بتظهر بعد الدخول',
+    fileSpec:{format:'any', maxKB:20000, maxDim:2400, note:'PDF أو PNG أو JPG — حتى 20 ميجا (مذكور صراحة في نموذج المنصة)'},
+  },
+  {
+    id:'moj_criminal', name:'التقاضي الجنائي عن بُعد', org:'وزارة العدل — lawyers.moj.gov.eg (جنايات أول درجة)',
+    url:'https://lawyers.moj.gov.eg/', mandatory:true,
+    desc:'للمحامين المقيدين بالنقابة بس. إنشاء الحسابات من ١-٩-٢٠٢٦ والخدمات اتفعّلت من <b>١-١٠-٢٠٢٦</b>. الخدمات: <b>حضور جلسة جنايات أول درجة عن بُعد</b>، <b>حضور تجديد حبس</b> (تاريخ الجلسة بيتكتب يدوي)، <b>الاطلاع على ملفات القضية</b> (بالصفحة)، و<b>رسائل القرارات SMS</b> بباقة. كل طلب: طلب ← مراجعة سكرتير المحكمة ← دفع أونلاين ← تنفيذ، والطلب ما يتعدّلش ولا يتلغي بعد إرساله. التوكيل بيترفع مع كل طلب (١–١٠ ملفات، ١٠ ميجا للملف). الدعم: 0221255303 — واتساب 01222636409.',
+    requires:['firstName','secondName','thirdName','lastName','mobile','email','barNumber','barDegree'],
+    extra:[{key:'barCardExpiry', label:'تاريخ انتهاء كارنيه النقابة'}],
+    docs:['docBarCard','docPoa'],
+    fee:'مقابل تسجيل لتفعيل الحساب + مقابل لكل جلسة وللصفحة وباقات الرسائل (القيم بتظهر بعد الدخول)',
+    fileSpec:{format:'any', maxKB:10000, maxDim:2400, note:'PDF أو JPG أو PNG — حتى 10 ميجا (صورة الكارنيه والتوكيلات)'},
+  },
+  {
+    id:'moj_claims', name:'المطالبات القضائية', org:'وزارة العدل — نفس حساب المنصة المدنية',
+    url:'https://civil.moj.gov.eg/#/login?entry=claimPayment', mandatory:false,
+    desc:'مش منصة مستقلة: تدخل بحساب المنصة المدنية في وضع «دفع المطالبات». تبحث بالرقم القومي والمحكمة ورقم القضية، وتدفع <b>10 جنيه رسوم استعلام</b>، فيظهر تفصيل المطالبة (النسبية، صندوق الخدمات، الخدمة المميكنة، الإجمالي، المدفوع، المتبقي)، وينفع السداد جزئي أو كلي.',
+    requires:[],
+    extra:[],
+    docs:[],
+    fee:'10 جنيه رسوم الاستعلام عن المطالبة، والسداد جزئي أو كلي',
+  },
+  {
+    id:'ppo', name:'خدمات المحامين', org:'النيابة العامة',
+    url:'https://ppo.gov.eg/ppo/r/ppoportal/ppoportal/lawyer-services', mandatory:true,
+    desc:'الوصول لخدمات النيابات الجنائية ونيابات الأسرة، وتقديم الطلبات ومتابعة القضايا.',
+    requires:['firstName','secondName','thirdName','lastName','nationalId','governorate','barNumber','barRegDate','barDegree','mobile','email'],
+    extra:[],
+    docs:[],
+    fee:'غير مذكورة عند التسجيل',
+    fileSpec:{format:'jpg', maxKB:2000, maxDim:1600, note:'غير مذكور صراحة — JPG مقاس معتدل هو الافتراض الآمن'},
+  },
+  {
+    id:'elec', name:'التقاضي الإلكتروني للمحاكم الاقتصادية', org:'ELEC — المحاكم الاقتصادية',
+    url:'https://elec.eecourts.gov.eg/auth/register', mandatory:true,
+    desc:'إقامة الدعاوى والاستئنافات والالتماسات أمام المحاكم الاقتصادية.',
+    requires:['firstName','secondName','thirdName','lastName','mobile','nationality','nationalId','officeName','barNumber','taxId','governorate','city','district','street','buildingNo','floorNo','apartmentNo','email'],
+    extra:[{key:'fax', label:'رقم الفاكس (اختياري)'},{key:'landmark', label:'علامة مميزة بالعنوان'}],
+    docs:['docNationalId','docBarCard','docTaxCard'],
+    fee:'غير مذكورة عند التسجيل (رسوم التقاضي تُدفع لاحقًا لكل دعوى)',
+    fileSpec:{format:'jpg', maxKB:3000, maxDim:1800, note:'غير مذكور صراحة — JPG مقاس معتدل هو الافتراض الآمن'},
+  },
+  {
+    id:'tax', name:'البوابة الضريبية', org:'مصلحة الضرائب المصرية',
+    url:'https://eservice.incometax.gov.eg/etax', mandatory:true,
+    desc:'تسجيل كـ"ممول" للحصول على الرقم الضريبي — خطوة سابقة مطلوبة قبل التسجيل على ELEC.',
+    requires:['firstName','secondName','thirdName','lastName','governorate','district','street','buildingNo','mobile','email','nationalId','officeName'],
+    extra:[{key:'activityType', label:'نوع النشاط'}],
+    docs:[],
+    fee:'غير مذكورة عند التسجيل',
+  },
+  {
+    id:'digitalgov_courts', name:'خدمات المحاكم — مصر الرقمية', org:'مصر الرقمية — إقامة دعاوى مدنية عن بُعد',
+    url:'https://digital.gov.eg/categories/terms/تسجيل-محامي', mandatory:true,
+    desc:'تسجيل كمحامٍ لرفع دعاوى مدنية عن بُعد أمام محاكم ابتدائية مشمولة بالخدمة: القاهرة الجديدة، بورسعيد، شمال القاهرة، جنوب القاهرة، جنوب الجيزة، شمال الجيزة (قائمة الإطلاق 2021 — راجع Dropdown المحاكم داخل حسابك فقد تكون توسّعت). التسجيل يتطلب توقيع إقرار شخصي بالمحكمة المختارة مرة واحدة — مش إلكتروني بالكامل. المحامون مُعفَون من رسوم رفع الدعوى، وبعد القيد لازم تسليم أصل صحيفة الدعوى لقلم الكتاب أو في جلسة نظر الموضوع.',
+    requires:['barNumber','taxId'],
+    extra:[{key:'courtOfChoice', label:'المحكمة المختارة لتوقيع إقرار التسجيل'}],
+    docs:['docBarCard','docTaxCard'],
+    fee:'المحامون مُعفَون من رسوم إقامة الدعوى (تصريح وزير العدل) — لكن التسجيل نفسه يتطلب حضور شخصي لتوقيع إقرار بالمحكمة المختارة',
+    fileSpec:{format:'jpg', maxKB:3000, maxDim:1800, note:'غير مذكور صراحة — JPG مقاس معتدل هو الافتراض الآمن'},
+  },
+  {
+    id:'gafi', name:'سجل وكلاء المستثمرين (ISN)', org:'هيئة الاستثمار GAFI — اختياري',
+    url:'https://isn.gafi.gov.eg', mandatory:false,
+    desc:'اعتماد كـ"وكيل مستثمرين" لتمثيل عملاء أمام GAFI في التأسيس والتراخيص — مسار تأهيلي منفصل، مش تسجيل تقاضٍ عادي.',
+    requires:['firstName','secondName','thirdName','lastName','nationalId','mobile','email'],
+    extra:[{key:'qualification', label:'المؤهل الدراسي'},{key:'yearsExp', label:'سنوات الخبرة الاستثمارية'}],
+    docs:['docNationalId'],
+    fee:'رسوم برنامج تأهيلي فعلية (تختلف حسب المستوى) + اجتياز اختبار اعتماد',
+  },
+];
+
+const ALL_FIELDS = Object.values(PROFILE_FIELDS).flat();
+const fieldMeta = key => ALL_FIELDS.find(f=>f.key===key);
+const docMeta = key => DOCS.find(d=>d.key===key);
+
+// every {key,label} any platform (built-in or auto-discovered) asks for
+// that ISN'T already one of the core PROFILE_FIELDS — rendered once in
+// the profile page and reused automatically wherever it's needed.
+function collectDynamicFields(){
+  const seen = new Map();
+  PLATFORMS.forEach(p=>{
+    (p.extra||[]).forEach(e=>{
+      if(!fieldMeta(e.key) && !seen.has(e.key)) seen.set(e.key, e);
+    });
+  });
+  return Array.from(seen.values());
+}
+
+/* ---------------- state ---------------- */
+const STORAGE_KEY = 'elit_lawyer_profile_v1';
+let profile = loadProfile();
+
+function loadProfile(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+let _saveWarned = false;
+function saveProfile(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(profile)); }
+  catch(e){
+    if(!_saveWarned){ _saveWarned = true; alert('تعذّر حفظ بياناتك — مساحة التخزين ممتلئة. أخبر المسؤول.'); }
+  }
+}
+
+/* ---------------- tabs (قائمة منسدلة) ---------------- */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  const sel = document.getElementById('tabSelect'); if(sel) sel.value = name;
+  if(name==='hub') renderHub();
+  if(name==='device') renderDeviceSummary();
+  if(name==='prep'){ renderPoaList(); renderPrepPlatformOptions(); }
+  if(name==='courts') renderCourts();
+  window.scrollTo(0,0);
+}
+document.getElementById('tabSelect').addEventListener('change', e=>showView(e.target.value));
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>showView(btn.dataset.view));
+});
+
+/* ---------------- render: profile form ---------------- */
+function fieldInputHTML(f){
+  const val = profile[f.key] || '';
+  const wideCls = f.wide ? ' wide' : '';
+  if(f.select){
+    const opts = f.select.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('');
+    return `<div class="field${wideCls}"><label for="p_${f.key}">${f.label}</label>
+      <select id="p_${f.key}" data-key="${f.key}"><option value="" ${!val?'selected':''}>—</option>${opts}</select></div>`;
+  }
+  const cls = f.mono ? ' class="mono"' : '';
+  const type = f.type || 'text';
+  return `<div class="field${wideCls}"><label for="p_${f.key}">${f.label}</label>
+    <input id="p_${f.key}" data-key="${f.key}"${cls} type="${type}" value="${escapeAttr(val)}"></div>`;
+}
+
+function renderProfileForm(){
+  document.getElementById('grp-identity').innerHTML = PROFILE_FIELDS.identity.map(fieldInputHTML).join('');
+  document.getElementById('grp-contact').innerHTML = PROFILE_FIELDS.contact.map(fieldInputHTML).join('');
+  document.getElementById('grp-address').innerHTML = PROFILE_FIELDS.address.map(fieldInputHTML).join('');
+  document.getElementById('grp-legal').innerHTML = PROFILE_FIELDS.legal.map(fieldInputHTML).join('');
+  document.getElementById('grp-docs').innerHTML = DOCS.map(d=>`
+        <div class="doc-item"><span>${d.label}</span> <span>${cardBackOf(d.key) ? 'الوجه ' + (profile[d.key]?'✓':'—') + ' · الظهر ' + (profile[cardBackOf(d.key)]?'✓':'—') : (profile[d.key]?'✓ محفوظ':'— مش مرفوع')}</span> <button type="button" class="btn ghost" data-docpick="${d.key}">📷 ${cardBackOf(d.key)?'الوجه':'رفع/تصوير'}</button> ${cardBackOf(d.key)?`<button type="button" class="btn ghost" data-docpick="${cardBackOf(d.key)}">📷 الظهر${profile[cardBackOf(d.key)]?' ✓':''}</button>`:''} ${profile[d.key]?`<button type="button" class="btn ghost" data-docdel="${d.key}">حذف</button>`:''} ${profile[d.key]?`<img data-docthumb="${d.key}" alt="" style="height:48px;border-radius:6px;vertical-align:middle">`:''} ${cardBackOf(d.key)&&profile[cardBackOf(d.key)]?`<img data-docthumb="${cardBackOf(d.key)}" alt="" style="height:48px;border-radius:6px;vertical-align:middle">`:''}</div>
+  `).join('');
+  document.getElementById('p_cardHolder').value = profile.cardHolder || '';
+  document.getElementById('p_cardLast4').value = profile.cardLast4 || '';
+
+  const dyn = collectDynamicFields();
+  document.getElementById('dynamicFieldsCard').hidden = dyn.length===0;
+  document.getElementById('grp-dynamic').innerHTML = dyn.map(f=>`
+    <div class="field"><label for="p_${f.key}">${f.label}</label>
+    <input id="p_${f.key}" data-key="${f.key}" value="${escapeAttr(profile[f.key]||'')}"></div>
+  `).join('');
+
+  document.querySelectorAll('#view-profile input[data-key], #view-profile select[data-key]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      profile[el.dataset.key] = el.value;
+      document.getElementById('saveNote').textContent = 'فيه تعديلات لسه متحفظتش';
+    });
+  });
+    document.querySelectorAll('#view-profile [data-docpick]').forEach(b=>{
+    b.addEventListener('click', ()=>openDocSheet(b.dataset.docpick));
+  });
+  document.querySelectorAll('#view-profile [data-docdel]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      try { await docDb('delete', b.dataset.docdel); const bk = cardBackOf(b.dataset.docdel); if (bk) { await docDb('delete', bk); profile[bk] = false; } } catch(e) {}
+      profile[b.dataset.docdel] = false; saveProfile(); renderProfileForm(); renderReqList(); renderHub();
+    });
+  });
+  document.querySelectorAll('#view-profile [data-docthumb]').forEach(async im=>{
+    try {
+      const r = docRec(await docDb('get', im.dataset.docthumb));
+      if (r && r.blob && String(r.type || '').indexOf('image/') === 0) { im.src = URL.createObjectURL(r.blob); im.style.cursor = 'pointer'; im.title = 'دوس عشان تلف الصورة'; im.addEventListener('click', ()=>rotateStoredDoc(im)); } else im.remove();
+    } catch(e) { im.remove(); }
+  });
+  document.getElementById('p_cardLast4').addEventListener('input', e=>{
+    e.target.value = e.target.value.replace(/\D/g,'').slice(0,4);
+  });
+}
+
+document.getElementById('saveProfileBtn').addEventListener('click', ()=>{
+  saveProfile();
+  document.getElementById('saveNote').textContent = 'اتحفظت البيانات على جهازك ✓';
+  renderReqList();
+  renderHub();
+  showToast('تم حفظ ملفك بنجاح');
+});
+
+/* ---------------- completeness ---------------- */
+function platformCompleteness(p){
+  const reqKeys = p.requires.concat(p.extra.map(e=>e.key));
+  const total = reqKeys.length + p.docs.length;
+  if(total===0) return 100;
+  let filled = 0;
+  reqKeys.forEach(k=>{ if(profile[k]) filled++; });
+  p.docs.forEach(k=>{ if(profile[k]) filled++; });
+  return Math.round(filled/total*100);
+}
+
+/* ---------------- render: hub ---------------- */
+function renderHub(){
+  document.getElementById('hubGrid').innerHTML = PLATFORMS.map(p=>{
+    const pct = platformCompleteness(p);
+    const badge = !p.mandatory
+      ? `<span class="badge optional">اختياري</span>`
+      : pct>=100 ? `<span class="badge good">بياناتك جاهزة</span>`
+      : `<span class="badge warn">ناقص ${100-pct}%</span>`;
+    return `
+    <div class="plat-card">
+      <div class="top">
+        <div><h3>${p.name} ${p.discovered?'<span class="badge good" style="margin-inline-start:4px">جديدة ✨</span>':''}</h3><div class="org">${p.org}</div></div>
+        ${badge}
+      </div>
+      <p class="desc">${p.desc}</p>
+      <div class="meta"><span>💳 ${p.fee.split('(')[0].split('،')[0]}</span></div>
+      <div class="actions">
+        <a class="btn primary hub-open" data-id="${p.id}" href="${p.url}" target="_blank" rel="noopener">📋 نسخ بياناتي وفتح المنصة ↗</a>
+        <button class="btn ghost sm goto-profile" data-id="${p.id}">بياناتي للمنصة دي</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.hub-open').forEach(b=>{
+    b.addEventListener('click', ()=> copyPlatformSummary(b.dataset.id, true));   /* النسخ يصاحب فتح النموذج دائماً */
+  });
+  document.querySelectorAll('.goto-profile').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelector('.tab[data-view="profile"]').click();
+      setTimeout(()=>{
+        const el = document.getElementById('req-'+b.dataset.id);
+        if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); openReq(b.dataset.id,true); }
+      }, 60);
+    });
+  });
+}
+
+/* ---------------- render: per-platform requirement cards ---------------- */
+function renderReqList(){
+  document.getElementById('reqList').innerHTML = PLATFORMS.map(p=>{
+    const pct = platformCompleteness(p);
+    const reqChips = p.requires.map(k=>{
+      const f = fieldMeta(k); const val = profile[k];
+      return `<span class="chip ${val?'ok':'missing'}"><span class="dot"></span>${f.label}${val?`<span class="val">${escapeHtml(String(val))}</span>`:''}</span>`;
+    }).join('');
+    const docChips = p.docs.map(k=>{
+      const d = docMeta(k); const val = profile[k];
+      return `<span class="chip ${val?'ok':'missing'}"><span class="dot"></span>${d.label}</span>`;
+    }).join('') || '<span style="font-size:12.5px;color:var(--slate)">لا توجد مستندات مطلوبة عند التسجيل</span>';
+    const extraInputs = p.extra.map(e=>`
+      <div class="field"><label for="x_${p.id}_${e.key}">${e.label}</label>
+      <input id="x_${p.id}_${e.key}" data-extra="${e.key}" value="${escapeAttr(profile[e.key]||'')}"></div>
+    `).join('');
+    return `
+    <div class="req-card" id="req-${p.id}">
+      <div class="req-head" data-toggle="${p.id}">
+        <div><h3>${p.name}</h3><div class="org">${p.org}</div></div>
+        <div class="req-progress">
+          <div class="bar"><span style="width:${pct}%"></span></div>
+          <span class="req-pct">${pct}%</span>
+                 ${pct>=100?`<a class="btn primary open-copy-btn" data-id="${p.id}" href="${p.url}" target="_blank" rel="noopener" style="padding:6px 12px;font-size:13px;margin-inline-start:8px">فتح ↗</a>`:''}
+        </div>
+      </div>
+      <div class="req-body" id="body-${p.id}">
+        <div class="req-section">
+          <h4>البيانات المطلوبة (من ملفك)</h4>
+          <div class="chip-list">${reqChips}</div>
+        </div>
+        ${p.extra.length? `<div class="req-section"><h4>بيانات خاصة بالمنصة دي بس</h4><div class="req-extra-form">${extraInputs}</div></div>`:''}
+        <div class="req-section">
+          <h4>المستندات</h4>
+          <div class="chip-list">${docChips}</div>
+        </div>
+        <div class="req-fee">💳 <strong>الرسوم:</strong> ${p.fee}</div>
+        <div class="req-actions">
+          <a class="btn primary open-copy-btn" data-id="${p.id}" href="${p.url}" target="_blank" rel="noopener">📋 نسخ بياناتي وفتح نموذج التسجيل ↗</a>
+          <button class="btn ghost copy-btn" data-id="${p.id}">نسخ الملخص فقط (بدون فتح)</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.req-head').forEach(h=>{
+    h.addEventListener('click', ()=> openReq(h.dataset.toggle));
+  });
+  document.querySelectorAll('[data-extra]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      // shared key: filling it once here also satisfies any other
+      // platform (existing or newly discovered) that asks for the same field
+      profile[el.dataset.extra] = el.value;
+      saveProfile();
+      renderHub();
+    });
+  });
+  document.querySelectorAll('.copy-btn').forEach(b=>{
+    b.addEventListener('click', ()=> copyPlatformSummary(b.dataset.id));
+  });
+  document.querySelectorAll('.open-copy-btn').forEach(b=>{
+b.addEventListener('click', (ev)=>{ ev.stopPropagation(); copyPlatformSummary(b.dataset.id, true); if (openPlatformInApp(b.dataset.id)) ev.preventDefault(); });  });
+}
+
+function openReq(id, forceOpen){
+  const body = document.getElementById('body-'+id);
+  if(!body) return;
+  if(forceOpen){ body.classList.add('open'); return; }
+  body.classList.toggle('open');
+}
+
+function hamlfAutofill(data){
+  if (window.__hamlfFill) { window.__hamlfFill(); return; }
+  const norm = s => String(s || '').toLowerCase()
+    .replace(/[\u064B-\u0652\u0640]/g, '')
+    .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+    .replace(/[\s_\-.:*()|]+/g, ' ').trim();
+  const SYN = {
+    fullName:['fullname','full name','الاسم بالكامل','الاسم كامل','الاسم الرباعي','الاسم رباعي'],
+    firstName:['firstname','first name','fname','الاسم الاول'],
+    secondName:['secondname','second name','middlename','middle name','الاسم الثاني','اسم الاب'],
+    thirdName:['thirdname','third name','الاسم الثالث','اسم الجد'],
+    lastName:['lastname','last name','familyname','family name','surname','اسم العائله','الاسم الاخير','الاسم الرابع','اللقب'],
+    mobile:['mobile','phonenumber','phone','رقم المحمول','المحمول','الموبايل','رقم الهاتف','الهاتف','التليفون','رقم الجوال'],
+    email:['email','e mail','البريد الالكتروني','الايميل'],
+    nationalId:['nationalid','national id','nid','الرقم القومي','رقم قومي','رقم البطاقه'],
+    nationality:['nationality','الجنسيه'],
+    gender:['gender','النوع','الجنس'],
+    officeName:['officename','office name','اسم المكتب','اسم الشهره','السمه التجاريه'],
+    barNumber:['barnumber','bar number','lawyerid','licenseno','license number','membership','رقم القيد','رقم العضويه','رقم الكارنيه','رقم الترخيص','رقم الرخصه','رقم قيد'],
+    barDegree:['bardegree','degree','درجه القيد','الدرجه','درجه المحامي'],
+    barRegDate:['regdate','registrationdate','تاريخ القيد'],
+    barCardExpiry:['expirydate','expiry','تاريخ انتهاء','تاريخ الانتهاء'],
+    taxId:['taxid','tax id','taxnumber','tax number','الرقم الضريبي','رقم التسجيل الضريبي','رقم البطاقه الضريبيه'],
+    governorate:['governorate','province','المحافظه'],
+    city:['city','المدينه'],
+    district:['district','الحي','القسم','المركز','المنطقه'],
+    street:['street','الشارع','اسم الشارع'],
+    buildingNo:['buildingno','building','رقم العقار','رقم المبني','العقار'],
+    floorNo:['floorno','floor','الدور','الطابق'],
+    apartmentNo:['apartmentno','apartment','flat','رقم الشقه','الشقه'],
+    fax:['fax','الفاكس'],
+    landmark:['landmark','علامه مميزه'],
+    idDocType:['doctype','idtype','نوع مستند الهويه','نوع المستند','نوع الهويه'],
+  };
+  const d = Object.assign({}, data);
+    if (d.mobile) { let m = String(d.mobile).replace(/\D/g, ''); if (m.indexOf('0020') === 0) m = m.slice(2); if (m.indexOf('20') === 0 && m.length === 12) m = '0' + m.slice(2); d.mobile = m; }
+  const names = [d.firstName, d.secondName, d.thirdName, d.lastName].filter(Boolean);
+  if (names.length >= 2 && !d.fullName) d.fullName = names.join(' ');
+  const KEYS = Object.keys(SYN).filter(k => d[k]);
+  const NSYN = {}; KEYS.forEach(k => { NSYN[k] = SYN[k].map(norm); });
+  function labelFor(el){
+    let t = '';
+    if (el.id) { try { const l = document.querySelector('label[for="' + CSS.escape(el.id) + '"]'); if (l) t += ' ' + l.textContent; } catch(e){} }
+    const w = el.closest('label'); if (w) t += ' ' + w.textContent;
+    return t;
+  }
+  function describe(el){
+    const parts = [el.name, el.id, el.getAttribute('formcontrolname'), el.getAttribute('ng-reflect-name'),
+      el.getAttribute('placeholder'), el.getAttribute('aria-label'), el.title, labelFor(el)];
+    let p = el.parentElement;
+    for (let i = 0; i < 4 && p; i++, p = p.parentElement) {
+      if (p.querySelectorAll('input,select,textarea').length > 1) break;
+      const l = p.querySelector('label,mat-label,legend,.label,.control-label');
+      if (l) { parts.push(l.textContent); break; }
+    }
+    const s = norm(parts.filter(Boolean).join(' | '));
+    return s + ' ' + s.replace(/ /g, '');
+  }
+  function bestKey(desc){
+    let best = null, len = 0;
+    KEYS.forEach(k => NSYN[k].forEach(sy => { if (sy && desc.indexOf(sy) !== -1 && sy.length > len) { best = k; len = sy.length; } }));
+    return best;
+  }
+  function setVal(el, v){
+    const proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, v);
+    ['input','change','blur'].forEach(t => el.dispatchEvent(new Event(t, {bubbles:true})));
+  }
+  function mark(el){ el.dataset.hamlf = '1'; el.style.backgroundColor = '#fff4c2'; }
+  function toast(msg){
+    let b = document.getElementById('__hamlf_toast');
+    if (!b) {
+      b = document.createElement('div'); b.id = '__hamlf_toast';
+      b.style.cssText = 'position:fixed;left:12px;right:12px;bottom:16px;z-index:2147483647;background:#1e2430;color:#fff;padding:12px 14px;border-radius:10px;font:14px sans-serif;text-align:center;direction:rtl';
+      document.body.appendChild(b);
+    }
+    b.textContent = msg; b.style.display = 'block';
+    clearTimeout(b._t); b._t = setTimeout(() => { b.style.display = 'none'; }, 4000);
+  }
+    const DOCSYN = {
+    docNationalId:['الرقم القومي','جواز السفر','بطاقه الهويه'],
+    docBarCard:['كارنيه','بطاقه النقابه','عضويه النقابه'],
+    docTaxCard:['البطاقه الضريبيه','ضريبي'],
+    docPoa:['توكيل'],
+  };
+  function fileContext(inp){
+    let p = inp.parentElement, last = inp;
+    for (let i = 0; i < 8 && p; i++, p = p.parentElement) {
+      if (p.querySelectorAll('input[type=file]').length > 1) break;
+      last = p;
+    }
+    let t = ' ' + last.textContent, s = last.previousElementSibling;
+    for (let i = 0; i < 3 && s; i++, s = s.previousElementSibling) t += ' ' + s.textContent;
+    return norm(t);
+  }
+  function attachDocs(){
+    let n = 0;
+    (d.__docs || []).forEach(doc => {
+      if (doc.done) return;
+      const syn = (DOCSYN[doc.key] || []).map(norm);
+      const inputs = Array.from(document.querySelectorAll('input[type=file]')).filter(i => !i.dataset.hamlf);
+      for (const inp of inputs) {
+        if (!syn.some(s => fileContext(inp).indexOf(s) !== -1)) continue;
+        try {
+          const bin = atob(doc.b64); const arr = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          const dt = new DataTransfer(); dt.items.add(new File([arr], doc.name, {type: doc.type}));
+          inp.files = dt.files;
+          inp.dispatchEvent(new Event('change', {bubbles:true}));
+          inp.dataset.hamlf = '1'; doc.done = true; n++;
+        } catch(e) {}
+        break;
+      }
+    });
+    return n;
+  }
+  let total = 0;
+  function fill(){
+    let n = 0;
+    document.querySelectorAll('input,select,textarea').forEach(el => {
+      if (el.dataset.hamlf || el.disabled || el.readOnly) return;
+      const t = (el.type || '').toLowerCase();
+      if (['hidden','password','file','checkbox','submit','button','image','reset'].indexOf(t) !== -1) return;
+      if (el.offsetParent === null && t !== 'radio') return;
+      const k = bestKey(describe(el)); if (!k) return;
+      const v = String(d[k]); const nv = norm(v);
+      if (el.tagName === 'SELECT') {
+        const opt = Array.from(el.options).find(o => { const ot = norm(o.textContent); return ot && (ot === nv || (ot.length > 1 && (ot.indexOf(nv) !== -1 || nv.indexOf(ot) !== -1))); });
+        if (!opt) return;
+        el.value = opt.value; el.dispatchEvent(new Event('change', {bubbles:true})); mark(el); n++; return;
+      }
+      if (t === 'radio') {
+        const lt = norm(labelFor(el) || el.value);
+        if (lt && (lt === nv || lt.indexOf(nv) !== -1 || nv.indexOf(lt) !== -1)) { el.click(); mark(el); n++; }
+        return;
+      }
+      if (el.value) return;
+      if (t === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(v)) return;
+      setVal(el, v); mark(el); n++;
+    });
+        n += attachDocs();
+    if (n) { total += n; toast('HAMLF: اتملت ' + total + ' خانة من بياناتك — راجعها قبل الإرسال'); }
+  }
+  window.__hamlfFill = fill;
+  fill();
+  let timer = null;
+  const obs = new MutationObserver(() => { clearTimeout(timer); timer = setTimeout(fill, 400); });
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+  setTimeout(() => obs.disconnect(), 10 * 60 * 1000);
+}
+
+function openPlatformInApp(id){
+  const p = PLATFORMS.find(x=>x.id===id);
+  if (!p || !window.AndroidPortal) return false;
+  const data = {};
+  p.requires.forEach(k=>{ if (profile[k]) data[k] = String(profile[k]); });
+  p.extra.forEach(e=>{ if (profile[e.key]) data[e.key] = String(profile[e.key]); });
+  /* البيانات الأساسية كمان (تسجيل الدخول/إنشاء الحساب) — بتتملى بس لو خانتها موجودة في الصفحة */
+  ['firstName','secondName','thirdName','lastName','nationalId','mobile','email','gender','nationality','governorate','city','district','street','buildingNo','floorNo','apartmentNo','officeName','barNumber','barDegree','barRegDate','barCardExpiry','taxId','fax','landmark']
+    .forEach(k=>{ if (profile[k] && !data[k]) data[k] = String(profile[k]); });
+  collectDocsFor(p).then(docs=>{
+    data.__docs = docs;
+    AndroidPortal.open(p.url, '(' + hamlfAutofill.toString() + ')(' + JSON.stringify(data) + ');');
+  });
+  return true;
+}
+
+/* اختيار طريقة إضافة المستند: تصوير أو رفع ملف */
+function openDocSheet(key){
+  const old = document.getElementById('docSheet'); if (old) old.remove();
+  const sh = document.createElement('div'); sh.id = 'docSheet';
+  sh.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center';
+  sh.innerHTML = '<div style="background:var(--surface,#fff);width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:16px;display:grid;gap:10px"><div style="font-weight:700;text-align:center">' + (/Back$/.test(key) ? 'صورة الظهر' : cardBackOf(key) ? 'صورة الوجه — أو اختار الوجه والظهر مع بعض' : 'المستند') + '</div>'
+    + '<button type="button" class="btn primary" data-m="camera">📷 تصوير</button>'
+    + '<button type="button" class="btn ghost" data-m="file">📁 رفع ملف من الموبايل</button>'
+    + '<button type="button" class="btn ghost" data-m="">إلغاء</button></div>';
+  sh.addEventListener('click', e => {
+    const b = e.target.closest('[data-m]');
+    if (e.target === sh || b) sh.remove();
+    if (b && b.dataset.m) pickDocFile(key, b.dataset.m);
+  });
+  document.body.appendChild(sh);
+}
+
+function cardBackOf(k){ return {docNationalId:'docNationalIdBack', docBarCard:'docBarCardBack'}[k]; }
+function isCardDoc(k){ return /^doc(NationalId|BarCard|TaxCard)$/.test(k); }
+
+function blobToDataUrl(blob){
+  return new Promise((res, rej)=>{ const r = new FileReader(); r.onload = ()=>res(String(r.result)); r.onerror = ()=>rej(r.error); r.readAsDataURL(blob); });
+}
+
+/* قص تلقائي لحواف البطاقة (نسخة 2): بيدوّر على منطقة الحواف/الكتابة الكثيفة (البطاقة) بدل فرق اللون،
+   وبيتأكد إن الشكل اللي لقاه نسبته قريبة من نسبة البطاقة (1.59) ومساحته معقولة —
+   لو مش متأكد (زي ما يلاقي صورة الوش بس) مبيقصّش خالص. */
+/* لف الصورة 90 درجة مع عقارب الساعة */
+function rotate90(src){
+  const w = src.naturalWidth || src.width, h = src.naturalHeight || src.height;
+  const c = document.createElement('canvas'); c.width = h; c.height = w;
+  const g = c.getContext('2d'); g.translate(h, 0); g.rotate(Math.PI / 2); g.drawImage(src, 0, 0, w, h);
+  return c;
+}
+
+/* الضغط على الصورة المصغّرة بيلف المستند المحفوظ 90 درجة */
+async function rotateStoredDoc(im){
+  try {
+    const r = docRec(await docDb('get', im.dataset.docthumb));
+    const img = await loadImage(r.blob);
+    const out = (await canvasToJpeg(rotate90(img), 2200, 1200)).blob;
+    await docDb('put', im.dataset.docthumb, {buf: await out.arrayBuffer(), type: 'image/jpeg', name: r.name});
+    im.src = URL.createObjectURL(out);
+    showToast('اتلفّت الصورة ↻');
+  } catch(e) { showToast('تعذّر لف الصورة'); }
+}
+
+function autoCropCard(img){
+  const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+  const out = document.createElement('canvas');
+  const asIs = () => { out.width = W; out.height = H; out.getContext('2d').drawImage(img, 0, 0, W, H); return out; };
+  const sc = Math.min(1, 400 / Math.max(W, H));
+  const w = Math.max(8, Math.round(W * sc)), h = Math.max(8, Math.round(H * sc));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'); g.drawImage(img, 0, 0, w, h);
+  const px = g.getImageData(0, 0, w, h).data;
+  const gray = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) gray[i] = px[i * 4] * .3 + px[i * 4 + 1] * .59 + px[i * 4 + 2] * .11;
+  const xs = [], ys = [];
+  for (let y = 2; y < h - 2; y++) for (let x = 2; x < w - 2; x++) {
+    const i = y * w + x;
+    if (Math.abs(gray[i + 1] - gray[i - 1]) + Math.abs(gray[i + w] - gray[i - w]) > 40) { xs.push(x); ys.push(y); }
+  }
+  if (xs.length < 200) return asIs();
+  xs.sort((a, b) => a - b); ys.sort((a, b) => a - b);
+  const q = (a, p) => a[Math.min(a.length - 1, Math.max(0, Math.round(p * (a.length - 1))))];
+  let left = q(xs, .01), right = q(xs, .99), top = q(ys, .01), bot = q(ys, .99);
+  const bw = right - left + 1, bh = bot - top + 1;
+  const fw = bw / w, fh = bh / h;
+  if (fw > .8 && fh > .8) return asIs();
+  const ratio = Math.max(bw, bh) / Math.min(bw, bh);
+  if (fw * fh < .2 || ratio < 1.25 || ratio > 2) return asIs();
+  const m = 0.03;
+  const x0 = Math.max(0, (left / w - m) * W), y0 = Math.max(0, (top / h - m) * H);
+  const x1 = Math.min(W, ((right + 1) / w + m) * W), y1 = Math.min(H, ((bot + 1) / h + m) * H);
+  out.width = Math.round(x1 - x0); out.height = Math.round(y1 - y0);
+  out.getContext('2d').drawImage(img, x0, y0, x1 - x0, y1 - y0, 0, 0, out.width, out.height);
+  out.__cropped = true;
+  return out;
+}
+
+/* ضغط لحد maxKB: بالجودة الأول، ولو لسه كبيرة يصغّر الأبعاد */
+async function canvasToJpeg(src, maxDim, maxKB){
+  let w = src.naturalWidth || src.width, h = src.naturalHeight || src.height;
+  if (w > maxDim || h > maxDim) { const k = maxDim / Math.max(w, h); w = Math.round(w * k); h = Math.round(h * k); }
+  let blob = null, bw = w, bh = h;
+  for (let pass = 0; pass < 4; pass++) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    c.getContext('2d').drawImage(src, 0, 0, w, h);
+    for (let q = 0.9; q >= 0.35; q -= 0.1) {
+      blob = await new Promise(r => c.toBlob(r, 'image/jpeg', q)); bw = w; bh = h;
+      if (blob.size / 1024 <= maxKB) return {blob, width:bw, height:bh};
+    }
+    w = Math.round(w * 0.8); h = Math.round(h * 0.8);
+  }
+  return {blob, width:bw, height:bh};
+}
+
+/* البطاقة (وجه + ظهر) في صفحة PDF واحدة A4، بعد القص والضغط */
+async function buildCardPdf(blobs, maxKB){
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({orientation:'p', unit:'mm', format:'a4'});
+  const sides = blobs.filter(Boolean);
+  const per = Math.max(120, Math.floor((maxKB - 60) / sides.length));
+  for (let i = 0; i < sides.length; i++) {
+    const img = await loadImage(sides[i]);
+    const {blob, width, height} = await canvasToJpeg(autoCropCard(img), 1600, per);
+    const r = Math.min(170 / width, 125 / height), dw = width * r, dh = height * r;
+    pdf.addImage(await blobToDataUrl(blob), 'JPEG', 20 + (170 - dw) / 2, 15 + i * 135 + (125 - dh) / 2, dw, dh);
+  }
+  return pdf.output('blob');
+}
+
+async function collectDocsFor(p){
+  const spec = p.fileSpec || DEFAULT_FILE_SPEC;
+  const maxKB = Math.min(spec.maxKB, 1500);
+  const out = [];
+  const isImg = r => !!(r && r.blob && String(r.type || r.blob.type || '').indexOf('image/') === 0);
+  for (const k of (p.docs || [])) {
+    let rec = null, back = null;
+    try { rec = docRec(await docDb('get', k)); } catch(e) {}
+    if (cardBackOf(k)) { try { back = docRec(await docDb('get', cardBackOf(k))); } catch(e) {} }
+    if (!(rec && rec.blob) && !(back && back.blob)) continue;
+    let blob = null, type = 'image/jpeg', ext = 'jpg';
+    try {
+      if (isCardDoc(k) && window.jspdf && (isImg(rec) || isImg(back))) {
+        blob = await buildCardPdf([isImg(rec) ? rec.blob : null, isImg(back) ? back.blob : null], maxKB);
+        type = 'application/pdf'; ext = 'pdf';
+      } else if (isImg(rec)) {
+        const img = await loadImage(rec.blob);
+        blob = (await canvasToJpeg(isCardDoc(k) ? autoCropCard(img) : img, spec.maxDim, maxKB)).blob;
+      } else if (rec && rec.blob && rec.type === 'application/pdf') {
+        if (rec.blob.size / 1024 > spec.maxKB) continue;
+        blob = rec.blob; type = 'application/pdf'; ext = 'pdf';
+      } else continue;
+    } catch(e) { continue; }
+    out.push({key:k, name:k + '.' + ext, type, b64:(await blobToDataUrl(blob)).split(',')[1]});
+  }
+  return out;
+}
+
+function docDb(op, key, val){
+  const job = new Promise((res, rej)=>{
+    const r = indexedDB.open('hamlf-docs', 1);
+    r.onupgradeneeded = ()=>r.result.createObjectStore('docs');
+    r.onerror = ()=>rej(r.error || new Error('open failed'));
+    r.onblocked = ()=>rej(new Error('blocked'));
+    r.onsuccess = ()=>{
+      try {
+        const st = r.result.transaction('docs', op === 'get' ? 'readonly' : 'readwrite').objectStore('docs');
+        const q = op === 'get' ? st.get(key) : op === 'put' ? st.put(val, key) : st.delete(key);
+        q.onsuccess = ()=>res(q.result);
+        q.onerror = ()=>rej(q.error || new Error('request failed'));
+      } catch(e) { rej(e); }
+    };
+  });
+  return Promise.race([job, new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 8000))]);
+}
+
+/* المستندات بتتخزن كـ ArrayBuffer (أضمن من Blob جوه WebView) — دي بترجّعها Blob تاني */
+function docRec(r){
+  if (r && !r.blob && r.buf) r.blob = new Blob([r.buf], {type: r.type || 'image/jpeg'});
+  return r;
+}
+
+function pickDocFile(key, mode){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = mode === 'camera' ? 'image/*' : 'image/*,application/pdf';
+  if (mode === 'camera') inp.setAttribute('capture', 'environment');
+  if (mode !== 'camera' && cardBackOf(key)) inp.multiple = true;
+  inp.style.display = 'none';
+  document.body.appendChild(inp);
+  inp.addEventListener('change', async ()=>{
+    const files = Array.from(inp.files || []); inp.remove(); if (!files.length) return;
+    showToast('جاري حفظ المستند…');
+    const back = cardBackOf(key); let cropped = 0;
+    const save = async (k, f) => {
+      let blob = f, type = f.type || 'image/jpeg';
+      if (type.indexOf('image/') === 0) {
+        try { const img = await loadImage(f); const src = /^doc(NationalId|BarCard|TaxCard)/.test(k) ? autoCropCard(img) : img; if (src.__cropped) cropped++; const land = (/^doc(NationalId|BarCard|TaxCard)/.test(k) && src.height > src.width * 1.1) ? rotate90(src) : src; blob = (await canvasToJpeg(land, 2200, 1200)).blob; type = 'image/jpeg'; } catch(e) {}
+      }
+      const buf = await blob.arrayBuffer();
+      await docDb('put', k, {buf, type, name: f.name || k});
+      profile[k] = true;
+    };
+    try {
+      await save(key, files[0]);
+      if (back && files[1]) await save(back, files[1]);
+      const cn = cropped ? ' (اتقصّت الحواف تلقائيًا)' : '';
+      saveProfile(); renderProfileForm(); renderReqList(); renderHub();
+      if (back && files[1]) showToast('✓ اتحفظ الوجه والظهر' + cn);
+      else if (back && !profile[back]) { showToast('✓ اتحفظ الوجه' + cn + ' — اختار الظهر دلوقتي'); setTimeout(()=>openDocSheet(back), 900); }
+      else if (/Back$/.test(key)) showToast('✓ اتحفظ الظهر' + cn);
+      else showToast('✓ اتحفظ المستند على جهازك' + cn);
+    } catch(e) { showToast('تعذّر حفظ المستند: ' + ((e && e.message) || e)); }
+  });
+  try { if (window.AndroidScanner && AndroidScanner.prepareCapture) AndroidScanner.prepareCapture(/^doc(NationalId|BarCard|TaxCard)/.test(key) ? 'card' : 'document', ''); } catch(e) {}
+  inp.click();
+}
+
+  function copyTextLegacy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly','');
+  ta.style.position = 'fixed';
+  ta.style.top = '-1000px';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch(e) { ok = false; }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+function copyTextRobust(text){
+  if (copyTextLegacy(text)) return Promise.resolve();
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    return Promise.race([
+      navigator.clipboard.writeText(text),
+      new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 1500))
+    ]);
+  }
+  return Promise.reject(new Error('copy failed'));
+}
+
+  function copyPlatformSummary(id, opening){
+  const p = PLATFORMS.find(x=>x.id===id);
+  const lines = [`— بيانات المحامي لمنصة ${p.name} —`];
+  p.requires.forEach(k=>{
+    const f = fieldMeta(k);
+    lines.push(`${f.label}: ${profile[k] || '(غير متوفر)'}`);
+  });
+  p.extra.forEach(e=>{
+    lines.push(`${e.label}: ${profile[e.key] || '(غير متوفر)'}`);
+  });
+  const text = lines.join('\n');
+   copyTextRobust(text).then(()=>{
+    showToast(opening
+      ? 'اتنسخت البيانات — هيفتح نموذج '+p.name+' الآن، الصقها فيه'
+      : 'اتنسخت البيانات — الصقها في نموذج '+p.name);
+  }).catch(()=>{
+    showToast('تعذر النسخ التلقائي — انسخ يدويًا من قائمة البيانات');
+  });
+}
+
+/* ---------------- toast ---------------- */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ---------------- compare table ---------------- */
+const COMPARE_ROWS = [
+  {label:'الاسم رباعي', shared:true, cells:['✓','✓','✓','✓','✓']},
+  {label:'الرقم القومي', shared:true, cells:['✓','✓','✓','✓','✓']},
+  {label:'رقم الهاتف المحمول', shared:true, cells:['✓','✓','✓','✓','✓']},
+  {label:'البريد الإلكتروني', shared:true, cells:['—','✓','✓','✓','✓']},
+  {label:'عنوان المكتب الكامل', shared:true, cells:['✓','— (عنوان عام)','✓','✓','—']},
+  {label:'رقم القيد بنقابة المحامين', shared:true, cells:['✓','✓ + تاريخ ونوع','✓','—','—']},
+  {label:'الرقم الضريبي', shared:false, cells:['—','—','✓ (شرط أساسي)','عند التسجيل كممول','—']},
+  {label:'رقم التوكيل العام', shared:false, cells:['✓ إلزامي','—','—','—','—']},
+  {label:'اسم مكتب/سمة تجارية', shared:false, cells:['✓','—','✓','✓','—']},
+  {label:'صورة كارنيه المحاماة', shared:false, cells:['✓','—','✓','—','—']},
+  {label:'المؤهل الدراسي + فيش وتشبيه', shared:false, cells:['—','—','—','—','✓ (برنامج تأهيلي)']},
+  {label:'رسوم عند التسجيل', shared:false, cells:['50 جنيه','غير مذكورة','غير مذكورة','غير مذكورة','رسوم برنامج فعلية']},
+];
+function renderCompareTable(){
+  const heads = ['البيان', ...PLATFORMS.map(p=>p.name)];
+  const thead = `<thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
+  // pad/derive a cell per current PLATFORMS entry (built-in rows were authored for the
+  // original 5; any platform beyond that — static "digitalgov_courts" or db-discovered —
+  // gets a live-computed cell instead of a hand-written one)
+  const rows = COMPARE_ROWS.map(r=>{
+    const cells = PLATFORMS.map((p,i)=>{
+      if(i<r.cells.length) return r.cells[i];
+      const matchesMaster = p.requires.some(k=>{ const m=fieldMeta(k); return m && r.label.startsWith(m.label); });
+      const matchesExtra = p.extra.some(e=>r.label.startsWith(e.label));
+      return (matchesMaster||matchesExtra) ? '✓' : '—';
+    });
+    return {...r, cells};
+  });
+  const tbody = `<tbody>${rows.map(r=>`
+    <tr>
+      <td>${r.shared?'<span class="tag-order" title="مشترك">✓</span>':''}${r.label}</td>
+      ${r.cells.map(c=>`<td>${c}</td>`).join('')}
+    </tr>`).join('')}</tbody>`;
+  document.getElementById('compareTable').innerHTML = thead+tbody;
+}
+
+const ORDER = [
+  {t:'مصلحة الضرائب', why:'سجّل كممول الأول عشان تاخد "الرقم الضريبي" — هتحتاجه في تسجيل المحاكم الاقتصادية.'},
+  {t:'النيابة العامة + المحكمة الرقمية (وزارة العدل)', why:'أساسيات بس: رقم قومي + رقم قيد النقابة. بينهم منصة وزارة العدل بتاخد رسوم 50 جنيه.'},
+  {t:'مصر الرقمية — خدمات المحاكم', why:'التسجيل يحتاج توقيع إقرار حضوري بالمحكمة المختارة — احجزها بدري لأنها مش إلكترونية بالكامل، وبعدها تقدر ترفع دعاوى مدنية عن بُعد (منها شمال/جنوب الجيزة الابتدائية).'},
+  {t:'المحاكم الاقتصادية (ELEC)', why:'سجّل هنا بعد ما يبقى معاك الرقم الضريبي جاهز.'},
+  {t:'GAFI/ISN (اختياري)', why:'لو ناوي تشتغل وكيل مستثمرين معتمد — مسار تأهيلي منفصل وطويل، مش أولوية للتقاضي العادي.'},
+];
+function renderOrder(){
+  document.getElementById('orderList').innerHTML = ORDER.map((o,i)=>`
+    <div class="order-item">
+      <span class="tag-order">${i+1}</span>
+      <div><div><strong>${o.t}</strong></div><div class="why">${o.why}</div></div>
+    </div>`).join('');
+}
+
+/* ---------------- helpers ---------------- */
+/* تهريب كامل (F-SEC-4): الاتنين بقوا بيغطّوا & < > " ' */
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s){ return escapeHtml(s); }
+
+/* ---------------- device check ---------------- */
+function detectDevice(){
+  const ua = navigator.userAgent || '';
+  const touch = (navigator.maxTouchPoints||0) > 0 || 'ontouchstart' in window;
+  const w = Math.max(window.screen.width, window.screen.height);
+  let type = 'كمبيوتر';
+  if(/Mobi|Android.*Mobile|iPhone/i.test(ua)) type = 'هاتف محمول';
+  else if(/iPad|Tablet|Android(?!.*Mobile)/i.test(ua) || (touch && w<1400 && w>=768)) type = 'تابلت';
+  else if(touch && w<768) type = 'هاتف محمول';
+
+  let browser = 'غير معروف';
+  if(/Edg\//.test(ua)) browser = 'Microsoft Edge';
+  else if(/OPR\//.test(ua)) browser = 'Opera';
+  else if(/Chrome\//.test(ua) && !/Edg\//.test(ua)) browser = 'Google Chrome';
+  else if(/Safari\//.test(ua) && !/Chrome\//.test(ua)) browser = 'Safari';
+  else if(/Firefox\//.test(ua)) browser = 'Firefox';
+
+  let os = 'غير معروف';
+  if(/Windows/i.test(ua)) os = 'Windows';
+  else if(/Android/i.test(ua)) os = 'Android';
+  else if(/iPhone|iPad|iOS/i.test(ua)) os = 'iOS';
+  else if(/Mac OS/i.test(ua)) os = 'macOS';
+  else if(/Linux/i.test(ua)) os = 'Linux';
+
+  const supportsMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  return {type, browser, os, supportsMedia};
+}
+
+function renderDeviceSummary(){
+  const d = detectDevice();
+  document.getElementById('deviceSummary').innerHTML = `
+    <div class="stat-tile"><div class="lbl">نوع الجهاز</div><div class="val">${d.type}</div></div>
+    <div class="stat-tile"><div class="lbl">نظام التشغيل</div><div class="val">${d.os}</div></div>
+    <div class="stat-tile"><div class="lbl">المتصفح</div><div class="val">${d.browser}</div></div>
+    <div class="stat-tile"><div class="lbl">دعم الكاميرا/الميكروفون</div><div class="val" style="color:${d.supportsMedia?'var(--good)':'var(--bad)'}">${d.supportsMedia?'مدعوم ✓':'غير مدعوم ✗'}</div></div>
+  `;
+  checkNetwork();
+}
+
+function setPill(id, cls, text){
+  const el = document.getElementById(id);
+  el.className = 'status-pill '+cls;
+  el.textContent = text;
+}
+
+let camStream = null;
+document.getElementById('camTestBtn').addEventListener('click', async ()=>{
+  const video = document.getElementById('camPreview');
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; video.srcObject=null; setPill('camStatus','idle','لم يُختبر'); document.getElementById('camTestBtn').textContent='اختبار الكاميرا'; return; }
+  setPill('camStatus','testing','جاري الطلب…');
+  try{
+    camStream = await navigator.mediaDevices.getUserMedia({video:true});
+    video.srcObject = camStream;
+    setPill('camStatus','ok','تعمل ✓');
+    document.getElementById('camTestBtn').textContent='إيقاف الكاميرا';
+  }catch(e){
+    setPill('camStatus','bad','مرفوض / غير متاحة');
+    showToast('اسمح بإذن الكاميرا من إعدادات المتصفح وحاول تاني');
+  }
+});
+
+let micStream=null, micAnimId=null;
+document.getElementById('micTestBtn').addEventListener('click', async ()=>{
+  if(micStream){
+    cancelAnimationFrame(micAnimId);
+    micStream.getTracks().forEach(t=>t.stop()); micStream=null;
+    document.getElementById('micBar').style.width='0%';
+    setPill('micStatus','idle','لم يُختبر');
+    document.getElementById('micTestBtn').textContent='اختبار الميكروفون';
+    return;
+  }
+  setPill('micStatus','testing','جاري الطلب…');
+  try{
+    micStream = await navigator.mediaDevices.getUserMedia({audio:true});
+    setPill('micStatus','ok','يعمل ✓ — اتكلم الآن');
+    document.getElementById('micTestBtn').textContent='إيقاف الميكروفون';
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const src = ctx.createMediaStreamSource(micStream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    src.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const bar = document.getElementById('micBar');
+    (function loop(){
+      analyser.getByteFrequencyData(data);
+      const avg = data.reduce((a,b)=>a+b,0)/data.length;
+      bar.style.width = Math.min(100, avg*1.6)+'%';
+      micAnimId = requestAnimationFrame(loop);
+    })();
+  }catch(e){
+    setPill('micStatus','bad','مرفوض / غير متاح');
+    showToast('اسمح بإذن الميكروفون من إعدادات المتصفح وحاول تاني');
+  }
+});
+
+document.getElementById('spkTestBtn').addEventListener('click', ()=>{
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 880;
+    gain.gain.value = 0.15;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start();
+    setPill('spkStatus','testing','بتشتغل الآن…');
+    setTimeout(()=>{ osc.stop(); ctx.close(); setPill('spkStatus','ok','تم التشغيل ✓'); }, 700);
+  }catch(e){
+    setPill('spkStatus','bad','تعذر التشغيل');
+  }
+});
+
+function checkNetwork(){
+  const online = navigator.onLine;
+  let detail = online ? 'متصل بالإنترنت' : 'غير متصل بالإنترنت';
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if(conn){
+    detail += ` — نوع الشبكة: ${conn.effectiveType || 'غير معروف'}${conn.downlink? ' — سرعة تقريبية: '+conn.downlink+' ميجابت/ث':''}`;
+  }
+  document.getElementById('netDetail').textContent = detail;
+  setPill('netStatus', online?'ok':'bad', online?'متصل ✓':'غير متصل ✗');
+}
+window.addEventListener('online', ()=>{ if(document.getElementById('view-device').classList.contains('active')) checkNetwork(); });
+window.addEventListener('offline', ()=>{ if(document.getElementById('view-device').classList.contains('active')) checkNetwork(); });
+
+/* ---------------- POA (توكيلات) database ---------------- */
+function loadPoaList(){ return profile.poaRecords || []; }
+function savePoaList(list){ profile.poaRecords = list; saveProfile(); }
+
+function renderPoaList(){
+  const list = loadPoaList();
+  const el = document.getElementById('poaList');
+  if(!list.length){
+    el.innerHTML = '<div class="empty-note">لسه مفيش توكيلات مسجّلة — ضيف أول واحد تحت.</div>';
+    return;
+  }
+  el.innerHTML = list.map(p=>`
+    <div class="poa-item ${p.active?'active':''}">
+      <div>
+        <div class="who">${escapeHtml(p.client||'(بدون اسم)')} ${p.active?'🟢':''}</div>
+        <div class="meta2">
+          <span class="mono">رقم: ${escapeHtml(p.number||'—')}</span>
+          <span>${escapeHtml(p.scope||'—')}</span>
+          <span>${escapeHtml(p.date||'—')}</span>
+        </div>
+      </div>
+      <div class="poa-actions2">
+        <button class="icon-btn" title="تفعيل كتوكيل نشط" data-poa-activate="${p.id}">🟢</button>
+        <button class="icon-btn" title="حذف" data-poa-del="${p.id}">🗑</button>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('[data-poa-activate]').forEach(b=>b.addEventListener('click', ()=>{
+    const list = loadPoaList().map(p=>({...p, active: p.id===b.dataset.poaActivate}));
+    savePoaList(list);
+    const active = list.find(p=>p.active);
+    if(active){ profile.poaNumber = active.number; saveProfile(); }
+    renderPoaList(); renderReqList(); renderHub();
+    showToast('اتفعّل التوكيل — رقمه بقى جاهز لأي منصة تطلبه');
+  }));
+  el.querySelectorAll('[data-poa-del]').forEach(b=>b.addEventListener('click', ()=>{
+    savePoaList(loadPoaList().filter(p=>p.id!==b.dataset.poaDel));
+    renderPoaList();
+  }));
+}
+
+document.getElementById('poaAddBtn').addEventListener('click', ()=>{
+  const client = document.getElementById('poa_client').value.trim();
+  const number = document.getElementById('poa_number').value.trim();
+  const date = document.getElementById('poa_date').value;
+  const scope = document.getElementById('poa_scope').value.trim();
+  if(!client || !number){
+    document.getElementById('poaNote').textContent = 'محتاج اسم الموكّل ورقم التوكيل على الأقل';
+    return;
+  }
+  const list = loadPoaList();
+  const isFirst = list.length===0;
+  list.push({id:'poa_'+Date.now(), client, number, date, scope, active:isFirst});
+  savePoaList(list);
+  if(isFirst){ profile.poaNumber = number; saveProfile(); }
+  ['poa_client','poa_number','poa_date','poa_scope'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('poaNote').textContent = '';
+  renderPoaList(); renderReqList(); renderHub();
+  showToast('اتضاف التوكيل');
+});
+
+/* ---------------- document preparation (client-side, on-device only) ---------------- */
+const DEFAULT_FILE_SPEC = {format:'jpg', maxKB:3000, maxDim:1800, note:'افتراضي عام — لا توجد مواصفة مذكورة صراحة لهذه المنصة'};
+let prepFile = null;
+
+function renderPrepPlatformOptions(){
+  const sel = document.getElementById('prepPlatform');
+  sel.innerHTML = PLATFORMS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', ()=>fileInput.click());
+dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e=>{
+  e.preventDefault(); dropZone.classList.remove('drag');
+  if(e.dataTransfer.files[0]) handlePrepFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e=>{ if(e.target.files[0]) handlePrepFile(e.target.files[0]); });
+
+function handlePrepFile(file){
+  prepFile = file;
+  const url = URL.createObjectURL(file);
+  document.getElementById('prepImg').src = url;
+  document.getElementById('prepPreview').style.display = 'flex';
+  document.getElementById('prepInfo').innerHTML = `<b>${escapeHtml(file.name)}</b><br>${(file.size/1024).toFixed(0)} كيلوبايت — ${file.type||'نوع غير معروف'}`;
+  document.getElementById('prepBtn').disabled = false;
+  document.getElementById('prepResult').classList.remove('show');
+}
+
+function loadImage(file){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    img.onload = ()=>resolve(img);
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function resizeToJpeg(img, maxDim, maxKB){
+  let {width:w, height:h} = img;
+  if(w>maxDim || h>maxDim){
+    const scale = maxDim/Math.max(w,h);
+    w = Math.round(w*scale); h = Math.round(h*scale);
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+  let quality = 0.92, blob;
+  for(let i=0;i<8;i++){
+    blob = await new Promise(res=>canvas.toBlob(res, 'image/jpeg', quality));
+    if(blob.size/1024 <= maxKB || quality<=0.35) break;
+    quality -= 0.1;
+  }
+  return {blob, width:w, height:h};
+}
+
+document.getElementById('prepBtn').addEventListener('click', async ()=>{
+  if(!prepFile) return;
+  const platform = PLATFORMS.find(p=>p.id===document.getElementById('prepPlatform').value);
+  const spec = (platform && platform.fileSpec) || DEFAULT_FILE_SPEC;
+  const btn = document.getElementById('prepBtn');
+  btn.disabled = true; btn.textContent = 'جاري التجهيز…';
+  try{
+    const img = await loadImage(prepFile);
+    const {blob, width, height} = await resizeToJpeg(img, spec.maxDim, spec.format==='pdf'?spec.maxKB*4:spec.maxKB);
+
+    let finalBlob = blob, ext = 'jpg';
+    if(spec.format==='pdf'){
+      const { jsPDF } = window.jspdf;
+      const orient = width>height ? 'l' : 'p';
+      const pdf = new jsPDF({orientation:orient, unit:'px', format:[width,height]});
+      const dataUrl = await new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(blob); });
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
+      finalBlob = pdf.output('blob');
+      ext = 'pdf';
+    }
+    window.__preppedFile = {blob:finalBlob, ext, platformName: platform?platform.name:'عام'};
+    document.getElementById('prepResultText').textContent =
+      `جاهز ✓ — ${ext.toUpperCase()} · ${(finalBlob.size/1024).toFixed(0)} كيلوبايت · ${width}×${height}px (حسب متطلبات ${platform?platform.name:'المنصة'})`;
+    document.getElementById('prepResult').classList.add('show');
+  }catch(e){
+    showToast('تعذّر تجهيز الملف — جرّب صورة تانية');
+  }
+  btn.disabled = false; btn.textContent = 'تجهيز الملف حسب متطلبات المنصة';
+});
+
+document.getElementById('prepSaveBtn').addEventListener('click', async ()=>{
+  const f = window.__preppedFile;
+  if(!f) return;
+  const fname = `مستند-${f.platformName}.${f.ext}`;
+  let downloads=null;
+  try{ downloads = (typeof claude!=='undefined') ? await claude.use('downloads') : null; }catch(e){ downloads = null; }
+  if(downloads){
+    try{ await downloads.save({filename:fname, data:f.blob}); showToast('اتحفظ الملف على جهازك'); }
+    catch(e){ showToast('اتلغى الحفظ'); }
+    return;
+  }
+  // بديل داخل تطبيق المحامي المحترف: جسر AndroidSaver (يحفظ في التنزيلات)
+  if(typeof AndroidSaver!=='undefined' && AndroidSaver.save){
+    try{
+      const buf = await f.blob.arrayBuffer();
+      const bytes = new Uint8Array(buf); let bin='';
+      for(let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+      AndroidSaver.save(fname, btoa(bin));
+      showToast('اتحفظ الملف في التنزيلات');
+    }catch(e){ showToast('تعذّر حفظ الملف'); }
+    return;
+  }
+  showToast('حفظ الملفات مش متاح في هذا العرض');
+});
+
+/* ---------------- live platform sync (db capability) ---------------- */
+// A weekly cloud routine searches for newly-launched Egyptian lawyer
+// digital platforms and writes them to the "platforms" collection of this
+// artifact's shared database. Any viewer with the page open picks them up
+// live — no manual editing of this file needed for a platform to appear.
+const BUILTIN_IDS = new Set(PLATFORMS.map(p=>p.id));
+
+function mergeDbPlatform(doc){
+  const data = doc.data();
+  if(!data || !data.id) return;
+  const idx = PLATFORMS.findIndex(p=>p.id===data.id);
+  /* بيانات المنصات من قاعدة السحابة بتتنضّف قبل ما تدخل القوالب (F-SEC-4):
+     النصوص متهرّبة، والمفاتيح حروف وأرقام بس، والرابط https بس */
+  if(!/^[\w-]{1,60}$/.test(String(data.id))) return;
+  const key = v => /^[\w-]{1,60}$/.test(String(v)) ? String(v) : null;
+  const url = /^https:\/\/[^\s"'<>]+$/i.test(String(data.url||'')) ? String(data.url) : '#';
+  const record = {
+    id:String(data.id), name:escapeHtml(data.name||''), org:escapeHtml(data.org||''), url:url,
+    mandatory: !!data.mandatory, desc:escapeHtml(data.desc||''),
+    requires:Array.isArray(data.requires)?data.requires.map(key).filter(Boolean):[],
+    extra:Array.isArray(data.extra)?data.extra.filter(e=>e&&key(e.key)).map(e=>({key:key(e.key), label:escapeHtml(e.label||e.key)})):[],
+    docs:Array.isArray(data.docs)?data.docs.map(key).filter(Boolean):[],
+    fee:escapeHtml(data.fee||'غير مذكورة'), discovered: !BUILTIN_IDS.has(data.id),
+  };
+  if(idx>=0) PLATFORMS[idx] = record; else PLATFORMS.push(record);
+}
+
+async function initDbSync(){
+  const note = document.getElementById('syncNote');
+  let db;
+  try{ db = await claude.use('db'); }catch(e){ db = null; }
+  if(!db){
+    note.textContent = 'القايمة دي بتتحدّث من زرار «استكشف التحديثات» (وتلقائي مرة في اليوم وانت أونلاين).';
+    note.classList.add('live');
+    const l = lsGet(UPD_KEYS.last, null);
+    if(navigator.onLine !== false && (!l || !l.stamp || Date.now() - l.stamp > 864e5)) setTimeout(()=>discoverUpdates(true), 1500);
+    return;
+  }
+  note.textContent = 'مزامنة تلقائية شغالة — أي منصة جديدة تتكشف بتظهر هنا لوحدها.';
+  note.classList.add('live');
+  db.collection('platforms').onSnapshot(snap=>{
+    snap.docs.forEach(mergeDbPlatform);
+    renderHub(); renderReqList(); renderProfileForm(); renderCompareTable();
+  }, err=>{
+    note.textContent = 'تعذّر الاتصال بقاعدة التحديثات — القائمة الأساسية بس ظاهرة.';
+    note.classList.remove('live'); note.classList.add('off');
+  });
+}
+
+/* ---------------- متابعة تغطية المحاكم (courtCoverage) ---------------- */
+// القائمة الأساسية: المحاكم الابتدائية (مصدرها بيانات المحاكم الرسمية).
+const COURTS_PRIMARY = [
+  "محكمة شمال القاهرة الابتدائية","محكمة جنوب القاهرة الابتدائية","محكمة شمال الجيزة الابتدائية",
+  "محكمه جنوب الجيزة الابتدائيه","محكمة القاهرة الجديدة الابتدائية","محكمة حلوان الابتدائية",
+  "محكمة شرق اسكندرية الابتدائية","محكمة غرب اسكندرية الابتدائية","محكمة شمال دمنهور الابتدائية",
+  "محكمة غرب طنطا الابتدائية","محكمة شرق طنطا الأبتدائية","محكمة شبين الكوم الابتدائية",
+  "محكمة شمال بنها الأبتدائية","محكمة جنوب بنها الأبتدائية","محكمة جنوب المنصورة الابتدائية",
+  "محكمة كفر الشيخ الابتدائية","محكمة دمياط الابتدائية","محكمة الاسماعيلية الابتدائية",
+  "محكمة السويس الابتدائية","محكمة بورسعيد الابتدائية","محكمة جنوب الزقازيق الابتدائية",
+  "محكمة شمال الزقازيق الابتدائية","محكمة الفيوم الابتدائية","محكمة بنى سويف الابتدائية",
+  "محكمة المنيا الابتدائية","محكمة سوهاج الابتدائية","محكمة قنا الابتدائية",
+  "محكمة الاقصر الابتدائية","محكمة اسوان الابتدائية","محكمة البحر الاحمر الابتدائية",
+  "محكمة الوادى الجديد الابتدائية","محكمة مرسى مطروح الابتدائية","محكمة شمال سيناء الابتدائية",
+  "محكمة جنوب سيناء الابتدائية"
+];
+// المؤكَّدة متاحة (من قائمة خدمة digital.gov.eg الفعلية + قائمة الإطلاق 2021).
+const COURTS_AVAILABLE = new Set([
+  "محكمة اسوان الابتدائية","محكمة الاسماعيلية الابتدائية","محكمه جنوب الجيزة الابتدائيه",
+  "محكمة جنوب القاهرة الابتدائية","محكمة سوهاج الابتدائية","محكمة شمال الزقازيق الابتدائية",
+  "محكمة شمال القاهرة الابتدائية","محكمة شمال سيناء الابتدائية","محكمة شمال الجيزة الابتدائية",
+  "محكمة القاهرة الجديدة الابتدائية","محكمة بورسعيد الابتدائية"
+]);
+let COURT_STATUS = {};   // name -> status ('good'|'warn'|'bad')  (من db)
+let courtsDb = null;
+const CST_LABEL = {good:"🟢 متاحة",warn:"⚪ غير مؤكدة",bad:"🔴 غير متاحة بعد"};
+function courtStatusOf(n){ return COURT_STATUS[n] || (COURTS_AVAILABLE.has(n)?'good':'warn'); }
+
+function renderCourts(){
+  const q=(document.getElementById('courtsSearch').value||'').trim();
+  const cnt={good:0,warn:0,bad:0};
+  COURTS_PRIMARY.forEach(n=>cnt[courtStatusOf(n)]++);
+  document.getElementById('courtsSummary').innerHTML =
+    `<b>${COURTS_PRIMARY.length}</b> محكمة ابتدائية · 🟢 ${cnt.good} متاحة · ⚪ ${cnt.warn} غير مؤكدة · 🔴 ${cnt.bad} غير متاحة بعد`;
+  const rows=COURTS_PRIMARY.map((n,i)=>({n,i})).filter(o=>!q||o.n.indexOf(q)>=0);
+  document.getElementById('courtsList').innerHTML = rows.map(o=>{
+    const st=courtStatusOf(o.n);
+    return `<div class="court-row ${st}"><div class="court-name">${escapeHtml(o.n)}</div>`+
+      `<select class="court-sel" data-i="${o.i}">`+
+      Object.keys(CST_LABEL).map(k=>`<option value="${k}" ${st===k?'selected':''}>${CST_LABEL[k]}</option>`).join('')+
+      `</select></div>`;
+  }).join('');
+  document.querySelectorAll('#courtsList .court-sel').forEach(sel=>{
+    sel.onchange=()=>setCourtStatus(parseInt(sel.dataset.i,10), sel.value);
+  });
+}
+async function setCourtStatus(idx, status){
+  const name=COURTS_PRIMARY[idx]; if(!name) return;
+  COURT_STATUS[name]=status; renderCourts();
+  if(!courtsDb) return;
+  try{ await courtsDb.doc('courtCoverage/c'+idx).set({name:name,status:status,updatedAt:Date.now()}); }catch(e){}
+}
+async function initCourtsSync(){
+  const note=document.getElementById('courtsNote');
+  try{ courtsDb = await claude.use('db'); }catch(e){ courtsDb=null; }
+  if(!courtsDb){ note.textContent='التحديث اليدوي يعمل في هذا العرض — المزامنة غير متاحة الآن.'; note.classList.add('off'); return; }
+  note.textContent='مزامنة تلقائية شغالة — تحديثات حالة المحاكم تُحفظ وتظهر للجميع.'; note.classList.add('live');
+  courtsDb.collection('courtCoverage').onSnapshot(snap=>{
+    snap.docs.forEach(d=>{ const v=d.data&&d.data(); if(v&&v.name&&/^(good|warn|bad)$/.test(v.status)) COURT_STATUS[v.name]=v.status; });
+    renderCourts();
+  }, err=>{ note.textContent='تعذّر الاتصال بقاعدة التحديثات — التحديث اليدوي محلي فقط.'; note.classList.remove('live'); note.classList.add('off'); });
+}
+
+/* ---------------- استكشاف تحديثات التقاضي الإلكتروني (أونلاين) ----------------
+   بيسأل المصادر العامة لوزارة العدل مباشرة (من غير تسجيل دخول):
+   ١) صفحة «المحكمة الرقمية E-Court» ← كروت المنصات (رابط + اسم + وصف): أي رابط
+      مش موجود عندنا بيتضاف منصة جديدة ✨ ويتحفظ على الجهاز.
+   ٢) إعلانات البوابة (زي «توقف بعض خدمات البوابة») ← الجديد بيتعلّم.
+   ٣) قايمة «الخدمات الالكترونية» و«المحكمة الرقمية» ← أي خدمة جديدة بتتعلّم.
+   على الموبايل الطلب بيعدّي من AndroidNet (من غير قيود CORS)، وفي المتصفح fetch. */
+const UPD_KEYS = {disc:'proflawyer.elit.discovered.v1', notices:'proflawyer.elit.notices.v1', services:'proflawyer.elit.services.v1', last:'proflawyer.elit.lastCheck.v1'};
+const MOJ = 'https://moj.gov.eg';
+function lsGet(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+let _elitSeq = 0;
+function netGet(url){
+  return new Promise(resolve=>{
+    if(typeof AndroidNet !== 'undefined' && AndroidNet.request){
+      const id = 'elit' + (++_elitSeq) + '_' + Date.now();
+      window.__elitPending = window.__elitPending || {};
+      window.__elitPending[id] = resolve;
+      if(!window.__elitCbWrapped){
+        window.__elitCbWrapped = true;
+        const orig = window.__netCallback;
+        window.__netCallback = function(i, ok, st, body){
+          const f = window.__elitPending && window.__elitPending[i];
+          if(f){ delete window.__elitPending[i]; f({ok:ok, status:st, text:body}); return; }
+          if(orig) orig(i, ok, st, body);
+        };
+      }
+      try{ AndroidNet.request(id, 'GET', url, null, JSON.stringify({'Accept':'application/json','Accept-Language':'ar'})); }
+      catch(e){ delete window.__elitPending[id]; resolve({ok:false, status:0, text:String(e)}); return; }
+      setTimeout(()=>{ if(window.__elitPending[id]){ delete window.__elitPending[id]; resolve({ok:false, status:0, text:'انتهت المهلة'}); } }, 30000);
+    } else {
+      fetch(url, {headers:{'Accept':'application/json'}}).then(r=>r.text().then(t=>resolve({ok:r.ok, status:r.status, text:t})))
+        .catch(e=>resolve({ok:false, status:0, text:String(e)}));
+    }
+  });
+}
+function apiResult(r){ try{ const j = JSON.parse(r.text); return j && j.content ? j.content.result : null; }catch(e){ return null; } }
+function urlKey(u){ try{ const x = new URL(u, MOJ); return (x.host + x.pathname).replace(/\/+$/,'') + (x.hash||'').replace(/\/+$/,''); }catch(e){ return String(u||''); } }
+function safeHttps(u){ try{ const x = new URL(u, MOJ); return x.protocol === 'https:' ? x.href : ''; }catch(e){ return ''; } }
+/* حقول صفحة التسجيل للمنصة المكتشفة (طلب المستخدم ١-١٠): الخانات اللي نعرفها
+   بتتربط ببيانات المحامي (الاسم، الرقم القومي، القيد…) فيشتغل «نسخ بياناتي وفتح
+   المنصة» عليها، وأي خانة جديدة بتتضاف لوحدها لصفحة «تسجيل بيانات المحامي».
+   المنصات اللي بتبني الفورم بالجافاسكريبت مش بتبيّن خاناتها في الصفحة — بتتسجّل
+   من غير حقول ويتقال كده. */
+const FIELD_HINTS = [
+  [/الاسم الاول|الاسم الأول|first ?name/i,'firstName'], [/الاسم الثاني|اسم الاب|second/i,'secondName'],
+  [/الاسم الثالث|اسم الجد|third/i,'thirdName'], [/الاسم الاخير|الاسم الأخير|اللقب|العائله|العائلة|last ?name|family/i,'lastName'],
+  [/الرقم القومي|رقم قومي|national ?id|nid/i,'nationalId'], [/الجنسيه|الجنسية|nationality/i,'nationality'],
+  [/النوع|الجنس|gender/i,'gender'], [/موبايل|المحمول|الهاتف|التليفون|mobile|phone/i,'mobile'],
+  [/البريد|ايميل|إيميل|e-?mail/i,'email'], [/المحافظه|المحافظة|governorate/i,'governorate'],
+  [/المدينه|المدينة|city/i,'city'], [/الحي|المنطقه|المنطقة|district/i,'district'], [/الشارع|street/i,'street'],
+  [/رقم العقار|رقم المبنى|المبنى|building/i,'buildingNo'], [/الطابق|الدور|floor/i,'floorNo'], [/الشقه|الشقة|apartment/i,'apartmentNo'],
+  [/اسم المكتب|مكتب المحاماه|مكتب المحاماة|office/i,'officeName'], [/درجه القيد|درجة القيد|نوع القيد/i,'barDegree'],
+  [/تاريخ القيد/i,'barRegDate'], [/رقم القيد|رقم العضويه|رقم العضوية|رقم الرخصه|رقم الرخصة|bar/i,'barNumber'],
+  [/الرقم الضريبي|البطاقه الضريبيه|البطاقة الضريبية|tax/i,'taxId']
+];
+const FIELD_SKIP = /password|كلمه المرور|كلمة المرور|captcha|otp|كود التحقق|رمز التحقق|confirm|تأكيد|search|بحث/i;
+function fieldKeyOf(label){
+  for(const [re,k] of FIELD_HINTS) if(re.test(label)) return k;
+  let h = 0; for(let i=0;i<label.length;i++) h = (h*31 + label.charCodeAt(i)) >>> 0;
+  return 'f_' + h.toString(36);
+}
+async function scanPlatformFields(url){
+  const r = await netGet(url);
+  if(!r.ok || !r.text || r.text.length < 50) return {scanned:true, ok:false, requires:[], extra:[]};
+  const doc = new DOMParser().parseFromString(String(r.text), 'text/html');
+  const requires = new Set(), extra = new Map();
+  doc.querySelectorAll('input, select, textarea').forEach(el=>{
+    const type = (el.getAttribute('type')||'').toLowerCase();
+    if(/hidden|submit|button|password|checkbox|radio|file|image|reset/.test(type)) return;
+    const id = el.getAttribute('id');
+    const lab = (id && doc.querySelector('label[for="'+id.replace(/"/g,'')+'"]')) || el.closest('label');
+    const label = ((lab && lab.textContent) || el.getAttribute('placeholder') || el.getAttribute('aria-label') || el.getAttribute('name') || '').replace(/\s+/g,' ').replace(/[*:]/g,'').trim().slice(0,60);
+    if(!label || FIELD_SKIP.test(label)) return;
+    const key = fieldKeyOf(label);
+    if(fieldMeta(key)) requires.add(key); else if(!extra.has(key)) extra.set(key, {key:key, label:label});
+  });
+  return {scanned:true, ok:true, requires:[...requires], extra:[...extra.values()]};
+}
+function mergeStoredDiscovered(){
+  lsGet(UPD_KEYS.disc, []).forEach(d=>{
+    if(!d || !/^[\w-]{1,60}$/.test(String(d.id||''))) return;
+    if(PLATFORMS.some(p=>p.id===d.id || urlKey(p.url)===urlKey(d.url))) return;
+    const url = safeHttps(d.url); if(!url) return;
+    PLATFORMS.push({id:d.id, name:escapeHtml(d.name||'منصة جديدة'), org:escapeHtml(d.org||'وزارة العدل'), url:url, mandatory:false,
+      desc:escapeHtml(d.desc||'') + (d.foundAt ? ' <span style="color:var(--slate)">(اتكشفت ' + escapeHtml(d.foundAt) + ')</span>' : ''),
+      requires:Array.isArray(d.requires) ? d.requires.filter(k=>/^[\w-]{1,40}$/.test(k) && fieldMeta(k)) : [],
+      extra:Array.isArray(d.extra) ? d.extra.filter(e=>e && /^[\w-]{1,40}$/.test(String(e.key||''))).map(e=>({key:String(e.key), label:escapeHtml(e.label||e.key)})) : [],
+      docs:[], fee:'غير معروفة — راجع المنصة', discovered:true});
+  });
+}
+function walkMenu(nodes, out, path){
+  (nodes||[]).forEach(n=>{
+    if(!n) return;
+    const t = String(n.title||'').trim();
+    const p = path ? path + ' › ' + t : t;
+    if(n.url) out.push({title:p, url:String(n.url)});
+    if(Array.isArray(n.urls)) walkMenu(n.urls, out, p);
+  });
+  return out;
+}
+function fmtNow(){ const d = new Date(); return d.toLocaleDateString('ar-EG') + ' ' + d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); }
+function renderUpdLast(){
+  const l = lsGet(UPD_KEYS.last, null);
+  document.getElementById('updLast').textContent = l ? ('آخر فحص: ' + l.at + (l.ok ? '' : ' — ما اكتملش')) : 'ما اتعملش فحص لسه';
+}
+async function discoverUpdates(silent){
+  const btn = document.getElementById('updBtn'), box = document.getElementById('updBox');
+  if(navigator.onLine === false){ if(!silent){ box.hidden = false; box.innerHTML = '<span class="err">الجهاز مش متصل بالإنترنت — اتصل وجرّب تاني.</span>'; } return; }
+  btn.disabled = true; btn.textContent = '⏳ جاري الاستكشاف…';
+  const report = {platforms:[], notices:[], services:[], errors:[]};
+  // ١) صفحة المحكمة الرقمية
+  const pg = await netGet(MOJ + '/backend/api/content/page-content/' + encodeURIComponent('المحكمة-الرقمية-ECourt') + '?t=' + Date.now());
+  const pres = apiResult(pg);
+  if(pres && pres.content){
+    const doc = new DOMParser().parseFromString(String(pres.content), 'text/html');
+    const disc = lsGet(UPD_KEYS.disc, []);
+    doc.querySelectorAll('a[href]').forEach(a=>{
+      const url = safeHttps(a.getAttribute('href')); if(!url || /moj\.gov\.eg\/(pages|services)?\/?$/.test(url)) return;
+      const spans = [...a.querySelectorAll('span')].map(x=>x.textContent.replace(/\s+/g,' ').trim()).filter(Boolean);
+      const name = spans.find(t=>t.length>3 && !/الانتقال/.test(t)) || a.textContent.replace(/\s+/g,' ').trim().slice(0,60);
+      const desc = ((a.querySelector('p')||{}).textContent||'').replace(/\s+/g,' ').trim();
+      if(PLATFORMS.some(p=>urlKey(p.url)===urlKey(url)) || disc.some(d=>urlKey(d.url)===urlKey(url))) return;
+      const id = 'disc_' + urlKey(url).replace(/[^\w]+/g,'_').slice(0,50);
+      const rec = {id:id, name:name, org:'وزارة العدل — المحكمة الرقمية', url:url, desc:desc, foundAt:fmtNow()};
+      disc.push(rec); report.platforms.push(rec);
+    });
+    for(const d of disc){
+      if(d.scanned) continue;
+      const f = await scanPlatformFields(d.url);
+      d.scanned = true; d.requires = f.requires; d.extra = f.extra;
+      const nf = f.requires.length + f.extra.length;
+      report.fields = (report.fields||[]).concat([{name:d.name, n:nf, extra:f.extra.map(e=>e.label), ok:f.ok}]);
+    }
+    lsSet(UPD_KEYS.disc, disc);
+  } else report.errors.push('صفحة المحكمة الرقمية (' + (pg.status||'بدون رد') + ')');
+  // ٢) الإعلانات
+  const nt = await netGet(MOJ + '/backend/api/content/notifications?t=' + Date.now());
+  const nres = apiResult(nt);
+  if(Array.isArray(nres)){
+    const seen = lsGet(UPD_KEYS.notices, []);
+    const cur = nres.map(n=>({title:String(n.title||'').trim(), url:String(n.url||'')})).filter(n=>n.title);
+    const baseline = !lsGet(UPD_KEYS.last, null);
+    cur.forEach(n=>{ if(!seen.some(x=>x.title===n.title)){ n.firstSeen = fmtNow(); seen.push(n); if(!baseline) report.notices.push(n); } });
+    lsSet(UPD_KEYS.notices, seen.filter(x=>cur.some(c=>c.title===x.title)));
+    report.activeNotices = cur;
+  } else report.errors.push('إعلانات البوابة (' + (nt.status||'بدون رد') + ')');
+  // ٣) قايمة الخدمات الإلكترونية والمحكمة الرقمية
+  const mm = await netGet(MOJ + '/backend/api/content/main-menu?t=' + Date.now());
+  const mres = apiResult(mm);
+  if(Array.isArray(mres)){
+    const items = walkMenu(mres.filter(n=>/الخدمات|المحكمة الرقمية/.test(String(n.title||''))), [], '');
+    const prev = lsGet(UPD_KEYS.services, null);
+    if(prev) items.forEach(i=>{ if(!prev.some(p=>p.url===i.url)) report.services.push(i); });
+    lsSet(UPD_KEYS.services, items);
+    report.serviceCount = items.length; report.firstServices = !prev;
+  } else report.errors.push('قايمة الخدمات (' + (mm.status||'بدون رد') + ')');
+  lsSet(UPD_KEYS.last, {at:fmtNow(), ok:!report.errors.length, stamp:Date.now()});
+  if(report.platforms.length || (report.fields||[]).length){
+    PLATFORMS = PLATFORMS.filter(p=>!p.discovered || BUILTIN_IDS.has(p.id));
+    mergeStoredDiscovered(); renderHub(); renderReqList(); renderProfileForm(); renderCompareTable();
+  }
+  btn.disabled = false; btn.textContent = '🔄 استكشف تحديثات التقاضي الإلكتروني';
+  renderUpdLast();
+  if(silent && !report.platforms.length && !report.notices.length && !report.services.length) return;
+  const li = (arr, f) => '<ul>' + arr.map(f).join('') + '</ul>';
+  const link = (u, t) => { const h = safeHttps(u); return h ? '<a href="' + escapeAttr(h) + '" target="_blank" rel="noopener">' + escapeHtml(t) + '</a>' : escapeHtml(t); };
+  let html = '';
+  const fail = k => report.errors.some(e=>e.indexOf(k)===0);
+  const NA = '<div class="err">ما اتفحصش (المصدر ما ردّش).</div>';
+  html += '<h4>🆕 منصات جديدة</h4>' + (fail('صفحة') ? NA : report.platforms.length ? li(report.platforms, p=>'<li class="new">' + link(p.url, p.name) + (p.desc ? ' — ' + escapeHtml(p.desc) : '') + ' (اتضافت للقايمة)</li>') : '<div>مفيش منصات جديدة على صفحة المحكمة الرقمية.</div>');
+  if((report.fields||[]).length) html += '<h4>🧾 حقول التسجيل في المنصات الجديدة</h4>' + li(report.fields, f=>'<li>' + escapeHtml(f.name) + ': ' +
+    (!f.ok ? 'صفحة التسجيل ما فتحتش' : f.n ? f.n + ' خانة اتربطت ببياناتك' + (f.extra.length ? '، والجديد اتضاف لصفحة تسجيل بيانات المحامي: ' + f.extra.map(escapeHtml).join('، ') : '') : 'الفورم بيتبني جوه المنصة نفسها، فخاناته مش ظاهرة — «نسخ بياناتي» هينسخ بياناتك الأساسية') + '</li>');
+  html += '<h4>📢 إعلانات وزارة العدل</h4>' + (fail('إعلانات') ? NA : (report.activeNotices||[]).length ? li(report.activeNotices, n=>'<li' + (report.notices.some(x=>x.title===n.title) ? ' class="new"' : '') + '>' + link(n.url, n.title) + (report.notices.some(x=>x.title===n.title) ? ' — جديد' : '') + '</li>') : '<div>مفيش إعلانات حالياً.</div>');
+  html += '<h4>🧩 الخدمات الإلكترونية</h4>' + (fail('قايمة') ? NA : report.firstServices ? '<div>اتسجّلت ' + (report.serviceCount||0) + ' خدمة كأساس — أي خدمة تتضاف بعد كده هتظهر هنا.</div>'
+    : report.services.length ? li(report.services, x=>'<li class="new">' + link(x.url, x.title) + ' — جديدة</li>') : '<div>مفيش خدمات جديدة.</div>');
+  if(report.errors.length) html += '<div class="err">ما قدرتش أوصل لـ: ' + report.errors.map(escapeHtml).join('، ') + '</div>';
+  box.innerHTML = html; box.hidden = false;
+}
+document.getElementById('updBtn').addEventListener('click', ()=>discoverUpdates(false));
+
+/* ---------------- init ---------------- */
+mergeStoredDiscovered();
+renderUpdLast();
+renderProfileForm();
+renderReqList();
+renderHub();
+renderCompareTable();
+renderOrder();
+renderPoaList();
+renderPrepPlatformOptions();
+renderCourts();
+initDbSync();
+initCourtsSync();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٢ · الأعمال الإدارية الخاصة بالملف</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="index.html">→</a>
+    <h1>الأعمال الإدارية</h1>
+    <span class="screen-id">SCR-02</span>
+  </div>
+
+  <nav class="tabs">
+    <a href="01-cases.html">القضية</a>
+    <a href="02-admin-works.html" class="active">الأعمال الإدارية</a>
+    <a href="03-execution.html">تنفيذ الأحكام</a>
+  </nav>
+
+  <main>
+  <form id="admForm">
+
+    <!-- ============ وضع العرض / التعديل ============ -->
+    <div class="modebar">
+      <span id="modeLabel">وضع التعديل — كل البيانات قابلة للتغيير</span>
+      <button type="button" class="btn sm" id="modeToggle">قفل التعديل</button>
+    </div>
+
+    <div class="soundbar" data-nolock>
+      <span>تنبيه الرسائل الواردة بصوت</span>
+      <button type="button" class="btn sm" data-sound-toggle>الصوت: مفعّل 🔊</button>
+      <button type="button" class="btn sm ghost" data-sound-test>تجربة</button>
+    </div>
+
+    <div class="infobox">
+      تُفتح من داخل ملف القضية عبر <strong>Tab</strong> بنفس الاسم وترث بياناته.
+      الملف الواحد يقبل <strong>عدة مهام</strong>، كل مهمة بمكلف ومستندات ومحادثة مستقلة.
+    </div>
+
+    <!-- ============ بيانات الملف الموروثة ============ -->
+    <section class="card">
+      <header>بيانات الملف <span class="hint">موروثة — للعرض فقط</span></header>
+      <div class="body">
+        <div class="row">
+          <div class="field">
+            <label class="lbl">رقم الملف <span class="badge auto">من الملف</span></label>
+            <input type="text" class="readonly" value="" readonly>
+          </div>
+          <div class="field">
+            <label class="lbl">سنة التعامل <span class="badge auto">من الملف</span></label>
+            <input type="text" class="readonly" value="" readonly>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">الموكل <span class="badge auto">من الملف</span></label>
+          <input type="text" class="readonly" value="" readonly>
+        </div>
+        <div class="field">
+          <label class="lbl">الدعوى <span class="badge auto">من الملف</span></label>
+          <input type="text" class="readonly"
+                 value="" readonly>
+        </div>
+      </div>
+    </section>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:18px 0 12px">
+      <strong style="flex:1;font-size:14px;color:var(--brand-dark)">مهام الملف</strong>
+      <button type="button" class="btn sm" id="addTask">+ مهمة جديدة</button>
+    </div>
+
+    <div id="tasks">
+
+      <!-- ============ مهمة ١ ============ -->
+      <details class="task" data-task="t1" open>
+        <summary>
+          <span class="t-no" data-t-no>1</span>
+          <span class="t-head">
+            <span class="h-text" data-h-text>تقديم طلب شهر صحيفة الدعوى</span>
+            <span class="h-who">المكلف: <span data-h-assignee>أ/ إبراهيم داوود</span></span>
+          </span>
+          <span class="badge alert" data-h-status>لم يتم</span>
+          <span class="chev">▼</span>
+        </summary>
+
+        <div class="body">
+
+          <div class="field">
+            <label class="lbl">المكلف بالتنفيذ <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+            <div class="combo">
+              <select class="t-assignee" data-optgroup="assignee">
+                <option value="">— اختر —</option>
+                <option selected>أ/ إبراهيم داوود</option>
+                <option>أ/ محمود السيد</option>
+                <option>أ/ كريم فؤاد</option>
+                <option>م/ سعيد — مندوب المكتب</option>
+              </select>
+              <button type="button" class="btn ghost sm" data-addopt="assignee">+ جديد</button>
+            </div>
+            <div class="note">حلَّ محل حقل «المحكمة» — كان مكرراً من بيانات الملف بلا فائدة.</div>
+          </div>
+
+          <div class="field">
+            <label class="lbl">العمل المطلوب <span class="req">*</span></label>
+            <textarea class="t-text" maxlength="2000"
+                      placeholder="وصف العمل الإداري المطلوب تنفيذه…"></textarea>
+            <div class="note">نص حتى ٢٠٠٠ حرف.</div>
+          </div>
+
+          <div class="field">
+            <label class="lbl">الجهة <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+            <input type="text" list="dlEntities" value="">
+          </div>
+
+          <div class="field">
+            <label class="lbl">بتاريخ</label>
+            <input type="date" value="">
+          </div>
+
+          <div class="field">
+            <label class="lbl">حالة التنفيذ</label>
+            <div class="choices">
+              <label><input type="radio" name="done1" value="done"><span>تم</span></label>
+              <label><input type="radio" name="done1" value="pending" checked><span>لم يتم</span></label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="lbl">ملاحظات</label>
+            <textarea maxlength="1000" placeholder="ملاحظات على المهمة…"></textarea>
+          </div>
+
+          <!-- مستندات المهمة -->
+          <div class="task-sub">مستندات المهمة</div>
+          <ul class="files"></ul>
+          <div class="upload">
+            إرفاق ما يثبت التنفيذ بصيغة <strong>PDF</strong>
+            <div>
+              <label class="btn sm" style="display:inline-block">
+                اختيار ملفات
+                <input type="file" accept="application/pdf" multiple hidden data-files>
+              </label>
+              <button type="button" class="btn sm ghost">التقاط صورة مستند</button>
+            </div>
+          </div>
+
+          <!-- شات المهمة -->
+          <div class="task-sub" data-nolock>متابعة التنفيذ — محادثة المهمة</div>
+          <div data-nolock>
+
+            <div class="people">
+              <span class="person mgr" data-person="أ/ حسن عبد المنعم">
+                <span class="av">حع</span><span>أ/ حسن عبد المنعم</span>
+                <button type="button" class="x" title="إزالة">×</button>
+              </span>
+              <span class="person" data-person="أ/ إبراهيم داوود">
+                <span class="av">إد</span><span>أ/ إبراهيم داوود</span>
+                <button type="button" class="x" title="إزالة">×</button>
+              </span>
+              <span class="person" data-person="أ/ هند سمير">
+                <span class="av">هس</span><span>أ/ هند سمير</span>
+                <button type="button" class="x" title="إزالة">×</button>
+              </span>
+            </div>
+            <button type="button" class="btn ghost sm" data-add-person>+ إضافة مشارك</button>
+
+            <div class="chat-as" style="margin-top:10px">
+              <span>تتحدث بصفة</span>
+              <select class="chat-as-select">
+                <option value="exec">أ/ إبراهيم داوود</option>
+                <option value="mgr">أ/ حسن عبد المنعم</option>
+                <option value="member">أ/ هند سمير</option>
+              </select>
+            </div>
+
+            <div class="chat-wrap">
+              <div class="chat">
+                <div class="chat-day">أمس</div>
+                <div class="msg other" data-sender="أ/ حسن عبد المنعم" data-role="mgr">
+                  <div class="who">أ/ حسن عبد المنعم <span class="role">مدير المكتب</span></div>
+                  <div class="bubble">قدّم طلب شهر صحيفة الدعوى بالشهر العقاري الزيتون، وخُذ إيصالاً بالتقديم.</div>
+                  <div class="when">10:12 ص</div>
+                </div>
+                <div class="msg me" data-sender="أ/ إبراهيم داوود" data-role="exec">
+                  <div class="who">أ/ إبراهيم داوود <span class="role">مكلف بالتنفيذ</span></div>
+                  <div class="bubble">حاضر يا أستاذ. رايح النهاردة بعد جلسة شمال القاهرة.</div>
+                  <div class="when">10:20 ص</div>
+                </div>
+                <div class="chat-day">اليوم</div>
+                <div class="msg me" data-sender="أ/ إبراهيم داوود" data-role="exec">
+                  <div class="who">أ/ إبراهيم داوود <span class="role">مكلف بالتنفيذ</span></div>
+                  <div class="bubble">الموظف رفض التقديم لأن صورة التوكيل غير واضحة، وطلب صورة طبق الأصل حديثة.</div>
+                  <div class="when">11:05 ص</div>
+                </div>
+                <div class="msg other" data-sender="أ/ هند سمير" data-role="member">
+                  <div class="who">أ/ هند سمير <span class="role">مشارك</span></div>
+                  <div class="bubble">التوكيل رقم ٧ صورته عندي بالمكتب، أقدر أبعتها دلوقتي.</div>
+                  <div class="when">11:09 ص</div>
+                </div>
+                <div class="msg other" data-sender="أ/ حسن عبد المنعم" data-role="mgr">
+                  <div class="who">أ/ حسن عبد المنعم <span class="role">مدير المكتب</span></div>
+                  <div class="bubble">استخرج صورة جديدة من التوكيل رقم ٧ واعرض عليه الأصل. لو أصرّ اطلب مقابلة رئيس القلم.</div>
+                  <div class="when">11:14 ص</div>
+                </div>
+              </div>
+              <div class="chat-box">
+                <textarea class="chat-input" rows="1" placeholder="اكتب رسالة…"></textarea>
+                <button type="button" class="btn chat-send">إرسال</button>
+              </div>
+            </div>
+
+            <button type="button" class="btn ghost sm" style="margin-top:9px" data-sim-incoming>
+              🔔 محاكاة رسالة واردة (لتجربة الصوت)
+            </button>
+          </div>
+
+          <div style="margin-top:14px">
+            <button type="button" class="btn ghost sm" data-del-task>حذف المهمة</button>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- ============ مهمة ٢ ============ -->
+      <details class="task" data-task="t2">
+        <summary>
+          <span class="t-no" data-t-no>2</span>
+          <span class="t-head">
+            <span class="h-text" data-h-text>استخراج صورة رسمية من الحكم</span>
+            <span class="h-who">المكلف: <span data-h-assignee>أ/ محمود السيد</span></span>
+          </span>
+          <span class="badge ok" data-h-status>تم</span>
+          <span class="chev">▼</span>
+        </summary>
+
+        <div class="body">
+
+          <div class="field">
+            <label class="lbl">المكلف بالتنفيذ <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+            <div class="combo">
+              <select class="t-assignee" data-optgroup="assignee">
+                <option value="">— اختر —</option>
+                <option>أ/ إبراهيم داوود</option>
+                <option selected>أ/ محمود السيد</option>
+                <option>أ/ كريم فؤاد</option>
+                <option>م/ سعيد — مندوب المكتب</option>
+              </select>
+              <button type="button" class="btn ghost sm" data-addopt="assignee">+ جديد</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="lbl">العمل المطلوب <span class="req">*</span></label>
+            <textarea class="t-text" maxlength="2000"></textarea>
+          </div>
+
+          <div class="field">
+            <label class="lbl">الجهة <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+            <input type="text" list="dlEntities" value="">
+          </div>
+
+          <div class="field">
+            <label class="lbl">بتاريخ</label>
+            <input type="date" value="">
+          </div>
+
+          <div class="field">
+            <label class="lbl">حالة التنفيذ</label>
+            <div class="choices">
+              <label><input type="radio" name="done2" value="done" checked><span>تم</span></label>
+              <label><input type="radio" name="done2" value="pending"><span>لم يتم</span></label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="lbl">ملاحظات</label>
+            <textarea maxlength="1000"></textarea>
+          </div>
+
+          <div class="task-sub">مستندات المهمة</div>
+          <ul class="files"></ul>
+          <div class="upload">
+            إرفاق ما يثبت التنفيذ بصيغة <strong>PDF</strong>
+            <div>
+              <label class="btn sm" style="display:inline-block">
+                اختيار ملفات
+                <input type="file" accept="application/pdf" multiple hidden data-files>
+              </label>
+              <button type="button" class="btn sm ghost">التقاط صورة مستند</button>
+            </div>
+          </div>
+
+          <div class="task-sub" data-nolock>متابعة التنفيذ — محادثة المهمة</div>
+          <div data-nolock>
+
+            <div class="people">
+              <span class="person mgr" data-person="أ/ حسن عبد المنعم">
+                <span class="av">حع</span><span>أ/ حسن عبد المنعم</span>
+                <button type="button" class="x" title="إزالة">×</button>
+              </span>
+              <span class="person" data-person="أ/ محمود السيد">
+                <span class="av">مس</span><span>أ/ محمود السيد</span>
+                <button type="button" class="x" title="إزالة">×</button>
+              </span>
+            </div>
+            <button type="button" class="btn ghost sm" data-add-person>+ إضافة مشارك</button>
+
+            <div class="chat-as" style="margin-top:10px">
+              <span>تتحدث بصفة</span>
+              <select class="chat-as-select">
+                <option value="exec">أ/ محمود السيد</option>
+                <option value="mgr">أ/ حسن عبد المنعم</option>
+              </select>
+            </div>
+
+            <div class="chat-wrap">
+              <div class="chat">
+                <div class="msg me" data-sender="أ/ محمود السيد" data-role="exec">
+                  <div class="who">أ/ محمود السيد <span class="role">مكلف بالتنفيذ</span></div>
+                  <div class="bubble">تم استلام الصورة الرسمية ومرفقة بالملف.</div>
+                  <div class="when">1:40 م</div>
+                </div>
+              </div>
+              <div class="chat-box">
+                <textarea class="chat-input" rows="1" placeholder="اكتب رسالة…"></textarea>
+                <button type="button" class="btn chat-send">إرسال</button>
+              </div>
+            </div>
+
+            <button type="button" class="btn ghost sm" style="margin-top:9px" data-sim-incoming>
+              🔔 محاكاة رسالة واردة (لتجربة الصوت)
+            </button>
+          </div>
+
+          <div style="margin-top:14px">
+            <button type="button" class="btn ghost sm" data-del-task>حذف المهمة</button>
+          </div>
+
+        </div>
+      </details>
+
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn">حفظ</button>
+      <button type="reset" class="btn ghost">تفريغ</button>
+    </div>
+
+  </form>
+  </main>
+
+  <!-- قوائم مشتركة -->
+  <datalist id="dlEntities">
+    <option value="الشهر العقاري — الزيتون"></option>
+    <option value="مصلحة الضرائب العقارية"></option>
+    <option value="قلم كتاب المحكمة"></option>
+    <option value="نقابة المحامين"></option>
+  </datalist>
+
+  <!-- ============ قالب المهمة الجديدة ============ -->
+  <template id="taskTpl">
+    <details class="task" data-task="">
+      <summary>
+        <span class="t-no" data-t-no>0</span>
+        <span class="t-head">
+          <span class="h-text" data-h-text>مهمة جديدة</span>
+          <span class="h-who">المكلف: <span data-h-assignee>بدون مكلف</span></span>
+        </span>
+        <span class="badge alert" data-h-status>لم يتم</span>
+        <span class="chev">▼</span>
+      </summary>
+
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl">المكلف بالتنفيذ <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <div class="combo">
+            <select class="t-assignee" data-optgroup="assignee">
+              <option value="">— اختر —</option>
+              <option>أ/ إبراهيم داوود</option>
+              <option>أ/ محمود السيد</option>
+              <option>أ/ كريم فؤاد</option>
+              <option>م/ سعيد — مندوب المكتب</option>
+            </select>
+            <button type="button" class="btn ghost sm" data-addopt="assignee">+ جديد</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">العمل المطلوب <span class="req">*</span></label>
+          <textarea class="t-text" maxlength="2000" placeholder="وصف العمل الإداري المطلوب تنفيذه…"></textarea>
+          <div class="note">نص حتى ٢٠٠٠ حرف.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">الجهة <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <input type="text" list="dlEntities" placeholder="مثال: الشهر العقاري — الزيتون">
+        </div>
+
+        <div class="field">
+          <label class="lbl">بتاريخ</label>
+          <input type="date">
+        </div>
+
+        <div class="field">
+          <label class="lbl">حالة التنفيذ</label>
+          <div class="choices">
+            <label><input type="radio" value="done"><span>تم</span></label>
+            <label><input type="radio" value="pending" checked><span>لم يتم</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">ملاحظات</label>
+          <textarea maxlength="1000" placeholder="ملاحظات على المهمة…"></textarea>
+        </div>
+
+        <div class="task-sub">مستندات المهمة</div>
+        <ul class="files"></ul>
+        <div class="upload">
+          إرفاق ما يثبت التنفيذ بصيغة <strong>PDF</strong>
+          <div>
+            <label class="btn sm" style="display:inline-block">
+              اختيار ملفات
+              <input type="file" accept="application/pdf" multiple hidden data-files>
+            </label>
+            <button type="button" class="btn sm ghost">التقاط صورة مستند</button>
+          </div>
+        </div>
+
+        <div class="task-sub" data-nolock>متابعة التنفيذ — محادثة المهمة</div>
+        <div data-nolock>
+
+          <div class="people">
+            <span class="person mgr" data-person="أ/ حسن عبد المنعم">
+              <span class="av">حع</span><span>أ/ حسن عبد المنعم</span>
+              <button type="button" class="x" title="إزالة">×</button>
+            </span>
+            <span class="person" data-person="أ/ إبراهيم داوود">
+              <span class="av">إد</span><span>أ/ إبراهيم داوود</span>
+              <button type="button" class="x" title="إزالة">×</button>
+            </span>
+          </div>
+          <button type="button" class="btn ghost sm" data-add-person>+ إضافة مشارك</button>
+
+          <div class="chat-as" style="margin-top:10px">
+            <span>تتحدث بصفة</span>
+            <select class="chat-as-select">
+              <option value="exec">أ/ إبراهيم داوود</option>
+              <option value="mgr">أ/ حسن عبد المنعم</option>
+            </select>
+          </div>
+
+          <div class="chat-wrap">
+            <div class="chat"></div>
+            <div class="chat-box">
+              <textarea class="chat-input" rows="1" placeholder="اكتب رسالة…"></textarea>
+              <button type="button" class="btn chat-send">إرسال</button>
+            </div>
+          </div>
+
+          <button type="button" class="btn ghost sm" style="margin-top:9px" data-sim-incoming>
+            🔔 محاكاة رسالة واردة (لتجربة الصوت)
+          </button>
+        </div>
+
+        <div style="margin-top:14px">
+          <button type="button" class="btn ghost sm" data-del-task>حذف المهمة</button>
+        </div>
+
+      </div>
+    </details>
+  </template>
+
+  <footer class="legal">SCR-02 · الأعمال الإدارية الخاصة بالملف · V1</footer>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

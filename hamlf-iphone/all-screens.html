@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>استعراض كل شاشات البرنامج</title>
+<style>
+  :root{ --brand:#5b3a21; --brand-dark:#3d2614; --gold:#c8a165;
+         --bg:#e6e1d9; --line:#ddd4c8; --text:#241a12; --muted:#7d7166; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:"Segoe UI",Tahoma,Arial,sans-serif;font-size:15px;direction:rtl}
+
+  .topbar{background:var(--brand);color:#fff;padding:12px 18px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    position:sticky;top:0;z-index:50;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+  .topbar h1{font-size:17px;margin:0;font-weight:600;flex:1;min-width:180px}
+  .topbar a.home{color:#fff;text-decoration:none;font-size:13px;
+    border:1px solid rgba(255,255,255,.35);padding:5px 12px;border-radius:20px}
+  .ctrl{display:flex;align-items:center;gap:7px;font-size:13px}
+  .ctrl select,.ctrl input[type=range]{font-family:inherit;font-size:13px;border-radius:7px;
+    border:1px solid rgba(255,255,255,.3);padding:4px 8px;background:rgba(255,255,255,.12);color:#fff}
+  .ctrl select option{color:#241a12}
+
+  .hint{background:#eef4ff;border-bottom:1px solid #cddcf7;color:#22406f;padding:9px 18px;font-size:12.5px}
+
+  .grouphead{
+    padding:16px 18px 6px;font-size:15px;font-weight:700;color:var(--brand-dark);
+    display:flex;align-items:center;gap:10px
+  }
+  .grouphead .cnt{font-size:11.5px;font-weight:400;color:var(--muted);
+    border:1px solid var(--line);border-radius:20px;padding:1px 9px;background:#fff}
+  .grouphead::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .rail{display:flex;gap:16px;padding:8px 18px 18px;overflow-x:auto;align-items:flex-start}
+  .slot{flex:0 0 auto;background:#fff;border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 3px 14px rgba(60,40,20,.13);overflow:hidden;display:flex;flex-direction:column}
+  .slot[hidden]{display:none}
+  .slot > h2{margin:0;background:linear-gradient(180deg,#fbf8f4,#f3ede5);
+    border-bottom:1px solid var(--line);padding:9px 13px;font-size:13px;color:var(--brand-dark);
+    display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .slot > h2 .sid{font-family:Consolas,monospace;direction:ltr;font-size:10.5px;color:var(--muted);
+    font-weight:400;border:1px solid var(--line);border-radius:20px;padding:1px 7px;background:#fff}
+  .slot > h2 a{color:var(--brand);text-decoration:none;font-size:11px;font-weight:400}
+  .slot > h2.pro{background:linear-gradient(180deg,#eaf2f6,#dbe8ef);border-bottom-color:#bcd3df;color:#0f3c52}
+  .slot > h2.pro a{color:#17506b}
+  .frame{border:0;display:block;background:#f2efea}
+
+  body.grid .rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));overflow-x:visible}
+  body.grid .slot{width:auto}
+  body.grid .frame{width:100%}
+
+  footer{padding:16px 18px 30px;font-size:11.5px;color:var(--muted);text-align:center}
+</style>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="home" href="home.html">→ التطبيق</a>
+  <h1>كل شاشات البرنامج</h1>
+  <div class="ctrl">
+    <label for="mode">العرض</label>
+    <select id="mode">
+      <option value="rail">متجاور</option>
+      <option value="grid">شبكة</option>
+    </select>
+  </div>
+  <div class="ctrl">
+    <label for="zoom">الحجم</label>
+    <input type="range" id="zoom" min="280" max="520" step="20" value="">
+    <span id="zoomVal" style="font-family:Consolas,monospace;direction:ltr">360</span>
+  </div>
+  <div class="ctrl"><label><input type="checkbox" id="tall"> إطار طويل</label></div>
+  <div class="ctrl">
+    <label for="show">القسم</label>
+    <select id="show">
+      <option value="all">الكل</option>
+      <option value="core">الرئيسية والأقسام</option>
+      <option value="cases">القضايا</option>
+      <option value="finance">المالية</option>
+      <option value="hr">شئون الموظفين</option>
+      <option value="clients">الموكلون</option>
+      <option value="reports">التقارير</option>
+      <option value="tools">أدوات ومقترحات</option>
+    </select>
+  </div>
+</div>
+
+<div class="hint">
+  كل الشاشات معروضة حيّة من ملفاتها — تقدر تكتب وتفتح القوائم جوه أي إطار.
+  الترتيب بحسب أقسام التطبيق. للشاشة كاملة اضغط «فتح».
+</div>
+
+<div id="all"></div>
+
+<footer>برنامج المحامي المحترف — نماذج الشاشات · مؤسسة المستشار حسن عبد المنعم</footer>
+
+<script>
+var SECTIONS = [
+  { key:"core", title:"الرئيسية والأقسام", items:[
+    ["home.html","الرئيسية","HOME"],
+    ["20-cases-hub.html","قسم القضايا","HUB-1"],
+    ["30-finance-hub.html","الإدارة المالية","HUB-2"],
+    ["40-hr-hub.html","شئون الموظفين","HUB-3"],
+    ["50-secretariat.html","السكرتارية","HUB-4"],
+    ["90-links.html","المواقع الصديقة","LNK"]
+  ]},
+  { key:"cases", title:"القضايا", items:[
+    ["01-cases.html","صفحة القضايا","SCR-01"],
+    ["02-admin-works.html","الأعمال الإدارية","SCR-02"],
+    ["03-execution.html","تنفيذ الأحكام","SCR-03"],
+    ["04-bailiff-papers.html","أوراق المحضرين","SCR-04"],
+    ["05-powers-of-attorney.html","سجل التوكيلات","SCR-05"],
+    ["06-route-sheet.html","خط السير","SCR-06"]
+  ]},
+  { key:"finance", title:"الإدارة المالية", items:[
+    ["31-case-revenue.html","أتعاب القضايا ومصروفاتها","FIN-01"],
+    ["33-office-expenses.html","مصروفات المكتب","FIN-03"]
+  ]},
+  { key:"hr", title:"شئون الموظفين", items:[
+    ["41-contract.html","عقد العمل","HR-01"],
+    ["42-wage.html","تحديد الأجر","HR-02"],
+    ["43-payroll.html","متابعة المرتبات","HR-03"],
+    ["44-evaluation.html","تقييم الخبرات","HR-04"],
+    ["45-residency.html","إدارة الإقامات","HR-05"],
+    ["46-work-permit.html","تصاريح العمل","HR-06"],
+    ["47-visa.html","إصدار الفيزات","HR-07"],
+    ["48-end-service.html","إنهاء الخدمة","HR-08"],
+    ["49-staff.html","الحسابات والصلاحيات","HR-09"]
+  ]},
+  { key:"clients", title:"الموكلون", items:[
+    ["70-clients-hub.html","سجل الموكلين","CLI-00"],
+    ["89-clients.html","ملف الموكل","CLI-01"]
+  ]},
+  { key:"reports", title:"التقارير", items:[
+    ["60-reports-hub.html","مركز التقارير","REP-00"],
+    ["61-report-builder.html","منشئ التقارير","REP-01"],
+    ["62-report-print.html","معاينة وطباعة A4/A3","REP-02"]
+  ]},
+  { key:"tools", title:"أدوات ومقترحات", items:[
+    ["07-alerts.html","مركز التنبيهات","PRO-02",1],
+    ["08-search.html","البحث","PRO-03",1],
+    ["09-backup.html","النسخ الاحتياطي","PRO-04",1],
+    ["index.html","دليل النماذج للمطور","IDX"]
+  ]}
+];
+
+var host = document.getElementById("all");
+SECTIONS.forEach(function (sec) {
+  var h = document.createElement("div");
+  h.className = "grouphead";
+  h.setAttribute("data-group", sec.key);
+  h.innerHTML = '<span></span><span class="cnt"></span>';
+  h.firstChild.textContent = sec.title;
+  h.querySelector(".cnt").textContent = sec.items.length + " شاشة";
+  host.appendChild(h);
+
+  var rail = document.createElement("div");
+  rail.className = "rail";
+  rail.setAttribute("data-group", sec.key);
+  sec.items.forEach(function (it) {
+    var s = document.createElement("section");
+    s.className = "slot";
+    s.setAttribute("data-group", sec.key);
+    var head = document.createElement("h2");
+    if (it[3]) head.className = "pro";
+    var t = document.createElement("span"); t.textContent = it[1];
+    var id = document.createElement("span"); id.className = "sid"; id.textContent = it[2];
+    var a = document.createElement("a"); a.href = it[0]; a.target = "_blank"; a.textContent = "فتح ↗";
+    head.appendChild(t); head.appendChild(id); head.appendChild(a);
+    var f = document.createElement("iframe");
+    f.className = "frame"; f.src = it[0]; f.loading = "lazy"; f.title = it[1];
+    s.appendChild(head); s.appendChild(f);
+    rail.appendChild(s);
+  });
+  host.appendChild(rail);
+});
+
+(function () {
+  var zoom = document.getElementById("zoom"),
+      zoomVal = document.getElementById("zoomVal"),
+      mode = document.getElementById("mode"),
+      tall = document.getElementById("tall"),
+      show = document.getElementById("show");
+
+  function applyWidth() {
+    var w = parseInt(zoom.value, 10);
+    zoomVal.textContent = w;
+    var isGrid = document.body.classList.contains("grid");
+    document.querySelectorAll(".slot").forEach(function (s) { s.style.width = isGrid ? "auto" : w + "px"; });
+    document.querySelectorAll(".frame").forEach(function (f) { f.style.width = isGrid ? "100%" : w + "px"; });
+  }
+  function applyHeight() {
+    var h = tall.checked ? 1500 : 620;
+    document.querySelectorAll(".frame").forEach(function (f) { f.style.height = h + "px"; });
+  }
+  function applyShow() {
+    var v = show.value;
+    document.querySelectorAll("[data-group]").forEach(function (el) {
+      el.hidden = (v !== "all" && el.getAttribute("data-group") !== v);
+    });
+  }
+  zoom.addEventListener("input", applyWidth);
+  tall.addEventListener("change", applyHeight);
+  mode.addEventListener("change", function () {
+    document.body.classList.toggle("grid", mode.value === "grid");
+    applyWidth();
+  });
+  show.addEventListener("change", applyShow);
+  applyWidth(); applyHeight(); applyShow();
+})();
+</script>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

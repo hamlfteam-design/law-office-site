@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ملف الموكل</title>
+<!-- F-CLI-3: الصفحة دي كانت بتقرا قايمة موكلين مجمّدة (clients.js) وما بتحفظش في قاعدة
+     الموكلين الحقيقية، فالحفظ كان بيبان ناجح وهو ضايع. اتقفلت وبتودّي لشاشة الموكلين الحية. -->
+<script>location.replace("89-clients.html");</script>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="89-clients.html">→</a>
+    <h1>ملف الموكل</h1>
+    <span class="screen-id">CLI-01</span>
+  </div>
+
+  <main>
+  <form id="clientForm">
+
+    <div class="modebar">
+      <span id="modeLabel">وضع التعديل — كل البيانات قابلة للتغيير</span>
+      <button type="button" class="btn sm" id="modeToggle">قفل التعديل</button>
+    </div>
+
+    <!-- ============ البيانات الشخصية ============ -->
+    <section class="card">
+      <header>البيانات الشخصية</header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl">صفة القيد <span class="req">*</span></label>
+          <div class="choices">
+            <label><input type="radio" name="cRel" value="client" checked><span>موكل</span></label>
+            <label><input type="radio" name="cRel" value="pr"><span>علاقات عامة</span></label>
+          </div>
+          <div class="note">
+            <strong>موكل</strong> ترتبط به ملفات وأتعاب ومراسلات.
+            <strong>علاقات عامة</strong> اسم في سجل الاتصالات فقط بلا ملفات — ويظل قابلاً للتحويل إلى موكل.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">نوع الموكل</label>
+          <div class="choices">
+            <label><input type="radio" name="cKind" value="person" checked><span>شخص طبيعي</span></label>
+            <label><input type="radio" name="cKind" value="company"><span>شخص اعتباري</span></label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="cOfficeNo">رقم الموكل بالمكتب <span class="req">*</span></label>
+            <input type="text" id="cOfficeNo" value="" placeholder="رقم" dir="ltr">
+          </div>
+          <div class="field">
+            <label class="lbl" for="cName">الاسم <span class="req">*</span></label>
+            <input type="text" id="cName" value="" placeholder="الاسم رباعي">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="cIdType">نوع إثبات الشخصية</label>
+            <select id="cIdType" data-optgroup="idType">
+              <option>رقم قومي</option>
+              <option>بطاقة هوية</option>
+              <option>جواز سفر</option>
+              <option>بطاقة إقامة</option>
+              <option>سجل تجاري</option>
+              <option>بطاقة ضريبية</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="lbl" for="cIdNo">رقم الإثبات</label>
+            <input type="text" id="cIdNo" placeholder="رقم" dir="ltr">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="cJob">المهنة <span class="badge lookup">قابلة للإضافة</span></label>
+            <div class="combo">
+              <select id="cJob" data-optgroup="job">
+                <option value="">— غير محددة —</option>
+                <option>محامٍ</option>
+                <option>موظف</option><option>تاجر</option><option>مهندس</option>
+                <option>طبيب</option><option>عامل</option><option>ربة منزل</option>
+                <option>معاش</option><option>طالب</option>
+              </select>
+              <button type="button" class="btn ghost sm" data-addopt="job">+ جديد</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="cOrg">الجهة <span class="badge lookup">قابلة للإضافة</span></label>
+            <div class="combo">
+              <select id="cOrg" data-optgroup="org">
+                <option value="">— غير محددة —</option>
+                <option>القطاع الخاص</option><option>الحكومة</option>
+                <option>شركة قطاع عام</option><option>أعمال حرة</option>
+                <option>لا يوجد</option>
+              </select>
+              <button type="button" class="btn ghost sm" data-addopt="org">+ جديد</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="cBirth">تاريخ الميلاد</label>
+          <input type="date" id="cBirth">
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ بيانات التوكيل ============ -->
+    <section class="card">
+      <header>بيانات التوكيل <span class="hint">مُرحَّلة من ملف التوكيلات</span></header>
+      <div class="body">
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="pRefNo">رقم التوثيق</label>
+            <input type="text" id="pRefNo" value="" placeholder="رقم" dir="ltr">
+          </div>
+          <div class="field">
+            <label class="lbl" for="pLetter">الحرف</label>
+            <input type="text" id="pLetter" value="" placeholder="حرف">
+          </div>
+          <div class="field">
+            <label class="lbl" for="pYear">السنة</label>
+            <input type="text" id="pYear" value="" placeholder="سنة" dir="ltr">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="pOffice">مكتب التوثيق <span class="badge lookup">قابلة للإضافة</span></label>
+            <div class="combo">
+              <select id="pOffice" data-optgroup="notary">
+                <option value="">— غير محدد —</option>
+                <option>القبة</option><option>مصر الجديدة</option><option>الزيتون</option>
+                <option>نقابة المحامين</option><option>أول مدينة نصر</option><option>عين شمس</option>
+                <option>روض الفرج</option><option>المعادي</option><option>المطرية</option>
+                <option>الازبكية</option><option>النزهة</option><option>الوايلي</option>
+                <option>الموسكي</option><option>الأهرام</option><option>السيدة زينب</option>
+                <option>نادي هليوبوليس</option><option>نادي الصيد</option>
+                <option>نادي الجزيرة</option><option>امبابة</option><option>الظاهر</option>
+              </select>
+              <button type="button" class="btn ghost sm" data-addopt="notary">+ جديد</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="pDate">تاريخ الإصدار</label>
+            <input type="date" id="pDate" value="">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="pType">نوع التوكيل</label>
+            <select id="pType" data-optgroup="poaType">
+              <option>عام</option>
+              <option>خاص</option>
+              <option>إيداع</option>
+              <option>أمور زوجية</option>
+              <option>بنوك</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="lbl" for="pStatus">حالة التوكيل</label>
+            <select id="pStatus" data-optgroup="poaStatus">
+              <option>ساري</option>
+              <option>ملغي</option>
+              <option>وفاة الموكل</option>
+              <option>انتهاء وكالة</option>
+              <option>مفقود من السجل</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">طبيعة التوكيل <span class="req">*</span></label>
+          <div class="choices">
+            <label><input type="radio" name="pNature" value="self" checked><span>شخصي</span></label>
+            <label><input type="radio" name="pNature" value="official"><span>بصفة رسمية</span></label>
+            <label><input type="radio" name="pNature" value="agency"><span>بصفة وكالة</span></label>
+          </div>
+          <div class="note">
+            <strong>شخصي</strong> يوكّل عن نفسه · <strong>بصفة رسمية</strong> بصفته ممثلاً لجهة أو حارساً قضائياً
+            · <strong>بصفة وكالة</strong> بصفته وكيلاً عن غيره بتوكيل سابق.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="pAgent">الوكيل (المحامي)</label>
+          <input type="text" id="pAgent" value="" placeholder="اسم الوكيل كما في التوكيل">
+        </div>
+
+        <div class="note">
+          الموكل الذي له أكثر من توكيل يُقيَّد <strong>سجلاً مستقلاً لكل توكيل</strong>،
+          وإذا ضم التوكيل الواحد أكثر من اسم فلكل اسم سجل مستقل بذات رقم التوكيل وبياناته ورقم الموكل بالمكتب.
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ الاتصال ============ -->
+    <section class="card">
+      <header>وسائل الاتصال <span class="hint">تقبل التعدد</span></header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl">الإيميلات</label>
+          <div class="multi" id="mEmails">
+            <div class="item">
+              <input type="email" value="" placeholder="البريد الإلكتروني" dir="ltr" lang="en">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mEmails">+ إضافة إيميل آخر</button>
+          <div class="note">
+            الإيميل <strong>الأول</strong> هو المستخدم في إرسال التقارير والبيانات آلياً.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">التليفونات</label>
+          <div class="multi" id="mPhones">
+            <div class="item">
+              <input type="tel" value="" placeholder="موبايل / أرضي" dir="ltr" lang="en">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mPhones">+ إضافة تليفون آخر</button>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="cGov">المحافظة</label>
+            <select id="cGov" data-optgroup="gov">
+              <option value="">— اختر —</option>
+              <option>القاهرة</option><option>الجيزة</option><option>القليوبية</option>
+              <option>الإسكندرية</option><option>البحيرة</option><option>مطروح</option>
+              <option>دمياط</option><option>الدقهلية</option><option>الشرقية</option>
+              <option>كفر الشيخ</option><option>الغربية</option><option>المنوفية</option>
+              <option>بورسعيد</option><option>الإسماعيلية</option><option>السويس</option>
+              <option>شمال سيناء</option><option>جنوب سيناء</option><option>بني سويف</option>
+              <option>الفيوم</option><option>المنيا</option><option>أسيوط</option>
+              <option>سوهاج</option><option>قنا</option><option>الأقصر</option>
+              <option>أسوان</option><option>البحر الأحمر</option><option>الوادي الجديد</option>
+              <option>خارج الجمهورية</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="lbl" for="cArea">المنطقة</label>
+            <input type="text" id="cArea" value="" placeholder="القسم / المركز">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">العناوين التفصيلية</label>
+          <div class="multi" id="mAddrs">
+            <div class="item">
+              <input type="text" value="" placeholder="العنوان بالكامل">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mAddrs">+ إضافة عنوان آخر</button>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="cWhats">واتساب <span class="badge lookup">مقترح</span></label>
+          <input type="tel" id="cWhats" placeholder="لإرسال المستندات سريعاً" dir="ltr" lang="en">
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ ملفات الموكل ============ -->
+    <section class="card">
+      <header>قضايا الموكل <span class="hint">مرتبطة تلقائياً</span></header>
+      <div class="body" style="padding:0">
+        <div class="table-wrap">
+          <table class="grid">
+            <thead>
+              <tr><th>رقم الملف</th><th>الدعوى</th><th>الدرجة</th><th>الحالة</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ الحساب المالي ============ -->
+    <section class="card">
+      <header>الحساب المالي</header>
+      <div class="body">
+        <div class="money">
+          <div class="m in"><div class="v">٤٠٬٠٠٠</div><div class="l">أتعاب</div></div>
+          <div class="m out"><div class="v">١٬٨٢٠</div><div class="l">مصروفات</div></div>
+          <div class="m net"><div class="v">١٦٬٨٢٠</div><div class="l">المستحق</div></div>
+        </div>
+        <div class="note">
+          مُجمَّع من <a href="31-case-revenue.html">أتعاب القضايا ومصروفاتها</a> لكل ملفات الموكل.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ إرسال بيان للموكل ============ -->
+    <section class="card">
+      <header>إرسال بيان للموكل <span class="hint">PDF</span></header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl" for="stmtType">نوع البيان</label>
+          <select id="stmtType">
+            <option>أحدث قرارات القضية</option>
+            <option>بيان كامل بتتابع جلسات الدعوى</option>
+            <option>بيان بكل قضايا الموكل</option>
+            <option>كشف حساب مالي</option>
+            <option>صورة الحكم</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="stmtCase">القضية</label>
+          <select id="stmtCase">
+<option>— كل القضايا —</option>
+</select>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="stmtSize">المقاس</label>
+            <select id="stmtSize"><option>A4</option><option>A3</option></select>
+          </div>
+          <div class="field">
+            <label class="lbl" for="stmtTo">يُرسل إلى</label>
+            <select id="stmtTo">
+              <option value="">— اختر بريد الموكل —</option>
+              <option>إيميل آخر…</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn sm" id="btnSend">📧 إرسال بالإيميل</button>
+          <a class="btn sm ghost" href="62-report-print.html" style="text-decoration:none;line-height:1.9">🖨 معاينة وطباعة</a>
+          <button type="button" class="btn sm ghost" id="btnWhats">💬 إرسال واتساب</button>
+        </div>
+
+        <div class="note" style="margin-top:10px">
+          نفس القالب يُطبع ورقياً ويُرسل PDF — بترويسة المكتب وخانة التوقيع.
+        </div>
+
+        <div class="task-sub">سجل المراسلات</div>
+        <div class="alert-item" style="padding-inline:0">
+          <span class="dot blue"></span>
+          <div class="txt">
+            <strong>بيان تتابع الجلسات</strong> — ملف ١٤٧
+            <div class="when">٢٠٢٦/٠٧/٢٠ · بالإيميل · تم الإرسال</div>
+          </div>
+        </div>
+        <div class="alert-item" style="padding-inline:0">
+          <span class="dot blue"></span>
+          <div class="txt">
+            <strong>كشف حساب مالي</strong>
+            <div class="when">٢٠٢٦/٠٦/٠١ · مطبوع · سُلّم باليد</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ مستندات الموكل ============ -->
+    <section class="card">
+      <header>مستندات الموكل</header>
+      <div class="body">
+        <ul class="files" id="cliFiles"></ul>
+        <div class="field">
+          <label class="lbl" for="cliFileKind">تصنيف المرفق <span class="badge lookup">قابلة للإضافة</span></label>
+          <div class="combo">
+            <select id="cliFileKind" data-file-kind data-optgroup="cliFileKind">
+              <option value="">— بدون تصنيف —</option>
+              <option>إثبات شخصية</option>
+              <option>توكيل</option>
+              <option>سجل تجاري</option>
+              <option>بطاقة ضريبية</option>
+              <option>مستندات القضية</option>
+              <option>أخرى</option>
+            </select>
+            <button type="button" class="btn ghost sm" data-addopt="cliFileKind">+ جديد</button>
+          </div>
+        </div>
+        <div class="upload">
+          إرفاق مستندات الموكل
+          <div>
+            <label class="btn sm" style="display:inline-block">
+              إرفاق ملف
+              <input type="file" accept="application/pdf,image/*" multiple hidden data-files="#cliFiles">
+            </label>
+            <button type="button" class="btn sm ghost">التقاط صورة</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn">حفظ بيانات الموكل</button>
+      <button type="reset" class="btn ghost">تفريغ</button>
+    </div>
+
+  </form>
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="89-clients.html" class="active"><span class="bi">👤</span>الموكلين</a>
+    <a href="60-reports-hub.html"><span class="bi">📄</span>التقارير</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/clients.js?v=1"></script>
+<script>
+/* تحميل بيانات الموكل المُرحَّلة عند فتح الصفحة من سجل الموكلين (?id=) */
+(function () {
+  var id = new URLSearchParams(location.search).get("id");
+  if (!id || !window.PL_CLIENTS) return;
+  var c = window.PL_CLIENTS.filter(function (x) { return x.id === id; })[0];
+  if (!c) return;
+
+  function set(el, v) { var e = document.getElementById(el); if (e && v != null) e.value = v; }
+  function pick(el, v) {
+    var s = document.getElementById(el); if (!s || !v) return;
+    var found = Array.prototype.some.call(s.options, function (o) { return o.value === v || o.text === v; });
+    if (!found) { var o = document.createElement("option"); o.value = v; o.textContent = v; s.appendChild(o); }
+    s.value = v;
+  }
+  function radio(name, v) {
+    var r = document.querySelector('input[name="' + name + '"][value="' + v + '"]');
+    if (r) r.checked = true;
+  }
+
+  set("cOfficeNo", c.officeNo); set("cName", c.name);
+  set("cIdNo", c.idNo);         pick("cIdType", c.idType);
+  pick("cJob", c.job);          pick("cOrg", c.org);
+  pick("cGov", c.gov);          set("cArea", c.area);
+  set("pRefNo", c.poaNo);       set("pLetter", c.poaLetter);
+  set("pYear", c.poaYear);      pick("pOffice", c.notary);
+  set("pDate", c.poaDate);      pick("pType", c.poaType);
+  pick("pStatus", c.poaStatus); set("pAgent", c.agent);
+  radio("cRel", c.rel === "pr" ? "pr" : "client");
+  radio("pNature", c.nature || "self");
+
+  // وسائل الاتصال غير موجودة في ملف التوكيلات — تُفرَّغ لتُستكمل يدوياً
+  ["mEmails", "mPhones", "mAddrs"].forEach(function (w) {
+    var box = document.getElementById(w);
+    if (box) box.querySelectorAll("input").forEach(function (i) { i.value = ""; });
+  });
+
+  if (c.shared > 0) {
+    var note = document.createElement("div");
+    note.className = "alertbox";
+    note.style.margin = "0 0 12px";
+    note.innerHTML = "<strong>توكيل جماعي</strong> — هذا التوكيل يضم " +
+      c.shared + " أسماء، لكل اسم سجل مستقل بذات رقم التوكيل ورقم الموكل بالمكتب." +
+      (c.flag ? " <strong>" + c.flag + "</strong> — راجع الاسم على أصل التوكيل." : "");
+    document.querySelector("main").prepend(note);
+  } else if (c.flag) {
+    var n2 = document.createElement("div");
+    n2.className = "alertbox"; n2.style.margin = "0 0 12px";
+    n2.innerHTML = "<strong>" + c.flag + "</strong> — راجع الاسم على أصل التوكيل.";
+    document.querySelector("main").prepend(n2);
+  }
+})();
+
+/* إرسال فعلي للموكل — يفتح تطبيق البريد أو واتساب بالرسالة جاهزة.
+   ملاحظة: المرفق PDF يُنشأ من زر «معاينة وطباعة» ثم يُرفق يدوياً؛
+   الإرفاق التلقائي يحتاج السيرفر. */
+function stmtVal(id) {
+  var e = document.getElementById(id);
+  return e ? String(e.value || '').trim() : '';
+}
+
+function clientMessage() {
+  var name = stmtVal('cName') || 'حضرة الموكل';
+  var type = stmtVal('stmtType') || 'بيان';
+  var L = [];
+  L.push('السيد/ ' + name);
+  L.push('');
+  L.push('نوافيكم بـ' + type + ' الخاص بملفكم لدى المكتب.');
+  L.push('');
+  L.push('مؤسسة المستشار حسن عبد المنعم');
+  L.push('محامون ومستشارون قانونيون');
+  return L.join(String.fromCharCode(10));
+}
+
+document.getElementById('btnSend').addEventListener('click', function () {
+  var to = stmtVal('stmtTo');
+  if (!to || to.indexOf('@') < 0) {
+    alert('اختر بريد الموكل من قائمة «يُرسل إلى» أولاً.');
+    return;
+  }
+  var type = stmtVal('stmtType') || 'بيان';
+  location.href = 'mailto:' + encodeURIComponent(to) +
+    '?subject=' + encodeURIComponent(type + ' — مؤسسة المستشار حسن عبد المنعم') +
+    '&body='    + encodeURIComponent(clientMessage());
+});
+
+document.getElementById('btnWhats').addEventListener('click', function () {
+  var num = stmtVal('cWhats').replace(/[^0-9]/g, '');
+  if (!num) {
+    alert('أضف رقم واتساب الموكل في خانة «واتساب» أولاً.');
+    return;
+  }
+  location.href = 'https://wa.me/' + num +
+                  '?text=' + encodeURIComponent(clientMessage());
+});
+</script>
+<script>
+/* تاريخ الميلاد من الرقم القومي — التاريخ المكتوب بالإيد ما يتغيّرش */
+(function () {
+  var fId = document.getElementById("cIdNo"), fB = document.getElementById("cBirth"), auto = "";
+  function current() { return window.lawyerISO ? window.lawyerISO(fB) : fB.value; }
+  function fill() {
+    if (!window.Birthdays) return;
+    var cur = current();
+    if (cur && cur !== auto) return;
+    auto = Birthdays.fromNationalId(fId.value);
+    fB.value = auto;
+    fB.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  fId.addEventListener("input", fill);
+  setTimeout(fill, 0);
+})();
+</script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+  <script src="assets/fixups.js?v=1"></script>
+  <script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

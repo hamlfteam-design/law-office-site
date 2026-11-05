@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٨٧ · التقويم</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  /* لوحة ألوان تقويم الجلسات والمواعيد */
+  .agenda {
+    --a-bg:#eae5da; --a-paper:#fffdf6; --a-ink:#1f2937; --a-muted:#6b7280;
+    --a-line:#d8d2c4; --a-gold:#8a6d1f; --a-accent:#12433a; --a-hl:#fff8e1;
+    --c-judg:#b3261e;   /* محجوزة للحكم */
+    --c-exp:#7a5c14;    /* خبراء ومفردات */
+    --c-first:#12433a;  /* أول جلسة */
+    --c-plain:#3f6091;  /* مرافعة / عادي */
+    --c-appt:#8a6d1f;   /* موعد */
+  }
+  .agenda .card { background:var(--a-paper); border-color:var(--a-line); }
+
+  .cal-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .cal-head button { width:46px; height:46px; border:1px solid var(--a-line);
+        border-radius:11px; background:transparent; color:var(--a-accent);
+        font-size:20px; font-family:inherit; }
+  .cal-head .m { flex:1; text-align:center; font-family:var(--f-title);
+        font-size:18px; color:var(--a-accent); cursor:pointer;
+        border-radius:9px; padding:4px 0; }
+  .cal-head .m:active { background:var(--a-hl); }
+
+  .grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .dow  { text-align:center; font-size:11px; color:var(--a-muted); padding:5px 0;
+          font-family:var(--f-title); }
+  .day  { position:relative; min-height:56px; border-radius:9px;
+          border:1px solid var(--a-line); background:var(--a-paper);
+          font-family:inherit; font-size:14px; color:var(--a-ink); padding-top:6px; }
+  .day.out   { background:transparent; border-color:transparent; opacity:.35; }
+  .day.today { border-color:var(--a-gold); border-width:2px; font-weight:700;
+               background:var(--a-hl); }
+  .day.sel   { background:var(--a-accent); color:#fff; font-weight:700;
+               border-color:var(--a-accent); }
+  .bars { position:absolute; bottom:5px; right:5px; left:5px;
+          display:flex; gap:2px; height:4px; }
+  .bars i { flex:1; border-radius:2px; display:block; }
+  /* القاعدة ١٦: شريط أعلى كل يوم بألوان قضاياه (منظومة ألوان القضايا) */
+  .cbar { position:absolute; top:3px; right:6px; left:6px; display:flex; gap:2px; height:3px; }
+  .cbar i { flex:1; border-radius:2px; display:block; }
+  .cnt  { position:absolute; top:5px; left:5px; font-size:9.5px;
+          color:var(--a-muted); }
+  .day.sel .cnt { color:#fff; }
+
+  .legend { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px;
+            font-size:11.5px; color:var(--a-muted); }
+  .legend span { display:flex; align-items:center; gap:5px; }
+  .legend i { width:11px; height:11px; border-radius:3px; display:block; }
+
+  .kpi  { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .kpi div{ flex:1 1 30%; background:var(--a-paper); border:1px solid var(--a-line);
+            border-radius:11px; padding:11px 7px; text-align:center; }
+  .kpi .n{ font-family:var(--f-title); font-size:20px; }
+  .kpi .l{ font-size:11px; color:var(--a-muted); margin-top:3px; line-height:1.5; }
+
+  .ev   { background:var(--a-paper); border:1px solid var(--a-line);
+          border-radius:11px; padding:11px; margin-bottom:8px;
+          border-right:4px solid var(--c-plain); }
+  .ev.judg  { border-right-color:var(--c-judg); }
+  .ev.exp   { border-right-color:var(--c-exp); }
+  .ev.first { border-right-color:var(--c-first); }
+  .ev.appt  { border-right-color:var(--c-appt); }
+  .ev .src { font-size:11px; color:var(--a-muted); }
+  .ev .t   { font-family:var(--f-title); font-size:14.5px; line-height:1.7;
+             margin-top:3px; word-break:break-word; }
+  .ev .d   { font-size:12.5px; color:var(--a-muted); margin-top:5px;
+             line-height:1.9; word-break:break-word; white-space:pre-line; }
+  .ev .tag { display:inline-block; font-size:11px; padding:2px 9px;
+             border-radius:20px; margin-top:6px; background:var(--a-hl);
+             color:var(--a-gold); }
+
+  /* ═══ الدفتر — صفحتين متقابلتين بتتقلّب زي الأجندة الورق (تقويم الجلسات، القاعدة ٥٥–٥٦) ═══ */
+  #book { perspective:2800px; perspective-origin:50% 42%; padding:4px 0 14px; }
+  .bk   { position:relative; margin:0 auto; max-width:1000px; display:flex;
+          filter:drop-shadow(0 18px 28px rgba(60,40,10,.28)); }
+  .pg   { flex:1; min-height:520px; background:linear-gradient(180deg,#fffdf6,#fbf7ea);
+          border:1px solid #ddd3b8; position:relative; padding:14px 18px 28px; overflow:hidden; }
+  .pg.r { border-radius:12px 3px 3px 12px; }
+  .pg.l { border-radius:3px 12px 12px 3px; }
+  .pg.r::after, .pg.l::after { content:""; position:absolute; top:0; bottom:0; width:24px; pointer-events:none; }
+  .pg.r::after { left:0;  background:linear-gradient(270deg,rgba(90,75,35,.22),transparent); }
+  .pg.l::after { right:0; background:linear-gradient(90deg,rgba(90,75,35,.22),transparent); }
+  .spine { width:16px; flex:none; border-top:1px solid #ddd3b8; border-bottom:1px solid #ddd3b8;
+           background:linear-gradient(90deg,#c9bd9b,#a2977a 45%,#7e7458 50%,#a2977a 55%,#c9bd9b);
+           box-shadow:inset 0 0 14px rgba(0,0,0,.4); }
+  .flip { position:absolute; top:0; bottom:0; width:calc(50% - 8px); z-index:9; pointer-events:none;
+          transform-style:preserve-3d; transition:transform .72s cubic-bezier(.36,.05,.24,1); opacity:0; }
+  .flip.live { opacity:1; }
+  .flip.R { right:0; transform-origin:left center; }
+  .flip.L { left:0;  transform-origin:right center; }
+  .flip.R.go { transform:rotateY(-176deg); }
+  .flip.L.go { transform:rotateY(176deg); }
+  .flip .face { position:absolute; inset:0; backface-visibility:hidden; overflow:hidden;
+                background:linear-gradient(180deg,#fffdf6,#fbf7ea); border:1px solid #ddd3b8; padding:14px 18px; }
+  .flip .face.b { transform:rotateY(180deg); }
+  .flip .face::before { content:""; position:absolute; inset:0; pointer-events:none;
+                        background:linear-gradient(90deg,rgba(0,0,0,.18),transparent 42%); }
+  .flip.L .face::before { background:linear-gradient(270deg,rgba(0,0,0,.18),transparent 42%); }
+  .pg .ph2, .face .ph2 { border-bottom:2px solid var(--a-accent,#5b3a21); padding-bottom:7px; margin-bottom:10px; }
+  .dayn { font-family:var(--f-title); font-size:24px; color:var(--a-accent,#5b3a21); line-height:1.35; }
+  .greg { font-size:16px; color:var(--a-ink); }
+  .hij  { font-size:13px; color:#8a7b52; margin-top:2px; }
+  .bcnt { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 10px; }
+  .bcnt span { background:#fff; border:1px solid #e0d7bd; border-radius:999px; padding:2px 10px;
+               font-size:12px; white-space:nowrap; }
+  .brows { display:flex; flex-direction:column; gap:6px; max-height:380px; overflow:auto; }
+  .brow  { background:#fff; border:1px solid #e6dfc9; border-inline-start:5px solid var(--c-plain);
+           border-radius:7px; padding:6px 9px; font-size:12.5px; line-height:1.75; text-align:right; }
+  .brow.lnk { cursor:pointer; }
+  .brow .mut { color:var(--a-muted); }
+  .none2 { color:#a5966e; font-style:italic; padding:26px 0; text-align:center; }
+  .pno   { position:absolute; bottom:7px; inset-inline:0; text-align:center; font-size:11px; color:#a89b73; }
+  .bknav { display:flex; gap:8px; justify-content:center; align-items:center; margin:4px 0 10px; flex-wrap:wrap; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body class="agenda">
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">&rarr;</a>
+    <h1>التقويم</h1>
+    <span class="screen-id">SCR-87</span>
+  </div>
+
+  <main>
+
+    <div class="kpi" id="kpi"></div>
+
+    <section class="card"><div class="body">
+      <div style="display:flex;gap:7px;margin-bottom:10px" data-nosave="1">
+        <button type="button" id="vMonth" class="btn"
+                style="flex:1;min-height:44px">شهر</button>
+        <button type="button" id="vWeek" class="btn ghost"
+                style="flex:1;min-height:44px">أسبوع</button>
+        <button type="button" id="vYear" class="btn ghost"
+                style="flex:1;min-height:44px">سنة</button>
+        <button type="button" id="vBook" class="btn ghost" hidden
+                style="flex:1;min-height:44px" title="صفحتين متقابلتين بتتقلّب زي الأجندة الورق — للشاشات الواسعة">📖 دفتر</button>
+      </div>
+      <div class="cal-head">
+        <button type="button" id="next" data-nosave="1">‹</button>
+        <div class="m" id="mtitle"></div>
+        <button type="button" id="prev" data-nosave="1">›</button>
+      </div>
+      <div class="grid" id="dows"></div>
+      <div class="grid" id="grid" style="margin-top:3px"></div>
+      <div id="altview" style="margin-top:3px" hidden></div>
+
+      <div class="legend">
+        <span><i style="background:var(--c-judg)"></i>محجوزة للحكم</span>
+        <span><i style="background:var(--c-exp)"></i>خبراء ومفردات</span>
+        <span><i style="background:var(--c-first)"></i>أول جلسة</span>
+        <span><i style="background:var(--c-plain)"></i>مرافعة</span>
+        <span><i style="background:var(--c-appt)"></i>موعد</span>
+      </div>
+
+      <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px" data-nosave="1">
+        <input type="checkbox" id="hideEnded" style="width:20px;height:20px"> إخفاء المنتهية</label>
+
+      <div style="display:flex;gap:8px;margin-top:10px" data-nosave="1">
+        <button type="button" class="btn ghost" id="today"
+                style="flex:2;min-height:44px">اليوم</button>
+        <button type="button" class="btn ghost" id="printCal"
+                style="flex:1;min-height:44px">🖨 طباعة</button>
+      </div>
+      <button type="button" class="btn ghost" id="mergeCal" data-nosave="1"
+              style="width:100%;min-height:44px;margin-top:8px;font-size:13px">🗂 دمج مواعيد التقويم كقضايا</button>
+    </div></section>
+
+    <div class="section-title" id="dayTitle">اختر يوماً</div>
+    <div id="events"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="87-calendar.html" class="active"><span class="bi">📅</span>التقويم</a>
+    <a href="88-records.html"><span class="bi">🗄</span>السجلات</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/agenda-import.js?v=4"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+/* تقويم شهري بقواعد تطبيق تقويم الجلسات: تلوين حسب قرار الجلسة، وإحصاء الشهر */
+(function () {
+  "use strict";
+
+  var MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو",
+                "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+  var DOW = ["أحد","إثنين","ثلاثاء","أربعاء","خميس","جمعة","سبت"];
+
+  var HOLD  = /حكم|حجز|للحكم|للنطق/;
+  var EXP   = /خبير|تقرير|مفوض|مفردات|أمانة/;
+  var FIRST = /أول جلسة|اول جلسة|أول جلسه/;
+
+  var now = new Date();
+  var y = now.getFullYear(), m = now.getMonth();
+  var sel = isoOf(now);
+
+  function ar(n, p) {
+    var s = String(n);
+    if (p) while (s.length < p) s = "0" + s;
+    return s.replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; });
+  }
+  function isoOf(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+           "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+  function read(k, d) {
+    try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; }
+  }
+
+  /* ---- كل الأحداث المؤرّخة، مصنّفة بلونها ---- */
+  function events() {
+    var out = [];
+
+    read("proflawyer.agenda.cases.v1", []).forEach(function (c) {
+      (c.sessions || []).forEach(function (ss) {
+        if (!ss.date) return;
+        /* القرار متخزّن بأكتر من اسم (result/decision، وسبب التأجيل for/reason) — بيتقروا كلهم */
+        var _r = ss.raw || {};
+        var dec = String(_r.result || _r.decision || _r["for"] || _r.reason || "");
+        var _all = [_r.result, _r.decision, _r["for"], _r.reason].filter(Boolean).join(" ");
+        var typ = String((ss.raw && ss.raw.type) || "");
+        var kind = HOLD.test(_all) ? "judg" : EXP.test(_all) ? "exp"
+                 : FIRST.test(_all) ? "first" : "plain";
+        out.push({
+          date: ss.date, kind: kind, caseId: c.id, _c: c, _s: ss,
+          title: (c.caseNo ? "دعوى " + c.caseNo + (c.caseYear ? " لسنة " + c.caseYear : "") : "قضية") +
+                 (c.courtName ? " — " + c.courtName : ""),
+          src: "قضايا التقويم",
+          tag: dec || typ || "",
+          detail: [c.circuit ? "الدائرة: " + c.circuit : "",
+                   c.clients ? "الموكل: " + c.clients : "",
+                   c.opponents ? "الخصم: " + c.opponents : "",
+                   c.hall ? "قاعة " + c.hall + (c.floor ? " — دور " + c.floor : "") : "",
+                   c.time || ""].filter(Boolean).join("\n")
+        });
+      });
+    });
+
+    read("proflawyer.appointments.v1", []).forEach(function (a) {
+      var d = window.lawyerToISO ? window.lawyerToISO(a.date) : a.date;
+      if (!d) return;
+      out.push({ date: d, kind: "appt", title: a.title, src: "المواعيد",
+                 tag: a.kind || "", detail: [a.with ? "مع: " + a.with : "", a.notes || ""]
+                 .filter(Boolean).join("\n"), time: a.time });
+    });
+
+    if (window.LawyerStore) {
+      LawyerStore.all().forEach(function (r) {
+        if (r.store === "agenda" || r.store === "appointments") return;
+        r.dates.forEach(function (d) {
+          out.push({ date: d, kind: "plain", title: r.title || r.values[0] || "سجل",
+                     src: r.name, tag: "", detail: r.values.slice(0, 4).join("  ·  ") });
+        });
+      });
+    }
+    return out;
+  }
+
+  var EV = events();
+  var caseStatus = {};
+  read("proflawyer.agenda.cases.v1", []).forEach(function (c) { caseStatus[c.id] = c.status || ""; });
+  var view = "month";
+  function evList() {
+    var hc = document.getElementById("hideEnded");
+    if (!hc || !hc.checked) return EV;
+    return EV.filter(function (e) { return !e.caseId || caseStatus[e.caseId] !== "منتهية"; });
+  }
+
+  function drawKPI() {
+    var s = window.LawyerStats ? LawyerStats.compute() : null;
+    var box = document.getElementById("kpi");
+    box.textContent = "";
+    if (!s) return;
+    var pre = y + "-" + String(m + 1).padStart(2, "0");
+    var monthEv = EV.filter(function (e) { return e.date.indexOf(pre) === 0; });
+    var cnt = function (k) { return monthEv.filter(function (e) { return e.kind === k; }).length; };
+
+    [[monthEv.length, "جلسة هذا الشهر", ""],
+     [cnt("judg"),  "محجوزة للحكم", "var(--c-judg)"],
+     [cnt("exp"),   "خبراء ومفردات", "var(--c-exp)"],
+     [cnt("first"), "أول جلسة", "var(--c-first)"],
+     [s.cases,      "قضية متداولة", ""],
+     [s.apptsUpcoming, "موعد قادم", "var(--c-appt)"]
+    ].forEach(function (p) {
+      var d = el("div");
+      var n = el("div", p[2] ? "color:" + p[2] : "", ar(p[0])); n.className = "n";
+      d.appendChild(n);
+      d.appendChild(el("div", "", p[1])).className = "l";
+      box.appendChild(d);
+    });
+  }
+
+  function drawMonth() {
+    /* الشهر الهجري اللي بيغطي الشهر ده (أوله ← آخره) */
+    var h1 = window.lawyerHijri ? lawyerHijri(new Date(y, m, 1), { month: true }) : "";
+    var h2 = window.lawyerHijri ? lawyerHijri(new Date(y, m + 1, 0), { month: true }) : "";
+    var hj = h1 ? (h1 === h2 ? h1 : h1.replace(/\s*\S+\s*هـ$/, "") + " – " + h2) : "";
+    document.getElementById("mtitle").textContent = MONTHS[m] + "  " + ar(y);
+    if (hj) {
+      var hs = document.createElement("div");
+      hs.style.cssText = "font-size:12px;color:var(--muted);font-family:inherit;margin-top:1px";
+      hs.textContent = hj;
+      document.getElementById("mtitle").appendChild(hs);
+    }
+    var pre = y + "-" + String(m + 1).padStart(2, "0");
+    var byDay = {};
+    evList().forEach(function (e) {
+      if (e.date.indexOf(pre) !== 0) return;
+      (byDay[e.date] = byDay[e.date] || []).push(e);
+    });
+
+    var grid = document.getElementById("grid");
+    grid.textContent = "";
+    var first = (new Date(y, m, 1).getDay() + 1) % 7;   /* السبت أول الأسبوع */
+    var days  = new Date(y, m + 1, 0).getDate();
+    var todayIso = isoOf(new Date());
+
+    for (var i = 0; i < first; i++) {
+      var e0 = el("div"); e0.className = "day out"; grid.appendChild(e0);
+    }
+
+    for (var d = 1; d <= days; d++) {
+      (function (d) {
+        var key = pre + "-" + String(d).padStart(2, "0");
+        var list = byDay[key] || [];
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "day" + (key === todayIso ? " today" : "") + (key === sel ? " sel" : "");
+        b.appendChild(document.createTextNode(ar(d)));
+
+        if (list.length) {
+          var kinds = {};
+          list.forEach(function (e) { kinds[e.kind] = 1; });
+          var bars = el("div"); bars.className = "bars";
+          ["judg", "exp", "first", "plain", "appt"].forEach(function (k) {
+            if (!kinds[k]) return;
+            var i2 = document.createElement("i");
+            i2.style.background = "var(--c-" + k + ")";
+            bars.appendChild(i2);
+          });
+          b.appendChild(bars);
+          if (window.CaseFile && CaseFile.caseColor) {
+            var ks = {}, order = ["grey", "yellow", "red", "green", "orange", "purple", "cyan", "pink", "blue"];
+            list.forEach(function (e) { if (e._c) ks[CaseFile.caseColor(e._c).k] = 1; });
+            var cb = el("div"); cb.className = "cbar";
+            order.forEach(function (k) {
+              if (!ks[k]) return;
+              var ci = document.createElement("i"); ci.style.background = CaseFile.CASE_COLORS[k].hex;
+              ci.title = CaseFile.CASE_COLORS[k].name; cb.appendChild(ci);
+            });
+            if (cb.children.length) b.appendChild(cb);
+          }
+          var c = el("span", "", ar(list.length)); c.className = "cnt";
+          b.appendChild(c);
+        }
+        b.onclick = function () { sel = key; draw(); showDay(); };
+        grid.appendChild(b);
+      })(d);
+    }
+    drawKPI();
+  }
+
+  /* قرار الجلسة أو آخر قرار سابق لها (كانت في أجندة الجلسات) */
+  function decOf(s) { var r = (s && s.raw) || {}; return r.result || r.decision || r["for"] || r.reason || ""; }
+  function lastDecision(c, s) {
+    var own = decOf(s);
+    if (own) return { date: s.date, text: own, next: (s.raw || {}).next, why: (s.raw || {})["for"] || (s.raw || {}).reason || "" };
+    var raw = s.raw || {};
+    if (raw.prevResult) return { date: raw.prevDate, text: raw.prevResult, next: "", why: raw.prevReason || "" };
+    var all = (c.sessions || []).filter(function (x) { return x.date && x.date < s.date; })
+      .sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+    for (var i = all.length - 1; i >= 0; i--) {
+      if (decOf(all[i])) return { date: all[i].date, text: decOf(all[i]), next: (all[i].raw || {}).next,
+                                  why: (all[i].raw || {})["for"] || (all[i].raw || {}).reason || "" };
+    }
+    return null;
+  }
+  function dmyOf(k) { var p = String(k || "").split("-"); return p.length < 3 ? "" : ar(p[0] + "/" + p[1] + "/" + p[2]); }
+
+  function showDay() {
+    var box = document.getElementById("events");
+    box.textContent = "";
+    var p = sel.split("-");
+    var dd = new Date(+p[0], +p[1] - 1, +p[2]);
+    var hjDay = window.lawyerHijri ? lawyerHijri(dd) : "";
+    document.getElementById("dayTitle").textContent =
+      DOW[dd.getDay()] + "  " + ar(+p[2]) + "  " + MONTHS[+p[1] - 1] + "  " + ar(p[0]) +
+      (hjDay ? "  ·  " + hjDay : "");
+
+    var list = EV.filter(function (e) { return e.date === sel; });
+    if (!list.length) {
+      box.appendChild(el("div",
+        "text-align:center;color:var(--a-muted);padding:22px;font-size:14px",
+        "لا شيء في هذا اليوم."));
+      return;
+    }
+
+    var order = { judg: 0, first: 1, exp: 2, plain: 3, appt: 4 };
+    list.sort(function (a, b) { return order[a.kind] - order[b.kind]; });
+
+    list.forEach(function (e) {
+      var c = el("div"); c.className = "ev " + e.kind;
+      if (e._c && window.CaseFile && CaseFile.caseColor) {
+        var ccx = CaseFile.caseColor(e._c);
+        c.style.borderInlineStart = "4px solid " + ccx.hex;
+        var tagc = el("span", "float:left;font-size:11px;padding:1px 8px;border-radius:10px;background:" + ccx.bg + ";color:" + ccx.fg, ccx.text);
+        c.appendChild(tagc);
+      }
+      c.appendChild(el("div", "", e.src)).className = "src";
+      c.appendChild(el("div", "", e.title)).className = "t";
+      if (e.detail) c.appendChild(el("div", "", e.detail)).className = "d";
+      if (e._c) {
+        var ld = lastDecision(e._c, e._s);
+        var isPast = e.date <= isoOf(new Date());
+        if (ld && ld.text) {
+          var dbox = el("div", "margin-top:6px;font-size:12.5px;background:var(--a-bg,#f7f2e9);border-radius:6px;padding:5px 8px;line-height:1.9;word-break:break-word");
+          dbox.appendChild(el("b", "", (ld.date === e.date ? "قرار الجلسة" : "آخر قرار") + " (" + (dmyOf(ld.date) || "—") + "): "));
+          dbox.appendChild(document.createTextNode(ld.text.length > 300 ? ld.text.slice(0, 300) + "…" : ld.text));
+          var nx = ld.next || ((c.sessions || []).map(function (x) { return x.date; }).filter(function (d2) { return d2 && d2 > ld.date; }).sort()[0]) || "";
+          if (nx) dbox.appendChild(document.createTextNode(" — تأجلت لـ " + dmyOf(nx) + (ld.why ? " لأجل " + ld.why : "")));
+          c.appendChild(dbox);
+        } else if (isPast) {
+          c.appendChild(el("div", "margin-top:6px;font-size:12.5px;color:#7a5c14;background:#fff8ec;border-radius:6px;padding:5px 8px", "⚠ بدون قرار"));
+        }
+      }
+      if (e.time)   c.appendChild(el("div",
+        "font-size:12.5px;color:var(--a-muted);margin-top:4px", "⏰ " + ar(e.time)));
+      if (e.tag)    c.appendChild(el("span", "", e.tag)).className = "tag";
+
+      /* الضغط على القضية يفتح ملفها الكامل في صفحة القضايا للتعديل —
+         وهو المدخل الوحيد لتعديل بيانات الملف من التقويم. */
+      if (e.caseId) {
+        c.style.cursor = "pointer";
+        c.appendChild(el("div",
+          "font-size:12px;color:var(--brand,#5b3a21);margin-top:6px;font-weight:600",
+          "✎ اضغط لفتح الملف الكامل وتعديله ›"));
+        c.onclick = function () {
+          location.href = "90-case-file.html?open=" + encodeURIComponent(e.caseId);
+        };
+      }
+      box.appendChild(c);
+    });
+  }
+
+  function selDate() {
+    if (sel) { var p = sel.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+    return new Date(y, m, 1);
+  }
+  function drawWeek() {
+    var alt = document.getElementById("altview"); alt.textContent = "";
+    var base = selDate();
+    var start = new Date(base); start.setDate(base.getDate() - ((base.getDay() + 1) % 7));
+    var end = new Date(start); end.setDate(start.getDate() + 6);
+    document.getElementById("mtitle").textContent = "أسبوع " + ar(start.getDate()) + " " +
+      MONTHS[start.getMonth()] + " — " + ar(end.getDate()) + " " + MONTHS[end.getMonth()];
+    var byDay = {}; evList().forEach(function (e) { (byDay[e.date] = byDay[e.date] || []).push(e); });
+    var wrap = el("div", "display:flex;gap:5px;overflow-x:auto");
+    var todayIso = isoOf(new Date());
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(start); d.setDate(start.getDate() + i); var key = isoOf(d);
+      var col = el("div", "flex:1 0 132px;min-width:132px;border:1px solid var(--line,#ddd);" +
+        "border-radius:9px;padding:6px;background:var(--card)");
+      col.appendChild(el("div", "font-family:var(--f-title);font-size:12.5px;text-align:center;" +
+        "margin-bottom:5px;" + (key === todayIso ? "color:var(--brand)" : ""),
+        DOW[d.getDay()] + " " + ar(d.getDate())));
+      (byDay[key] || []).forEach(function (e) {
+        var chip = el("div", "font-size:11.5px;padding:4px 7px;border-radius:6px;margin-bottom:4px;" +
+          "background:var(--bg,#f4ece0);border-right:3px solid var(--c-" + e.kind + ")", e.title);
+        if (e.caseId) { chip.style.cursor = "pointer";
+          chip.onclick = function () { location.href = "90-case-file.html?open=" + encodeURIComponent(e.caseId); }; }
+        col.appendChild(chip);
+      });
+      wrap.appendChild(col);
+    }
+    alt.appendChild(wrap); drawKPI();
+  }
+  function drawYear() {
+    var alt = document.getElementById("altview"); alt.textContent = "";
+    document.getElementById("mtitle").textContent = ar(y);
+    var byMonth = {}, byDay = {};
+    evList().forEach(function (e) {
+      var mm = e.date.slice(0, 7); byMonth[mm] = (byMonth[mm] || 0) + 1;
+      byDay[e.date] = (byDay[e.date] || 0) + 1;
+    });
+    var wrap = el("div", "display:grid;grid-template-columns:repeat(3,1fr);gap:8px");
+    for (var mo = 0; mo < 12; mo++) {
+      (function (mo) {
+        var pre = y + "-" + String(mo + 1).padStart(2, "0"), cnt = byMonth[pre] || 0;
+        var mc = el("div", "border:1px solid var(--line,#ddd);border-radius:9px;padding:6px;" +
+          "background:var(--card);cursor:pointer");
+        mc.appendChild(el("div", "font-family:var(--f-title);font-size:12px;text-align:center;" +
+          "margin-bottom:4px", MONTHS[mo] + " (" + ar(cnt) + ")"));
+        var mg = el("div", "display:grid;grid-template-columns:repeat(7,1fr);gap:1px");
+        var first = new Date(y, mo, 1).getDay(), days = new Date(y, mo + 1, 0).getDate();
+        for (var i = 0; i < (first + 1) % 7; i++) mg.appendChild(el("div"));
+        for (var dd = 1; dd <= days; dd++) {
+          var key = pre + "-" + String(dd).padStart(2, "0");
+          mg.appendChild(el("div", "font-size:9px;text-align:center;padding:1px;border-radius:3px;" +
+            (byDay[key] ? "background:var(--brand);color:#fff" : "color:var(--muted)"), ar(dd)));
+        }
+        mc.appendChild(mg);
+        mc.onclick = function () { m = mo; view = "month"; setViewBtns(); draw(); };
+        wrap.appendChild(mc);
+      })(mo);
+    }
+    alt.appendChild(wrap); drawKPI();
+  }
+  /* اختيار الشهر والسنة منفصلَين — بدل الضغط على ‹ › مرات كثيرة للوصول
+     لتاريخ بعيد. الضغط على عنوان الشهر/السنة يفتح اللوحة. */
+  function openMonthYearPicker() {
+    var back = el("div",
+      "position:fixed;inset:0;background:rgba(20,14,8,.55);z-index:10050;" +
+      "display:flex;align-items:flex-end;justify-content:center");
+    back.setAttribute("data-modal", "1");
+    back.setAttribute("data-nosave", "1");
+
+    var box = el("div",
+      "background:var(--card,#fffdf6);border-radius:18px 18px 0 0;" +
+      "padding:20px 18px 24px;width:100%;max-width:560px;direction:rtl;" +
+      "box-shadow:0 -8px 40px rgba(0,0,0,.3)");
+    box.appendChild(el("div",
+      "font-family:var(--f-title);font-size:17px;margin-bottom:14px;color:var(--a-accent)",
+      "الانتقال إلى شهر"));
+
+    var row = el("div", "display:flex;gap:10px");
+
+    var mWrap = el("div", "flex:1");
+    mWrap.appendChild(el("div", "font-size:12px;color:var(--a-muted);margin-bottom:5px",
+      "الشهر — رقم (١-١٢) أو اضغط من الشبكة"));
+    var mInp = document.createElement("input");
+    mInp.type = "text";
+    mInp.inputMode = "numeric";
+    mInp.setAttribute("data-nosave", "1");
+    mInp.placeholder = "مثال: 6 = يونيو";
+    mInp.style.cssText = "width:100%;min-height:48px;padding:10px 12px;font-size:16px;" +
+      "font-family:inherit;text-align:center;background:#fff;border:1px solid var(--a-line);" +
+      "border-radius:9px";
+    mWrap.appendChild(mInp);
+
+    var yWrap = el("div", "flex:1");
+    yWrap.appendChild(el("div", "font-size:12px;color:var(--a-muted);margin-bottom:5px", "السنة"));
+    var yInp = document.createElement("input");
+    yInp.type = "number";
+    yInp.value = y;
+    yInp.setAttribute("data-nosave", "1");
+    yInp.style.cssText = "width:100%;min-height:48px;padding:10px 12px;font-size:16px;" +
+      "font-family:inherit;text-align:center;background:#fff;border:1px solid var(--a-line);" +
+      "border-radius:9px";
+    yWrap.appendChild(yInp);
+
+    row.appendChild(mWrap); row.appendChild(yWrap);
+    box.appendChild(row);
+
+    /* شبكة الشهور الاثني عشر — الضغط على أي شهر ينقل إليه فوراً بنفس السنة */
+    var grid = el("div",
+      "display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px");
+    var monthBtns = [];
+    MONTHS.forEach(function (name, i) {
+      var b = el("button", "min-height:44px;border:1px solid var(--a-line);border-radius:10px;" +
+        "background:" + (i === m ? "var(--a-accent)" : "#fff") + ";" +
+        "color:" + (i === m ? "#fff" : "var(--a-ink)") + ";font-family:inherit;font-size:13px;" +
+        "font-weight:" + (i === m ? "700" : "400"), name);
+      b.type = "button";
+      b.dataset.i = i;
+      b.onclick = function () {
+        var ny = parseInt(yInp.value, 10);
+        if (!ny || ny < 1900 || ny > 2200) { yInp.focus(); return; }
+        y = ny; m = i;
+        view = "month"; setViewBtns(); draw();
+        close();
+      };
+      monthBtns.push(b);
+      grid.appendChild(b);
+    });
+    box.appendChild(grid);
+
+    /* الكتابة برقم الشهر تُبرز الزرّ المطابق فوراً في الشبكة */
+    mInp.addEventListener("input", function () {
+      var n = parseInt(mInp.value, 10);
+      var idx = (isFinite(n) && n >= 1 && n <= 12) ? n - 1 : -1;
+      monthBtns.forEach(function (b, i) {
+        b.style.background = i === idx ? "var(--a-accent)" : "#fff";
+        b.style.color = i === idx ? "#fff" : "var(--a-ink)";
+        b.style.fontWeight = i === idx ? "700" : "400";
+      });
+    });
+
+    var goBtn = el("button", "width:100%;min-height:52px;margin-top:16px;border:0;" +
+      "border-radius:12px;background:var(--a-accent);color:#fff;font-family:inherit;" +
+      "font-size:16px;font-weight:600", "اذهب");
+    goBtn.type = "button";
+    box.appendChild(goBtn);
+
+    var cancel = el("button", "width:100%;min-height:48px;margin-top:10px;border:1px solid var(--a-line);" +
+      "border-radius:12px;background:transparent;color:var(--a-ink);font-family:inherit;font-size:15px",
+      "إلغاء");
+    cancel.type = "button";
+    box.appendChild(cancel);
+
+    function apply() {
+      var ny = parseInt(yInp.value, 10);
+      if (!ny || ny < 1900 || ny > 2200) { yInp.focus(); return; }
+      var n = parseInt(mInp.value, 10);
+      var nm = (isFinite(n) && n >= 1 && n <= 12) ? n - 1 : m;
+      y = ny; m = nm;
+      view = "month"; setViewBtns(); draw();
+      close();
+    }
+    function close() { back.remove(); document.removeEventListener("keydown", onKey, true); }
+    function onKey(e) { if (e.key === "Escape") close(); }
+
+    goBtn.onclick = apply;
+    mInp.addEventListener("keydown", function (e) { if (e.key === "Enter") apply(); });
+    cancel.onclick = close;
+    back.onclick = function (e) { if (e.target === back) close(); };
+    document.addEventListener("keydown", onKey, true);
+
+    back.appendChild(box);
+    back.__lawyerDismiss = function () { close(); return true; };
+    document.body.appendChild(back);
+    setTimeout(function () { mInp.focus(); }, 60);
+  }
+  document.getElementById("mtitle").onclick = openMonthYearPicker;
+
+  /* ═══ الدفتر: صفحة لكل يوم — اليوم والتاريخ والهجري، ثم الأعداد، ثم القائمة
+     (تقويم الجلسات، القاعدة ٥٦). اليمين = اليوم المختار، والشمال = اللي بعده. ═══ */
+  var BOOK_MIN = 900;
+  function bookFits() { return (window.innerWidth || document.documentElement.clientWidth) >= BOOK_MIN; }
+  function addDays(k, n) { var p = k.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() + n); return isoOf(d); }
+  function bookPage(k) {
+    var p = k.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]);
+    var list = evList().filter(function (e) { return e.date === k; });
+    var order = { judg: 0, first: 1, exp: 2, plain: 3, appt: 4 };
+    list.sort(function (a, b) { return order[a.kind] - order[b.kind]; });
+    var page = document.createDocumentFragment();
+    var head = el("div"); head.className = "ph2";
+    head.appendChild(el("div", "", ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"][d.getDay()])).className = "dayn";
+    head.appendChild(el("div", "", ar(+p[2]) + " " + MONTHS[+p[1] - 1] + " " + ar(p[0]))).className = "greg";
+    var hj = window.lawyerHijri ? lawyerHijri(d) : "";
+    if (hj) head.appendChild(el("div", "", hj)).className = "hij";
+    page.appendChild(head);
+    var cnt = el("div"); cnt.className = "bcnt";
+    var cases = list.filter(function (e) { return e._c; });
+    var past = k <= isoOf(new Date());
+    cnt.appendChild(el("span", "", "الجلسات والمواعيد " + ar(list.length)));
+    var nod = past ? cases.filter(function (e) { var ld = lastDecision(e._c, e._s); return !(ld && ld.text && ld.date === k); }).length : 0;
+    if (nod) cnt.appendChild(el("span", "color:#7a5c14", "بدون قرار " + ar(nod)));
+    if (window.CaseFile && CaseFile.caseColor) {
+      var cc = {}, hx = {};
+      cases.forEach(function (e) { var c = CaseFile.caseColor(e._c); cc[c.k] = (cc[c.k] || 0) + 1; hx[c.k] = c.hex; });
+      Object.keys(cc).forEach(function (kk) {
+        var sp = el("span", "");
+        var dot = el("i", "display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle;background:" + hx[kk]);
+        sp.appendChild(dot); sp.appendChild(document.createTextNode(" " + ar(cc[kk])));
+        cnt.appendChild(sp);
+      });
+    }
+    page.appendChild(cnt);
+    var rows = el("div"); rows.className = "brows";
+    if (!list.length) rows.appendChild(el("div", "", "لا جلسات ولا مواعيد في اليوم ده")).className = "none2";
+    list.forEach(function (e) {
+      var r = el("div"); r.className = "brow" + (e.caseId ? " lnk" : "");
+      if (e._c && window.CaseFile && CaseFile.caseColor) r.style.borderInlineStartColor = CaseFile.caseColor(e._c).hex;
+      else r.style.borderInlineStartColor = "var(--c-" + e.kind + ")";
+      r.appendChild(el("b", "", e.title));
+      if (e.time) r.appendChild(el("span", "", "  ⏰ " + ar(e.time))).className = "mut";
+      if (e.detail) { r.appendChild(el("br")); r.appendChild(el("span", "", e.detail)).className = "mut"; }
+      if (e._c) {
+        var ld = lastDecision(e._c, e._s);
+        if (ld && ld.text) { r.appendChild(el("br")); r.appendChild(el("span", "", (ld.text.length > 90 ? ld.text.slice(0, 90) + "…" : ld.text))).className = "mut"; }
+      }
+      if (e.caseId) r.onclick = function () { location.href = "90-case-file.html?open=" + encodeURIComponent(e.caseId); };
+      rows.appendChild(r);
+    });
+    page.appendChild(rows);
+    page.appendChild(el("div", "", ar(+p[2]) + "/" + ar(+p[1]) + "/" + ar(p[0]))).className = "pno";
+    return page;
+  }
+  function fillPage(node, k) { node.textContent = ""; node.appendChild(bookPage(k)); }
+  function drawBook() {
+    var alt = document.getElementById("altview"); alt.textContent = "";
+    var k1 = sel, k2 = addDays(sel, 1), d1 = selDate();
+    document.getElementById("mtitle").textContent = "دفتر " + MONTHS[d1.getMonth()] + "  " + ar(d1.getFullYear());
+    var book = el("div"); book.id = "book";
+    var nav = el("div"); nav.className = "bknav"; nav.setAttribute("data-nosave", "1");
+    [["◀ اللي فاتت", function () { bookFlip(-1); }], ["اليوم", function () { var n = new Date(); sel = isoOf(n); y = n.getFullYear(); m = n.getMonth(); draw(); showDay(); }],
+     ["اللي جاية ▶", function () { bookFlip(1); }]].forEach(function (b) {
+      var bt = el("button", "min-height:40px", b[0]); bt.type = "button"; bt.className = "btn ghost"; bt.onclick = b[1]; nav.appendChild(bt);
+    });
+    nav.appendChild(el("span", "font-size:12px;color:var(--a-muted)", "أو بسهمي ← →"));
+    book.appendChild(nav);
+    var bk = el("div"); bk.className = "bk"; bk.id = "bk";
+    var pr = el("div"); pr.className = "pg r"; fillPage(pr, k1);
+    var sp = el("div"); sp.className = "spine";
+    var pl = el("div"); pl.className = "pg l"; fillPage(pl, k2);
+    bk.appendChild(pr); bk.appendChild(sp); bk.appendChild(pl);
+    ["R", "L"].forEach(function (side) {
+      var f = el("div"); f.className = "flip " + side; f.id = "flip" + side;
+      var ff = el("div"); ff.className = "face f"; var fb = el("div"); fb.className = "face b";
+      f.appendChild(ff); f.appendChild(fb); bk.appendChild(f);
+    });
+    book.appendChild(bk);
+    alt.appendChild(book);
+    drawKPI();
+  }
+  var flipping = false;
+  function bookFlip(dir) {
+    if (flipping) return;
+    var k1 = sel, nk = addDays(sel, dir);
+    var f = document.getElementById(dir > 0 ? "flipL" : "flipR");
+    var done = function () { sel = nk; var d = selDate(); y = d.getFullYear(); m = d.getMonth(); flipping = false; draw(); showDay(); };
+    if (!f || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) { done(); return; }
+    flipping = true;
+    /* RTL: «اللي جاية» بتقلب الصفحة الشمال (اليوم التاني) ناحية اليمين */
+    /* الورقة بتبدأ بالصفحة اللي فوقها وبتنزل على الناحية التانية بالصفحة اللي هتبقى هناك */
+    if (dir > 0) { fillPage(f.querySelector(".f"), addDays(k1, 1)); fillPage(f.querySelector(".b"), addDays(k1, 1)); }
+    else         { fillPage(f.querySelector(".f"), k1); fillPage(f.querySelector(".b"), k1); }
+    f.classList.remove("go"); f.classList.add("live"); void f.offsetWidth;
+    requestAnimationFrame(function () { f.classList.add("go"); });
+    setTimeout(done, 740);
+  }
+  document.addEventListener("keydown", function (e) {
+    if (view !== "book" || document.querySelector('[data-modal="1"]')) return;
+    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    if (e.key === "ArrowLeft") bookFlip(1);
+    if (e.key === "ArrowRight") bookFlip(-1);
+  });
+  function syncBookBtn() {
+    var b = document.getElementById("vBook"), fits = bookFits();
+    b.hidden = !fits;
+    if (!fits && view === "book") { view = "month"; setViewBtns(); draw(); }
+  }
+  window.addEventListener("resize", syncBookBtn);
+
+  function setViewBtns() {
+    [["vMonth", "month"], ["vWeek", "week"], ["vYear", "year"], ["vBook", "book"]].forEach(function (p) {
+      document.getElementById(p[0]).className = "btn" + (view === p[1] ? "" : " ghost");
+    });
+  }
+  function draw() {
+    var isMonth = view === "month";
+    document.getElementById("dows").style.display = isMonth ? "" : "none";
+    document.getElementById("grid").style.display = isMonth ? "" : "none";
+    document.getElementById("altview").style.display = isMonth ? "none" : "block";
+    if (isMonth) drawMonth();
+    else if (view === "week") drawWeek();
+    else if (view === "book") drawBook();
+    else drawYear();
+  }
+
+  document.getElementById("vMonth").onclick = function () { view = "month"; setViewBtns(); draw(); };
+  document.getElementById("vWeek").onclick = function () { view = "week"; setViewBtns(); draw(); };
+  document.getElementById("vYear").onclick = function () { view = "year"; setViewBtns(); draw(); };
+  document.getElementById("vBook").onclick = function () { view = "book"; setViewBtns(); draw(); };
+  syncBookBtn();
+  document.getElementById("hideEnded").onclick = function () { draw(); showDay(); };
+  document.getElementById("printCal").onclick = function () {
+    if (window.AndroidSaver && AndroidSaver.printPage) AndroidSaver.printPage("تقويم — " + document.getElementById("mtitle").textContent);
+    else window.print();
+  };
+
+  document.getElementById("prev").onclick = function () {
+    if (view === "book") { bookFlip(1); return; }
+    if (view === "year") { y++; }
+    else if (view === "week") { var d = selDate(); d.setDate(d.getDate() + 7); sel = isoOf(d); y = d.getFullYear(); m = d.getMonth(); }
+    else { m++; if (m > 11) { m = 0; y++; } }
+    draw();
+  };
+  document.getElementById("next").onclick = function () {
+    if (view === "book") { bookFlip(-1); return; }
+    if (view === "year") { y--; }
+    else if (view === "week") { var d = selDate(); d.setDate(d.getDate() - 7); sel = isoOf(d); y = d.getFullYear(); m = d.getMonth(); }
+    else { m--; if (m < 0) { m = 11; y--; } }
+    draw();
+  };
+  document.getElementById("today").onclick = function () {
+    var n = new Date(); y = n.getFullYear(); m = n.getMonth(); sel = isoOf(n);
+    draw(); showDay();
+  };
+
+  var mc = document.getElementById("mergeCal");
+  if (mc) mc.onclick = function () {
+    if (!window.AgendaImport || !AgendaImport.mergePreview) return;
+    var pv = AgendaImport.mergePreview();
+    if (!pv.count) { alert("لا مواعيد تقويم غير مدمجة — كلها ممثَّلة بقضايا بالفعل."); return; }
+    var NL = String.fromCharCode(10);
+    Ask.confirm("دمج مواعيد التقويم كقضايا؟", {
+      ok: "دمج (" + pv.count + ")",
+      detail: "سيُنشأ " + pv.count + " ملف قضية من مواعيد التقويم غير المرتبطة بقضايا." + NL +
+        "الحقول توضَع فيما يناسبها (الموضوع/الموكل/الجلسة)، ولا تُمسّ القضايا القائمة." + NL + NL +
+        pv.examples.map(function (x) { return "• " + x; }).join(NL) + (pv.count > 6 ? NL + "…" : "")
+    }, function () {
+      var r = AgendaImport.mergeAppts();
+      if (!r.ok) { alert("تعذّر الحفظ."); return; }
+      alert("تم الدمج — أُضيف " + r.added + " ملف قضية.");
+      location.href = "90-case-file.html";
+    });
+  };
+
+  var dows = document.getElementById("dows");
+  [6,0,1,2,3,4,5].forEach(function (i) {
+    var d = el("div", "", DOW[i]); d.className = "dow"; dows.appendChild(d);
+  });
+
+  draw();
+  /* case-file.js (ألوان القضايا) بيتحمّل بعد السكربت ده — ارسم تاني لما يوصل */
+  window.addEventListener("load", function () { if (window.CaseFile && CaseFile.caseColor) draw(); });
+  showDay();
+})();
+</script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/autofit.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

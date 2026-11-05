@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حسابات العميل</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .tabs{ display:flex; gap:7px; margin-bottom:12px; }
+  .tabs button{ flex:1; min-height:48px; border-radius:11px; font-family:inherit; font-size:14px;
+        border:1px solid var(--line); background:var(--card); color:var(--brand); }
+  .tabs button.on{ background:var(--brand); color:#fff; border-color:var(--brand); }
+  .fld{ width:100%; min-height:48px; font-size:16px; padding:9px 12px; border:1px solid var(--line);
+        border-radius:10px; background:var(--card); direction:rtl; text-align:right; font-family:inherit; margin-bottom:12px; }
+  .tot{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+  .tot div{ flex:1 1 22%; min-width:120px; background:var(--card); border:1px solid var(--line);
+        border-radius:11px; padding:10px 6px; text-align:center; }
+  .tot .l{ font-size:11px; color:var(--muted); } .tot .n{ font-family:var(--f-title); font-size:16px; margin-top:3px; }
+  .cs{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px; margin-bottom:9px; }
+  .cs .h{ font-family:var(--f-title); font-size:14px; margin-bottom:5px; }
+  .cs .r{ display:flex; gap:8px; font-size:12.5px; color:var(--muted); line-height:1.9; }
+  .cs .r b{ flex:0 0 96px; color:var(--brand-dark); font-family:var(--f-title); font-weight:400; }
+  table{ width:100%; border-collapse:collapse; font-size:12px; }
+  th,td{ padding:6px; border:1px solid var(--line); text-align:right; }
+  th{ background:#efe6d6; font-family:var(--f-title); }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+  <div class="appbar">
+    <a class="back" href="20-cases-hub.html">&rarr;</a>
+    <h1>حسابات العميل</h1>
+    <span class="screen-id">SCR-97</span>
+  </div>
+  <main>
+    <div class="tabs" data-nosave="1">
+      <button type="button" id="tAcct" class="on">💼 كشف حساب موكل</button>
+      <button type="button" id="tTax">🧾 تقرير ضريبي</button>
+    </div>
+    <div id="acctPane">
+      <input type="text" id="cName" class="fld" list="dlC" placeholder="اسم الموكل…">
+      <datalist id="dlC"></datalist>
+      <div id="acctBody"></div>
+    </div>
+    <div id="taxPane" hidden>
+      <input type="text" id="tYear" class="fld" placeholder="سنة التعامل (مثال ٢٠٢٦)">
+      <input type="text" id="tName" class="fld" list="dlC2" placeholder="موكل بعينه (اختياري)…">
+      <datalist id="dlC2"></datalist>
+      <div id="taxBody"></div>
+    </div>
+  </main>
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html" class="active"><span class="bi">⚖</span>القضايا</a>
+    <a href="90-case-file.html"><span class="bi">🗂</span>سجل القضايا</a>
+    <a href="89-clients.html"><span class="bi">👤</span>الموكلون</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script>
+(function () {
+  "use strict";
+  var CF = window.CaseFile, EX = window.Expenses;
+  var ar = (CF && CF.ar) || function (x) { return String(x == null ? "" : x); };
+  var norm = (CF && CF.norm) || function (x) { return String(x || "").toLowerCase(); };
+  function money(v) { return EX && EX.money ? EX.money(v) : (parseFloat(String(v).replace(/[^0-9.\-]/g, "")) || 0); }
+  function fmt(v) { return EX && EX.fmt ? EX.fmt(v) : String(Math.round(v)); }
+
+  function el(t, css, txt) { var e = document.createElement(t); if (css) e.style.cssText = css; if (txt != null) e.textContent = txt; return e; }
+  function cases() { return (CF && CF.all && CF.all()) || []; }
+  function moves() { return (EX && EX.all && EX.all()) || []; }
+
+  function la(t) { return String(t == null ? "" : t).replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x0660; }); }
+  function caseFinance(c) {
+    var fn = la(c.fileNo || "").trim();
+    var collected = 0, spent = 0;
+    if (fn) moves().forEach(function (r) {
+      if (la(r.fileNo || "").trim() !== fn) return;
+      if (r.kind === "عهدة مستلمة") collected += money(r.amount); else spent += money(r.amount);
+    });
+    return { collected: collected, spent: spent };
+  }
+  /* مطابقة تامة لاسم أحد الموكلين في القضية — الاحتواء الجزئي كان بيجيب لـ«محمد
+     أحمد» قضايا «محمد أحمد علي» وفلوسها في كشف حسابه (F-CLI-2). */
+  function partyNames(txt) {
+    return String(txt || "").split(/\s*·\s*/).map(function (part) {
+      if (/^ورثة\./.test(part.trim())) return "";
+      return norm(part.replace(/^\s*[٠-٩0-9]+\s*[.\-)]\s*/, "").replace(/\(.*?\)/g, "")
+        .replace(/\s*[-–]\s*(مدعي|مستأنف|طاعن|متهم|مدعى|مجني|شاكي)\S*.*$/, "").trim());
+    }).filter(Boolean);
+  }
+  function isClientOf(c, name) {
+    var k = norm(name);
+    return !!k && partyNames(c.clients).indexOf(k) >= 0;
+  }
+  function clientCases(name) {
+    if (!norm(name)) return [];
+    return cases().filter(function (c) { return isClientOf(c, name); });
+  }
+
+  /* قائمة أسماء الموكلين للاقتراح */
+  function fillNames() {
+    var set = {}, out = [];
+    cases().forEach(function (c) {
+      String(c.clients || "").split("·").forEach(function (p) {
+        var nm = p.replace(/\([^)]*\)/g, "").trim();
+        if (nm && !set[norm(nm)]) { set[norm(nm)] = 1; out.push(nm); }
+      });
+    });
+    out.sort(function (a, b) { return a.localeCompare(b, "ar"); });
+    ["dlC", "dlC2"].forEach(function (id) {
+      var dl = document.getElementById(id); if (!dl) return;
+      dl.textContent = "";
+      out.slice(0, 800).forEach(function (nm) { var o = document.createElement("option"); o.value = nm; dl.appendChild(o); });
+    });
+  }
+
+  function drawAcct() {
+    var body = document.getElementById("acctBody");
+    body.textContent = "";
+    var name = document.getElementById("cName").value.trim();
+    if (!name) { body.appendChild(el("div", "color:var(--muted);font-size:13.5px;padding:8px 0", "اكتب اسم الموكل لعرض كشف حسابه المجمّع.")); return; }
+    var list = clientCases(name);
+    if (!list.length) { body.appendChild(el("div", "color:var(--muted);font-size:13.5px;padding:8px 0", "لا قضايا مطابقة لهذا الاسم.")); return; }
+
+    var tAgreed = 0, tColl = 0, tSpent = 0, pctNote = 0;
+    list.forEach(function (c) {
+      var f = caseFinance(c);
+      tColl += f.collected; tSpent += f.spent;
+      if (c.feeKind === "نسبة") pctNote++;
+      else tAgreed += money(c.feeStart);
+    });
+
+    var tot = el("div"); tot.className = "tot";
+    [["الأتعاب (قيمية)", fmt(tAgreed)], ["المحصّل", fmt(tColl)], ["المصروفات", fmt(tSpent)],
+     ["المتبقي", fmt(tAgreed - tColl)]].forEach(function (p) {
+      var d = el("div"); d.appendChild(el("div", "", p[0])).className = "l";
+      d.appendChild(el("div", "", p[1])).className = "n"; tot.appendChild(d);
+    });
+    body.appendChild(tot);
+    if (pctNote) body.appendChild(el("div", "font-size:12px;color:var(--muted);margin-bottom:10px",
+      "* " + ar(pctNote) + " قضية بأتعاب نسبة مئوية لا تدخل الإجماليات القيمية."));
+
+    list.forEach(function (c) {
+      var f = caseFinance(c);
+      var card = el("div"); card.className = "cs";
+      card.appendChild(el("div", "", "ملف " + ar(c.fileNo || "—") + " · دعوى " + ar(c.caseNo || "—") +
+        (c.caseYear ? "/" + ar(c.caseYear) : ""))).className = "h";
+      function r(k, v) { if (!v && v !== 0) return; var x = el("div"); x.className = "r"; x.appendChild(el("b", "", k)); x.appendChild(el("span", "", v)); card.appendChild(x); }
+      r("المحكمة", [c.courtName, c.circuit].filter(Boolean).join(" — "));
+      r("الموضوع", c.subject);
+      r("الحالة", c.status);
+      r("الأتعاب", c.feeKind === "نسبة" ? (c.feePct ? ar(c.feePct) + "%" : "نسبة") : (c.feeStart ? fmt(money(c.feeStart)) + " ج" : "—"));
+      r("المحصّل", fmt(f.collected) + " ج");
+      r("المصروفات", fmt(f.spent) + " ج");
+      if (c.feeKind !== "نسبة" && c.feeStart) r("المتبقي", fmt(money(c.feeStart) - f.collected) + " ج");
+      card.onclick = function () { if (CF && CF.openCase) CF.openCase(c.id, drawAcct); };
+      body.appendChild(card);
+    });
+  }
+
+  function drawTax() {
+    var body = document.getElementById("taxBody");
+    body.textContent = "";
+    var yr = la(document.getElementById("tYear").value.trim());
+    var nm = document.getElementById("tName").value.trim();
+    if (!yr) { body.appendChild(el("div", "color:var(--muted);font-size:13.5px;padding:8px 0", "اكتب سنة التعامل لبناء التقرير الضريبي.")); return; }
+    var list = cases().filter(function (c) {
+      if (la(c.dealYear || "").trim() !== yr) return false;
+      if (nm && !isClientOf(c, nm)) return false;
+      return true;
+    });
+    if (!list.length) { body.appendChild(el("div", "color:var(--muted);font-size:13.5px;padding:8px 0", "لا قضايا في هذه السنة.")); return; }
+
+    var wrap = el("div", "overflow-x:auto");
+    var tbl = document.createElement("table");
+    var hr = tbl.insertRow();
+    ["الملف", "الموكل", "الدعوى", "المحصّل", "المصروفات", "الصافي"].forEach(function (h) {
+      var th = document.createElement("th"); th.textContent = h; hr.appendChild(th);
+    });
+    var tC = 0, tS = 0;
+    list.forEach(function (c) {
+      var f = caseFinance(c); tC += f.collected; tS += f.spent;
+      var tr = tbl.insertRow();
+      var firstClient = String(c.clients || "").split("·")[0].replace(/\([^)]*\)/g, "").trim();
+      [ar(c.fileNo || "—"), firstClient || "—", ar(c.caseNo || "—") + (c.caseYear ? "/" + ar(c.caseYear) : ""),
+       fmt(f.collected), fmt(f.spent), fmt(f.collected - f.spent)].forEach(function (v) {
+        tr.insertCell().textContent = v;
+      });
+    });
+    var tr = tbl.insertRow();
+    ["الإجمالي", "", "", fmt(tC), fmt(tS), fmt(tC - tS)].forEach(function (v) {
+      var td = tr.insertCell(); td.textContent = v; td.style.fontFamily = "var(--f-title)"; td.style.background = "#f5f0e6";
+    });
+    wrap.appendChild(tbl); body.appendChild(wrap);
+  }
+
+  document.getElementById("tAcct").onclick = function () {
+    this.className = "on"; document.getElementById("tTax").className = "";
+    document.getElementById("acctPane").hidden = false; document.getElementById("taxPane").hidden = true;
+  };
+  document.getElementById("tTax").onclick = function () {
+    this.className = "on"; document.getElementById("tAcct").className = "";
+    document.getElementById("taxPane").hidden = false; document.getElementById("acctPane").hidden = true;
+    drawTax();
+  };
+  document.getElementById("cName").addEventListener("input", drawAcct);
+  document.getElementById("tYear").addEventListener("input", drawTax);
+  document.getElementById("tName").addEventListener("input", drawTax);
+
+  fillNames();
+  /* ?client=الاسم يفتح كشفه مباشرة */
+  var m = location.search.match(/[?&]client=([^&]*)/);
+  if (m) document.getElementById("cName").value = decodeURIComponent(m[1]);
+  drawAcct();
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

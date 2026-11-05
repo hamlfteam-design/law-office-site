@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٨٢ · سجل المحاضر</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .kpi  { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .kpi div{ flex:1 1 30%; background:var(--card); border:1px solid var(--line);
+            border-radius:11px; padding:11px 7px; text-align:center; }
+  .kpi .n{ font-family:var(--f-title); font-size:19px; color:var(--brand-dark); }
+  .kpi .l{ font-size:11px; color:var(--muted); margin-top:3px; }
+  .mn   { background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:12px; margin-bottom:9px; }
+  .mn .hd { display:flex; gap:8px; align-items:flex-start; }
+  .mn .no { flex:0 0 auto; background:var(--brand); color:#fff; border-radius:8px;
+            padding:3px 10px; font-size:12.5px; font-family:var(--f-title); }
+  .mn .ttl{ flex:1; font-family:var(--f-title); font-size:15px; line-height:1.7;
+            word-break:break-word; }
+  .mn .kind { flex:0 0 auto; font-size:11px; padding:2px 9px; border-radius:20px;
+            background:#efe7db; color:#5b3a21; }
+  .mn .r  { display:flex; gap:8px; font-size:12.5px; color:var(--muted);
+            margin-top:6px; line-height:1.9; }
+  .mn .r b{ flex:0 0 88px; color:var(--brand-dark); font-family:var(--f-title);
+            font-weight:400; }
+  .mn .r span{ flex:1; word-break:break-word; }
+  .mn .act{ display:flex; gap:7px; margin-top:10px; flex-wrap:wrap; }
+  .mn .act button { flex:1 1 auto; min-width:78px; min-height:42px;
+          border:1px solid var(--line); border-radius:8px; background:transparent;
+          color:var(--brand); font-family:inherit; font-size:12.5px; }
+  .mn .st { margin-top:8px; padding:8px 10px; border-radius:9px;
+            background:var(--bg,#f4ece0); font-size:12.5px; line-height:1.9; }
+  .mn .nt { margin-top:7px; padding-top:7px; border-top:1px dashed var(--line);
+            font-size:12.5px; color:var(--muted); line-height:1.9;
+            white-space:pre-line; }
+  .tabs2 { display:flex; gap:7px; margin-bottom:12px; }
+  .tabs2 button { flex:1; min-height:46px; border-radius:10px; font-family:inherit;
+        font-size:14px; border:1px solid var(--line); background:transparent;
+        color:var(--brand); }
+  .tabs2 button.on { background:var(--brand); color:#fff; border-color:var(--brand); }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="20-cases-hub.html">&rarr;</a>
+    <h1>سجل المحاضر</h1>
+    <span class="screen-id">SCR-82</span>
+  </div>
+
+  <main>
+
+    <div class="kpi" id="kpi"></div>
+
+    <input type="text" id="q" data-nosave="1" lang="ar" dir="rtl" autocomplete="off"
+           placeholder="ابحث برقم المحضر أو رقم النيابة أو اسم الموكل…"
+           style="width:100%;min-height:50px;font-size:16px;padding:10px 14px;
+                  border:1px solid var(--line);border-radius:10px;background:var(--card);
+                  direction:rtl;text-align:right;font-family:inherit;margin-bottom:12px">
+
+    <button type="button" class="btn" id="add" data-nosave="1"
+            style="width:100%;min-height:48px;margin-bottom:12px">＋ محضر جديد</button>
+
+    <div class="tabs2" data-nosave="1">
+      <button type="button" data-mode="all" class="on">الكل</button>
+      <button type="button" data-mode="open">بلا تصرف</button>
+      <button type="button" data-mode="keep">محفوظة</button>
+      <button type="button" data-mode="gr">تظلمات</button>
+    </div>
+
+    <div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="list"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="90-case-file.html"><span class="bi">🗂</span>سجل القضايا</a>
+    <a href="89-clients.html"><span class="bi">👤</span>الموكلون</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/minutes.js?v=3"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+(function () {
+  "use strict";
+
+  var mode = "all";
+  var ar = Minutes.ar;
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  function drawKpi() {
+    var all = Minutes.all();
+    var open = 0, keep = 0, gr = 0, ses = 0;
+    all.forEach(function (m) {
+      if (!m.action) open++;
+      else if (m.action === "حفظ") keep++;
+      else if (m.action === "تظلم") gr++;
+      else if (m.action === "جلسة") ses++;
+    });
+    var box = document.getElementById("kpi");
+    box.textContent = "";
+    [[all.length, "محضر"], [open, "بلا تصرف"], [ses, "أُحيل لجلسة"],
+     [keep, "محفوظ"], [gr, "متظلَّم فيه"]].forEach(function (p) {
+      var d = el("div");
+      d.appendChild(el("div", "", ar(p[0]))).className = "n";
+      d.appendChild(el("div", "", p[1])).className = "l";
+      box.appendChild(d);
+    });
+  }
+
+  function row(label, value) {
+    var r = el("div"); r.className = "r";
+    r.appendChild(el("b", "", label));
+    r.appendChild(el("span", "", value));
+    return r;
+  }
+
+  function draw() {
+    var q = document.getElementById("q").value.trim();
+    var list = Minutes.search(q);
+
+    if (mode === "open") list = list.filter(function (m) { return !m.action; });
+    if (mode === "keep") list = list.filter(function (m) { return m.action === "حفظ"; });
+    if (mode === "gr")   list = list.filter(function (m) { return m.action === "تظلم"; });
+
+    document.getElementById("stat").textContent =
+      list.length ? "المعروض: " + ar(list.length)
+                  : (q ? "لا يوجد محضر يطابق «" + q + "»"
+                       : "لا محاضر مسجَّلة — اضغط «محضر جديد».");
+
+    var box = document.getElementById("list");
+    box.textContent = "";
+
+    list.forEach(function (m) {
+      var card = el("div"); card.className = "mn";
+
+      var hd = el("div"); hd.className = "hd";
+      hd.appendChild(el("span", "", m.no ? ar(m.no) : "—")).className = "no";
+      hd.appendChild(el("span", "",
+        (m.year ? "لسنة " + ar(m.year) : "بلا سنة") +
+        (m.station ? " — " + m.station : ""))).className = "ttl";
+      if (m.kind) hd.appendChild(el("span", "", m.kind)).className = "kind";
+      card.appendChild(hd);
+
+      if (m.client)  card.appendChild(row("الموكل", m.client + (m.role ? " — " + m.role : "")));
+      if (m.subject) card.appendChild(row("الموضوع", m.subject));
+      if (m.date)    card.appendChild(row("تاريخ التحرير", ar(m.date)));
+      if (m.pros || m.prosNo) {
+        card.appendChild(row("النيابة",
+          [m.pros, m.prosNo ? "قيد " + ar(m.prosNo) +
+           (m.prosYear ? " لسنة " + ar(m.prosYear) : "") : ""]
+          .filter(Boolean).join(" — ")));
+      }
+
+      /* التصرف */
+      var st = el("div"); st.className = "st";
+      if (!m.action) {
+        st.appendChild(el("span", "color:#b3261e", "لم يُسجَّل التصرف فيه بعد."));
+      } else if (m.action === "جلسة") {
+        st.appendChild(el("div", "font-family:var(--f-title);color:var(--brand-dark)",
+          "أُحيل إلى جلسة" + (m.hearingDate ? " — " + ar(m.hearingDate) : "")));
+        st.appendChild(el("div", "",
+          m.caseFileNo ? "ملف بالمكتب رقم " + ar(m.caseFileNo)
+                       : "لم يُحدَّد رقم الملف بالمكتب."));
+        if (m.caseId) st.appendChild(el("div", "color:#1f7a4d", "رُحِّل إلى سجل القضايا ✓"));
+      } else if (m.action === "حفظ") {
+        st.appendChild(el("div", "font-family:var(--f-title);color:var(--brand-dark)",
+          "حُفظ" + (m.keepDate ? " في " + ar(m.keepDate) : "")));
+        if (m.keepReason) st.appendChild(el("div", "", "السبب: " + m.keepReason));
+      } else if (m.action === "تظلم") {
+        st.appendChild(el("div", "font-family:var(--f-title);color:var(--brand-dark)",
+          "تظلُّم" + (m.grNo ? " رقم " + ar(m.grNo) : "") +
+          (m.grDate ? " — " + ar(m.grDate) : "")));
+        if (m.grBody) st.appendChild(el("div", "", "الجهة: " + m.grBody));
+        if (m.grKind) st.appendChild(el("div", "", "نوعه: " + m.grKind));
+        if (m.grKind === "عرائض إلكترونية") {
+          st.appendChild(el("div", "",
+            "العريضة " + ar(m.epNo || "—") +
+            (m.epDate ? " — قُدِّمت في " + ar(m.epDate) : "")));
+          if (m.epResult) st.appendChild(el("div", "white-space:pre-line",
+            "ما تم فيها: " + m.epResult));
+        }
+      }
+      card.appendChild(st);
+
+      /* الملاحظات */
+      if (m.notes && m.notes.length) {
+        var nt = el("div"); nt.className = "nt";
+        nt.textContent = m.notes.map(function (n) {
+          return "▪ " + Minutes.arDate(n.at) + " — " + n.body;
+        }).join("\n");
+        card.appendChild(nt);
+      }
+
+      /* الأزرار */
+      var act = el("div"); act.className = "act";
+      function b(label, on) {
+        var x = document.createElement("button");
+        x.type = "button"; x.textContent = label; x.onclick = on;
+        act.appendChild(x);
+        return x;
+      }
+      b("✎ تعديل", function () {
+        Minutes.edit(m.id, function () { drawKpi(); draw(); });
+      });
+      b("＋ ملاحظة", function () {
+        Minutes.addNote(m.id, function () { draw(); });
+      });
+      if (m.action === "جلسة" && !m.caseId) {
+        var t = b("↪ ترحيل للقضايا", function () {
+          Minutes.toCase(m.id, function () { drawKpi(); draw(); });
+        });
+        t.style.borderColor = "var(--brand)";
+        t.style.fontWeight = "600";
+      }
+      var d = b("🗑 حذف", function () {
+        Minutes.remove(m.id, function () { drawKpi(); draw(); });
+      });
+      d.style.color = "#b3261e";
+      d.style.borderColor = "#e3c9c6";
+      card.appendChild(act);
+
+      box.appendChild(card);
+    });
+  }
+
+  var timer;
+  document.getElementById("q").addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(draw, 160);
+  });
+
+  document.querySelectorAll(".tabs2 button").forEach(function (b) {
+    b.onclick = function () {
+      mode = b.getAttribute("data-mode");
+      document.querySelectorAll(".tabs2 button").forEach(function (x) {
+        x.classList.remove("on");
+      });
+      b.classList.add("on");
+      draw();
+    };
+  });
+
+  document.getElementById("add").onclick = function () {
+    Minutes.edit(null, function () { drawKpi(); draw(); });
+  };
+
+  drawKpi();
+  draw();
+})();
+</script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

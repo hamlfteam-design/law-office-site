@@ -23,7 +23,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME && k.indexOf("hamlf-iphone-") !== 0) /* كاش نسخة الآيفون /hamlf-iphone/ ليه الـService Worker بتاعه */.map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();

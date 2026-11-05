@@ -1,0 +1,5 @@
+/* نسخة الآيفون: مساحة النوتش وشريط الهوم، ومنع تكبير Safari التلقائي في الخانات */
+html{-webkit-text-size-adjust:100%}
+body{padding-bottom:env(safe-area-inset-bottom)}
+.appbar{padding-top:calc(env(safe-area-inset-top) + 0px)}
+input,select,textarea{font-size:max(16px,1em)}

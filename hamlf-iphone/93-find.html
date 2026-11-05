@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٩٣ · بحث شامل</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .fr { background:var(--card); border:1px solid var(--line); border-radius:12px;
+        padding:12px; margin-bottom:9px; }
+  .fr .hd { display:flex; gap:8px; align-items:flex-start; }
+  .fr .ic { flex:0 0 auto; font-size:18px; }
+  .fr .ttl{ flex:1; font-family:var(--f-title); font-size:15px; line-height:1.7;
+            word-break:break-word; }
+  .fr .kd { flex:0 0 auto; font-size:11px; padding:2px 9px; border-radius:20px;
+            background:#efe7db; color:#5b3a21; white-space:nowrap; }
+  .fr .ln { font-size:12.5px; color:var(--muted); margin-top:6px; line-height:1.95;
+            white-space:pre-line; word-break:break-word; }
+  .fr .act { display:flex; gap:7px; margin-top:10px; flex-wrap:wrap; }
+  .fr .act button { flex:1 1 auto; min-width:80px; min-height:42px;
+        border:1px solid var(--line); border-radius:8px; background:transparent;
+        color:var(--brand); font-family:inherit; font-size:12.5px; }
+  .chips { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .chips button { flex:1 1 auto; min-height:44px; padding:0 14px; border-radius:22px;
+        border:1px solid var(--line); background:var(--card); color:var(--brand);
+        font-family:inherit; font-size:13px; }
+  .chips button.on { background:var(--brand); color:#fff; border-color:var(--brand); }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">&rarr;</a>
+    <h1>بحث شامل</h1>
+    <span class="screen-id">SCR-93</span>
+  </div>
+
+  <main>
+
+    <div class="infobox">
+      اكتب <strong>أي قيمة</strong> — رقم ملف بالمكتب · رقم دعوى · اسم موكل ·
+      رقم توكيل · رقم محضر · مبلغ — فتظهر من كل السجلات، ومع كل نتيجة
+      تعديلها وحذفها في مكانها.
+    </div>
+
+    <input type="text" id="q" data-nosave="1" lang="ar" dir="rtl" autocomplete="off"
+           placeholder="اكتب أي قيمة…"
+           style="width:100%;min-height:54px;font-size:17px;padding:12px 14px;
+                  border:1px solid var(--line);border-radius:11px;background:var(--card);
+                  direction:rtl;text-align:right;font-family:inherit;margin-bottom:12px">
+
+    <div class="chips" id="chips" data-nosave="1"></div>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px" data-nosave="1">
+      <button type="button" class="btn" id="addCase" style="flex:1;min-height:46px">＋ قضية</button>
+      <button type="button" class="btn" id="addReg"  style="flex:1;min-height:46px">＋ قيد سجل</button>
+      <button type="button" class="btn" id="addCli"  style="flex:1;min-height:46px">＋ موكل</button>
+    </div>
+
+    <div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="list"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="90-case-file.html"><span class="bi">🗂</span>سجل القضايا</a>
+    <a href="92-register.html"><span class="bi">🗃</span>السجلات</a>
+    <a href="93-find.html" class="active"><span class="bi">🔎</span>بحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+(function () {
+  "use strict";
+
+  var ar = FindAll.ar;
+  var kindFilter = "";
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  function results() {
+    var list = FindAll.search(document.getElementById("q").value);
+    return kindFilter ? list.filter(function (r) { return r.kind === kindFilter; }) : list;
+  }
+
+  function drawChips(all) {
+    var box = document.getElementById("chips");
+    box.textContent = "";
+    if (!all.length) return;
+
+    var counts = {};
+    all.forEach(function (r) { counts[r.kind] = (counts[r.kind] || 0) + 1; });
+
+    function chip(label, key) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      if (key === kindFilter) b.className = "on";
+      b.onclick = function () { kindFilter = key; draw(); };
+      box.appendChild(b);
+    }
+    chip("الكل " + ar(all.length), "");
+    Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })
+      .forEach(function (k) { chip(k + " " + ar(counts[k]), k); });
+  }
+
+  function draw() {
+    var q = document.getElementById("q").value.trim();
+    var all = q ? FindAll.search(q) : [];
+    drawChips(all);
+
+    var list = kindFilter
+      ? all.filter(function (r) { return r.kind === kindFilter; })
+      : all;
+
+    document.getElementById("stat").textContent = !q
+      ? "اكتب أي قيمة لتبدأ."
+      : (list.length ? "النتائج: " + ar(list.length)
+                     : "لا يوجد ما يطابق «" + q + "» في أي سجل.");
+
+    var box = document.getElementById("list");
+    box.textContent = "";
+
+    list.slice(0, 150).forEach(function (r) {
+      var card = el("div"); card.className = "fr";
+
+      var hd = el("div"); hd.className = "hd";
+      hd.appendChild(el("span", "", r.icon || "•")).className = "ic";
+      hd.appendChild(el("span", "", r.title)).className = "ttl";
+      hd.appendChild(el("span", "", r.kind)).className = "kd";
+      card.appendChild(hd);
+
+      if (r.lines && r.lines.length) {
+        card.appendChild(el("div", "", r.lines.join("\n"))).className = "ln";
+      }
+
+      var act = el("div"); act.className = "act";
+      function b(label, on, css) {
+        var x = document.createElement("button");
+        x.type = "button"; x.textContent = label; x.onclick = on;
+        if (css) x.style.cssText += css;
+        act.appendChild(x);
+        return x;
+      }
+
+      b("✎ تعديل", function () { r.edit(draw); });
+
+      if (r.appt) {
+        b("↪ اجعله جلسة", function () {
+          FindAll.toSession(r.id, draw);
+        }, "border-color:var(--brand);font-weight:600");
+      }
+
+      b("🗑 حذف", function () {
+        Ask.confirm("حذف هذا السجل نهائياً؟",
+                    { detail: r.kind + " — " + r.title, ok: "حذف" },
+                    function () { r.remove(draw); });
+      }, "color:#b3261e;border-color:#e3c9c6");
+
+      card.appendChild(act);
+      box.appendChild(card);
+    });
+
+    if (list.length > 150) {
+      box.appendChild(el("div",
+        "padding:12px;color:var(--muted);font-size:12.5px;text-align:center",
+        "…و" + ar(list.length - 150) + " نتيجة — ضيّق البحث"));
+    }
+  }
+
+  var timer;
+  document.getElementById("q").addEventListener("input", function () {
+    clearTimeout(timer);
+    kindFilter = "";
+    timer = setTimeout(draw, 180);
+  });
+
+  document.getElementById("addCase").onclick = function () {
+    CaseFile.editCase({}, function (rec) { CaseFile.openCase(rec.id, draw); }, { source: "registry" });
+  };
+  document.getElementById("addReg").onclick = function () {
+    location.href = "92-register.html";
+  };
+  document.getElementById("addCli").onclick = function () {
+    ClientsPOA.addClient(function () { draw(); });
+  };
+
+  var m = location.search.match(/[?&]q=([^&]*)/);
+  if (m) document.getElementById("q").value = decodeURIComponent(m[1]);
+
+  draw();
+})();
+</script>
+<script src="assets/autofit.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

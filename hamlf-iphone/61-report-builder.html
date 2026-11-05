@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>منشئ التقارير</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="60-reports-hub.html">→</a>
+    <h1>منشئ التقارير</h1>
+    <span class="screen-id">REP-01</span>
+  </div>
+
+  <main>
+  <form id="repForm">
+
+    <section class="card">
+      <header>نوع التقرير</header>
+      <div class="body">
+        <div class="field">
+          <select id="repType">
+            <option value="week">قضايا الأسبوع</option>
+            <option value="month">قضايا الشهر</option>
+            <option value="appeal">القضايا واجبة الطعن</option>
+            <option value="year" selected>قضايا سنة التعامل</option>
+            <option value="sessions">تقرير الجلسات</option>
+            <option value="client">بيان لموكل</option>
+            <option value="custom">تقرير مخصص</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>الفترة</header>
+      <div class="body">
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="repFrom">من تاريخ</label>
+            <input type="date" id="repFrom" value="">
+          </div>
+          <div class="field">
+            <label class="lbl" for="repTo">إلى تاريخ</label>
+            <input type="date" id="repTo" value="">
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="repYear">أو سنة التعامل</label>
+          <select id="repYear">
+            <option>— كل السنوات —</option>
+            <option selected>2026</option>
+            <option>2025</option>
+            <option>2024</option>
+          </select>
+          <div class="note">«سنة التعامل» = سنة مباشرة القضية، وهي غير سنة رقم الدعوى.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>الفلاتر</header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl" for="fClient">الموكل</label>
+          <select id="fClient">
+            <option selected>— كل الموكلين —</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="fType">تصنيف القضية</label>
+          <select id="fType">
+            <option selected>— كل التصنيفات —</option>
+            <option>مدني</option>
+            <option>جنائي</option>
+            <option>تجاري</option>
+            <option>أسرة</option>
+            <option>عمال</option>
+            <option>قضاء اداري</option>
+            <option>اقتصادي</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="fLevel">درجة التقاضي</label>
+          <select id="fLevel">
+            <option selected>— كل الدرجات —</option>
+            <option>جزئي</option>
+            <option>ابتدائي</option>
+            <option>استئناف عالي</option>
+            <option>نقض</option>
+            <option>إدارية</option>
+            <option>تأديبية</option>
+            <option>قضاء إداري</option>
+            <option>إدارية عليا</option>
+            <option>دستورية</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="fLast">عدد الجلسات لكل قضية</label>
+          <select id="fLast">
+            <option value="">كل الجلسات في الفترة</option>
+            <option value="1">آخر جلسة فقط</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="fStatus">حالة الدعوى</label>
+          <select id="fStatus">
+            <option selected>— كل الحالات —</option>
+            <option>متداولة</option>
+            <option>شطب</option>
+            <option>وقف</option>
+            <option>خبير</option>
+            <option>تنفيذ أحكام</option>
+            <option>منتهية</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="lbl">مَن أقام الدعوى</label>
+          <div class="choices">
+            <label><input type="radio" name="fBy" value="all" checked><span>الكل</span></label>
+            <label><input type="radio" name="fBy" value="us"><span>مقامة بمعرفتنا</span></label>
+            <label><input type="radio" name="fBy" value="them"><span>مقامة ضد موكلنا</span></label>
+          </div>
+          <div class="note">
+            <strong>يلزم حقل جديد</strong> في ملف القضية: «الدعوى مقامة بمعرفة المكتب / ضد الموكل».
+            بدونه لا يمكن إنتاج هذا الفلتر.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="fLawyer">المحامي المختص</label>
+          <select id="fLawyer" data-no-manual="1">
+            <option selected>— كل المحامين —</option>
+          </select>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card">
+      <header>شكل الإخراج</header>
+      <div class="body">
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="repSize">مقاس الورق</label>
+            <select id="repSize">
+              <option value="a4" selected>A4</option>
+              <option value="a3">A3</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="lbl" for="repOrient">الاتجاه</label>
+            <select id="repOrient">
+              <option value="port" selected>طولي</option>
+              <option value="land">عرضي</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">تضمين</label>
+          <div class="choices" style="flex-direction:column;align-items:stretch">
+            <label><input type="checkbox" checked><span>تتابع الجلسات لكل قضية</span></label>
+            <label><input type="checkbox" checked><span>بيانات الخصوم</span></label>
+            <label><input type="checkbox"><span>الأتعاب والمسدد</span></label>
+            <label><input type="checkbox" checked><span>ترويسة المكتب والشعار</span></label>
+            <label><input type="checkbox" checked><span>خانة التوقيع والختم</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="calcrow">
+      <span>عدد النتائج المطابقة</span>
+      <span class="v">12</span>
+    </div>
+
+    <div class="actions">
+      <a class="btn" id="goPreview" href="62-report-print.html" style="text-align:center;text-decoration:none;line-height:1.9">معاينة وطباعة</a>
+      <button type="button" class="btn ghost" id="sendMail">إرسال بالإيميل</button>
+    </div>
+
+  </form>
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="89-clients.html"><span class="bi">👤</span>الموكلين</a>
+    <a href="60-reports-hub.html" class="active"><span class="bi">📄</span>التقارير</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script>
+(function () {
+  // نوع التقرير من الرابط (?p=appeal)
+  var p = new URLSearchParams(location.search).get("p");
+  var sel = document.getElementById("repType");
+  if (p) { sel.value = p; }
+
+  // تمرير المقاس/الاتجاه وكل معايير الفلترة الفعلية لشاشة الطباعة —
+  // قبل هذا التعديل كانت الفلاتر واجهة بلا أثر، والمعاينة تعرض كل
+  // القضايا دائماً بلا أي تصفية حقيقية.
+  /* مهمة 36/37: الموكلون أصحاب الملفات النشطة فقط، من قاعدة القضايا الفعلية */
+  (function () {
+    var sel = document.getElementById("fClient"), seen = {}, names = [];
+    var cases = [];
+    try { cases = JSON.parse(localStorage.getItem("proflawyer.agenda.cases.v1")) || []; } catch (e) { }
+    cases.forEach(function (c) {
+      if (c.finished || /منته/.test(String(c.status || ""))) return;
+      String(c.clients || "").split(/\s*·\s*/).forEach(function (part) {
+        part = part.trim().replace(/^[٠-٩0-9]+\s*[.\-)]\s*/, "");
+        if (!part || /^ورثة\./.test(part)) return;
+        var nm = part.replace(/\(.*?\)/g, "").replace(/\s*[-–]\s*(مدعي|مستأنف|طاعن|متهم)\S*$/, "").trim();
+        var k = window.lawyerNorm(nm);
+        if (!k || seen[k]) return;
+        seen[k] = 1; names.push(nm);
+      });
+    });
+    names.sort(function (x, y) { return x.localeCompare(y, "ar"); });
+    names.forEach(function (n) { var o = document.createElement("option"); o.textContent = n; sel.appendChild(o); });
+
+    /* المحامي المختص: من القضايا الفعلية (كانت أسماء ثابتة تجريبية ومش بتتبعت للتقرير) */
+    var lsel = document.getElementById("fLawyer"), lseen = {}, lnames = [];
+    cases.forEach(function (c) {
+      String(c.lawyer || "").split(/\s*[·,،]\s*/).forEach(function (nm) {
+        nm = nm.trim(); var k = window.lawyerNorm(nm.replace(/^ا\/\s*|^أ\/\s*/, ""));
+        if (!k || lseen[k]) return;
+        lseen[k] = 1; lnames.push(nm);
+      });
+    });
+    lnames.sort(function (x, y) { return x.localeCompare(y, "ar"); });
+    lnames.forEach(function (n) { var o = document.createElement("option"); o.textContent = n; lsel.appendChild(o); });
+  })();
+
+  var link = document.getElementById("goPreview");
+  var FIELD_IDS = ["repSize", "repOrient", "repType", "repFrom", "repTo",
+    "repYear", "fClient", "fType", "fLevel", "fStatus", "fLast", "fLawyer"];
+  var sync = function () {
+    var g = function (id) { return document.getElementById(id).value || ""; };
+    var params = new URLSearchParams();
+    params.set("size", g("repSize"));
+    params.set("orient", g("repOrient"));
+    params.set("type", g("repType"));
+    if (g("repFrom")) params.set("from", g("repFrom"));
+    if (g("repTo")) params.set("to", g("repTo"));
+    if (g("repYear") && g("repYear").indexOf("كل") < 0) params.set("year", g("repYear"));
+    if (g("fClient") && g("fClient").indexOf("كل") < 0) params.set("client", g("fClient"));
+    if (g("fType") && g("fType").indexOf("كل") < 0) params.set("ctype", g("fType"));
+    if (g("fLevel") && g("fLevel").indexOf("كل") < 0) params.set("level", g("fLevel"));
+    if (g("fStatus") && g("fStatus").indexOf("كل") < 0) params.set("status", g("fStatus"));
+    if (g("fLast")) params.set("last", "1");
+    if (g("fLawyer") && g("fLawyer").indexOf("كل") < 0) params.set("lawyer", g("fLawyer"));
+    var by = document.querySelector('input[name="fBy"]:checked');
+    if (by && by.value !== "all") params.set("by", by.value);
+    link.href = "62-report-print.html?" + params.toString();
+  };
+  document.querySelectorAll('input[name="fBy"]').forEach(function (r) { r.addEventListener("change", function () { sync(); }); });
+  FIELD_IDS.forEach(function (id) {
+    var elx = document.getElementById(id);
+    if (elx) { elx.addEventListener("change", sync); elx.addEventListener("input", sync); }
+  });
+  link.addEventListener("click", sync, true);
+  sync();
+
+  document.getElementById("sendMail").addEventListener("click", function () {
+    if (window.PL) window.PL.toast("إرسال بالإيميل",
+      "يُولَّد PDF ويُرسل لإيميل الموكل المسجل في ملفه.", "");
+  });
+})();
+</script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

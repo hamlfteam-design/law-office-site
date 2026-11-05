@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٩٠ · سجل القضايا</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .kpi  { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .kpi div{ flex:1 1 30%; background:var(--card); border:1px solid var(--line);
+            border-radius:11px; padding:11px 7px; text-align:center; }
+  .kpi .n{ font-family:var(--f-title); font-size:19px; color:var(--brand-dark); }
+  .kpi .l{ font-size:11px; color:var(--muted); margin-top:3px; }
+  .cs   { background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:12px; margin-bottom:9px; cursor:pointer; }
+  .cs .hd { display:flex; gap:8px; align-items:flex-start; }
+  .cs .no { flex:0 0 auto; background:var(--brand); color:#fff; border-radius:8px;
+            padding:3px 10px; font-size:12.5px; font-family:var(--f-title); }
+  .cs .no.miss { background:var(--line); color:var(--muted); }
+  .cs .ttl{ flex:1 1 auto; min-width:0; font-family:var(--f-title); font-size:15px;
+            line-height:1.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cs .r  { display:flex; gap:8px; font-size:12.5px; color:var(--muted);
+            margin-top:6px; line-height:1.9; }
+  .cs .r b{ flex:0 0 84px; color:var(--brand-dark); font-family:var(--f-title);
+            font-weight:400; }
+  .cs .r span{ flex:1; word-break:break-word; }
+  .cs .ses{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);
+            font-size:12.5px; line-height:1.9; }
+  .cs .ses .d { font-family:var(--f-title); color:var(--brand-dark); }
+  .cs .ses .none { color:#b3261e; }
+  .tabs2 { display:flex; gap:7px; margin-bottom:12px; }
+  .tabs2 button { flex:1; min-height:46px; border-radius:10px; font-family:inherit;
+        font-size:14px; border:1px solid var(--line); background:transparent;
+        color:var(--brand); }
+  .tabs2 button.on { background:var(--brand); color:#fff; border-color:var(--brand); }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="20-cases-hub.html">&rarr;</a>
+    <h1>سجل القضايا</h1>
+    <span class="screen-id">SCR-90</span>
+  </div>
+
+  <main>
+
+
+
+    <div class="kpi" id="kpi"></div>
+
+    <input type="text" id="q" data-nosave="1" lang="ar" dir="rtl" autocomplete="off"
+           placeholder="ابحث برقم الملف بالمكتب أو رقم الدعوى أو اسم الموكل…"
+           style="width:100%;min-height:50px;font-size:16px;padding:10px 14px;
+                  border:1px solid var(--line);border-radius:10px;background:var(--card);
+                  direction:rtl;text-align:right;font-family:inherit;margin-bottom:12px">
+
+    <div style="display:flex;gap:8px;margin-bottom:8px" data-nosave="1">
+      <button type="button" class="btn" id="addCase"
+              style="flex:2;min-height:48px">＋ قضية جديدة</button>
+      <button type="button" class="btn ghost" id="addWork"
+              style="flex:1;min-height:48px">＋ عمل قانوني</button>
+    </div>
+
+    <div class="tabs2" data-nosave="1">
+      <button type="button" id="tAll" class="on">الكل</button>
+      <button type="button" id="tSoon">لها جلسة قادمة</button>
+      <button type="button" id="tOpen">قرار غير مدوَّن</button>
+      <button type="button" id="tDone">المنتهية</button>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px" data-nosave="1">
+      <label class="lbl" style="flex:0 0 auto;margin:0">الفرز</label>
+      <select id="sortBy" data-no-combo="1" style="flex:1;min-height:46px">
+        <option value="session">أقرب جلسة</option>
+        <option value="file">رقم الملف بالمكتب</option>
+        <option value="caseNo">رقم الدعوى</option>
+        <option value="court">المحكمة</option>
+        <option value="client">اسم الموكل</option>
+      </select>
+    </div>
+<div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="list"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="87-calendar.html"><span class="bi">📅</span>التقويم</a>
+    <a href="89-clients.html"><span class="bi">👤</span>الموكلون</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+(function () {
+  "use strict";
+
+  var mode = "all";
+  var sortKey = "session";
+  var ar = CaseFile.ar;
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  /* "منتهية" منقولة كنص حالة (خصوصاً القضايا المستوردة من البرنامج القديم)
+     تُعامَل معاملة صندوق ✔ المنتهي نفسه فتختفي من القائمة الافتراضية — بلا
+     حاجة يفتح كل قضية ويعلّم الصندوق يدوياً بعد الاستيراد. */
+  function isDone(c) { return !!c.finished || String(c.status || "").trim() === "منتهية"; }
+
+  /* §1أ لون شارة الحالة بالأولوية — مطابق لنسخة الديسكتوب. */
+  function statusColor(c) {
+    /* قواعد تقويم الجلسات (١٠–١٦) — مصدر واحد في case-file.js */
+    if (CaseFile.caseColor) return CaseFile.caseColor(c).hex;
+    var s = String(c.status || "").trim();
+    if (s === "منتهية" || s === "محفوظة") return "#9e9e9e";           /* رمادي */
+    /* أصفر: صدر حكم ولم ينتهِ ميعاد الطعن بعد */
+    if (c.judgeDate && c.appealPeriod) {
+      var days = parseInt(String(c.appealPeriod).replace(/[^0-9]/g, ""), 10);
+      var iso = (window.lawyerToISO ? lawyerToISO(c.judgeDate) : "") || c.judgeDate || "";
+      if (/^\d{4}-\d{2}-\d{2}$/.test(iso) && days > 0) {
+        var dl = new Date(iso + "T00:00:00"); dl.setDate(dl.getDate() + days);
+        var t = new Date(); t.setHours(0, 0, 0, 0);
+        if (dl >= t) return "#e0b400";                                /* أصفر */
+      }
+    }
+    if (s === "خبير") return "#1c8a4a";                               /* أخضر */
+    if (s === "محجوزة للحكم") return "#d32f2f";                       /* أحمر */
+    if (s === "شطب") return "#e07b1a";                                /* برتقالي */
+    if (s === "وقف") return "#7b3fb0";                                /* بنفسجي */
+    if (s === "تنفيذ أحكام") return "#4a2a7a";                        /* بنفسجي داكن */
+    var deg = (c.courtLevel || "") + " " + (c.caseType || "");
+    if (/نقض|إدارية\s*عليا|دستور|جناي/.test(deg)) return "#e0559a";   /* بينك */
+    return "#3d6cc4";                                                 /* أزرق افتراضي */
+  }
+
+  /* تاريخ اليوم المحلي للجهاز (لا UTC — بعد منتصف الليل بالقاهرة يختلف اليوم) */
+  var today = function () {
+    var d = new Date();
+    return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+  };
+
+  /* مهمة 15: «قرار غير مدوَّن» = آخر جلسة سابقة لليوم (لا اليوم نفسه ولا القادمة) بلا قرار */
+  function noDecision(c) {
+    var last = CaseFile.lastSession(c);
+    return !!last && !CaseFile.resultOf(last);
+  }
+
+  /* عدّادات الحصر (كل القضايا/بلا قرار/بلا رقم ملف…) تبقى لصاحب المكتب بس —
+     طلب المستخدم: "ما شوفوهاش انا بس اللي أشوفها". null = لسه بنتحقق من
+     الدور (نخفيها احتياطاً لحد ما نتأكد)، true/false بعد وصول رد فيربيز. */
+  var kpiAllowed = null;
+  (function checkKpiOwner() {
+    if (!window.CloudStore || !window.CloudStore._internal || !window.CloudStore.whenReady || !window.Auth) { kpiAllowed = false; return; }
+    window.CloudStore.whenReady(function (ok) {
+      if (!ok) { kpiAllowed = false; drawKpi(); return; }
+      window.Auth.whenKnown(function (me) {
+        if (!me) { kpiAllowed = false; drawKpi(); return; }
+        window.CloudStore._internal.authedRequest("GET",
+          window.CloudStore._internal.officeUrl() + "/users/" + encodeURIComponent(me.uid), null)
+          .then(function (r) {
+            var role = r.ok && r.data && r.data.fields && r.data.fields.role && r.data.fields.role.stringValue;
+            kpiAllowed = role === "owner";
+            drawKpi();
+          }).catch(function () { kpiAllowed = false; drawKpi(); });
+      });
+    });
+  })();
+
+  /* ============================== 🔀 القضايا المكررة (للمالك) — معاينة ثم دمج
+     الأكيد يتدمج مرة واحدة، والمشكوك فيه (محكمتين مختلفتين) زوج زوج بقرارك. */
+  function dupTool() {
+    if (!CaseFile.dupPreview) return;
+    var back = el("div", "position:fixed;inset:0;background:rgba(20,14,8,.6);z-index:10030;display:flex;align-items:flex-end;justify-content:center");
+    back.setAttribute("data-modal", "1"); back.setAttribute("data-nosave", "1");
+    var box = el("div", "background:var(--card,#fff);border-radius:16px 16px 0 0;padding:16px 16px 24px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;direction:rtl");
+    back.appendChild(box); document.body.appendChild(back);
+    back.onclick = function (e) { if (e.target === back) back.remove(); };
+    function card(c) {
+      var d = el("div", "flex:1;min-width:0;border:1px solid var(--line,#ddd);border-radius:9px;padding:7px 9px;font-size:12px;line-height:1.8");
+      d.appendChild(el("div", "font-weight:700", "ملف " + (c.fileNo ? ar(c.fileNo) : "—") + " · " + (c.status || "—")));
+      d.appendChild(el("div", "", c.courtName || "—"));
+      d.appendChild(el("div", "color:var(--muted)", ar((c.sessions || []).length) + " جلسة" + (c.courtLevel ? " · " + c.courtLevel : "")));
+      return d;
+    }
+    function busy(b, on) { b.disabled = on; b.style.opacity = on ? ".5" : ""; }
+    function render() {
+      box.textContent = "";
+      var P = CaseFile.dupPreview(), R = CaseFile.dupReview();
+      box.appendChild(el("div", "font-family:var(--f-title);font-size:17px;margin-bottom:4px", "🔀 القضايا المكررة"));
+      box.appendChild(el("div", "font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.8",
+        "المطابقة برقم الدعوى وسنتها (أو رقم الملف لو مفيش رقم)، ونفس الأطراف (اسمين على الأقل)، ونفس الدرجة من صفة الأطراف. " +
+        "اللي بيفضل هو صاحب آخر جلسة، والجلسات بتتجمع من غير تكرار، والباقي بيتملّى منه. قبل أي دمج بتتعمل نسخة احتياطية."));
+      /* الأكيد */
+      box.appendChild(el("div", "font-weight:700;margin:6px 0", "أكيد: " + ar(P.length) + " قضية متكررة (" + ar(P.reduce(function (a, g) { return a + g.drop.length; }, 0)) + " نسخة زيادة)"));
+      if (P.length) {
+        var all = el("button", "width:100%;min-height:46px;border:0;border-radius:10px;background:var(--brand);color:#fff;font-family:inherit;font-size:15px;margin-bottom:8px", "دمج الكل (" + ar(P.length) + ")");
+        all.type = "button";
+        all.onclick = function () {
+          if (!confirm("دمج " + P.length + " قضية متكررة؟ هتتعمل نسخة احتياطية الأول.")) return;
+          busy(all, true); all.textContent = "جارٍ الدمج…";
+          CaseFile.dupApply(function (r) {
+            busy(all, false);
+            alert(r && r.error ? r.error : "اتدمجت " + r.groups + " قضية، واتشالت " + r.removed + " نسخة مكررة.");
+            drawKpi(); draw(); render();
+          });
+        };
+        box.appendChild(all);
+        P.slice(0, 60).forEach(function (g) {
+          var row = el("div", "border-bottom:1px solid var(--line,#eee);padding:6px 0;font-size:12.5px");
+          row.appendChild(el("div", "font-weight:600", "دعوى " + ar(g.keep.caseNo || "—") + (g.keep.caseYear ? "/" + ar(g.keep.caseYear) : "") + " — " +
+            String(g.keep.clients || "").replace(/\s*\([^)]*\)/g, "").split("·")[0].trim()));
+          row.appendChild(el("div", "color:var(--muted)", "يفضل ملف " + ar(g.keep.fileNo || "—") + " · يتشال: " + g.drop.map(function (d) { return "ملف " + ar(d.fileNo || "—"); }).join("، ")));
+          box.appendChild(row);
+        });
+      }
+      /* المراجعة */
+      box.appendChild(el("div", "font-weight:700;margin:16px 0 4px", "محتاجة قرارك: " + ar(R.length)));
+      box.appendChild(el("div", "font-size:12px;color:var(--muted);margin-bottom:8px", "نفس الرقم والأطراف بس المحكمتين مختلفتين — ممكن تكون نفس القضية، وممكن مرحلتين (أول درجة واستئناف)."));
+      R.forEach(function (x) {
+        var wrap = el("div", "border:1px solid var(--line,#ddd);border-radius:11px;padding:9px;margin-bottom:9px");
+        wrap.appendChild(el("div", "font-weight:600;font-size:13px;margin-bottom:6px", "دعوى " + ar(x.a.caseNo || "—") + (x.a.caseYear ? "/" + ar(x.a.caseYear) : "") + " — " +
+          String(x.a.clients || "").replace(/\s*\([^)]*\)/g, "").split("·")[0].trim()));
+        var two = el("div", "display:flex;gap:7px"); two.appendChild(card(x.a)); two.appendChild(card(x.b)); wrap.appendChild(two);
+        var bar = el("div", "display:flex;gap:7px;margin-top:8px");
+        var m = el("button", "flex:1;min-height:40px;border:0;border-radius:9px;background:var(--brand);color:#fff;font-family:inherit", "دمج دول");
+        var n = el("button", "flex:1;min-height:40px;border:1px solid var(--line,#ddd);border-radius:9px;background:transparent;color:var(--muted);font-family:inherit", "مش تكرار");
+        m.type = n.type = "button";
+        m.onclick = function () {
+          busy(m, true);
+          CaseFile.dupApply(function (r) { busy(m, false); if (r && r.error) alert(r.error); drawKpi(); draw(); render(); }, [[x.a.id, x.b.id]]);
+        };
+        n.onclick = function () { CaseFile.dupDismiss(x.a.id, x.b.id); render(); };
+        bar.appendChild(m); bar.appendChild(n); wrap.appendChild(bar);
+        box.appendChild(wrap);
+      });
+      var cl = el("button", "width:100%;min-height:44px;margin-top:6px;border:0;background:transparent;color:var(--muted);font-family:inherit;font-size:14px", "إغلاق");
+      cl.type = "button"; cl.onclick = function () { back.remove(); };
+      box.appendChild(cl);
+    }
+    render();
+  }
+  window.__caseDupTool = dupTool;
+
+  function drawKpi() {
+    var box0 = document.getElementById("kpi");
+    if (!kpiAllowed) { box0.textContent = ""; box0.style.display = "none"; return; }
+    box0.style.display = "";
+    /* نفس ما تعرضه القوائم: الملفات المنتهية (✔) خارج العدّ، والأعمال القانونية بلا جلسات */
+    var all = CaseFile.all().filter(function (c) { return !isDone(c); });
+    var soon = 0, open = 0, noFile = 0;
+    all.forEach(function (c) {
+      if (CaseFile.nextSession(c)) soon++;
+      if (c.fileType !== "عمل" && noDecision(c)) open++;
+      if (!String(c.fileNo || "").trim()) noFile++;
+    });
+    var box = document.getElementById("kpi");
+    box.textContent = "";
+    /* كل عدّاد يفتح قائمته (نفس الفلتر الذي يحسب به) */
+    [[all.length, "قضية", "all"], [soon, "لها جلسة قادمة", "soon"], [open, "قرار غير مدوَّن", "open"],
+     [noFile, "بلا رقم ملف", "nofile"]].forEach(function (p) {
+      var d = el("div", "cursor:pointer" + (mode === p[2] ? ";border-color:var(--brand);background:rgba(0,0,0,.04)" : ""));
+      d.appendChild(el("div", "", ar(p[0]))).className = "n";
+      d.appendChild(el("div", "", p[1])).className = "l";
+      d.onclick = function () { setMode(p[2]); };
+      box.appendChild(d);
+    });
+    if (CaseFile.dupPreview) {
+      var dd = el("div", "cursor:pointer");
+      dd.appendChild(el("div", "", "🔀")).className = "n";
+      dd.appendChild(el("div", "", "القضايا المكررة")).className = "l";
+      dd.onclick = dupTool;
+      box.appendChild(dd);
+    }
+  }
+
+  function row(label, value) {
+    var r = el("div"); r.className = "r";
+    r.appendChild(el("b", "", label));
+    r.appendChild(el("span", "", value));
+    return r;
+  }
+
+  function sortList(list) {
+    var t = today();
+    function nextOf(c) {
+      var s = CaseFile.nextSession(c);
+      return s ? s.date : "9999-99-99";
+    }
+    function la(v) {
+      return parseInt(String(v || "").replace(/[٠-٩]/g,
+        function (d) { return d.charCodeAt(0) - 0x0660; }).replace(/\D/g, ""), 10);
+    }
+    var f = {
+      session: function (a, b) { return nextOf(a).localeCompare(nextOf(b)); },
+      file:    function (a, b) { return (la(a.fileNo) || 1e9) - (la(b.fileNo) || 1e9); },
+      caseNo:  function (a, b) { return (la(a.caseNo) || 1e9) - (la(b.caseNo) || 1e9); },
+      court:   function (a, b) {
+        return String(a.courtName || "ي").localeCompare(String(b.courtName || "ي"), "ar"); },
+      client:  function (a, b) {
+        return String(a.clients || "ي").localeCompare(String(b.clients || "ي"), "ar"); }
+    }[sortKey];
+    return list.slice().sort(f);
+  }
+
+  /* مفتاح الألوان بعدد القضايا المعروضة من كل لون (القاعدة ١١) */
+  function drawLegend(list) {
+    var lg = document.getElementById("legend");
+    if (!lg) {
+      lg = el("div", "display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 10px");
+      lg.id = "legend"; lg.setAttribute("data-nosave", "1");
+      var st = document.getElementById("stat"); st.parentNode.insertBefore(lg, st.nextSibling);
+    }
+    lg.textContent = "";
+    if (!CaseFile.caseColor) return;
+    var cnt = {};
+    list.forEach(function (c) { if (c.fileType !== "عمل") { var k = CaseFile.caseColor(c).k; cnt[k] = (cnt[k] || 0) + 1; } });
+    Object.keys(CaseFile.CASE_COLORS).forEach(function (k) {
+      if (!cnt[k]) return;
+      var C = CaseFile.CASE_COLORS[k];
+      var p = el("span", "display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:2px 9px;" +
+        "border-radius:12px;background:" + C.bg + ";color:" + C.fg);
+      p.appendChild(el("span", "width:8px;height:8px;border-radius:50%;background:" + C.hex));
+      p.appendChild(document.createTextNode(C.name + " " + ar(cnt[k])));
+      lg.appendChild(p);
+    });
+  }
+
+  function draw() {
+    var q = document.getElementById("q").value.trim();
+    var list = CaseFile.search(q);
+
+    if (mode === "soon") {
+      list = list.filter(function (c) { return CaseFile.nextSession(c); });
+    }
+    if (mode === "open") {
+      list = list.filter(function (c) { return c.fileType !== "عمل" && noDecision(c); });
+    }
+    if (mode === "nofile") {
+      list = list.filter(function (c) { return !String(c.fileNo || "").trim(); });
+    }
+    /* الملفات المنتهية (المؤشَّرة بعلامة ✔) تختفي من كل العروض،
+       ولا تظهر إلا في تبويب «المنتهية». */
+    if (mode === "done") list = list.filter(function (c) { return isDone(c); });
+    /* المنتهية (اللي انت علّمتها بنفسك — مش انتهاء التوكيل) مخفية من القوائم،
+       بس بتظهر وقت البحث بعلامة رمادية */
+    else if (!q)         list = list.filter(function (c) { return !isDone(c); });
+
+    list = sortList(list);
+
+    drawLegend(list);
+    document.getElementById("stat").textContent =
+      list.length ? "المعروض: " + ar(list.length)
+                  : (q ? "لا توجد قضية تطابق «" + q + "»"
+                       : "لا توجد قضايا — استورد من شاشة «استيراد واستعادة».");
+
+    var box = document.getElementById("list");
+    box.textContent = "";
+
+    list.slice(0, 120).forEach(function (c) {
+      var card = el("div"); card.className = "cs";
+
+      /* §1ح كارت «عمل قانوني» — شكل مختلف عن التقاضي */
+      if (c.fileType === "عمل") {
+        var wh = el("div"); wh.className = "hd";
+        wh.appendChild(el("span", "display:inline-block;width:12px;height:12px;border-radius:50%;" +
+          "margin-inline-start:7px;flex:0 0 auto;background:#7a5a3a"));
+        wh.appendChild(el("span", "", c.fileNo ? ar(c.fileNo) : "بلا رقم")).className = "no";
+        wh.appendChild(el("span", "", "📋 " + (c.worktype || "عمل قانوني"))).className = "ttl";
+        card.appendChild(wh);
+        if (c.entity) card.appendChild(row("الجهة", c.entity));
+        var cw2 = CaseFile.clientsWithOffice(c);
+        if (cw2.length) card.appendChild(row("الموكلون", cw2.map(function (x) {
+          return x.name + (x.cap ? " (" + x.cap + ")" : "") + (x.officeNo ? " — ر ت م " + ar(x.officeNo) : ""); }).join("  ·  ")));
+        if (c.result) card.appendChild(row("ما تم", c.result));
+        card.onclick = function () { CaseFile.openLegalWork(c.id, function () { drawKpi(); draw(); }); };
+        box.appendChild(card);
+        return;
+      }
+
+      var hd = el("div"); hd.className = "hd";
+      /* §1أ شارة حالة ملوّنة بالأولوية */
+      var dot = el("span", "display:inline-block;width:12px;height:12px;border-radius:50%;" +
+        "margin-inline-start:7px;flex:0 0 auto;background:" + statusColor(c));
+      var cc0 = CaseFile.caseColor ? CaseFile.caseColor(c) : null;
+      dot.title = cc0 ? cc0.text : (c.status || "متداولة");
+      hd.appendChild(dot);
+      var no = el("span", "", c.fileNo ? ar(c.fileNo) : "بلا رقم");
+      no.className = "no" + (c.fileNo ? "" : " miss");
+      no.title = "رقم الملف بالمكتب";
+      hd.appendChild(no);
+      /* §12: درجة التقاضي على نفس السطر الأول بجوار رقم الملف */
+      if (c.courtLevel) {
+        var deg = el("span", "flex:0 0 auto;font-size:11.5px;color:var(--brand-dark);" +
+          "background:var(--bg,#f4ece0);border-radius:7px;padding:2px 7px;margin:0 1px;white-space:nowrap",
+          ar(c.courtLevel));
+        deg.title = "درجة التقاضي";
+        hd.appendChild(deg);
+      }
+      hd.appendChild(el("span", "",
+        "دعوى " + ar(c.caseNo || "—") + (c.caseYear ? " لسنة " + ar(c.caseYear) : "")))
+        .className = "ttl";
+      if (mode !== "done" && isDone(c)) hd.appendChild(el("span",
+        "flex:0 0 auto;font-size:11px;color:#4b5563;background:#f3f4f6;border:1px solid #d1d5db;" +
+        "border-radius:7px;padding:1px 7px;margin:0 3px;white-space:nowrap", "منتهية"));
+
+      /* ☑ مؤشِّر «منتهي» أقصى يسار السطر الأول — عند تحديده يختفي الملف من السجل */
+      var doneChk = document.createElement("input");
+      doneChk.type = "checkbox";
+      doneChk.checked = !!c.finished;
+      doneChk.title = "منتهي — عند التحديد يختفي الملف من السجل (يظهر في تبويب «المنتهية»)";
+      doneChk.style.cssText = "margin-inline-start:auto;flex:0 0 auto;width:22px;height:22px;" +
+        "accent-color:var(--brand);cursor:pointer";
+      doneChk.setAttribute("data-nosave", "1");
+      doneChk.onclick = function (e) { e.stopPropagation(); };
+      doneChk.onchange = function () {
+        CaseFile.patchCase(c.id, function (cc) { cc.finished = doneChk.checked; });
+        drawKpi(); draw();
+      };
+      hd.appendChild(doneChk);
+
+      card.appendChild(hd);
+
+      if (c.courtName) card.appendChild(row("المحكمة",
+        [c.courtName, c.circuit].filter(Boolean).join(" — ")));
+
+      /* الموكلون مع رقم توكيل كلٍّ بالمكتب */
+      var cw = CaseFile.clientsWithOffice(c);
+      if (cw.length) {
+        card.appendChild(row("الموكلون", cw.map(function (x) {
+          return x.name + (x.cap ? " (" + x.cap + ")" : "") + (x.officeNo ? " — ر ت م " + ar(x.officeNo) : "");
+        }).join("  ·  ")));
+      }
+      if (c.opponents) card.appendChild(row("الخصوم", c.opponents));
+      if (c.status)    card.appendChild(row("الحالة", c.status));
+
+      /* الجلسة القادمة (بلا قرار طبعاً) + آخر جلسة سابقة بقرارها، أو «بدون قرار» */
+      var nx = CaseFile.nextSession(c), ls = CaseFile.lastSession(c);
+      var ses = el("div"); ses.className = "ses";
+      if (!nx && !ls) {
+        ses.appendChild(el("span", "color:var(--muted)", "لا جلسات مسجَّلة"));
+      }
+      if (nx) {
+        var nl = el("div");
+        nl.appendChild(el("span", "", (nx.date === today() ? "جلسة اليوم " : "الجلسة القادمة ") +
+          ar(nx.date.replace(/-/g, "/")))).className = "d";
+        ses.appendChild(nl);
+      }
+      if (ls) {
+        var ll = el("div", nx ? "margin-top:6px" : "");
+        ll.appendChild(el("span", "", "آخر جلسة " + ar(ls.date.replace(/-/g, "/")))).className = "d";
+        var res = CaseFile.resultOf(ls);
+        var d = el("div", "margin-top:3px;white-space:pre-line", res || "بدون قرار");
+        if (!res) d.className = "none";
+        ll.appendChild(d);
+        ses.appendChild(ll);
+      }
+      card.appendChild(ses);
+
+      card.onclick = function () {
+        CaseFile.openCase(c.id, function () { drawKpi(); draw(); });
+      };
+      box.appendChild(card);
+    });
+
+    if (list.length > 120) {
+      box.appendChild(el("div",
+        "padding:12px;color:var(--muted);font-size:12.5px;text-align:center",
+        "…و" + ar(list.length - 120) + " قضية — ضيّق البحث"));
+    }
+  }
+
+  /* ---------------------------------------------------------- الأحداث */
+
+  var timer;
+  document.getElementById("q").addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(draw, 160);
+  });
+
+  document.getElementById("sortBy").addEventListener("change", function () {
+    sortKey = this.value;
+    draw();
+  });
+
+  var TABS = { all: "tAll", soon: "tSoon", open: "tOpen", done: "tDone" };
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll(".tabs2 button").forEach(function (b) { b.classList.remove("on"); });
+    if (TABS[m]) document.getElementById(TABS[m]).classList.add("on");
+    drawKpi();                 /* يُبرز العدّاد النشط */
+    draw();
+  }
+  Object.keys(TABS).forEach(function (m) {
+    document.getElementById(TABS[m]).onclick = function () { setMode(m); };
+  });
+
+  document.getElementById("addWork").onclick = function () {
+    CaseFile.editLegalWork(null, function () { drawKpi(); draw(); });
+  };
+
+  document.getElementById("addCase").onclick = function () {
+    CaseFile.editCase({}, function (rec) {
+      drawKpi();
+      draw();
+      CaseFile.openCase(rec.id, function () { drawKpi(); draw(); });
+    }, { source: "registry" });
+  };
+
+  /* ?open=<id> — قادمٌ من التقويم: يفتح ملف القضية مباشرةً */
+  var op = location.search.match(/[?&]open=([^&]*)/);
+  if (op) {
+    setTimeout(function () {
+      CaseFile.openCase(decodeURIComponent(op[1]), function () { drawKpi(); draw(); });
+    }, 120);
+
+    /* المهمة 13: القضية فُتحت من صفحة أخرى (التقويم…) — لما تُغلَق البطاقة
+       نهائياً نرجع لنفس الصفحة السابقة بدل البقاء في سجل القضايا. الحفظ يعيد
+       فتح البطاقة فوراً، فنشترط غيابها مدة متتالية قبل الرجوع. */
+    var cameFrom = "";
+    try { cameFrom = new URL(document.referrer).pathname; } catch (e) { }
+    if (cameFrom && cameFrom.indexOf("90-case-file") < 0) {
+      var seen = false, gone = 0;
+      setInterval(function () {
+        var open = !!document.querySelector("[data-modal]");
+        if (open) { seen = true; gone = 0; return; }
+        if (seen && ++gone >= 3) { seen = false; history.back(); }
+      }, 200);
+    }
+  }
+
+  /* بحث مُمرَّر من شاشة أخرى: 90-case-file.html?q=... */
+  var m = location.search.match(/[?&]q=([^&]*)/);
+  if (m) document.getElementById("q").value = decodeURIComponent(m[1]);
+
+  drawKpi();
+  draw();
+})();
+</script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/autofit.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

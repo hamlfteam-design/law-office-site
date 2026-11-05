@@ -5,5 +5,6 @@ Disallow: /app.html
 Disallow: /consult.html
 Disallow: /video/
 Disallow: /api/
+Disallow: /hamlf-iphone/
 
 Sitemap: https://hamlf.com/sitemap.xml

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٨٥ · المواعيد</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .ap      { background:var(--card); border:1px solid var(--line); border-radius:12px;
+             padding:13px; margin-bottom:10px; border-right:4px solid var(--gold); }
+  .ap.soon { border-right-color:#b3261e; }
+  .ap.done { opacity:.55; }
+  .ap-top  { display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; }
+  .ap-ttl  { font-family:var(--f-title); font-size:16px; flex:1; min-width:120px; line-height:1.6; }
+  .ap-when { font-size:13px; color:var(--muted); margin-top:6px; line-height:1.9; }
+  .ap-act  { display:flex; gap:7px; margin-top:11px; flex-wrap:wrap; }
+  .ap-act button { flex:1 1 auto; min-width:74px; min-height:42px; font-family:inherit;
+             font-size:13px; border-radius:8px; border:1px solid var(--line);
+             background:transparent; color:var(--brand); }
+  .chip    { font-size:11.5px; padding:3px 9px; border-radius:20px;
+             background:#efe7db; color:#5b3a21; white-space:nowrap; }
+  .chip.now{ background:#fdecea; color:#8c1d18; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf-iphone">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="50-secretariat.html">&rarr;</a>
+    <h1>المواعيد</h1>
+    <span class="screen-id">SCR-85</span>
+  </div>
+
+  <main>
+  <form>
+
+    <div class="soundbar">
+      <span>التذكير الصوتي</span>
+      <button type="button" class="btn sm" data-sound-toggle>الصوت: مفعّل 🔊</button>
+      <button type="button" class="btn sm ghost" data-sound-test="urgent">تجربة</button>
+    </div>
+
+    <div class="alertbox" id="dueBox" hidden></div>
+
+    <section class="card">
+      <header>موعد جديد</header>
+      <div class="body">
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="apTitle">الموضوع <span class="req">*</span></label>
+            <input type="text" id="apTitle" name="apTitle" placeholder="مقابلة موكل · جلسة · تسليم مستند">
+          </div>
+          <div class="field">
+            <label class="lbl" for="apWith">مع من</label>
+            <input type="text" id="apWith" name="apWith" placeholder="اسم الموكل أو الجهة">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="apDate">التاريخ <span class="req">*</span></label>
+            <input type="date" id="apDate" name="apDate">
+          </div>
+          <div class="field">
+            <label class="lbl" for="apTime">الساعة</label>
+            <input type="time" id="apTime" name="apTime">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="apKind">النوع</label>
+            <select id="apKind" name="apKind">
+              <option>مقابلة موكل</option>
+              <option>جلسة</option>
+              <option>تسليم مستند</option>
+              <option>اجتماع مكتب</option>
+              <option>موعد حكومي</option>
+              <option>مهمة أخرى</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="lbl" for="apBefore">التذكير قبل</label>
+            <select id="apBefore" name="apBefore">
+              <option value="10">١٠ دقائق</option>
+              <option value="30" selected>٣٠ دقيقة</option>
+              <option value="60">ساعة</option>
+              <option value="180">٣ ساعات</option>
+              <option value="1440">يوم</option>
+              <option value="4320">٣ أيام</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="apNotes">ملاحظات</label>
+          <textarea id="apNotes" name="apNotes" rows="2"></textarea>
+        </div>
+
+        <button type="button" class="btn" id="apAdd" data-nosave="1"
+                style="width:100%;min-height:50px;font-size:16px;margin-top:6px">
+          ＋ إضافة الموعد</button>
+      </div>
+    </section>
+
+    <div class="section-title">المواعيد القادمة</div>
+    <div id="apList" data-nosave="1"></div>
+
+  </form>
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="85-appointments.html" class="active"><span class="bi">📅</span>المواعيد</a>
+    <a href="81-assignments.html"><span class="bi">📋</span>التكليفات</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+/* =============================================================================
+   المواعيد — تخزين مستقل عن سجلات الشاشات لأن لكل موعد حالته وتذكيره.
+
+   ⚠️ التذكير يعمل ما دام التطبيق مفتوحاً على هذه الشاشة. الإشعار وهاتفك
+      مغلق يحتاج خدمة إشعارات على السيرفر — غير متاح في هذه النسخة.
+   ============================================================================= */
+(function () {
+  "use strict";
+
+  var KEY = "proflawyer.appointments.v1";
+  var fired = {};
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
+  }
+  function save(a) {
+    try { localStorage.setItem(KEY, JSON.stringify(a)); return true; } catch (e) { return false; }
+  }
+
+  function v(id) { var e = document.getElementById(id); return e ? e.value.trim() : ""; }
+
+  function when(a) {
+    // التواريخ تُخزَّن كما تُعرض (عربية) فنعيدها لاتينية قبل الحساب
+    var la = function (t) {
+      return String(t || "").replace(/[٠-٩]/g,
+        function (d) { return d.charCodeAt(0) - 0x0660; }).replace(/\//g, "-");
+    };
+    return new Date(la(a.date) + "T" + (la(a.time) || "09:00"));
+  }
+
+  function fmt(a) {
+    var d = when(a);
+    var day = d.toLocaleDateString("ar-EG",
+      { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    var hm = a.time ? d.toLocaleTimeString("ar-EG",
+      { hour: "2-digit", minute: "2-digit" }) : "";
+    return day + (hm ? " · " + hm : "");
+  }
+
+  document.getElementById("apAdd").addEventListener("click", function () {
+    var t = v("apTitle"), d = v("apDate");
+    if (!t) { alert("اكتب موضوع الموعد."); document.getElementById("apTitle").focus(); return; }
+    if (!d) { alert("اختر تاريخ الموعد."); document.getElementById("apDate").focus(); return; }
+
+    var all = load();
+    all.push({
+      id: "ap" + Date.now(),
+      title: t, with: v("apWith"), date: d, time: v("apTime"),
+      kind: v("apKind"), before: parseInt(v("apBefore"), 10) || 30,
+      notes: v("apNotes"), done: false
+    });
+    if (!save(all)) { alert("تعذّر الحفظ — المساحة ممتلئة."); return; }
+
+    ["apTitle", "apWith", "apNotes"].forEach(function (id) {
+      document.getElementById(id).value = "";
+    });
+    draw();
+    if (window.PL) window.PL.toast("أُضيف الموعد", fmt(all[all.length - 1]), "");
+  });
+
+  function draw() {
+    var box = document.getElementById("apList");
+    box.textContent = "";
+    var all = load().sort(function (a, b) { return when(a) - when(b); });
+
+    if (!all.length) {
+      var e = document.createElement("div");
+      e.style.cssText = "text-align:center;color:var(--muted);padding:26px;font-size:14px";
+      e.textContent = "لا توجد مواعيد بعد.";
+      box.appendChild(e);
+      return;
+    }
+
+    var now = Date.now();
+    all.forEach(function (a) {
+      var diffMin = (when(a) - now) / 60000;
+      var soon = !a.done && diffMin > 0 && diffMin <= a.before;
+      var past = !a.done && diffMin < 0;
+
+      var c = document.createElement("div");
+      c.className = "ap" + (soon ? " soon" : "") + (a.done ? " done" : "");
+
+      var top = document.createElement("div"); top.className = "ap-top";
+      var ttl = document.createElement("span"); ttl.className = "ap-ttl";
+      ttl.textContent = a.title;
+      var chip = document.createElement("span");
+      chip.className = "chip" + (soon ? " now" : "");
+      chip.textContent = a.done ? "تم" : (soon ? "قريب جداً" : (past ? "فات" : a.kind || "موعد"));
+      top.appendChild(ttl); top.appendChild(chip);
+      c.appendChild(top);
+
+      var w = document.createElement("div"); w.className = "ap-when";
+      w.textContent = fmt(a) + (a.with ? "  ·  مع: " + a.with : "") +
+                      (a.notes ? "\n" + a.notes : "");
+      w.style.whiteSpace = "pre-line";
+      c.appendChild(w);
+
+      var act = document.createElement("div"); act.className = "ap-act";
+      [[a.done ? "إرجاع" : "تم", function () {
+          var all2 = load();
+          all2.forEach(function (x) { if (x.id === a.id) x.done = !x.done; });
+          save(all2); draw();
+        }],
+       ["تذكير الآن", function () {
+          if (window.PL) window.PL.toast("تذكير", a.title + " — " + fmt(a), "urgent");
+        }],
+       ["حذف", function () {
+          if (!confirm("حذف موعد «" + a.title + "»؟")) return;
+          save(load().filter(function (x) { return x.id !== a.id; }));
+          draw();
+        }]].forEach(function (p) {
+        var b = document.createElement("button");
+        b.type = "button"; b.textContent = p[0]; b.onclick = p[1];
+        if (p[0] === "حذف") b.style.color = "#b3261e";
+        act.appendChild(b);
+      });
+      c.appendChild(act);
+      box.appendChild(c);
+    });
+  }
+
+  /* التذكير الصوتي: يفحص كل نصف دقيقة ما دامت الشاشة مفتوحة */
+  function tick() {
+    var now = Date.now();
+    var due = load().filter(function (a) {
+      if (a.done || fired[a.id]) return false;
+      var m = (when(a) - now) / 60000;
+      return m <= a.before && m > -60;
+    });
+    due.forEach(function (a) {
+      fired[a.id] = true;
+      if (window.PL) window.PL.toast("موعد قادم", a.title + " — " + fmt(a), "urgent");
+    });
+
+    var box = document.getElementById("dueBox");
+    var soon = load().filter(function (a) {
+      if (a.done) return false;
+      var m = (when(a) - now) / 60000;
+      return m > 0 && m <= a.before;
+    });
+    if (soon.length) {
+      box.hidden = false;
+      box.textContent = "🔔 " + soon.length + " موعد خلال وقت قصير: " +
+        soon.map(function (a) { return a.title; }).join(" · ");
+    } else { box.hidden = true; }
+  }
+
+  draw();
+  tick();
+  setInterval(tick, 30000);
+})();
+</script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>
