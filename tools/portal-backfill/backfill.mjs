@@ -4,6 +4,13 @@
 //   node backfill.mjs --inspect   أسماء الحقول بس (من غير أي قيم) لعيّنة موكلين وقضايا
 //   node backfill.mjs             تجربة: بيحسب كل حاجة ويكتب تقرير، من غير ما يغيّر Firestore
 //   node backfill.mjs --apply     بيكتب فعلاً
+//   --full                        قراءة كاملة من Firestore (من غير الكاش)
+//   --state=PATH                  مكان الكاش المحلي المشفّر (الافتراضي state/cache.bin)
+//
+// القراءة: أول مرة (أو مرة كل FULL_EVERY_DAYS أيام) بيقرا كل الموكلين والقضايا ويحفظهم
+// في كاش محلي مشفّر. باقي المرات بيقرا من Firestore بس اللي updatedAt بتاعه اتغيّر
+// من آخر تشغيل + الموكلين المربوطين بالبوابة، ويكمّل الباقي من الكاش.
+// الكتابة: بس الوثايق اللي محتاجة تعديل فعلاً (plan.mjs بيقارن قبل ما يكتب).
 //
 // المفتاح: ملف Service Account في نفس الفولدر باسم service-account.json،
 // أو مساره في متغيّر البيئة GOOGLE_APPLICATION_CREDENTIALS.
@@ -12,8 +19,9 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { initializeApp, cert, applicationDefault } from "firebase-admin/app";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 import { buildPlan, parseJson } from "./plan.mjs";
+import { CLIENT_FIELDS, CASE_FIELDS, pick, keyFrom, emptyState, loadState, saveState, applyWrites, toDocs } from "./state.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ID = "profissional-lawyer-updat";
@@ -30,13 +38,19 @@ const NO_REPORT = args.has("--no-report");   // التشغيل التلقائي:
 // (حماية من تعديل جماعي غلط في التشغيل التلقائي). --max-writes=0 = من غير حد.
 const maxArg = argv.find((a) => a.startsWith("--max-writes="));
 const MAX_WRITES = maxArg ? Number(maxArg.split("=")[1]) : 0;
+const FORCE_FULL = args.has("--full");
+const stateArg = argv.find((a) => a.startsWith("--state="));
+const STATE_FILE = stateArg ? stateArg.split("=")[1] : join(HERE, "state", "cache.bin");
+const FULL_EVERY_DAYS = 7;          // قراءة كاملة احتياطي مرة في الأسبوع (حذف، أو تعديل من غير updatedAt)
+const OVERLAP_MS = 15 * 60000;      // هامش فرق ساعات الأجهزة (updatedAt بيتكتب بساعة الجهاز)
 
 // المفتاح: متغيّر FIREBASE_SERVICE_ACCOUNT (نص JSON — للتشغيل التلقائي على GitHub)،
 // أو service-account.json في الفولدر، أو GOOGLE_APPLICATION_CREDENTIALS
 const keyFile = join(HERE, "service-account.json");
-const credential = process.env.FIREBASE_SERVICE_ACCOUNT
-  ? cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
-  : existsSync(keyFile) ? cert(JSON.parse(readFileSync(keyFile, "utf8"))) : applicationDefault();
+const saJson = process.env.FIREBASE_SERVICE_ACCOUNT || (existsSync(keyFile) ? readFileSync(keyFile, "utf8") : null);
+const credential = saJson ? cert(JSON.parse(saJson)) : applicationDefault();
+// مفتاح تشفير الكاش من المفتاح الخاص بحساب الخدمة — من غيره مفيش كاش (قراءة كاملة كل مرة)
+const STATE_KEY = saJson ? keyFrom(JSON.parse(saJson).private_key || saJson) : null;
 initializeApp({
   credential,
   projectId: PROJECT_ID,
@@ -58,12 +72,58 @@ function keysSummary(docs) {
   return { top: fmt(top), json: fmt(inner) };
 }
 
+let reads = 0;
+const count = (snap) => { reads += Math.max(1, snap.size); return snap.docs; };
+const toMap = (docs, fields) => Object.fromEntries(docs.map((d) => [d.id, pick(d.data(), fields)]));
+
+/* بيرجّع الكاش بعد ما يتحدّث من Firestore — كامل أو باللي اتغيّر بس */
+async function syncState(startedAt) {
+  const cached = STATE_KEY && !FORCE_FULL ? loadState(STATE_FILE, STATE_KEY) : null;
+  const stale = !cached || !cached.fullAt || startedAt - Date.parse(cached.fullAt) > FULL_EVERY_DAYS * 864e5;
+  if (stale) {
+    const [cl, ca, ix] = await Promise.all([
+      db.collection(CLIENTS).get(), db.collection(CASES).get(), db.collection("portalEmails").get()]);
+    const s = emptyState();
+    s.clients = toMap(count(cl), CLIENT_FIELDS);
+    s.cases = toMap(count(ca), CASE_FIELDS);
+    s.portalEmails = Object.fromEntries(count(ix).map((d) => [d.id, d.data()]));
+    s.fullAt = new Date(startedAt).toISOString();
+    return { state: s, mode: "كاملة" };
+  }
+  const since = Timestamp.fromMillis(Date.parse(cached.lastRunAt) - OVERLAP_MS);
+  const [cl, ca, linked] = await Promise.all([
+    db.collection(CLIENTS).where("updatedAt", ">", since).get(),
+    db.collection(CASES).where("updatedAt", ">", since).get(),
+    // ربط البوابة (clientUid) بيتكتب من غير ما يغيّر updatedAt — نفس اللي التطبيق بيعمله
+    db.collection(CLIENTS).where("clientUid", ">", "").get(),
+  ]);
+  for (const d of [...count(cl), ...count(linked)]) cached.clients[d.id] = pick(d.data(), CLIENT_FIELDS);
+  for (const d of count(ca)) cached.cases[d.id] = pick(d.data(), CASE_FIELDS);
+  return { state: cached, mode: `باللي اتغيّر بس (موكلين ${cl.size}، قضايا ${ca.size})` };
+}
+
+/* قبل الكتابة: نتأكد إن الوثايق اللي هنعدّلها لسه موجودة (ممكن تكون اتمسحت والكاش لسه فاكرها).
+   قراءة واحدة لكل وثيقة هتتكتب بس، والممسوح بيتشال من الكاش. */
+async function dropDeleted(state, plan) {
+  const refs = [...plan.clientWrites.map((w) => db.collection(CLIENTS).doc(w.clientId)),
+    ...plan.caseWrites.map((w) => db.collection(CASES).doc(w.caseId))];
+  if (!refs.length) return plan;
+  const snaps = await db.getAll(...refs);
+  reads += snaps.length;
+  const gone = new Set(snaps.filter((s) => !s.exists).map((s) => s.ref.path));
+  if (!gone.size) return plan;
+  for (const p of gone) { const id = p.split("/").pop(); delete state.clients[id]; delete state.cases[id]; }
+  console.log(`وثايق اتمسحت من Firestore واتشالت من الكاش: ${gone.size} — بنعيد الحساب.`);
+  return buildPlan(toDocs(state.clients), toDocs(state.cases), new Map(Object.entries(state.portalEmails)));
+}
+
 async function main() {
   console.log(`مشروع ${PROJECT_ID} — مكتب ${OFFICE_ID}`);
-  const [clientDocs, caseDocs] = await Promise.all([readAll(CLIENTS), readAll(CASES)]);
-  console.log(`الموكلين: ${clientDocs.length} — القضايا: ${caseDocs.length}`);
+  const startedAt = Date.now();
 
   if (INSPECT) {
+    const [clientDocs, caseDocs] = await Promise.all([readAll(CLIENTS), readAll(CASES)]);
+    console.log(`الموكلين: ${clientDocs.length} — القضايا: ${caseDocs.length}`);
     // أسماء الحقول وعدد الوثائق اللي فيها كل حقل — من غير أي بيانات موكلين
     const c = keysSummary(clientDocs), k = keysSummary(caseDocs);
     console.log("\nحقول وثيقة الموكل:", c.top, "\nجوه json الموكل:", c.json);
@@ -89,9 +149,13 @@ async function main() {
     return;
   }
 
-  const ixSnap = await db.collection("portalEmails").get();
-  const existingIndex = new Map(ixSnap.docs.map((d) => [d.id, d.data()]));
-  const { portalEmails, clientWrites, caseWrites, report } = buildPlan(clientDocs, caseDocs, existingIndex);
+  const { state, mode } = await syncState(startedAt);
+  const clientDocs = toDocs(state.clients), caseDocs = toDocs(state.cases);
+  console.log(`القراءة: ${mode} — ${reads} قراءة من Firestore`);
+  console.log(`الموكلين: ${clientDocs.length} — القضايا: ${caseDocs.length}`);
+  let plan = buildPlan(clientDocs, caseDocs, new Map(Object.entries(state.portalEmails)));
+  if (APPLY) plan = await dropDeleted(state, plan);
+  const { portalEmails, clientWrites, caseWrites, report } = plan;
 
   let reportFile = "(من غير تقرير)";
   if (!NO_REPORT) {
@@ -111,7 +175,14 @@ async function main() {
 قضايا clientEmails هيتحدّث فيها:       ${report.casesToWrite}
 التقرير الكامل (فيه إيميلات — ما تشاركوش): ${reportFile}`);
 
+  const persist = () => {
+    if (!STATE_KEY) return;
+    state.lastRunAt = new Date(startedAt).toISOString();
+    saveState(STATE_FILE, state, STATE_KEY);
+  };
+
   if (!APPLY) {
+    persist();   // الكاش نفسه صح (اللي في Firestore)، التجربة بس ما كتبتش
     console.log("\nده كان تجربة بس — ماتغيّرش حاجة. راجع التقرير وبعدين شغّل: node backfill.mjs --apply");
     return;
   }
@@ -137,7 +208,9 @@ async function main() {
   for (const { caseId, clientEmails } of caseWrites)
     await add((b) => b.update(db.collection(CASES).doc(caseId), { clientEmails }));
   await flush();
-  console.log(`\n✓ اتكتب ${total} تعديل.`);
+  applyWrites(state, plan);
+  persist();
+  console.log(`\n✓ اتكتب ${total} تعديل — إجمالي القراءات ${reads}.`);
 }
 
 main().catch((e) => { console.error("فشل:", e.message || e); process.exit(1); });

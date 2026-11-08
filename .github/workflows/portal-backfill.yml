@@ -2,6 +2,8 @@
 # بيشغّل tools/portal-backfill كل ٣ ساعات، ويدوياً من تبويب Actions ← Run workflow.
 # محتاج Secret في المستودع اسمه FIREBASE_SERVICE_ACCOUNT = محتوى ملف مفتاح الخدمة (JSON).
 # السجل بيطبع أعداد بس — من غير إيميلات ولا أسماء.
+# القراءة من Firestore باللي اتغيّر بس: كاش محلي مشفّر بيتحفظ بين التشغيلات (actions/cache)،
+# وقراءة كاملة احتياطي مرة في الأسبوع أو لو الكاش ضاع.
 name: Portal backfill
 
 on:
@@ -45,9 +47,22 @@ jobs:
         if: steps.secret.outputs.ok == 'true'
       - run: npm test
         if: steps.secret.outputs.ok == 'true'
+      - name: Restore state cache
+        if: steps.secret.outputs.ok == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/portal-backfill/state
+          key: portal-backfill-state-${{ github.run_id }}
+          restore-keys: portal-backfill-state-
       - name: Backfill
         if: steps.secret.outputs.ok == 'true'
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         # حد ٣٠٠ تعديل في المرة: أكتر من كده يبقى حاجة غريبة — بيقف ويبعتلك إيميل فشل من GitHub
         run: node backfill.mjs --apply --no-report --max-writes=300
+      - name: Save state cache
+        if: steps.secret.outputs.ok == 'true' && success()
+        uses: actions/cache/save@v4
+        with:
+          path: tools/portal-backfill/state
+          key: portal-backfill-state-${{ github.run_id }}-${{ github.run_attempt }}
