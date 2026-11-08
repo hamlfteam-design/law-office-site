@@ -688,7 +688,7 @@
       'يتأكد إنك متسجّل عنده في «المحامون والصلاحيات» بنفس إيميلك.</div>' +
       '<a href="home.html" style="display:inline-block;margin-top:16px;padding:11px 22px;' +
       'background:#5b3a21;color:#fff;border-radius:9px;text-decoration:none;font-size:15px">' +
-      'حاول تاني</a></div>';
+      'حاول تاني</a><br><a href="98-login.html" onclick="try{localStorage.removeItem(\'proflawyer.session.v1\');localStorage.removeItem(\'proflawyer.cloudrole.v1\')}catch(e){}location.href=\'98-login.html\';return false;" style="display:inline-block;margin-top:12px;padding:10px 20px;border:1px solid #b3261e;color:#b3261e;border-radius:9px;text-decoration:none;font-size:15px">خروج والدخول بحساب تاني</a></div>';
   }
 
   /** حذف نهائي من owner المكتب اكتُشف عند تسجيل الدخول: يمسح كل بيانات
