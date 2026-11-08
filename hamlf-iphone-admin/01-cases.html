@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>١ · صفحة القضايا</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="index.html">→</a>
+    <h1>صفحة القضايا</h1>
+    <span class="screen-id">SCR-01</span>
+  </div>
+
+  <nav class="tabs">
+    <a href="01-cases.html" class="active">القضية</a>
+    <a href="02-admin-works.html">الأعمال الإدارية</a>
+    <a href="03-execution.html">تنفيذ الأحكام</a>
+  </nav>
+
+  <main>
+  <form id="caseForm">
+
+    <!-- ============ وضع العرض / التعديل ============ -->
+    <div class="modebar">
+      <span id="modeLabel">وضع التعديل — كل بيانات الملف قابلة للتغيير</span>
+      <button type="button" class="btn sm" id="modeToggle">قفل التعديل</button>
+    </div>
+
+    <!-- ============ بيانات الملف ============ -->
+    <section class="card">
+      <header>بيانات الملف</header>
+      <div class="body">
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="fileNo">رقم الملف <span class="req">*</span></label>
+            <input type="text" id="fileNo" name="fileNo" value="" placeholder="يدخله المستخدم">
+            <div class="note">يدوي بمعرفة المستخدم — ويظل <strong>ثابتاً</strong> عبر درجات التقاضي.</div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="dealYear">سنة التعامل <span class="req">*</span></label>
+            <input type="number" id="dealYear" name="dealYear" value="" placeholder="مثال: 2026">
+            <div class="note">سنة مباشرة القضية — أساس تقارير «قضايا سنة كذا».</div>
+          </div>
+        </div>
+
+        <div class="infobox" style="margin-bottom:0">
+          <strong>رقم الملف ≠ رقم الدعوى.</strong>
+          رقم الملف رقم داخلي للمكتب يجمع كل درجات التقاضي للنزاع الواحد،
+          بينما رقم الدعوى يتغيّر مع كل درجة.
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ بيانات المحكمة ============ -->
+    <section class="card">
+      <header>بيانات المحكمة</header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl" for="courtLevel">درجة التقاضي <span class="req">*</span></label>
+          <select id="courtLevel" name="courtLevel">
+            <option value="">— اختر —</option>
+            <option>جزئي</option>
+            <option>ابتدائي</option>
+            <option>استئناف عالي</option>
+            <option>اقتصادية</option>
+            <option>نقض</option>
+            <option>إدارية</option>
+            <option>تأديبية</option>
+            <option>قضاء إداري</option>
+            <option>إدارية عليا</option>
+            <option>دستورية</option>
+          </select>
+          <div class="note">
+            قائمة ثابتة (١٠ قيم) — واختيارها هو ما <strong>يفتح</strong> قائمتَي المحكمة ونوع الدعوى.
+          </div>
+          <div class="note" id="levelSource" style="color:#0a6b3d"></div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="courtName">
+            اسم المحكمة <span class="badge auto">مرتبطة بالدرجة</span>
+          </label>
+          <div class="combo">
+            <select id="courtName" name="courtName" data-combo="1" disabled>
+              <option value="">— اختر درجة التقاضي أولاً —</option>
+            </select>
+            <button type="button" class="btn ghost sm" data-addlevel="courts" disabled>+ جديد</button>
+          </div>
+          <div class="note">
+            تعرض <strong>محاكم الدرجة المختارة فقط</strong>. المحكمة الجديدة تُسجَّل تحت هذه الدرجة
+            وتظهر في المرات القادمة.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="caseType">
+            نوع الدعوى <span class="badge auto">مرتبطة بالدرجة والمحكمة</span>
+          </label>
+          <div class="combo">
+            <select id="caseType" name="caseType" data-combo="1" disabled>
+              <option value="">— اختر درجة التقاضي أولاً —</option>
+            </select>
+            <button type="button" class="btn ghost sm" data-addlevel="types" disabled>+ جديد</button>
+          </div>
+          <div class="note">
+            تعرض <strong>أنواع الدعاوى التي تُنظر أمام المحكمة المختارة فقط</strong>.
+            قبل اختيار المحكمة تظهر كل أنواع الدرجة. النوع الجديد يُسجَّل تحت المحكمة المختارة.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">وقت الانعقاد</label>
+          <div class="choices">
+            <label><input type="radio" name="sessionTime" value="am" checked><span>صباحي</span></label>
+            <label><input type="radio" name="sessionTime" value="pm"><span>مسائي</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">مكان الانعقاد</label>
+          <div class="row">
+            <div class="field" style="margin-bottom:0">
+              <input type="text" id="floor" name="floor" placeholder="الدور">
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <input type="number" id="hall" name="hall" placeholder="القاعة">
+            </div>
+          </div>
+          <div class="note">مكان الانعقاد = الدور والقاعة — لا يوجد حقل نصي منفصل.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ بيانات الدعوى ============ -->
+    <section class="card">
+      <header>بيانات الدعوى</header>
+      <div class="body">
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="caseNo">رقم الدعوى <span class="req">*</span></label>
+            <input type="number" id="caseNo" name="caseNo" placeholder="رقم">
+          </div>
+          <div class="field">
+            <label class="lbl" for="caseYear">السنة <span class="req">*</span></label>
+            <input type="text" id="caseYear" name="caseYear" placeholder="2020  أو  73 ق">
+            <div class="note">نص: رقم + حرف.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="circuit">اسم ورقم الدائرة <span class="badge auto">مرتبطة بالمحكمة ونوع الدعوى</span></label>
+          <input type="text" id="circuit" name="circuit" list="dlCircuits" placeholder="اكتب اسم ورقم الدائرة">
+          <datalist id="dlCircuits"></datalist>
+          <div class="note">
+            تُقترح الدوائر المسجَّلة لهذه المحكمة وهذا النوع، والحقل يظل مفتوحاً لكتابة دائرة جديدة.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="subject">موضوع الدعوى <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <input type="text" id="subject" name="subject" list="dlSubjects" placeholder="مثال: صحة ونفاذ عقد بيع">
+          <datalist id="dlSubjects">
+            <option value="صحة ونفاذ عقد بيع"></option>
+            <option value="طرد للغصب"></option>
+            <option value="تعويض"></option>
+          </datalist>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="caseStatus">حالة الدعوى</label>
+          <select id="caseStatus" name="caseStatus">
+            <option value="">— اختر —</option>
+            <option>متداولة</option>
+            <option>شطب</option>
+            <option>وقف</option>
+            <option>خبير</option>
+            <option>تنفيذ أحكام</option>
+            <option>منتهية</option>
+          </select>
+          <div class="note">قيمة «تنفيذ أحكام» هي التي تُتيح الملف في شاشة تنفيذ الأحكام.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="officeLawyer">المحامي المختص بها في المكتب</label>
+          <input type="text" id="officeLawyer" name="officeLawyer" list="dlOfficeLawyers" placeholder="نص">
+          <datalist id="dlOfficeLawyers">
+            <option value="أ/ حسن عبد المنعم"></option>
+          </datalist>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ بيانات الخصوم ============ -->
+    <section class="card">
+      <header>بيانات الخصوم <span class="hint">يقبل التعدد</span></header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl">اسم العميل <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <div class="multi" id="mClients">
+            <div class="item">
+              <input type="text" list="dlPeople" placeholder="اسم العميل">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mClients">+ إضافة أخر</button>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="clientRole">صفته <span class="badge lookup">قابلة للإضافة</span></label>
+          <div class="combo">
+            <select id="clientRole" name="clientRole" data-optgroup="role">
+              <option value="">— اختر —</option>
+              <option>مدعي</option>
+              <option>مدعى عليه</option>
+              <option>مستأنف</option>
+              <option>مستأنف ضده</option>
+              <option>طاعن</option>
+              <option>مطعون ضده</option>
+              <option>مستشكل</option>
+              <option>مستشكل ضده</option>
+              <option>متهم</option>
+              <option>مدعي بالحق المدني</option>
+              <option>متظلم</option>
+              <option>متظلم ضده</option>
+              <option>شاكي</option>
+              <option>مشكو في حقه</option>
+            </select>
+            <button type="button" class="btn ghost sm" data-addopt="role">+ جديد</button>
+          </div>
+          <div class="note">الصفة الجديدة تُضاف لقائمتَي الموكل والخصم معاً.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="clientAddr">عنوانه</label>
+          <input type="text" id="clientAddr" list="dlAddresses" placeholder="العنوان">
+        </div>
+
+        <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+        <div class="field">
+          <label class="lbl">اسم الخصم <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <div class="multi" id="mOpponents">
+            <div class="item">
+              <input type="text" list="dlPeople" placeholder="اسم الخصم">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mOpponents">+ إضافة أخر</button>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="oppRole">صفته <span class="badge lookup">قابلة للإضافة</span></label>
+          <div class="combo">
+            <select id="oppRole" name="oppRole" data-optgroup="role">
+              <option value="">— اختر —</option>
+              <option>مدعي</option>
+              <option>مدعى عليه</option>
+              <option>مستأنف</option>
+              <option>مستأنف ضده</option>
+              <option>طاعن</option>
+              <option>مطعون ضده</option>
+              <option>مستشكل</option>
+              <option>مستشكل ضده</option>
+              <option>متهم</option>
+              <option>مدعي بالحق المدني</option>
+              <option>متظلم</option>
+              <option>متظلم ضده</option>
+              <option>شاكي</option>
+              <option>مشكو في حقه</option>
+            </select>
+            <button type="button" class="btn ghost sm" data-addopt="role">+ جديد</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">عنوانه</label>
+          <div class="multi" id="mOppAddr">
+            <div class="item">
+              <input type="text" list="dlAddresses" placeholder="عنوان الخصم">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mOppAddr">+ إضافة أخر</button>
+        </div>
+
+        <div class="field">
+          <label class="lbl">محاميه الأستاذ / <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <div class="multi" id="mOppLawyers">
+            <div class="item">
+              <input type="text" list="dlLawyers" placeholder="اسم محامي الخصم">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mOppLawyers">+ إضافة أخر</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ تتابع الجلسات ============ -->
+    <section class="card">
+      <header>تتابع الجلسات والقرارات والأحكام</header>
+      <div class="body">
+        <div class="table-wrap">
+          <table class="grid" style="table-layout:fixed;width:812px">
+            <colgroup>
+              <col style="width:46px">   <!-- م + حذف -->
+              <col style="width:46px">   <!-- ملاحظات -->
+              <col style="width:60px">   <!-- رول -->
+              <col style="width:104px">  <!-- تاريخ الجلسة — أصغر (أرقام فقط) -->
+              <col style="width:92px">   <!-- نوع الجلسة — أصغر -->
+              <col style="width:172px">  <!-- سبب التأجيل — أكبر -->
+              <col style="width:200px">  <!-- القرار / الحكم — أكبر -->
+              <col style="width:104px">  <!-- الجلسة الجديدة -->
+            </colgroup>
+            <thead>
+              <tr>
+                <th>م</th>
+                <th>ملاحظات</th>
+                <th>رول</th>
+                <th>تاريخ الجلسة</th>
+                <th>نوع الجلسة</th>
+                <th>سبب التأجيل</th>
+                <th>القرار / الحكم</th>
+                <th>الجلسة الجديدة</th>
+              </tr>
+            </thead>
+            <tbody id="sessionsBody"><tr>
+                <td class="serial-cell" style="text-align:center;padding:2px">
+                  <span class="serial" style="display:block;font-weight:700"></span>
+                  <button type="button" class="del-session" title="حذف الجلسة"
+                    style="border:0;background:transparent;color:#b3261e;font-size:15px;cursor:pointer;margin-top:2px;min-height:26px;line-height:1">🗑</button>
+                </td>
+                <td style="text-align:center">
+                  <button type="button" class="icon-btn" title="ملاحظات الجلسة"
+                          data-note="session-1" data-note-title="ملاحظات الجلسة رقم ١">✎</button>
+                </td>
+                <td><input type="number" value="" style="width:100%"></td>
+                <td><input type="date" value="" style="width:100%"></td>
+                <td>
+                  <select data-optgroup="sessionType" data-no-combo style="width:100%">
+                    <option value="">—</option>
+                    <option selected>تحضير</option>
+                    <option>مرافعة</option>
+                    <option>تسوية أسرة</option>
+                    <option>فض منازعات</option>
+                    <option>تحكيم</option>
+                    <option>حكمين</option>
+                    <option>خبراء</option>
+                    <option>تحقيق قضائي</option>
+                    <option>حكم</option>
+                  </select>
+                </td>
+                <td><input type="text" value="" style="width:100%"></td>
+                <td><input type="text" value="" style="width:100%"></td>
+                <td><input type="date" value="" style="width:100%"></td>
+              </tr>
+<tr>
+                <td class="serial-cell" style="text-align:center;padding:2px">
+                  <span class="serial" style="display:block;font-weight:700"></span>
+                  <button type="button" class="del-session" title="حذف الجلسة"
+                    style="border:0;background:transparent;color:#b3261e;font-size:15px;cursor:pointer;margin-top:2px;min-height:26px;line-height:1">🗑</button>
+                </td>
+                <td style="text-align:center">
+                  <button type="button" class="icon-btn has-note" title="ملاحظات الجلسة"
+                          data-note="session-2" data-note-title="ملاحظات الجلسة رقم ٢">✎</button>
+                </td>
+                <td><input type="number" value="" style="width:100%"></td>
+                <td><input type="date" value="" style="width:100%"></td>
+                <td>
+                  <select data-optgroup="sessionType" data-no-combo style="width:100%">
+                    <option value="">—</option>
+                    <option>تحضير</option>
+                    <option selected>مرافعة</option>
+                    <option>تسوية أسرة</option>
+                    <option>فض منازعات</option>
+                    <option>تحكيم</option>
+                    <option>حكمين</option>
+                    <option>خبراء</option>
+                    <option>تحقيق قضائي</option>
+                    <option>حكم</option>
+                  </select>
+                </td>
+                <td><input type="text" value="" style="width:100%"></td>
+                <td><input type="text" value="" style="width:100%"></td>
+                <td><input type="date" value="" style="width:100%"></td>
+              </tr>
+<tr>
+                <td class="serial-cell" style="text-align:center;padding:2px">
+                  <span class="serial" style="display:block;font-weight:700"></span>
+                  <button type="button" class="del-session" title="حذف الجلسة"
+                    style="border:0;background:transparent;color:#b3261e;font-size:15px;cursor:pointer;margin-top:2px;min-height:26px;line-height:1">🗑</button>
+                </td>
+                <td style="text-align:center">
+                  <button type="button" class="icon-btn" title="ملاحظات الجلسة"
+                          data-note="session-3" data-note-title="ملاحظات الجلسة رقم ٣">✎</button>
+                </td>
+                <td><input type="number" value="" style="width:100%"></td>
+                <td><input type="date" value="" style="width:100%"></td>
+                <td>
+                  <select data-optgroup="sessionType" data-no-combo style="width:100%">
+                    <option value="">—</option>
+                    <option>تحضير</option>
+                    <option>مرافعة</option>
+                    <option>تسوية أسرة</option>
+                    <option>فض منازعات</option>
+                    <option>تحكيم</option>
+                    <option>حكمين</option>
+                    <option>خبراء</option>
+                    <option>تحقيق قضائي</option>
+                    <option selected>حكم</option>
+                  </select>
+                </td>
+                <td><input type="text" value="" style="width:100%"></td>
+                <td><input type="text" value="" style="width:100%"></td>
+                <td><input type="date" value="" style="width:100%"></td>
+              </tr></tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button type="button" class="btn ghost sm" data-addrow="#sessionsBody">+ إضافة جلسة</button>
+          <button type="button" class="btn ghost sm" data-addopt="sessionType">+ نوع جلسة جديد</button>
+        </div>
+        <div class="note">
+          «نوع الجلسة» عمود داخل الجدول لأنه يتغيّر من جلسة لأخرى (تحضير ← مرافعة ← حكم).
+          القيم: مرافعة · تحضير · تسوية أسرة · فض منازعات · تحكيم · حكمين · خبراء · تحقيق قضائي · حكم — وقابلة للإضافة.
+        </div>
+        <div class="note">«الجلسة الجديدة» في الصف تصبح «تاريخ الجلسة» في الصف التالي عند الإضافة (يُنفَّذ في التطبيق).</div>
+      </div>
+    </section>
+
+    <!-- ============ الترحيل لدرجة أعلى ============ -->
+    <section class="card">
+      <header>الانتقال لدرجة التقاضي الأعلى <span class="hint">بعد الحكم النهائي</span></header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl">الدرجة الحالية → الدرجة الأعلى</label>
+          <div class="ladder">
+            <span class="lvl" id="lvlFrom">—</span>
+            <span class="arrow">←</span>
+            <span class="lvl next" id="lvlTo">—</span>
+          </div>
+          <div class="note" id="ladderNote">اختر درجة التقاضي أعلى الصفحة لعرض الدرجة الأعلى.</div>
+        </div>
+
+        <button type="button" class="btn block" id="escalateBtn" disabled>
+          ترحيل الملف للدرجة الأعلى
+        </button>
+
+        <div class="note" style="margin-top:9px">
+          يُنشئ الترحيل <strong>سجل دعوى جديداً</strong> بنفس <strong>رقم الملف</strong> و<strong>سنة التعامل</strong>،
+          وينقل معه الخصوم وصفاتهم والمستندات، ويترك رقم الدعوى والسنة والدائرة فارغة لتُملأ من الدرجة الجديدة.
+          الملف القديم يبقى كما هو للرجوع إليه.
+        </div>
+
+        <div class="alertbox" id="escalateDone" hidden style="margin:12px 0 0"></div>
+
+      </div>
+    </section>
+
+    <!-- ============ مستندات الملف ============ -->
+    <section class="card">
+      <header>مستندات الملف <span class="hint">PDF</span></header>
+      <div class="body">
+        <ul class="files" id="caseFiles"></ul>
+
+        <div class="upload">
+          إرفاق مستندات بصيغة <strong>PDF</strong> داخل الملف
+          <div>
+            <label class="btn sm" style="display:inline-block">
+              اختيار ملفات
+              <input type="file" accept="application/pdf" multiple hidden data-files="#caseFiles">
+            </label>
+            <button type="button" class="btn sm ghost">التقاط صورة مستند</button>
+          </div>
+        </div>
+        <div class="note">يقبل أكثر من مستند للملف الواحد — علاقة one-to-many.</div>
+      </div>
+    </section>
+
+    <!-- ============ الانتقال داخل الملف ============ -->
+    <section class="card">
+      <header>ملاحظات القضية والانتقال</header>
+      <div class="body">
+
+        <button type="button" class="btn block" style="margin-bottom:12px"
+                data-note="case-1234-2020" data-note-count
+                data-note-title="ملاحظات القضية — ١٢٣٤ لسنة ٢٠٢٠">
+          <span data-note-label>ملاحظات القضية</span>
+        </button>
+
+        <div class="quicknav">
+          <a href="02-admin-works.html">
+            <span class="ico">▤</span>
+            <span>الأعمال الإدارية
+              <span class="sub">لهذا الملف</span>
+            </span>
+          </a>
+          <a href="03-execution.html">
+            <span class="ico">⚖</span>
+            <span>تنفيذ الأحكام
+              <span class="sub">لهذا الملف</span>
+            </span>
+          </a>
+        </div>
+        <div class="note">
+          الزرّان ينقلان لصفحتَي الملف نفسه ببياناته — وهما نفس الـ Tabs بأعلى الشاشة.
+        </div>
+
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn">حفظ</button>
+      <button type="reset" class="btn ghost">تفريغ</button>
+    </div>
+
+  </form>
+  </main>
+
+  <!-- ============ نافذة الملاحظات ============ -->
+  <dialog class="notes" id="notesDlg">
+    <header data-note-heading>ملاحظات</header>
+    <div class="body">
+      <textarea maxlength="3000" placeholder="اكتب الملاحظات هنا…"></textarea>
+    </div>
+    <footer>
+      <button type="button" class="btn" data-note-save>حفظ</button>
+      <button type="button" class="btn ghost" data-note-cancel>إلغاء</button>
+    </footer>
+  </dialog>
+
+  <!-- قوائم مشتركة -->
+  <datalist id="dlPeople">
+    <option value="حسن عبد المنعم حسن"></option>
+    <option value="محمد أحمد السيد"></option>
+  </datalist>
+  <datalist id="dlAddresses">
+    <option value="١٢ ش الجلاء — القاهرة"></option>
+  </datalist>
+  <datalist id="dlLawyers">
+    <option value="أ/ إبراهيم داوود"></option>
+  </datalist>
+  <datalist id="dlRoles">
+    <option value="مدعي"></option>
+    <option value="مدعى عليه"></option>
+    <option value="مستأنف"></option>
+    <option value="مستأنف ضده"></option>
+    <option value="طاعن"></option>
+    <option value="مطعون ضده"></option>
+    <option value="مستشكل"></option>
+    <option value="مستشكل ضده"></option>
+    <option value="متهم"></option>
+    <option value="مدعي بالحق المدني"></option>
+    <option value="متظلم"></option>
+    <option value="متظلم ضده"></option>
+    <option value="شاكي"></option>
+    <option value="مشكو في حقه"></option>
+  </datalist>
+
+  <footer class="legal">SCR-01 · صفحة القضايا · V1</footer>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/admin-courts-data.js?v=3"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/people-suggest.js?v=3"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/economic-subjects.js?v=2"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<!-- اعتماديات نموذج editCase الموحّد (تسجيل الدعوى الجديدة يستخدم نفس النموذج المتقن) -->
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script>
+/* اقتراح اسم الموكل/الخصم من قائمة الموكلين المسجَّلين + من أطراف القضايا السابقة */
+(function () {
+  function fillPeople() {
+    var dl = document.getElementById("dlPeople");
+    if (!dl) return;
+    var seen = {}, names = [];
+    function add(n) {
+      n = (n == null ? "" : String(n)).trim();
+      if (n && !seen[n]) { seen[n] = 1; names.push(n); }
+    }
+    try {
+      (JSON.parse(localStorage.getItem("proflawyer.agenda.clients.v1")) || [])
+        .forEach(function (c) { if (c && c.name) add(c.name); });
+    } catch (e) {}
+    /* أسماء الأطراف من القضايا السابقة أيضاً (تُفكَّك من نص «اسم (صفة) · اسم») */
+    try {
+      (JSON.parse(localStorage.getItem("proflawyer.agenda.cases.v1")) || [])
+        .forEach(function (c) {
+          [c.clients, c.opponents].forEach(function (s) {
+            String(s || "").split("·").forEach(function (p) {
+              add(String(p).replace(/\([^)]*\)/g, ""));
+            });
+          });
+        });
+    } catch (e) {}
+    if (!names.length) return;               /* أبقِ الاقتراحات الثابتة إن لا بيانات */
+    dl.innerHTML = "";
+    names.sort(function (a, b) { return a.localeCompare(b, "ar"); });
+    names.forEach(function (n) {
+      var o = document.createElement("option"); o.value = n; dl.appendChild(o);
+    });
+  }
+  if (document.readyState !== "loading") fillPeople();
+  else document.addEventListener("DOMContentLoaded", fillPeople);
+})();
+</script>
+<script>
+/* ترقيم تلقائي لتسلسل الجلسات (بالعربية) + حذف جلسة محددة */
+(function () {
+  function init() {
+    var tb = document.getElementById("sessionsBody");
+    if (!tb) return;
+    var AR = "٠١٢٣٤٥٦٧٨٩";
+    function ar(n) { return String(n).replace(/[0-9]/g, function (d) { return AR[+d]; }); }
+    function renumber() {
+      var rows = tb.querySelectorAll("tr");
+      rows.forEach(function (tr, i) {
+        var s = tr.querySelector(".serial");
+        if (s) s.textContent = ar(i + 1);
+        var del = tr.querySelector(".del-session");
+        if (del) del.style.display = rows.length > 1 ? "" : "none";   /* لا يُحذف آخر صف */
+        var nb = tr.querySelector("[data-note]");
+        if (nb) nb.setAttribute("data-note-title", "ملاحظات الجلسة رقم " + ar(i + 1));
+      });
+    }
+    /* حذف بالتفويض ليعمل مع الصفوف المُضافة لاحقاً */
+    tb.addEventListener("click", function (e) {
+      var del = e.target.closest ? e.target.closest(".del-session") : null;
+      if (!del) return;
+      var rows = tb.querySelectorAll("tr");
+      if (rows.length <= 1) return;
+      if (window.Ask && Ask.confirm) {
+        Ask.confirm("حذف هذه الجلسة؟", { ok: "حذف الجلسة" }, function () {
+          del.closest("tr").remove(); renumber();
+        });
+      } else {
+        del.closest("tr").remove(); renumber();
+      }
+    });
+    /* بعد «إضافة جلسة» (يُضاف الصف في app.js) أعِد الترقيم */
+    document.querySelectorAll('[data-addrow="#sessionsBody"]').forEach(function (b) {
+      b.addEventListener("click", function () { setTimeout(renumber, 0); });
+    });
+    renumber();
+  }
+  if (document.readyState !== "loading") init();
+  else document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+
+<!-- تسلسل المحاكم التلقائي: درجة ← محكمة ← نوع ← دائرة (نفس مرجع editCase عبر Courts) -->
+<script>
+(function () {
+  function boot() {
+    if (!window.Courts) { return setTimeout(boot, 150); }
+    var lvl = document.getElementById("courtLevel"),
+        cn  = document.getElementById("courtName"),
+        ct  = document.getElementById("caseType"),
+        ci  = document.getElementById("circuit"),
+        dlc = document.getElementById("dlCircuits");
+    if (!lvl || !cn || !ct) return;
+
+    function setOpts(sel, list, ph) {
+      var cur = sel.value;
+      sel.innerHTML = "";
+      var o0 = document.createElement("option"); o0.value = ""; o0.textContent = ph; sel.appendChild(o0);
+      list.slice().sort(function (a, b) { return String(a).localeCompare(String(b), "ar"); })
+        .forEach(function (v) {
+          var o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o);
+        });
+      if (cur && list.indexOf(cur) < 0) {          /* أبقِ القيمة المحفوظة ولو مش في القائمة */
+        var oc = document.createElement("option"); oc.value = cur; oc.textContent = cur; sel.appendChild(oc);
+      }
+      if (cur) sel.value = cur;
+    }
+    function fillCircuits() {
+      var list = Courts.circuitsOf(lvl.value, cn.value, ct.value) || [];
+      dlc.innerHTML = "";
+      list.forEach(function (v) { var o = document.createElement("option"); o.value = v; dlc.appendChild(o); });
+    }
+    function onLevel() {
+      var L = lvl.value;
+      document.querySelectorAll("[data-addlevel]").forEach(function (b) { b.disabled = !L; });
+      if (!L) {
+        cn.disabled = ct.disabled = true;
+        setOpts(cn, [], "— اختر درجة التقاضي أولاً —");
+        setOpts(ct, [], "— اختر درجة التقاضي أولاً —");
+        return;
+      }
+      cn.disabled = ct.disabled = false;
+      setOpts(cn, Courts.courtsOf(L), "— اختر المحكمة —");
+      setOpts(ct, Courts.typesOf(L), "— اختر نوع الدعوى —");
+      fillCircuits();
+    }
+    function onCourt() { setOpts(ct, Courts.typesOf(lvl.value, cn.value), "— اختر نوع الدعوى —"); fillCircuits(); }
+
+    lvl.addEventListener("change", onLevel);
+    cn.addEventListener("change", onCourt);
+    ct.addEventListener("change", fillCircuits);
+
+    /* الإضافة اليدوية تُحفظ في مرجع Courts فتظهر في كل مرة بعدها — ويتكامل مع
+       بحث combo التوليدي (الذي يستدعي _onAdd عند كتابة قيمة جديدة). */
+    cn._onAdd = function (v) { Courts.addCourt(lvl.value, v); };
+    ct._onAdd = function (v) { Courts.addType(lvl.value, cn.value, v); };
+    document.querySelectorAll("[data-addlevel]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var kind = b.getAttribute("data-addlevel");
+        var name = window.prompt(kind === "courts" ? "اسم المحكمة الجديدة:" : "نوع الدعوى الجديد:");
+        if (!name || !(name = name.trim())) return;
+        if (kind === "courts") { Courts.addCourt(lvl.value, name); setOpts(cn, Courts.courtsOf(lvl.value), "— اختر المحكمة —"); cn.value = name; onCourt(); }
+        else { Courts.addType(lvl.value, cn.value, name); setOpts(ct, Courts.typesOf(lvl.value, cn.value), "— اختر نوع الدعوى —"); ct.value = name; fillCircuits(); }
+        cn.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+    });
+
+    if (lvl.value) onLevel();     /* لو الدرجة محمَّلة مسبقاً (تعديل) */
+  }
+  if (document.readyState !== "loading") boot();
+  else document.addEventListener("DOMContentLoaded", boot);
+})();
+</script>
+
+<!-- بند ٣: تسجيل الدعوى الجديدة يفتح نموذج editCase الموحّد نفسه -->
+<script>
+(function () {
+  function openNew() {
+    if (!window.CaseFile || !CaseFile.editCase) { return setTimeout(openNew, 150); }
+    var saved = false, REG = "90-case-file.html";
+    CaseFile.editCase({}, function () { saved = true; location.href = REG; }, { source: "new-registration" });
+    /* الإلغاء يُغلق النافذة بلا حفظ — نعود للسجل أيضاً */
+    setTimeout(function () {
+      var obs = new MutationObserver(function () {
+        if (!saved && !document.querySelector("[data-modal]")) { obs.disconnect(); location.href = REG; }
+      });
+      obs.observe(document.body, { childList: true });
+    }, 400);
+  }
+  if (document.readyState !== "loading") openNew();
+  else document.addEventListener("DOMContentLoaded", openNew);
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

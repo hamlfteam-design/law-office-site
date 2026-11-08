@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مصروفات المكتب العمومية</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="30-finance-hub.html">→</a>
+    <h1>مصروفات المكتب</h1>
+    <span class="screen-id">FIN-03</span>
+  </div>
+
+  <main>
+    <div class="money">
+      <div class="m out"><div class="v" id="oxMonthTotal">—</div><div class="l">مصروفات الشهر</div></div>
+      <div class="m net"><div class="v" id="oxMonthCount">—</div><div class="l">عدد البنود</div></div>
+    </div>
+
+    <section class="card">
+      <header>مصروفات المكتب العمومية
+        <select id="oxMonth" data-no-combo="1" data-no-manual="1" style="margin-inline-start:auto;min-height:36px;font-family:inherit;font-size:14px"></select>
+      </header>
+      <div class="body" style="padding:0">
+        <div class="table-wrap">
+          <table class="grid">
+            <thead><tr><th>التاريخ</th><th>البند</th><th>المبلغ</th><th>القائم بالصرف</th></tr></thead>
+            <tbody id="oxRows"></tbody>
+          </table>
+        </div>
+        <div id="oxEmpty" class="note" style="padding:14px;display:none">لا مصروفات مكتب مسجَّلة في هذا الشهر.</div>
+      </div>
+    </section>
+
+    <div class="note" style="margin:6px 2px 12px;line-height:1.9">
+      الصفحة دي بتعرض مصروفات المكتب العامة (مش مصروفات القضايا) من <b>دفتر المصروفات والعهدة</b> نفسه —
+      أي مصروف تضيفه هنا بيظهر في الدفتر وفي إجماليات «الإدارة المالية»، والعكس. دوس على أي سطر لتعديله.
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="oxAdd">＋ مصروف مكتب جديد</button>
+      <button type="button" class="btn ghost" id="oxPrint">طباعة بيان الشهر</button>
+    </div>
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="30-finance-hub.html" class="active"><span class="bi">💰</span>المالية</a>
+    <a href="40-hr-hub.html"><span class="bi">👥</span>الموظفين</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script>
+/* مصروفات المكتب = حركات دفتر المصروفات (expenses.js) اللي «على حساب» =
+   «مصروفات المكتب». كانت الصفحة نموذج تصميم ثابت (أسماء وأرقام وهمية،
+   وحفظ في مخزن عام مش في الدفتر) — دلوقتي عرض وإضافة من الدفتر نفسه. */
+(function () {
+  "use strict";
+  var SCOPE = "مصروفات المكتب";
+  var MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+  var sel = document.getElementById("oxMonth"), rows = document.getElementById("oxRows");
+  function E() { return window.Expenses; }
+  function office() {
+    return E().all().filter(function (r) { return r.scope === SCOPE && r.kind !== "عهدة مستلمة"; });
+  }
+  function ym(d) { return String(d || "").slice(0, 7); }
+  function thisMonth() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2); }
+  function fillMonths() {
+    var have = {}, cur = sel.value || thisMonth();
+    have[thisMonth()] = 1;
+    office().forEach(function (r) { if (ym(r.date)) have[ym(r.date)] = 1; });
+    sel.innerHTML = "";
+    Object.keys(have).sort().reverse().forEach(function (m) {
+      var o = document.createElement("option");
+      o.value = m; o.textContent = MONTHS[+m.slice(5, 7) - 1] + " " + E().ar(m.slice(0, 4));
+      sel.appendChild(o);
+    });
+    sel.value = have[cur] ? cur : thisMonth();
+  }
+  function monthList() {
+    return office().filter(function (r) { return ym(r.date) === sel.value; })
+      .sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+  }
+  function draw() {
+    if (!E()) return;
+    fillMonths();
+    var list = monthList(), sum = 0;
+    rows.innerHTML = "";
+    list.forEach(function (r) {
+      sum += E().money(r.amount);
+      var tr = document.createElement("tr");
+      tr.style.cursor = "pointer";
+      [E().ar(String(r.date || "").replace(/-/g, "/")), r.item || "—", E().fmt(E().money(r.amount)), r.by || "—"]
+        .forEach(function (t) { var td = document.createElement("td"); td.textContent = t; tr.appendChild(td); });
+      tr.onclick = function () { E().edit(r.id, draw); };
+      rows.appendChild(tr);
+    });
+    document.getElementById("oxEmpty").style.display = list.length ? "none" : "block";
+    document.getElementById("oxMonthTotal").textContent = list.length ? E().fmt(sum) : "—";
+    document.getElementById("oxMonthCount").textContent = E().ar(list.length);
+  }
+  sel.onchange = draw;
+  document.getElementById("oxAdd").onclick = function () {
+    E().edit({ scope: SCOPE, kind: "مصروف" }, draw);
+  };
+  document.getElementById("oxPrint").onclick = function () {
+    var list = monthList(), spent = 0;
+    list.forEach(function (r) { spent += E().money(r.amount); });
+    E().print(list, { custody: 0, spent: spent, balance: -spent });
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", draw);
+  else draw();
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

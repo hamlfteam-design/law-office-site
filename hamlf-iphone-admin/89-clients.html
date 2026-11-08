@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٨٩ · الموكلون والتوكيلات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .tabs2 { display:flex; gap:7px; margin-bottom:12px; }
+  .tabs2 button { flex:1; min-height:46px; border-radius:10px; font-family:inherit;
+        font-size:14px; border:1px solid var(--line); background:transparent;
+        color:var(--brand); }
+  .tabs2 button.on { background:var(--brand); color:#fff; border-color:var(--brand); }
+  .kpi  { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .kpi div{ flex:1 1 30%; background:var(--card); border:1px solid var(--line);
+            border-radius:11px; padding:11px 7px; text-align:center; }
+  .kpi .n{ font-family:var(--f-title); font-size:19px; color:var(--brand-dark); }
+  .kpi .l{ font-size:11px; color:var(--muted); margin-top:3px; }
+  .cl   { background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:12px; margin-bottom:9px; }
+  .cl .nm { font-family:var(--f-title); font-size:15px; line-height:1.7;
+            word-break:break-word; }
+  .cl .row2 { display:flex; gap:8px; font-size:12.5px; color:var(--muted);
+            margin-top:6px; line-height:1.9; }
+  .cl .row2 b { flex:0 0 76px; color:var(--brand-dark); font-family:var(--f-title);
+            font-weight:400; }
+  .cl .row2 span { flex:1; word-break:break-word; }
+  .act  { display:flex; gap:7px; margin-top:10px; flex-wrap:wrap; }
+  .act button, .act a { flex:1 1 auto; min-width:80px; min-height:42px;
+          border:1px solid var(--line); border-radius:8px; background:transparent;
+          color:var(--brand); font-family:inherit; font-size:12.5px;
+          display:flex; align-items:center; justify-content:center;
+          text-decoration:none; }
+  .badge2 { display:inline-block; font-size:11px; padding:2px 9px; border-radius:20px;
+          background:#efe7db; color:#5b3a21; margin-right:6px; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">&rarr;</a>
+    <h1>الموكلون والتوكيلات</h1>
+    <span class="screen-id">SCR-89</span>
+  </div>
+
+  <main>
+
+
+
+    <div class="kpi" id="kpi"></div>
+
+    <div class="tabs2" data-nosave="1">
+      <button type="button" id="tAll" class="on">كل الموكلين</button>
+      <button type="button" id="tPoa">أصحاب التوكيلات</button>
+      <button type="button" id="tEnded">المنتهية</button>
+      <button type="button" id="tIds" title="بطاقات منتهية أو بتنتهي خلال ٣٠ يوم">🪪 البطاقات</button>
+    </div>
+
+    <input type="text" id="q" data-nosave="1" lang="ar" dir="rtl"
+           placeholder="ابحث باسم الموكل أو رقم الملف بالمكتب…" autocomplete="off"
+           style="width:100%;min-height:50px;font-size:16px;padding:10px 14px;
+                  border:1px solid var(--line);border-radius:10px;background:var(--card);
+                  direction:rtl;text-align:right;font-family:inherit;margin-bottom:12px">
+
+    <div style="display:flex;gap:8px;margin-bottom:12px" data-nosave="1">
+      <button type="button" class="btn" id="addClient"
+              style="flex:2;min-height:48px">＋ إضافة موكل جديد</button>
+      <button type="button" class="btn ghost" id="splitNames"
+              style="flex:1;min-height:48px" title="فصل التوكيلات ذات الأسماء المتعددة إلى سجلات مستقلة">⧉ فصل الأسماء</button>
+    </div>
+
+    <button type="button" class="btn ghost" id="idBatch" data-nosave="1"
+            style="width:100%;min-height:46px;margin-bottom:8px">🪪 قص وتعديل صور البطايق القديمة لكل الموكلين</button>
+    <button type="button" class="btn ghost" id="idExpBatch" data-nosave="1"
+            style="width:100%;min-height:46px;margin-bottom:8px;display:none"></button>
+    <button type="button" class="btn ghost" id="birthBatch" data-nosave="1"
+            style="width:100%;min-height:46px;margin-bottom:8px;display:none"></button>
+    <button type="button" class="btn ghost" id="clientReports" data-nosave="1"
+            style="width:100%;min-height:46px;margin-bottom:12px">📤 تقارير مستجدات الموكلين (واتساب / بريد)</button>
+
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px" data-nosave="1">
+      <label class="lbl" style="flex:0 0 auto;margin:0">الفرز</label>
+      <select id="sortBy" data-no-combo="1" style="flex:1;min-height:46px"></select>
+    </div>
+<div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="list"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="87-calendar.html"><span class="bi">📅</span>التقويم</a>
+    <a href="89-clients.html" class="active"><span class="bi">👤</span>الموكلون</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+  <script src="assets/fixups.js?v=1"></script>
+  <script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+(function () {
+  "use strict";
+
+  var mode = "all";
+  var sortKey = "office";
+  var ar = ClientsPOA.ar;
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  function drawKpi() {
+    var s = ClientsPOA.stats();
+    var box = document.getElementById("kpi");
+    box.textContent = "";
+    var top = Object.keys(s.notaries)
+      .sort(function (a, b) { return s.notaries[b] - s.notaries[a]; })[0];
+    var all = ClientsPOA.all();
+    var total = 0, ended = 0;
+    all.forEach(function (c) {
+      var ps = (c.poas && c.poas.length) ? c.poas : (c.poaNo ? [c] : []);
+      ps.forEach(function (p) {
+        total++;
+        if (ClientsPOA.statusOf(p).status === "منتهي") ended++;
+      });
+    });
+    var live = total - ended;
+
+    [[s.clients, "موكل"], [total, "توكيل"], [live, "توكيل ساري"],
+     [ended, "توكيل منتهي"], [Object.keys(s.notaries).length, "جهة توثيق"],
+     [top ? s.notaries[top] : 0, top || "—"]].forEach(function (p) {
+      var d = el("div");
+      d.appendChild(el("div", "", ar(p[0]))).className = "n";
+      d.appendChild(el("div", "", p[1])).className = "l";
+      box.appendChild(d);
+    });
+  }
+
+  function row(label, value) {
+    var r = el("div"); r.className = "row2";
+    r.appendChild(el("b", "", label));
+    r.appendChild(el("span", "", value));
+    return r;
+  }
+
+  /* p = توكيل بعينه، أو null = كل توكيلات الموكل */
+  function editPoaStatus(c, p) {
+    /* كان بعد الحفظ: إعادة رسم كل القائمة + alert يوقف الشاشة — فيبان إن
+       التطبيق هنج والشاشة بترجع لأولها. دلوقتي: رسالة «تم الحفظ» من
+       editStatus نفسها، وإعادة الرسم بعد ما المودال يتقفل وبنفس مكان الـscroll. */
+    ClientsPOA.editStatus(c, function () { refresh(); }, p || null);
+  }
+
+  /* إعادة رسم بعد أي تعديل من غير ما الشاشة تقفز لأولها */
+  function refresh() {
+    var y = window.scrollY || document.documentElement.scrollTop || 0;
+    requestAnimationFrame(function () {
+      drawKpi(); draw();
+      window.scrollTo(0, y);
+    });
+  }
+
+  function draw() {
+    var q = document.getElementById("q").value.trim();
+    var list = q ? ClientsPOA.search(q) : ClientsPOA.all();
+    if (mode === "poa")   list = list.filter(function (c) { return c.poaNo; });
+    /* 🪪 البطاقات: منتهية أو باقي عليها ٣٠ يوم أو أقل — الأقرب للانتهاء الأول */
+    if (mode === "ids") {
+      list = list.filter(function (c) { var s = ClientsPOA.idExpiryState(c); return s && s.days <= 30; })
+        .sort(function (a, b) { return ClientsPOA.idExpiryState(a).days - ClientsPOA.idExpiryState(b).days; });
+    }
+    if (mode === "ended") list = list.filter(function (c) {
+      var ps = (c.poas && c.poas.length) ? c.poas : (c.poaNo ? [c] : []);
+      return ps.some(function (p) { return ClientsPOA.statusOf(p).status === "منتهي"; });
+    });
+
+    if (mode !== "ids") list = ClientsPOA.sortBy(list, sortKey);
+
+    document.getElementById("stat").textContent =
+      list.length ? "المعروض: " + ar(list.length)
+                  : (q ? "لا يوجد ما يطابق «" + q + "»"
+                       : "لا توجد بيانات — استورد من شاشة «استيراد واستعادة».");
+
+    if (mode === "ids") {
+      var noDate = ClientsPOA.all().filter(function (c) { return !ClientsPOA.idExpiryState(c); }).length;
+      if (noDate) document.getElementById("stat").textContent += " — و" + ar(noDate) + " موكل مالهمش تاريخ انتهاء بطاقة متسجّل (مش هيظهروا هنا لحد ما يتكتب)";
+    }
+
+    var box = document.getElementById("list");
+    box.textContent = "";
+
+    list.slice(0, 150).forEach(function (c) {
+      var card = el("div"); card.className = "cl";
+      var ct0 = ClientsPOA.contacts(c);
+
+      var head = el("div"); head.className = "nm";
+      if (c.officeNo) {
+        var no = el("span",
+          "display:inline-block;background:var(--brand);color:#fff;border-radius:7px;" +
+          "padding:2px 9px;font-size:12.5px;margin-left:8px;font-family:var(--f-title)",
+          ar(c.officeNo));
+        no.title = "رقم الموكل بالمكتب";
+        head.appendChild(no);
+      }
+      head.appendChild(document.createTextNode(c.name || "بلا اسم"));
+      var nCases = ClientsPOA.caseCount(c);
+      if (nCases) {
+        var cc = el("span",
+          "display:inline-block;margin-inline-start:6px;font-size:12.5px;color:var(--brand-dark)",
+          "· " + ar(nCases));
+        cc.title = "عدد القضايا";
+        head.appendChild(cc);
+      }
+      if (ct0.emails.length) {
+        var atIco = el("span",
+          "display:inline-block;margin-inline-start:5px;color:#1f7a4d;font-weight:700",
+          "@");
+        atIco.title = "له بريد إلكتروني مسجَّل: " + ct0.emails.join("، ");
+        head.appendChild(atIco);
+      }
+      if (ct0.phones.length) {
+        var waIco = el("span",
+          "display:inline-block;margin-inline-start:5px;color:#25d366;font-weight:700",
+          "📱");
+        waIco.title = "له رقم واتساب مسجَّل: " + ct0.phones.join("، ");
+        head.appendChild(waIco);
+      }
+      if (c.poaType) {
+        var b = el("span", "", c.poaType); b.className = "badge2";
+        head.appendChild(b);
+      }
+      if (c.poas && c.poas.length > 1) {
+        var m = el("span", "background:#7a5c14;color:#fff", ar(c.poas.length) + " توكيلات");
+        m.className = "badge2";
+        head.appendChild(m);
+      }
+      var tierTxt = ClientsPOA.isVip(c) ? "VIP" : c.tier;
+      if (tierTxt) {
+        var tb = el("span", "background:#7b3fb0;color:#fff", tierTxt);
+        tb.className = "badge2"; head.appendChild(tb);
+      }
+      card.appendChild(head);
+
+      /* §11 لمحة ملف الموكل */
+      if (c.job) card.appendChild(row("المهنة", c.job));
+      if (c.gov) card.appendChild(row("المحافظة", c.gov));
+      var tel0 = (c.phones && c.phones[0]) || c.phone;
+      if (tel0) card.appendChild(row("التليفون", tel0));
+      /* البطاقة سارية حتى — أحمر لو انتهت، برتقالي لو فاضل شهر أو أقل */
+      var idSt = ClientsPOA.idExpiryState ? ClientsPOA.idExpiryState(c) : null;
+      if (idSt) {
+        var idR = el("div"); idR.className = "row2";
+        idR.appendChild(el("b", "", "البطاقة سارية حتى"));
+        idR.appendChild(el("span",
+          "font-weight:600;color:" + (idSt.days < 0 ? "#b3261e" : idSt.days <= 30 ? "#b26a00" : "inherit"),
+          ar(idSt.iso.split("-").reverse().join("/")) +
+          (idSt.days < 0 ? " — منتهية" : idSt.days <= 30 ? " — باقي " + ar(idSt.days) + " يوم" : "")));
+        card.appendChild(idR);
+      }
+
+      /* كل توكيلات الموكل — لا الأحدث فقط */
+      var poas = ClientsPOA.poaList(c);
+      poas.forEach(function (p, i) {
+        var block = el("div",
+          "cursor:pointer;border-radius:9px;padding:2px 4px;margin:0 -4px");
+        block.onclick = function () { ClientsPOA.showPoa(c, p); };
+        var into = function (node) { block.appendChild(node); return node; };
+
+        if (poas.length > 1) {
+          into(el("div",
+            "font-family:var(--f-title);font-size:12.5px;color:var(--brand-dark);" +
+            "margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)",
+            "توكيل " + ar(i + 1) + " من " + ar(poas.length) +
+            (p.poaType ? " · " + p.poaType : "") + "  ›"));
+        }
+        var full = ClientsPOA.poaFull(p);
+        if (p.officeNo && poas.length > 1) into(row("رقم المكتب", ar(p.officeNo)));
+        if (full)      into(row("رقم التوكيل", full));
+        if (p.notary)  into(row("جهة التوثيق", p.notary));
+        if (p.poaDate) into(row("تاريخ التوكيل", p.poaDate));
+
+        var st = ClientsPOA.statusOf(p);
+        var r = el("div"); r.className = "row2";
+        r.appendChild(el("b", "", "حالة التوكيل"));
+        r.appendChild(el("span",
+          "font-weight:600;color:" + (st.status === "منتهي" ? "#b3261e" : "#1f7a4d"),
+          ClientsPOA.statusText(p) + "  ✎"));
+        /* الضغط على الحالة يغيّر حالة التوكيل ده بالذات */
+        r.style.cursor = "pointer";
+        r.onclick = function (e) { e.stopPropagation(); editPoaStatus(c, p); };
+        into(r);
+        if (st.note) into(row("ملاحظة", st.note));
+        if (p.agent) into(row("الوكيل", ClientsPOA.agentShow(p.agent)));
+        if (p.sharedWith) into(row("توكيل مشترك",
+          "مع " + ar(p.sharedWith) + " آخرين"));
+        card.appendChild(block);
+      });
+
+      var ct = ct0;
+      if (ct.phones.length) card.appendChild(row("تليفون", ct.phones.map(ar).join("  ·  ")));
+      if (ct.emails.length) card.appendChild(row("بريد", ct.emails.join("  ·  ")));
+
+      var act = el("div"); act.className = "act";
+      if (ct.phones.length) {
+        var num = String(ct.phones[0]).replace(/[^0-9٠-٩]/g, "")
+          .replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x0660; });
+        var wa = el("a", "", "واتساب");
+        wa.href = "https://wa.me/" + num;
+        wa.target = "_blank"; wa.rel = "noopener";
+        act.appendChild(wa);
+        var tel = el("a", "", "اتصال");
+        tel.href = "tel:" + num;
+        act.appendChild(tel);
+      }
+      if (ct.emails.length) {
+        var mail = el("a", "", "بريد");
+        mail.href = "mailto:" + encodeURIComponent(ct.emails[0]);
+        act.appendChild(mail);
+      }
+      if (poas.length) {
+        /* توكيل واحد: الزرار يغيّر حالته. أكتر من توكيل: يغيّر حالة الكل،
+           ولتوكيل واحد بعينه اضغط على سطر «حالة التوكيل» بتاعه. */
+        var stBtn = el("button", "", poas.length > 1 ? "حالة الكل" : "الحالة");
+        stBtn.type = "button";
+        stBtn.onclick = function () { editPoaStatus(c, poas.length === 1 ? poas[0] : null); };
+        act.appendChild(stBtn);
+      }
+
+      var edBtn = el("button",
+        "border-color:var(--brand);color:var(--brand);font-weight:600", "✎ تعديل");
+      edBtn.type = "button";
+      edBtn.title = "تعديل اسم الموكل وتليفونه وبريده";
+      edBtn.onclick = function () {
+        ClientsPOA.editClient(c, function () { refresh(); });
+      };
+      act.appendChild(edBtn);
+
+      /* البطاقة منتهية أو باقي عليها ٣٠ يوم أو أقل ← زرار إرسال للموكل يبعت البطاقة الجديدة.
+         الزرار بيظهر دايماً (حتى لو مفيش تليفون/إيميل): الضغط بيقول يتضاف منين بدل ما يختفي. */
+      if (window.ClientReport && ClientReport.sendIdRenewal && idSt && idSt.days <= 30) {
+        var rc = ClientReport.contactOf(c);
+        var idCss = idSt.days < 0 ? "border-color:#b3261e;color:#b3261e;font-weight:600" : "border-color:#b26a00;color:#b26a00;font-weight:600";
+        var iw = el("button", idCss, "🪪 " + (idSt.days < 0 ? "البطاقة منتهية — " : "") + "اطلب البطاقة الجديدة واتساب"); iw.type = "button";
+        iw.onclick = function () {
+          if (!rc.phone) { alert("مفيش رقم واتساب للموكل ده — ضيفه من «✎ تعديل» وبعدين ابعت."); return; }
+          ClientReport.sendIdRenewal(c, "whatsapp");
+        };
+        act.appendChild(iw);
+        if (rc.email) {
+          var ie = el("button", idCss, "🪪 اطلب البطاقة الجديدة بريد"); ie.type = "button";
+          ie.onclick = function () { ClientReport.sendIdRenewal(c, "email"); };
+          act.appendChild(ie);
+        }
+      }
+      if (window.ClientReport) {
+        var wc = ClientReport.contactOf(c);
+        if (wc.phone) {
+          var ww = el("button", "", "👋 ترحيب واتساب"); ww.type = "button";
+          ww.onclick = function () { ClientReport.sendWelcome(c, "whatsapp"); };
+          act.appendChild(ww);
+        }
+        if (wc.email) {
+          var we = el("button", "", "👋 ترحيب بريد"); we.type = "button";
+          we.onclick = function () { ClientReport.sendWelcome(c, "email"); };
+          act.appendChild(we);
+        }
+      }
+      if (window.ClientReport && ClientReport.casesOf(c).length) {
+        var rp = ClientReport.contactOf(c);
+        if (rp.phone) {
+          var rw = el("button", "", "📤 تقرير واتساب"); rw.type = "button";
+          rw.onclick = function () { ClientReport.send(c, "whatsapp"); };
+          act.appendChild(rw);
+        }
+        if (rp.email) {
+          var rm = el("button", "", "📤 تقرير بريد"); rm.type = "button";
+          rm.onclick = function () { ClientReport.send(c, "email"); };
+          act.appendChild(rm);
+        }
+      }
+      var find = el("button", "", "قضاياه");
+      find.type = "button";
+      find.onclick = function () {
+        location.href = "93-find.html?q=" + encodeURIComponent(c.name || "");
+      };
+      act.appendChild(find);
+      card.appendChild(act);
+
+      box.appendChild(card);
+    });
+
+    if (list.length > 150) {
+      box.appendChild(el("div",
+        "text-align:center;color:var(--muted);padding:14px;font-size:13px",
+        "…و" + ar(list.length - 150) + " موكلاً — ضيّق البحث"));
+    }
+  }
+
+  document.getElementById("tAll").onclick = function () { setMode("all", this); };
+  function setMode(m, btn) {
+    mode = m;
+    ["tAll", "tPoa", "tEnded", "tIds"].forEach(function (id) {
+      document.getElementById(id).className = "";
+    });
+    btn.className = "on";
+    draw();
+  }
+  document.getElementById("tPoa").onclick = function () { setMode("poa", this); };
+  document.getElementById("tEnded").onclick = function () { setMode("ended", this); };
+  document.getElementById("tIds").onclick = function () { setMode("ids", this); };
+
+  /* قائمة الفرز */
+  (function () {
+    var sel = document.getElementById("sortBy");
+    Object.keys(ClientsPOA.SORTS).forEach(function (k) {
+      var o = document.createElement("option");
+      o.value = k;
+      o.textContent = ClientsPOA.SORTS[k].label;
+      if (k === sortKey) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.onchange = function () { sortKey = sel.value; draw(); };
+  })();
+
+  var timer;
+  document.getElementById("q").addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(draw, 180);
+  });
+  /* فتح موكل بعينه من التنبيهات: 89-clients.html?q=<رقم المكتب أو الاسم> */
+  var qParam = new URLSearchParams(location.search).get("q");
+  if (qParam) {
+    var qEl = document.getElementById("q");
+    qEl.value = qParam;
+    qEl.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  /* موكل جديد: فورم كامل، ورقم المكتب التالي تلقائياً */
+  document.getElementById("addClient").onclick = function () {
+    ClientsPOA.addClient(function (rec) {
+      drawKpi();
+      draw();
+      var q = document.getElementById("q");
+      q.value = rec.officeNo;
+      q.dispatchEvent(new Event("input", { bubbles: true }));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+
+  var splitBtn = document.getElementById("splitNames");
+  if (splitBtn) splitBtn.onclick = function () {
+    if (ClientsPOA.splitMultiNames) ClientsPOA.splitMultiNames(function () { refresh(); });
+  };
+
+  /* تعديل أو حذف توكيل من نافذة الاستعراض يحدّث القائمة فوراً */
+  document.getElementById("idBatch").onclick = function () {
+    var b = this, label = b.textContent;
+    if (!window.ClientsPOA || !ClientsPOA.idBatchProcess) { alert("الميزة مش متاحة."); return; }
+    if (!confirm("هيتعمل قص تلقائي وتعديل اتجاه لكل صور البطايق اللي اترفعت قبل كده ولسه ما اتقصّتش (الوش والضهر).\nالصورة اللي اتقصّت قبل كده هتتساب زي ما هي.\nنكمّل؟")) return;
+    b.disabled = true;
+    ClientsPOA.idBatchProcess(function (i, n) { b.textContent = "⏳ " + i + " من " + n + "…"; }).then(function (r) {
+      b.disabled = false; b.textContent = label;
+      if (r.error) { alert(r.error); return; }
+      var nm = function (j) { return (j.c.name || "—") + (j.c.officeNo ? " (" + j.c.officeNo + ")" : "") + " — " + (j.side === "front" ? "الوش" : "الضهر"); };
+      alert("صور البطايق: " + r.total +
+        "\n✔ اتقصّت واتعدّلت: " + r.cropped.length +
+        "\n↻ متقصوصة قبل كده واتعدّل اتجاهها: " + (r.turned || []).length +
+        "\n• كانت متقصوصة ومظبوطة: " + r.already.length +
+        (r.manual.length ? "\n✂ محتاجة قص يدوي من شاشة الموكل (زرار ✂):\n" + r.manual.map(nm).join("\n") : ""));
+      if (typeof render === "function") try { render(); } catch (e) { }
+    });
+  };
+  /* موكلين ليهم صورة ضهر البطاقة ومالهمش تاريخ ← زرار «سارية حتى» ما بيظهرش لهم */
+  var expBtn = document.getElementById("idExpBatch");
+  function drawExpBtn() {
+    var n = ClientsPOA.idExpiryMissing ? ClientsPOA.idExpiryMissing().length : 0;
+    expBtn.style.display = n ? "" : "none";
+    expBtn.textContent = "🔎 اقرا تاريخ انتهاء البطاقة من صورة الضهر — " + ar(n) + " موكل مالهمش تاريخ";
+  }
+  expBtn.onclick = function () {
+    var b = this;
+    if (!confirm("هيقرا «البطاقة سارية حتى» من صورة ضهر البطاقة للموكلين اللي التاريخ عندهم فاضي، ويحفظه.\nبعدها اللي بطاقته منتهية أو فاضل عليها ٣٠ يوم هيظهر له زرار «اطلب البطاقة الجديدة».\nنكمّل؟")) return;
+    b.disabled = true;
+    ClientsPOA.idExpiryBatch(function (i, n) { b.textContent = "⏳ " + ar(i) + " من " + ar(n) + "…"; }).then(function (r) {
+      b.disabled = false;
+      if (r.error) { alert(r.error); drawExpBtn(); return; }
+      var nm = function (c) { return (c.name || "—") + (c.officeNo ? " (" + c.officeNo + ")" : ""); };
+      alert("اتقرا التاريخ لـ " + ar(r.read.length) + " من " + ar(r.total) + " موكل." +
+        (r.failed.length ? "\n\nما اتقراش (اكتبه بإيدك من «✎ تعديل» أو صوّر الضهر تاني):\n" + r.failed.slice(0, 40).map(nm).join("\n") +
+          (r.failed.length > 40 ? "\n… و" + ar(r.failed.length - 40) + " كمان" : "") : ""));
+      drawExpBtn(); refresh();
+    });
+  };
+  drawExpBtn();
+  /* موكلين قدام عندهم رقم قومي ومالهمش تاريخ ميلاد */
+  var birthBtn = document.getElementById("birthBatch");
+  function drawBirthBtn() {
+    var n = ClientsPOA.birthMissing ? ClientsPOA.birthMissing().length : 0;
+    birthBtn.style.display = n ? "" : "none";
+    birthBtn.textContent = "🎂 استخراج تواريخ الميلاد — " + ar(n) + " موكل";
+  }
+  birthBtn.onclick = function () {
+    var b = this, n = ClientsPOA.birthMissing().length;
+    if (!confirm("هيملا تاريخ الميلاد من الرقم القومي لـ " + ar(n) + " موكل التاريخ عندهم فاضي، واللي مكتوب له تاريخ ما يتغيّرش.\nهتتحفظ نسخة احتياطية جوه التطبيق الأول، والتعديل هيتم على دفعات، فسيب الشاشة مفتوحة لحد ما يخلص.\nنكمّل؟")) return;
+    b.disabled = true;
+    ClientsPOA.birthFill(function (i, t) { b.textContent = "⏳ " + ar(i) + " من " + ar(t) + "…"; }).then(function (r) {
+      b.disabled = false;
+      if (r.error) alert(r.error);
+      else alert("اتملا تاريخ الميلاد لـ " + ar(r.filled) + " موكل.\nالنسخة الاحتياطية: " + r.backup);
+      drawBirthBtn(); refresh();
+    });
+  };
+  drawBirthBtn();
+  document.getElementById("clientReports").onclick = function () {
+    if (window.ClientReport) ClientReport.openPanel();
+  };
+  ClientsPOA.onChange = function () { refresh(); };
+
+  drawKpi();
+  draw();
+})();
+</script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/client-report.js?v=5"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/autofit.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

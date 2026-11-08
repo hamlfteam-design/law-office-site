@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٩٢ · مراجعة بيانات المحاكم</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .stat        { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px }
+  .stat b      { display:block; font-size:19px; line-height:1.1 }
+  .stat > div  { flex:1 1 90px; background:#f4f6f8; border:1px solid #dde3e8;
+                 border-radius:8px; padding:8px 10px; font-size:11px; color:#5a6b7a }
+  table.dt     { width:100%; border-collapse:collapse; font-size:12px }
+  table.dt th  { background:#eef2f5; text-align:right; padding:6px 8px;
+                 border-bottom:1px solid #d5dde4; position:sticky; top:0 }
+  table.dt td  { padding:5px 8px; border-bottom:1px solid #eef1f4; vertical-align:top }
+  table.dt tr:hover td { background:#fafcfd }
+  .scroll      { max-height:420px; overflow:auto; border:1px solid #dde3e8; border-radius:8px }
+  .pill        { display:inline-block; background:#eef2f5; border-radius:10px;
+                 padding:1px 7px; margin:1px; font-size:11px }
+  .src         { font-size:11px; color:#0a6b3d; margin-top:6px; line-height:1.5 }
+  .warn        { background:#fff6e6; border:1px solid #f0d9a8; border-radius:8px;
+                 padding:8px 10px; font-size:12px; margin-bottom:10px }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="index.html">→</a>
+    <h1>مراجعة بيانات المحاكم</h1>
+    <span class="screen-id">SCR-92</span>
+  </div>
+
+  <main>
+
+    <section class="card">
+      <header>الإجمالي</header>
+      <div class="body">
+        <div class="stat" id="totals"></div>
+        <div class="note">
+          هذه هي البيانات الفعلية المحمَّلة في <code>assets/court-data.js</code>،
+          وهي نفسها التي تغذّي قوائم شاشة القضايا (SCR-01).
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>حسب درجة التقاضي</header>
+      <div class="body">
+        <div class="scroll">
+          <table class="dt">
+            <thead><tr><th>الدرجة</th><th>محاكم</th><th>أنواع دعاوى</th><th>دوائر</th></tr></thead>
+            <tbody id="levelRows"></tbody>
+          </table>
+        </div>
+        <div class="note">«أنواع دعاوى» = عدد الأنواع المميّزة في الدرجة · «دوائر» = عدد الدوائر المميّزة.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>تصفّح البيانات</header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl" for="lv">درجة التقاضي</label>
+          <select id="lv"></select>
+          <div class="src" id="lvSrc"></div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="ct">المحكمة</label>
+          <select id="ct"></select>
+        </div>
+
+        <div class="field">
+          <label class="lbl">أنواع الدعاوى التي تُنظر أمام هذه المحكمة</label>
+          <div id="types"></div>
+        </div>
+
+        <div class="field" style="margin-bottom:0">
+          <label class="lbl">الدوائر</label>
+          <div class="scroll" style="max-height:260px">
+            <table class="dt">
+              <thead><tr><th>نوع الدعوى</th><th>الدوائر المسجَّلة</th></tr></thead>
+              <tbody id="circRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card">
+      <header>قواعد التنسيق المطبَّقة</header>
+      <div class="body">
+        <ul class="lst" style="font-size:12px">
+          <li>حذف التشكيل (الفتحتان … السكون) والألف الخنجرية وعلامة التطويل <code>ـ</code>.</li>
+          <li>حذف المحارف غير المرئية ومحارف التحكم، ودمج المسافات المتتالية في مسافة واحدة.</li>
+          <li>حذف التكرار: الاسمان اللذان لا يختلفان إلا في صورة الألف (<code>أ إ آ</code>) أو الياء
+              (<code>ى</code>) أو التاء المربوطة (<code>ة</code>) أو المسافات يُعدّان اسماً واحداً.</li>
+          <li><strong>حروف الاسم المعروض لم تُغيَّر</strong> — «محكمة» تبقى «محكمة». التوحيد لأغراض
+              المطابقة وحذف التكرار فقط.</li>
+          <li>لا تداخل بين المعرِّفات: العنصر يتحدَّد بموقعه في الشجرة
+              (درجة ← محكمة ← نوع ← دائرة) لا برقمه.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/admin-courts-data.js?v=3"></script>
+<script src="assets/court-data-review.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

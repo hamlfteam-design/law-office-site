@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المحامي المحترف — المحامون والصلاحيات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .u-card { background:#fff; border:1px solid var(--line); border-radius:12px;
+            padding:13px; margin-bottom:10px; }
+  .u-top  { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+  .u-name { font-weight:600; font-size:15px; flex:1; min-width:110px; }
+  .pill   { font-size:11.5px; padding:3px 9px; border-radius:20px;
+            background:#efe7db; color:#5b3a21; white-space:nowrap; }
+  .pill.me{ background:#1f7a4d; color:#fff; }
+  .u-sub  { font-size:12.5px; color:var(--muted); margin-top:5px; line-height:1.8;
+            word-break:break-all; }
+  .u-act  { display:flex; gap:7px; margin-top:11px; flex-wrap:wrap; }
+  .u-act button { flex:1 1 auto; min-width:78px; min-height:42px; font-family:inherit;
+            font-size:13px; border-radius:8px; border:1px solid var(--line);
+            background:#fff; color:var(--brand); }
+  .perm   { display:flex; align-items:center; gap:9px; padding:11px 3px;
+            border-bottom:1px solid #f0eae0; }
+  .perm:last-child { border-bottom:0; }
+  .perm label { flex:1; font-size:14px; }
+  .perm input { width:21px; height:21px; accent-color:#5b3a21; }
+  .note   { font-size:12.5px; color:var(--muted); line-height:1.85; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">→</a>
+    <h1>المحامون والصلاحيات</h1>
+    <span class="screen-id">TEAM</span>
+  </div>
+
+  <main>
+
+    <div class="alertbox" style="background:#fff8e6;border-color:#eddaa8;color:#6b5330">
+      <strong>القائمة أدناه بتتزامن بين أجهزة المكتب</strong> — تتحكم في الشاشات
+      التي تظهر هنا لتجربة الأدوار، وليست حماية أمنية بمفردها.
+      <span id="cloudNote"></span>
+    </div>
+
+    <div class="section-title">المستخدم الحالي</div>
+    <div id="me"></div>
+
+    <div class="section-title" id="cloudMembersTitle" hidden>أعضاء المكتب المسجَّلون فعلياً (Firebase)</div>
+    <div id="cloudMembers"></div>
+    <div class="section-title" id="devicesTitle" hidden>الأجهزة ونسخة البرنامج عليها</div>
+    <div id="devicesBox" style="font-size:13.5px;line-height:1.9"></div>
+
+    <button type="button" class="btn" id="addCloud" hidden
+            style="width:100%;min-height:48px;margin-top:6px">＋ إضافة محامٍ جديد</button>
+
+    <button type="button" class="btn ghost" id="bulkInvite" hidden
+            style="width:100%;min-height:46px;margin-top:8px">☁ رفع كل الأعضاء المحليين كدعوات سحابة</button>
+    <div id="bulkInviteReport" style="margin-top:8px;font-size:13px;line-height:1.9"></div>
+
+    <a class="btn ghost" id="auditLink" href="95-audit.html" hidden
+       style="display:block;text-align:center;width:100%;min-height:46px;line-height:46px;margin-top:8px;text-decoration:none">🧾 سجل التعديلات (مين عدّل إيه وإمتى)</a>
+
+    <div class="u-card" id="cloudForm" hidden>
+      <div style="font-family:var(--f-title);font-size:16px;margin-bottom:12px">
+        دعوة عضو جديد للمكتب</div>
+      <div class="note" style="margin-bottom:10px">
+        بس بياناته — هو اللي هيحط كلمة السر بنفسه أول ما يفتح التطبيق
+        ("أول مرة تستخدم البرنامج؟" في شاشة الدخول) بنفس بريده ده.
+      </div>
+
+      <div class="fld"><label for="cName">الاسم *</label>
+        <input type="text" id="cName" lang="ar" dir="rtl" placeholder="الاسم الثلاثي"></div>
+
+      <div class="fld"><label for="cMail">البريد الإلكتروني *</label>
+        <input type="email" id="cMail" data-latin="1" dir="ltr" lang="en"
+               placeholder="name@example.com" inputmode="email">
+        <div class="note">هو ده اللي هيدخل بيه العضو على التطبيق.</div></div>
+
+      <div class="fld"><label for="cPhone">رقم التليفون / الواتساب</label>
+        <input type="tel" id="cPhone" data-latin="1" dir="ltr" lang="en"
+               placeholder="201001234567" inputmode="tel"></div>
+
+      <div class="fld"><label for="cRole">الدور / الصلاحيات</label>
+        <select id="cRole" data-no-combo="1"></select></div>
+
+      <div style="display:flex;gap:9px;margin-top:14px">
+        <button type="button" class="btn" id="cSave"
+                style="flex:1;min-height:48px">حفظ الدعوة</button>
+        <button type="button" class="btn ghost" id="cCancel"
+                style="flex:0 0 auto;min-height:48px;padding:0 18px">إلغاء</button>
+      </div>
+    </div>
+
+    <div class="section-title">أعضاء المكتب (محلي — للتجربة)</div>
+    <div id="list"></div>
+
+    <button type="button" class="btn" id="add"
+            style="width:100%;min-height:48px;margin-top:6px">＋ إضافة عضو</button>
+
+    <div class="u-card" id="form" hidden>
+      <div id="formTitle"
+           style="font-family:var(--f-title);font-size:16px;margin-bottom:12px">عضو جديد</div>
+
+      <div class="fld"><label for="fName">الاسم *</label>
+        <input type="text" id="fName" lang="ar" dir="rtl" placeholder="الاسم الثلاثي"></div>
+
+      <div class="fld"><label for="fPhone">رقم التليفون / الواتساب *</label>
+        <input type="tel" id="fPhone" data-latin="1" dir="ltr" lang="en"
+               placeholder="201001234567" inputmode="tel">
+        <div class="note">بالصيغة الدولية بدون + — يُستخدم لإرسال التكليفات على واتساب.</div></div>
+
+      <div class="fld"><label for="fMail">البريد الإلكتروني *</label>
+        <input type="email" id="fMail" data-latin="1" dir="ltr" lang="en"
+               placeholder="name@example.com" inputmode="email">
+        <div class="note">يُستخدم لإرسال التكليفات وربط العضو بالبرنامج.</div></div>
+
+      <div class="fld"><label for="fRole">الدور</label>
+        <select id="fRole" data-no-combo="1"></select></div>
+
+      <div style="font-family:var(--f-title);margin:14px 0 6px;color:var(--brand)">بيانات كرنيه المحامي</div>
+      <div class="fld"><label for="fIdNo">الرقم القومي</label>
+        <input type="text" id="fIdNo" data-latin="1" dir="ltr" lang="en" inputmode="numeric" placeholder="14 رقماً">
+        <div class="note">يُدرج تلقائياً عند كتابة اسمه في توكيل (من الاسم الثاني).</div></div>
+      <div class="fld"><label for="fQaidNo">رقم القيد</label>
+        <input type="text" id="fQaidNo" dir="rtl" inputmode="numeric"></div>
+      <div class="fld"><label for="fQaidDeg">درجة القيد</label>
+        <select id="fQaidDeg" data-no-combo="1"><option value="">—</option><option>ابتدائي</option><option>استئناف</option><option>نقض</option><option>إدارية عليا</option></select></div>
+      <div class="fld"><label for="fGov">المحافظة</label><input type="text" id="fGov" lang="ar" dir="rtl"></div>
+      <div class="fld"><label for="fArea">المنطقة</label><input type="text" id="fArea" lang="ar" dir="rtl"></div>
+      <div class="fld"><label>صورة الكرنيه</label>
+        <input type="file" id="fCardFile" accept="image/*" data-nosave="1">
+        <input type="file" id="fCardCam" accept="image/*" capture="environment" data-nosave="1" hidden>
+        <button type="button" class="btn ghost" id="fCardCamBtn" style="margin-top:6px;min-height:42px">📷 تصوير الكرنيه</button>
+        <img id="fCardPrev" alt="" style="display:none;max-width:100%;max-height:150px;margin-top:8px;border-radius:8px;border:1px solid var(--line)">
+        <button type="button" class="btn ghost" id="fCardClear" style="display:none;margin-top:6px;min-height:40px">إزالة الصورة</button></div>
+
+      <div style="display:flex;gap:9px;margin-top:14px">
+        <button type="button" class="btn" id="fSave"
+                style="flex:1;min-height:48px">حفظ</button>
+        <button type="button" class="btn ghost" id="fCancel"
+                style="flex:0 0 auto;min-height:48px;padding:0 18px">إلغاء</button>
+      </div>
+    </div>
+
+    <div class="section-title" id="scopeTitle" hidden>قضايا المحامين</div>
+    <div class="u-card" id="scopeCard" hidden>
+      <label style="display:flex;gap:10px;align-items:center;min-height:44px;font-size:14.5px">
+        <input type="radio" name="lawyerScope" value="all" style="width:20px;height:20px"> كل المحامين يشوفوا كل القضايا
+      </label>
+      <label style="display:flex;gap:10px;align-items:center;min-height:44px;font-size:14.5px">
+        <input type="radio" name="lawyerScope" value="mine" style="width:20px;height:20px"> كل محامي يشوف قضاياه بس
+      </label>
+      <div class="note" style="margin-top:6px">
+        «قضاياه» = القضايا اللي اسمه مكتوب فيها في خانة «المحامي»، أو عليه تكليف فيها.
+        خلّيها على «كل القضايا» لحد ما تخلّص تخصيص القضايا. التغيير بيوصل لأجهزة المحامين أول ما يفتحوا البرنامج.
+      </div>
+      <a href="79-assign-cases.html" class="btn" style="display:block;text-align:center;margin-top:10px;text-decoration:none">🗂 تخصيص القضايا للمحامين ›</a>
+      <a href="99-attendance.html#salaries" class="btn" style="display:block;text-align:center;margin-top:10px;text-decoration:none">💰 رواتب المحامين (الحضور والخصومات) ›</a>
+    </div>
+
+    <div class="section-title">صلاحيات الأدوار</div>
+    <div class="u-card">
+      <select id="roleSel" style="width:100%;min-height:46px;margin-bottom:6px"></select>
+      <div id="perms"></div>
+      <div class="note" style="margin-top:10px">
+        التعديل يسري فوراً على كل من يحمل هذا الدور.
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="81-assignments.html"><span class="bi">📋</span>التكليفات</a>
+    <a href="80-team.html" class="active"><span class="bi">👤</span>الفريق</a>
+    <a href="99-chat.html"><span class="bi">💬</span>المحادثات</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/qr.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var T = Team.data;
+
+  function roleName(r) { return (T.roles[r] || {}).name || r; }
+  function el(t, c, x) { var e = document.createElement(t); if (c) e.style.cssText = c;
+                         if (x != null) e.textContent = x; return e; }
+
+  /* ------------------------------------------------------- المستخدم الحالي */
+  function drawMe() {
+    var u = Team.current(), box = document.getElementById("me");
+    box.innerHTML = "";
+    var c = el("div"); c.className = "u-card";
+    c.innerHTML =
+      '<div class="u-top"><span class="u-name">' + u.name + '</span>' +
+      '<span class="pill me">' + roleName(u.role) + '</span></div>' +
+      '<div class="u-sub">أنت تتصفح البرنامج بصلاحيات هذا الدور. ' +
+      'بدّل المستخدم لتجربة ما يراه غيرك.</div>';
+
+    /* حالة الحساب الفعلي: هل هذا الجهاز مسجَّل دخول على السحابة وبأي دور؟ */
+    var st = el("div", "margin-top:8px;padding:9px 12px;border-radius:9px;font-size:13px;line-height:1.9;" +
+      "background:#fff5e0;color:#7a5c14");
+    st.textContent = "جارٍ التحقق من حسابك على السحابة…";
+    c.appendChild(st);
+    (function () {
+      var sess = window.Auth && Auth.session && Auth.session();
+      if (!sess) {
+        st.innerHTML = "⚠ هذا الجهاز <b>غير مسجَّل دخول</b> على السحابة — لذلك لا تظهر بيانات الحساب ولا يعمل رفع " +
+          "التعديلات ولا إضافة/حذف الأعضاء. ";
+        var go = document.createElement("a");
+        go.href = "98-login.html"; go.textContent = "سجّل الدخول الآن ›";
+        go.style.cssText = "color:#5b3a21;font-weight:700";
+        st.appendChild(go);
+        return;
+      }
+      if (!window.CloudStore || !CloudStore.whenReady) { st.textContent = "مسجَّل دخول: " + sess.email; return; }
+      CloudStore.whenReady(function (ok) {
+        if (!ok) { st.textContent = "مسجَّل دخول: " + sess.email + " — تعذّر الاتصال بمكتبك الآن."; return; }
+        CloudStore._internal.authedRequest("GET", CloudStore._internal.officeUrl() + "/users/" + encodeURIComponent(sess.uid), null)
+          .then(function (r) {
+            /* أي فشل كان بيظهر «لا يوجد دور» حتى لو السبب إن السحابة وقفت القراءة
+               (الحد اليومي خلص) — فيوهم إن الحساب نفسه فيه مشكلة. */
+            if (!r.ok && r.status === 429) {
+              st.textContent = "مسجَّل دخول: " + sess.email + " — السحابة وصلت لحد القراءات اليومي المجاني، " +
+                "فمش قادرين نقرا بيانات الفريق دلوقتي. الحد بيرجع لوحده كل يوم الساعة ١٠ الصبح تقريباً.";
+              return;
+            }
+            if (!r.ok && r.status !== 404) {
+              st.textContent = "مسجَّل دخول: " + sess.email + " — تعذّر قراءة دورك من السحابة الآن (خطأ " + (r.status || "اتصال") + ").";
+              return;
+            }
+            var role = r.ok && r.data && r.data.fields && r.data.fields.role && r.data.fields.role.stringValue;
+            if (!role) { st.textContent = "مسجَّل دخول: " + sess.email + " — لا يوجد دور مسجَّل لك في هذا المكتب."; return; }
+            var good = role === "owner";
+            st.style.background = good ? "#e6f3ea" : "#fff5e0";
+            st.style.color = good ? "#1c6b3a" : "#7a5c14";
+            st.textContent = "✔ مسجَّل دخول: " + sess.email + " — دورك على السحابة: " + roleName(role) +
+              (good ? " (كامل الصلاحيات)" : "");
+          }).catch(function () { st.textContent = "مسجَّل دخول: " + sess.email; });
+      });
+    })();
+
+    var act = el("div"); act.className = "u-act";
+
+    var me = document.createElement("button");
+    me.type = "button"; me.textContent = "تعديل بياناتي";
+    me.onclick = function () { edit(u); };
+    act.appendChild(me);
+
+    /* «تبديل المستخدم» للمالك بس (F-HR-3): كان أي حد يقدر يدخل باسم «مدير
+       المكتب» بضغطة لو الجهاز مش متسجّل على السحابة أو النت قاطع */
+    if (u.role === "owner") {
+      var sw = document.createElement("button");
+      sw.type = "button"; sw.textContent = "تبديل المستخدم";
+      sw.onclick = switchUser;
+      act.appendChild(sw);
+    }
+    c.appendChild(act);
+    box.appendChild(c);
+  }
+
+  /* لوحة اختيار المستخدم — prompt() غير مدعوم داخل WebView فلا نعتمد عليه */
+  function switchUser() {
+    var wrap = el("div",
+      "position:fixed;inset:0;background:rgba(20,14,8,.55);z-index:10002;" +
+      "display:flex;align-items:flex-end;justify-content:center");
+    wrap.setAttribute("data-modal", "1");
+    wrap.setAttribute("data-nosave", "1");
+
+    var box = el("div",
+      "background:var(--card,#fff);border-radius:16px 16px 0 0;padding:18px 18px 26px;" +
+      "width:100%;max-width:520px;direction:rtl;max-height:80vh;overflow-y:auto");
+    box.appendChild(el("div",
+      "font-family:var(--f-title);font-size:17px;margin-bottom:14px;color:var(--text)",
+      "الدخول باسم"));
+
+    T.users.forEach(function (u) {
+      var on = (u.id === T.currentUserId);
+      var b = el("button",
+        "display:block;width:100%;text-align:right;padding:14px;margin-bottom:9px;" +
+        "border-radius:11px;font-family:inherit;min-height:52px;color:var(--text);" +
+        "border:2px solid " + (on ? "var(--brand)" : "var(--line,#ddd)") + ";" +
+        "background:" + (on ? "rgba(0,0,0,.03)" : "transparent"));
+      b.type = "button";
+      b.appendChild(el("div", "font-size:15px;font-weight:" + (on ? "600" : "400"),
+                       u.name + (on ? "  ✓" : "")));
+      b.appendChild(el("div", "font-size:12.5px;color:var(--muted);margin-top:3px",
+                       roleName(u.role)));
+      b.onclick = function () {
+        T.currentUserId = u.id;
+        Team.save();
+        location.reload();
+      };
+      box.appendChild(b);
+    });
+
+    var close = el("button",
+      "width:100%;padding:13px;border:0;border-radius:11px;background:var(--line,#eee);" +
+      "color:var(--text);font-family:inherit;font-size:15px;min-height:46px", "إلغاء");
+    close.type = "button";
+    close.onclick = function () { wrap.remove(); };
+    box.appendChild(close);
+
+    wrap.appendChild(box);
+    wrap.onclick = function (e) { if (e.target === wrap) wrap.remove(); };
+    document.body.appendChild(wrap);
+  }
+
+  /* --------------------------------------------------------------- الأعضاء */
+  function drawList() {
+    var box = document.getElementById("list");
+    box.innerHTML = "";
+    T.users.forEach(function (u) {
+      var c = el("div"); c.className = "u-card";
+      c.innerHTML =
+        '<div class="u-top"><span class="u-name">' + u.name + '</span>' +
+        '<span class="pill">' + roleName(u.role) + '</span></div>' +
+        '<div class="u-sub">' +
+          (u.email ? "✉ " + u.email : "<i>بلا بريد</i>") + "<br>" +
+          (u.phone ? "☎ " + u.phone : "<i>بلا رقم واتساب</i>") +
+          (u.idNo ? "<br>الرقم القومي: " + u.idNo : "") +
+          (u.qaidNo ? "<br>القيد: " + u.qaidNo + (u.qaidDeg ? " — " + u.qaidDeg : "") : "") +
+          ((u.gov || u.area) ? "<br>" + [u.gov, u.area].filter(Boolean).join(" — ") : "") +
+        '</div>' +
+        (u.cardImg ? '<img src="' + u.cardImg + '" alt="كرنيه" style="max-width:100%;max-height:120px;margin:6px 0;border-radius:8px;border:1px solid var(--line)">' : "");
+
+      var act = el("div"); act.className = "u-act";
+      [["تعديل", function () { edit(u); }],
+       ["إرسال بياناته", function () { sendCard(u); }],
+       ["📲 إرسال التطبيق", function () { sendApp(u); }],
+       ["🔳 كود ربط الجهاز", function () { joinQr(u); }],
+       ["حذف",   function () { del(u); }]].forEach(function (p) {
+        var b = document.createElement("button");
+        b.type = "button"; b.textContent = p[0]; b.onclick = p[1];
+        if (p[0] === "حذف") b.style.color = "#b3261e";
+        act.appendChild(b);
+      });
+      c.appendChild(act);
+      box.appendChild(c);
+    });
+  }
+
+  function edit(u) {
+    openForm(u);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function del(u) {
+    if (T.users.length === 1) { alert("لا يمكن حذف آخر عضو."); return; }
+    if (u.id === T.currentUserId) { alert("لا يمكنك حذف نفسك أثناء استخدام حسابه."); return; }
+    if (!confirm("حذف " + u.name + " نهائياً؟")) return;
+    T.users = T.users.filter(function (x) { return x.id !== u.id; });
+    Team.save(); drawAll();
+  }
+
+  /* ------------------------------------------------------ فورم العضو
+     التليفون والبريد مطلوبان: بهما يُربط العضو بالبرنامج وتصله التكليفات. */
+
+  var editing = null;
+
+  /* تُبنى مرة واحدة. لا نستدل على ذلك بعدد الخيارات لأن طبقة الموبايل
+     تضيف خيارات خدمية («إضافة يدوية» و«إلغاء الاختيار») فتبدو القائمة ممتلئة. */
+  function roleOptions() {
+    var sel = document.getElementById("fRole");
+    if (sel.dataset.built) return;
+    sel.dataset.built = "1";
+    Object.keys(T.roles).forEach(function (k) {
+      var o = document.createElement("option");
+      o.value = k; o.textContent = T.roles[k].name;
+      sel.insertBefore(o, sel.firstChild);      // قبل أي خيار خدمي
+    });
+  }
+
+  function openForm(u) {
+    editing = u || null;
+    roleOptions();
+    document.getElementById("formTitle").textContent =
+      u ? ("تعديل: " + u.name) : "عضو جديد";
+    document.getElementById("fName").value  = u ? u.name  : "";
+    document.getElementById("fPhone").value = u ? u.phone : "";
+    document.getElementById("fMail").value  = u ? u.email : "";
+    document.getElementById("fRole").value  = u ? u.role  : "lawyer";
+    document.getElementById("fIdNo").value   = u ? (u.idNo || "") : "";
+    document.getElementById("fQaidNo").value = u ? (u.qaidNo || "") : "";
+    document.getElementById("fQaidDeg").value = u ? (u.qaidDeg || "") : "";
+    document.getElementById("fGov").value    = u ? (u.gov || "") : "";
+    document.getElementById("fArea").value   = u ? (u.area || "") : "";
+    cardImg = u ? (u.cardImg || "") : "";
+    showCard();
+    document.getElementById("form").hidden  = false;
+    document.getElementById("add").hidden   = true;
+    teamOffered = !!u;   /* لا تعرض الاستيراد أثناء تعديل عضو موجود بالفعل */
+    document.getElementById("fName").focus();
+  }
+
+  function closeForm() {
+    editing = null;
+    document.getElementById("form").hidden = true;
+    document.getElementById("add").hidden  = false;
+  }
+
+  /* ---- صورة الكرنيه: تُصغَّر (٨٠٠px، JPEG) قبل الحفظ لتوفير مساحة التخزين ---- */
+  var cardImg = "";
+  function showCard() {
+    var im = document.getElementById("fCardPrev"), cl = document.getElementById("fCardClear");
+    im.style.display = cardImg ? "" : "none"; cl.style.display = cardImg ? "" : "none";
+    if (cardImg) im.src = cardImg;
+  }
+  (function () {
+    var btn = document.getElementById("fCardCamBtn"), cam = document.getElementById("fCardCam");
+    var scanner = false;
+    try { scanner = typeof AndroidScanner !== "undefined" && !!AndroidScanner.supportsResult && AndroidScanner.supportsResult(); } catch (e) { }
+    if (scanner) btn.textContent = "📷 تصوير الكرنيه بالسكانر";
+    btn.onclick = function () {
+      try { if (scanner) AndroidScanner.prepareCapture("card", "كرنيه المحامي"); } catch (e) { }
+      cam.click();
+    };
+    cam.onchange = function () {
+      document.getElementById("fCardFile").onchange.call(cam);
+      cam.value = "";
+    };
+  })();
+  document.getElementById("fCardFile").onchange = function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      function shrink(src) {
+        var img = new Image();
+        img.onload = function () {
+          var k = Math.min(1, 800 / Math.max(img.width, img.height));
+          var cv = document.createElement("canvas");
+          cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+          cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+          cardImg = cv.toDataURL("image/jpeg", 0.75); showCard();
+        };
+        img.src = src;
+      }
+      /* زي برنامج الاسكانر: قص حواف الكرنيه + تحسين + لفّه في اتجاه القراءة،
+         سواء اتصوّر دلوقتي أو اتختار من الجهاز (IdCrop.autoFix). */
+      if (!window.IdCrop || !IdCrop.autoFix) { shrink(rd.result); return; }
+      var btn = document.getElementById("fCardCamBtn"), old = btn ? btn.textContent : "";
+      if (btn) { btn.disabled = true; btn.textContent = "جارٍ القص وتعديل الاتجاه…"; }
+      IdCrop.autoFix(String(rd.result), "card").then(function (res) {
+        shrink(res.dataUrl);
+      }).catch(function () {
+        shrink(rd.result);
+      }).then(function () {
+        if (btn) { btn.disabled = false; btn.textContent = old; }
+      });
+    };
+    rd.readAsDataURL(f);
+  };
+  document.getElementById("fCardClear").onclick = function () { cardImg = ""; showCard(); };
+
+  /* ---- إرسال بيانات المحامي/كرنيهه بواتساب (بعد سؤال) ---- */
+  function cardText(u) {
+    return "المحامي: " + u.name + (u.idNo ? "\nالرقم القومي: " + u.idNo : "");
+  }
+  function sendCard(u) {
+    var back = el("div", "position:fixed;inset:0;background:rgba(20,14,8,.6);z-index:10090;display:flex;align-items:flex-end;justify-content:center");
+    var box = el("div", "background:var(--card,#fff);border-radius:18px 18px 0 0;padding:18px;width:100%;max-width:520px;direction:rtl");
+    box.appendChild(el("div", "font-family:var(--f-title);font-size:17px;margin-bottom:10px", "إرسال بيانات " + u.name + " بواتساب؟"));
+    function opt(label, fn, off) {
+      var b = el("button", "width:100%;min-height:52px;margin-top:8px;border-radius:12px;font-family:inherit;font-size:16px;border:1px solid var(--line);background:var(--card);color:var(--brand)" + (off ? ";opacity:.45" : ""), label);
+      b.type = "button"; b.disabled = !!off;
+      b.onclick = function () { back.remove(); fn(); };
+      box.appendChild(b);
+    }
+    var hasImg = !!u.cardImg, b64 = hasImg ? u.cardImg.split(",")[1] : "";
+    function go(withText, withImg) {
+      if (!window.AndroidShare || !AndroidShare.sendWhatsApp) { alert("الإرسال متاح على التطبيق فقط."); return; }
+      AndroidShare.sendWhatsApp("", "كرنيه-" + u.name + ".jpg", withImg ? b64 : "", "image/jpeg", withText ? cardText(u) : "");
+    }
+    opt("الاسم والرقم القومي فقط", function () { go(true, false); }, !u.idNo);
+    opt("صورة الكرنيه فقط" + (hasImg ? "" : " (لا توجد صورة)"), function () { go(false, true); }, !hasImg);
+    opt("البيانات + صورة الكرنيه" + (hasImg ? "" : " (لا توجد صورة)"), function () { go(true, true); }, !hasImg || !u.idNo);
+    opt("إلغاء", function () { }, false);
+    back.appendChild(box);
+    back.onclick = function (e) { if (e.target === back) back.remove(); };
+    document.body.appendChild(back);
+  }
+
+  /** يرسل نسخة المحامين (APK بلا بيانات) على واتساب العضو — بضغطة إرسال منه هو.
+      قبل الإرسال: (١) تتأكد دعوته على فيربيز موجودة (تُنشَأ لو ناقصة — كانت
+      أكبر سبب لـ"أول مرة" اللي بتفضل «جارٍ التحقّق» بلا نتيجة)، (٢) رسالة
+      واتساب بتحمل بريده ورقم تليفونه بالظبط جاهزين للنسخ، فيدخل من أول
+      مرة بلا لخبطة أو خطأ كتابة. */
+  function sendApp(u) {
+    if (!u.phone) { alert("لا يوجد رقم تليفون مسجَّل لهذا العضو."); return; }
+    if (!u.email || u.email.trim().indexOf("@") < 0) { alert("اكتب بريد " + u.name + " الإلكتروني أولاً (محتاجه لتسجيل الدعوة على السحابة)."); return; }
+    if (!window.AndroidShare || !AndroidShare.sendApkToWhatsApp) { alert("الإرسال متاح على التطبيق فقط."); return; }
+    Ask.confirm("إرسال تطبيق الموبايل إلى " + u.name + " بواتساب؟", {
+      danger: false, ok: "إرسال التطبيق",
+      detail: "هيفتح واتساب على رقمه (" + u.phone + ") مرفقاً به ملف التطبيق، ومعاه بريده وتليفونه جاهزين للنسخ — تضغط «إرسال» بنفسك."
+    }, function () {
+      ensureInviteFor(u, function (ok, why) {
+        if (!ok) { alert("تعذّر تسجيل دعوته على السحابة (" + why + ") — تحقّق من الاتصال وحاول تاني."); return; }
+        AndroidShare.sendApkToWhatsApp(u.phone, u.email.trim().toLowerCase());
+      });
+    });
+  }
+
+  /* قاعدة ٧٤ (تقويم الجلسات): الكود بيحمل «العنوان» بس — بريد العضو وتليفونه —
+     والبيانات نفسها بتيجي من السحابة بعد الدخول. المحامي يوجّه كاميرا موبايله
+     (بعد تثبيت التطبيق) للكود، فيفتح HAMLF على «أول مرة» والبيانات مكتوبة. */
+  function joinQr(u) {
+    if (!u.phone) { alert("لا يوجد رقم تليفون مسجَّل لهذا العضو."); return; }
+    if (!u.email || u.email.trim().indexOf("@") < 0) { alert("اكتب بريد " + u.name + " الإلكتروني أولاً (محتاجه لتسجيل الدعوة على السحابة)."); return; }
+    if (!window.QR) { alert("مولّد الكود مش متاح."); return; }
+    var email = u.email.trim().toLowerCase(), phone = String(u.phone).replace(/[^0-9]/g, "");
+    ensureInviteFor(u, function (ok, why) {
+      if (!ok) { alert("تعذّر تسجيل دعوته على السحابة (" + why + ") — تحقّق من الاتصال وحاول تاني."); return; }
+      var link = "hamlf://join?e=" + encodeURIComponent(email) + "&p=" + phone;
+      var back = document.createElement("div");
+      back.setAttribute("data-modal", "1"); back.setAttribute("data-nosave", "1");
+      back.style.cssText = "position:fixed;inset:0;background:rgba(20,14,8,.62);z-index:10040;display:flex;align-items:center;justify-content:center;padding:16px";
+      var box = document.createElement("div");
+      box.style.cssText = "background:var(--card,#fff);border-radius:16px;padding:18px;max-width:380px;width:100%;direction:rtl;text-align:center;color:var(--text)";
+      var t = document.createElement("div");
+      t.style.cssText = "font-family:var(--f-title);font-size:17px;margin-bottom:6px";
+      t.textContent = "كود ربط جهاز " + u.name;
+      var cv = document.createElement("canvas");
+      try { QR.draw(cv, link, 7); } catch (e) { alert("تعذّر عمل الكود: " + e.message); return; }
+      cv.style.cssText = "width:240px;max-width:100%;height:auto;image-rendering:pixelated;margin:6px auto;display:block";
+      var info = document.createElement("div");
+      info.style.cssText = "font-size:13px;line-height:1.9;color:var(--muted,#6b5a48)";
+      info.innerHTML = "";
+      [["البريد", email], ["التليفون", phone]].forEach(function (x) {
+        var d = document.createElement("div");
+        d.appendChild(document.createTextNode(x[0] + ": "));
+        var b = document.createElement("b"); b.dir = "ltr"; b.textContent = x[1]; d.appendChild(b);
+        info.appendChild(d);
+      });
+      var how = document.createElement("div");
+      how.style.cssText = "font-size:12.5px;line-height:1.9;margin-top:8px;text-align:right;background:var(--bg,#f4ece0);border-radius:10px;padding:8px 10px";
+      how.textContent = "١) ثبّت التطبيق على موبايل " + u.name + " (زرار «📲 إرسال التطبيق»). " +
+        "٢) افتح كاميرا الموبايل ووجّهها للكود، واضغط الرابط اللي يظهر. " +
+        "٣) التطبيق هيفتح على «أول مرة» والبريد والتليفون مكتوبين — يختار كلمة سر ويدخل، والبيانات بتنزل من السحابة لوحدها.";
+      var close = document.createElement("button");
+      close.type = "button"; close.textContent = "إغلاق"; close.className = "btn";
+      close.style.cssText = "margin-top:12px;min-width:120px";
+      function shut() { back.remove(); }
+      close.onclick = shut;
+      back.onclick = function (e) { if (e.target === back) shut(); };
+      back.__lawyerDismiss = function () { shut(); return true; };
+      box.appendChild(t); box.appendChild(cv); box.appendChild(info); box.appendChild(how); box.appendChild(close);
+      back.appendChild(box); document.body.appendChild(back);
+    });
+  }
+
+  var teamOffered = false;
+  function teamTryOffer() {
+    if (teamOffered || editing || !window.ContactsSync) return;
+    var nm = document.getElementById("fName").value.trim();
+    var ph = document.getElementById("fPhone").value.trim();
+    if (nm.length < 3 && ph.length < 6) return;
+    teamOffered = true;
+    ContactsSync.offerImport(nm, ph, function (data) {
+      if (data.name && !document.getElementById("fName").value.trim())
+        document.getElementById("fName").value = data.name;
+      if (data.phone) document.getElementById("fPhone").value = data.phone;
+      if (data.email) document.getElementById("fMail").value = data.email;
+    }, function () { teamOffered = false; });
+  }
+  document.getElementById("fName").addEventListener("blur", teamTryOffer);
+  document.getElementById("fPhone").addEventListener("blur", teamTryOffer);
+
+  /* تصحيح فوري أثناء الكتابة نفسها — لا عند الحفظ فقط — لحقلَي التليفون
+     والإيميل اللاتينيَّين. راجع [[feedback_arabic_numerals_email_exception]]. */
+  (function () {
+    function laDigitsLive(t) {
+      var fa = "۰۱۲۳۴۵۶۷۸۹";
+      return String(t == null ? "" : t)
+        .replace(/[٠-٩۰-۹]/g, function (d) {
+          var code = d.charCodeAt(0);
+          if (code >= 0x0660 && code <= 0x0669) return String(code - 0x0660);
+          var fi = fa.indexOf(d);
+          return fi >= 0 ? String(fi) : d;
+        });
+    }
+    function wireLive(id) {
+      var inp = document.getElementById(id);
+      if (!inp) return;
+      inp.addEventListener("input", function () {
+        var v = inp.value;
+        if (!/[٠-٩۰-۹]/.test(v)) return;
+        var pos = inp.selectionStart;
+        inp.value = laDigitsLive(v);
+        try { inp.setSelectionRange(pos, pos); } catch (e) { }
+      });
+    }
+    wireLive("fPhone");
+    wireLive("fMail");
+  })();
+
+  document.getElementById("add").onclick     = function () { openForm(null); };
+  document.getElementById("fCancel").onclick = closeForm;
+
+  document.getElementById("fSave").onclick = function () {
+    var name  = document.getElementById("fName").value.trim();
+    /* أرقام عربية-هندية قد تدخل الحقل رغم lang="en" (بعض لوحات المفاتيح
+       تتجاهل الـlang) — راجع [[feedback_arabic_numerals_email_exception]].
+       تصحّح هنا أيضاً كخط دفاع ثانٍ عند الحفظ، فوق التصحيح الفوري أثناء
+       الكتابة (مستمع "input" أسفل). */
+    function laDigits(t) {
+      var fa = "۰۱۲۳۴۵۶۷۸۹";
+      return String(t == null ? "" : t)
+        .replace(/[٠-٩۰-۹]/g, function (d) {
+          var code = d.charCodeAt(0);
+          if (code >= 0x0660 && code <= 0x0669) return String(code - 0x0660);
+          var fi = fa.indexOf(d);
+          return fi >= 0 ? String(fi) : d;
+        });
+    }
+    var phone = laDigits(document.getElementById("fPhone").value).replace(/[^0-9]/g, "");
+    var mail  = laDigits(document.getElementById("fMail").value.trim());
+    var role  = document.getElementById("fRole").value;
+    if (!T.roles[role]) role = editing ? editing.role : "lawyer";   // لا يُحفظ دور تالف
+
+    if (!name)  { alert("اكتب اسم العضو.");  document.getElementById("fName").focus();  return; }
+    if (!phone) { alert("رقم التليفون مطلوب — به تصله التكليفات على واتساب.");
+                  document.getElementById("fPhone").focus(); return; }
+    if (phone.length < 10) { alert("الرقم قصير. اكتبه بالصيغة الدولية، مثال 201001234567.");
+                  document.getElementById("fPhone").focus(); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) {
+                  alert("البريد الإلكتروني غير صحيح.");
+                  document.getElementById("fMail").focus(); return; }
+
+    var dup = T.users.filter(function (x) {
+      return x !== editing && (String(x.email || "").toLowerCase() === mail.toLowerCase() || x.phone === phone);
+    })[0];
+    if (dup) { alert("هذا البريد أو الرقم مسجَّل بالفعل باسم: " + dup.name); return; }
+
+    var extra = {
+      idNo: laDigits(document.getElementById("fIdNo").value).replace(/[^0-9]/g, ""),
+      qaidNo: laDigits(document.getElementById("fQaidNo").value).trim(),
+      qaidDeg: document.getElementById("fQaidDeg").value,
+      gov: document.getElementById("fGov").value.trim(),
+      area: document.getElementById("fArea").value.trim(),
+      cardImg: cardImg
+    };
+    if (extra.idNo && extra.idNo.length !== 14) { alert("الرقم القومي 14 رقماً."); document.getElementById("fIdNo").focus(); return; }
+    if (editing) {
+      editing.name = name; editing.phone = phone;
+      editing.email = mail; editing.role = role;
+      Object.keys(extra).forEach(function (k) { editing[k] = extra[k]; });
+    } else {
+      var nu = { id: "u" + Date.now(), name: name, phone: phone,
+                 email: mail, role: role, active: true };
+      Object.keys(extra).forEach(function (k) { nu[k] = extra[k]; });
+      T.users.push(nu);
+    }
+    Team.save();
+    if (window.ContactsSync) {
+      try { ContactsSync.syncLawyer(name, phone, mail); } catch (e) { }
+    }
+    closeForm();
+    drawAll();
+  };
+
+  /* -------------------------------------------------------------- الصلاحيات */
+  function drawRoles() {
+    var sel = document.getElementById("roleSel");
+    if (!sel.options.length) {
+      /* غير المدير أولاً: القائمة كانت تفتح على «مدير المكتب» فينزع
+         المستخدم الرؤية عن نفسه وهو يظن أنه يقيّد المحامين. */
+      var keys = Object.keys(T.roles).filter(function (k) { return k !== "owner"; })
+                 .concat(Object.keys(T.roles).filter(function (k) { return k === "owner"; }));
+      keys.forEach(function (k) {
+        var o = document.createElement("option");
+        o.value = k;
+        o.textContent = T.roles[k].name + (k === "owner" ? "  — كامل الصلاحيات" : "");
+        sel.appendChild(o);
+      });
+      sel.onchange = drawPerms;
+    }
+    drawPerms();
+  }
+
+  function drawPerms() {
+    var k = document.getElementById("roleSel").value;
+    var role = T.roles[k];
+    var box = document.getElementById("perms");
+    box.innerHTML = "";
+
+    var isOwner = (k === "owner");
+    var myRole  = Team.current().role;
+
+    /* لافتة تقول صراحةً أي دور تُعدّل — لا يبقى الأمر ملتبساً */
+    var note = el("div",
+      "background:" + (isOwner ? "#e6f3ea" : "var(--bg,#f4ece0)") + ";" +
+      "border-radius:10px;padding:11px 13px;margin-bottom:12px;" +
+      "font-size:13.5px;line-height:1.95;color:" + (isOwner ? "#1c6b3a" : "var(--text)"));
+    note.textContent = isOwner
+      ? "✔ «مدير المكتب» صلاحياته كاملة دائماً: عرض وتعديل في كل الأقسام والشاشات، " +
+        "ولا تُقيَّد بأي خانة (تظهر مقفولة لأنها مفعَّلة دائماً — وليست للقراءة فقط)."
+      : "أنت تُعدّل صلاحيات: " + role.name + "." +
+        (k === myRole ? "  وهذا دورك أنت — انتبه." : "");
+    box.appendChild(note);
+
+    Object.keys(Team.SECTIONS).forEach(function (s) {
+      var row = el("div"); row.className = "perm";
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = isOwner ? true : (role.perms.indexOf(s) >= 0);
+      cb.id = "p_" + s;
+      cb.disabled = isOwner;
+
+      cb.onchange = function () {
+        /* لا يُنزع باب الصلاحيات عن الدور الذي تستعمله أنت الآن */
+        if (!cb.checked && s === "team" && k === myRole) {
+          alert("لا يمكن نزع «المحامون والصلاحيات» عن دورك أنت — " +
+                "وإلا لن تجد طريقاً للرجوع.");
+          cb.checked = true;
+          return;
+        }
+        if (cb.checked) {
+          if (role.perms.indexOf(s) < 0) role.perms.push(s);
+        } else {
+          role.perms = role.perms.filter(function (x) { return x !== s; });
+        }
+        Team.save();
+        /* توصل لأجهزة المحامين على طول (مستند المكتب على السحابة) */
+        if (Team.pushRoles) Team.pushRoles(true);
+      };
+
+      var lb = document.createElement("label");
+      lb.setAttribute("for", cb.id);
+      lb.textContent = Team.SECTIONS[s];
+      if (isOwner) lb.style.color = "var(--muted)";
+      row.appendChild(cb); row.appendChild(lb);
+      box.appendChild(row);
+    });
+
+    /* §8 جدول الصلاحيات التفصيلي لكل شاشة — لكلٍّ: لا شيء / عرض / عرض وتعديل */
+    if (Team.PERMKEYS) {
+      box.appendChild(el("div", "font-family:var(--f-title);font-size:14px;margin:16px 0 8px;" +
+        "color:var(--brand-dark);border-top:1px solid var(--line);padding-top:12px",
+        "صلاحيات الشاشات التفصيلية"));
+      var levels = Team.roleLevels(k);
+      var LV = [["none", "لا شيء", "#b3261e"], ["view", "عرض", "#b3792a"], ["edit", "عرض وتعديل", "#1c8a4a"]];
+      Object.keys(Team.PERMKEYS).forEach(function (key) {
+        var r = el("div", "display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap");
+        r.appendChild(el("div", "flex:1 1 120px;font-size:13px;color:var(--brand-dark)", Team.PERMKEYS[key]));
+        var grp = el("div", "display:flex;gap:4px");
+        LV.forEach(function (lv) {
+          var cur = isOwner ? "edit" : levels[key];
+          var b = document.createElement("button");
+          b.type = "button"; b.textContent = lv[1];
+          var on = cur === lv[0];
+          b.style.cssText = "min-height:36px;padding:5px 11px;border-radius:8px;font-family:inherit;" +
+            "font-size:12px;border:1px solid " + lv[2] + ";background:" + (on ? lv[2] : "transparent") +
+            ";color:" + (on ? "#fff" : lv[2]);
+          b.disabled = isOwner;
+          b.onclick = function () { Team.setRoleLevel(k, key, lv[0]); if (Team.pushRoles) Team.pushRoles(true); drawPerms(); };
+          grp.appendChild(b);
+        });
+        r.appendChild(grp);
+        box.appendChild(r);
+      });
+    }
+  }
+
+  /* -------------------------------------------- أعضاء المكتب الفعليون
+     (Firebase) — منفصلون تماماً عن القائمة المحلية أعلاه. القائمة المحلية
+     (T.users) وهمية لتجربة الأدوار على هذا الجهاز فقط ولا تملك uid حقيقياً،
+     فحذف عضو منها لا يمس وصوله الفعلي لبيانات المكتب على السحابة إطلاقاً —
+     وهذا بالضبط ما لاحظه صاحب المكتب. الحذف الحقيقي (الذي يمنع الوصول
+     فعلياً ويمسح بيانات جهاز العضو المحذوف عند فتحه التطبيق التالي — انظر
+     wipeAndLockOut في team.js) يحتاج uid الحقيقي من Firestore، ولذلك هذا
+     القسم يقرأ العضوية من offices/{officeId}/users مباشرة. */
+  function fsStr(doc, k) {
+    var f = doc.fields || {};
+    return (f[k] && f[k].stringValue) || "";
+  }
+  function fsBool(doc, k) {
+    var f = doc.fields || {};
+    return !!(f[k] && f[k].booleanValue);
+  }
+  function docUid(doc) {
+    var parts = String(doc.name || "").split("/");
+    return parts[parts.length - 1];
+  }
+
+  function drawCloudMembers() {
+    var box = document.getElementById("cloudMembers");
+    var title = document.getElementById("cloudMembersTitle");
+    var note = document.getElementById("cloudNote");
+    var addBtn = document.getElementById("addCloud");
+    box.innerHTML = "";
+    if (!window.CloudStore || !window.CloudStore.whenReady) return;
+    window.CloudStore.whenReady(function (ok) {
+      if (!ok) return;
+      note.textContent = " أعضاء المكتب المسجَّلون فعلاً على السحابة في القسم التالي — الحذف منه حقيقي.";
+      window.Auth.whenKnown(function (me) {
+        var myUid = me && me.uid;
+        var url = window.CloudStore._internal.officeUrl() + "/users?pageSize=300";
+        window.CloudStore._internal.authedRequest("GET", url, null).then(function (r) {
+          if (!r.ok) {
+            /* كان بيسيب القسم فاضي من غير أي تفسير */
+            title.hidden = false;
+            box.appendChild(el("div", "color:#7a5c14;background:#fff5e0;border-radius:9px;font-size:13px;padding:9px 12px;line-height:1.9",
+              r.status === 429
+                ? "مش قادرين نعرض أعضاء المكتب دلوقتي — السحابة وصلت لحد القراءات اليومي المجاني، وبيرجع لوحده كل يوم الساعة ١٠ الصبح تقريباً."
+                : "تعذّر تحميل أعضاء المكتب من السحابة الآن (خطأ " + (r.status || "اتصال") + ") — جرّب تاني بعد شوية."));
+            return;
+          }
+          var docs = (r.data && r.data.documents) || [];
+          var mine = docs.filter(function (d) { return docUid(d) === myUid; })[0];
+          var iAmOwner = mine && fsStr(mine, "role") === "owner";
+          title.hidden = false;
+          addBtn.hidden = !iAmOwner;
+          document.getElementById("bulkInvite").hidden = !iAmOwner;
+          document.getElementById("auditLink").hidden = !iAmOwner;
+          if (!docs.length) {
+            box.appendChild(el("div", "color:var(--muted);font-size:13px;padding:6px",
+              "لا أعضاء مسجَّلون بعد على السحابة."));
+            return;
+          }
+          docs.forEach(function (doc) {
+            var uid = docUid(doc);
+            var role = fsStr(doc, "role") || "—";
+            var email = fsStr(doc, "email");
+            var active = fsBool(doc, "active");
+            var c = el("div"); c.className = "u-card";
+            var isMe = uid === myUid;
+            c.innerHTML =
+              '<div class="u-top"><span class="u-name">' + (email || uid) + '</span>' +
+              '<span class="pill' + (isMe ? ' me' : '') + '">' + role +
+              (isMe ? " — أنت" : "") + '</span></div>' +
+              '<div class="u-sub">' + (active ? "نشط" : "غير نشط") +
+              (email ? " · ✉ " + email : "") + '</div>';
+            if (!isMe && iAmOwner) {
+              var act = el("div"); act.className = "u-act";
+              var delB = document.createElement("button");
+              delB.type = "button"; delB.textContent = "🗑 حذف نهائي";
+              delB.style.color = "#b3261e";
+              delB.onclick = function () { confirmHardDelete(uid, email || uid); };
+              act.appendChild(delB);
+              c.appendChild(act);
+            }
+            box.appendChild(c);
+          });
+        });
+      });
+    });
+  }
+
+  /** حذف نهائي حقيقي: يحذف مستند عضويته في المكتب (offices/{id}/users/{uid})
+      — فتُرفض كل قراءاته/كتاباته السحابية فوراً حسب قواعد الأمان (isMember
+      تتحقق من وجود هذا المستند). وعند فتحه التطبيق تالياً على جهازه (انظر
+      team.js) يُمسح جهازه بالكامل ويخرج تلقائياً — فلا يبقى معه أي بيان. */
+  function confirmHardDelete(uid, label) {
+    Ask.confirm("حذف « " + label + " » نهائياً من المكتب؟", {
+      danger: true, ok: "حذف نهائي",
+      detail: "سيُمنع فوراً من أي وصول لبيانات المكتب على السحابة. وفي المرة " +
+        "القادمة التي يفتح فيها التطبيق على جهازه، تُمسح كل البيانات من " +
+        "جهازه ويُسجَّل خروجه تلقائياً — إجراء لا رجعة فيه."
+    }, function () {
+      var url = window.CloudStore._internal.officeUrl() + "/users/" + encodeURIComponent(uid);
+      window.CloudStore._internal.authedRequest("DELETE", url, null).then(function (r) {
+        if (!r.ok) { alert("تعذّر الحذف — تحقّق من الاتصال."); return; }
+        drawCloudMembers();
+      }).catch(function () { alert("تعذّر الحذف — تحقّق من الاتصال."); });
+    });
+  }
+
+  /* ------------------------------------- إضافة عضو مكتب حقيقي (Firebase)
+
+     الزر ده بيظهر للمدير بس (owner فعلي على السحابة). بينشئ حساب Firebase
+     Auth جديد بإيميل/باسورد حقيقيين عبر Identity Toolkit REST مباشرة (بلا
+     مرور على Auth.login — عشان ميغيّرش جلسة المدير الحالي نهائياً)، وبعدين
+     يكتب مستند offices/{officeId}/users/{uid} بنفس الدور المختار — فيبقى
+     العضو الجديد قادر يدخل فوراً بإيميله وكلمة سره، وياخد بالظبط الصلاحيات
+     اللي اتحددتله، ولو اتمسح لاحقاً (زرار "حذف نهائي" أعلاه) يتقفل وصوله
+     ويتمسح جهازه تلقائياً في فتحة التطبيق الجاية (wipeAndLockOut بteam.js). */
+  function fillCloudRoleSelect() {
+    var sel = document.getElementById("cRole");
+    sel.innerHTML = "";
+    Object.keys(T.roles).forEach(function (r) {
+      if (r === "owner" || r === "client") return;
+      var o = document.createElement("option");
+      o.value = r; o.textContent = roleName(r);
+      sel.appendChild(o);
+    });
+  }
+
+  /* ----------------------------------------------------------------------
+     الدعوات: invites/{email} فيها (المكتب/الاسم/الدور) فقط، وinviteSecrets/{email} فيها سرّ التليفون.
+     الدعوة لا تُقرأ إلا بحساب صاحب الإيميل (لا قراءة عامة)، وسرّ التليفون لا يقرأه إلا المدير —
+     السيرفر وحده يقارنه عند انضمام العضو. الدور لازم يكون دوراً حقيقياً (مش مدير ولا موكل). */
+  function laDigitsT(t) {
+    return String(t == null ? "" : t).replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x0660; })
+      .replace(/[۰-۹]/g, function (d) { return d.charCodeAt(0) - 0x06F0; });
+  }
+  function phoneKeyOf(v) { var d = laDigitsT(v).replace(/[^0-9]/g, ""); return d.length > 9 ? d.slice(-9) : d; }
+  function inviteRoleOk(role) {
+    return !!role && role !== "owner" && role !== "client" && role !== "none" && !!T.roles[role];
+  }
+  /** يكتب الدعوة + سرّها. cb(ok, why) */
+  function saveInvite(email, name, phone, role, officeId, cb) {
+    if (!inviteRoleOk(role)) { cb(false, "bad-role"); return; }
+    if (phoneKeyOf(phone).length < 7) { cb(false, "bad-phone"); return; }
+    var I = window.CloudStore._internal, projUrl = I.projectUrl(), e = encodeURIComponent(email);
+    I.authedRequest("PATCH", projUrl + "/inviteSecrets/" + e, { fields: {
+      officeId: { stringValue: officeId }, phone: { stringValue: phone },
+      phoneKey: { stringValue: phoneKeyOf(phone) } } })
+      .then(function (r1) {
+        if (!r1.ok) { cb(false, "secret:" + r1.status); return; }
+        return I.authedRequest("PATCH", projUrl + "/invites/" + e, { fields: {
+          officeId: { stringValue: officeId }, name: { stringValue: name || "" },
+          role: { stringValue: role } } })
+          .then(function (r2) { cb(!!r2.ok, r2.ok ? "saved" : "invite:" + r2.status); });
+      })
+      .catch(function (err) { cb(false, "throw:" + (err && err.message || err)); });
+  }
+
+  function addCloudMember() {
+    var name  = document.getElementById("cName").value.trim();
+    var email = document.getElementById("cMail").value.trim().toLowerCase();
+    var phone = document.getElementById("cPhone").value.trim();
+    var role  = document.getElementById("cRole").value;
+    if (!name) { alert("اكتب اسم العضو."); return; }
+    if (!email || email.indexOf("@") < 0) { alert("اكتب بريداً إلكترونياً صحيحاً."); return; }
+    if (phoneKeyOf(phone).length < 7) { alert("اكتب رقم تليفون العضو — هو اللي بيتحقق منه السيرفر عند أول دخول."); return; }
+    if (!inviteRoleOk(role)) { alert("اختر دوراً صالحاً للعضو."); return; }
+    if (!window.CloudStore || !window.CloudStore._internal) { alert("الاتصال بالسحابة غير متاح."); return; }
+
+    var saveBtn = document.getElementById("cSave");
+    var oldTxt = saveBtn.textContent;
+    saveBtn.disabled = true; saveBtn.textContent = "جارٍ الحفظ…";
+
+    var officeId = window.CloudStore._internal.officeUrl().split("/").pop();
+    saveInvite(email, name, phone, role, officeId, function (ok) {
+      saveBtn.disabled = false; saveBtn.textContent = oldTxt;
+      if (!ok) { alert("تعذّر حفظ الدعوة — تحقّق من الاتصال."); return; }
+      document.getElementById("cName").value = "";
+      document.getElementById("cMail").value = "";
+      document.getElementById("cPhone").value = "";
+      document.getElementById("cloudForm").hidden = true;
+      alert("تم حفظ دعوة " + name + " بدور «" + roleName(role) + "» — يقدر يدخل بنفسه بإيميله ورقم تليفونه من شاشة الدخول (\"أول مرة تستخدم البرنامج؟\") ويحط كلمة سره.");
+    });
+  }
+
+  /* دعوة عضو واحد (تُنشأ فقط لو مش موجودة أصلاً) — يشترك فيها الرفع الدفعي
+     وإرسال التطبيق بواتساب (sendApp)، عشان أي محامٍ يتبعتله التطبيق تبقى
+     دعوته مسجَّلة أكيد على فيربيز قبل ما يوصله، فـ"أول مرة" تشتغل معاه
+     من غير ما المدير ينسى يضيفه يدوياً في نموذج منفصل. */
+  /** إيميلات الأعضاء اللي ليهم حساب فعلاً على المكتب (offices/{id}/users) — العضو
+      المسجّل مش محتاج دعوة، ودعوته بعد ما اتستهلكت بيرفضها فيربيز (403)، فكان
+      «إرسال التطبيق» بيقف عند «تعذّر تسجيل دعوته» لأحمد سامي (٧-١٠-٢٠٢٦). */
+  function cloudMemberEmails(cb) {
+    var I = window.CloudStore._internal;
+    I.authedRequest("GET", I.officeUrl() + "/users?pageSize=300", null).then(function (r) {
+      var set = {};
+      ((r.ok && r.data && r.data.documents) || []).forEach(function (d) {
+        var e = d.fields && d.fields.email && d.fields.email.stringValue;
+        if (e) set[e.trim().toLowerCase()] = 1;
+      });
+      cb(set);
+    }).catch(function () { cb({}); });
+  }
+  function ensureInviteFor(u, cb) {
+    if (!window.CloudStore || !window.CloudStore._internal || !window.CloudStore.whenReady || !(u.email || "").trim()) { cb(false); return; }
+    /* باگ حقيقي كان هنا: officeUrl()/officeId مايتحدَّدش إلا بعد resolveOffice
+       (يجري في الخلفية بعد تحميل الصفحة) — فلو المستخدم دوس "إرسال التطبيق"
+       بسرعة قبل ما يخلص، كانت الدعوة تتكتب بـofficeId="null" فيترفضها
+       فيربيز (isOwner يفشل) ويطلع "تعذّر التسجيل" دايماً تقريباً، حتى مع
+       اتصال سليم. الحل: ننتظر CloudStore.whenReady قبل أي قراءة/كتابة. */
+    window.CloudStore.whenReady(function (ok) {
+      if (!ok) { cb(false, "whenReady:false"); return; }
+      var officeUrl = window.CloudStore._internal.officeUrl();
+      var officeId = officeUrl.split("/").pop();
+      if (!officeId || officeId === "null") { cb(false, "officeId-missing:" + officeUrl); return; }
+      var projUrl = window.CloudStore._internal.projectUrl();
+      var email = u.email.trim().toLowerCase();
+      var docUrl = projUrl + "/invites/" + encodeURIComponent(email);
+      cloudMemberEmails(function (members) {
+      if (members[email]) { cb(true, "member"); return; }
+      window.CloudStore._internal.authedRequest("GET", docUrl, null).then(function (r) {
+        if (r.ok && r.data && r.data.fields) { cb(true, "exists"); return; }
+        saveInvite(email, u.name || "", u.phone || "", u.role || "", officeId, function (ok, why) {
+          cb(ok, ok ? "created" : why);
+        });
+      }).catch(function (e) { cb(false, "get-throw:" + (e && e.message || e)); });
+      });
+    });
+  }
+
+  /* رفع دفعي: كل عضو في القائمة المحلية (T.users) — اللي هي محلية بحتة
+     ومفيش أي ربط تلقائي بينها وبين دعوات فيربيز — يتفحّص: لو مفيش دعوة
+     مسجَّلة بإيميله ولا حساب سحابي فعّال، تتكتب له دعوة invites/{email}
+     زي بالظبط ما لو اتضاف يدوياً من "+ إضافة محامٍ جديد". الموجودين
+     بالفعل (دعوة أو حساب) يتخطّون بلا تعديل. */
+  function bulkInviteAll() {
+    if (!window.CloudStore || !window.CloudStore._internal) { alert("الاتصال بالسحابة غير متاح."); return; }
+    var candidates = T.users.filter(function (u) {
+      return u.role !== "owner" && u.role !== "client" && (u.email || "").trim().indexOf("@") > 0;
+    });
+    if (!candidates.length) { alert("لا يوجد أعضاء محليين ببريد إلكتروني لرفعهم."); return; }
+    var btn = document.getElementById("bulkInvite");
+    var rep = document.getElementById("bulkInviteReport");
+    btn.disabled = true; var oldTxt = btn.textContent; btn.textContent = "جارٍ الفحص والرفع…";
+    rep.textContent = "";
+    var officeUrl = window.CloudStore._internal.officeUrl();
+    var officeId = officeUrl.split("/").pop();
+    var projUrl = window.CloudStore._internal.projectUrl();
+    var created = [], skipped = [], failed = [], updated = [];
+    var i = 0, members = {};
+    function next() {
+      if (i >= candidates.length) {
+        btn.disabled = false; btn.textContent = oldTxt;
+        rep.innerHTML =
+          (created.length ? "✅ اتضافت دعوة لـ" + created.length + ": " + created.join("، ") + "<br>" : "") +
+          (updated.length ? "✏ اتحدّثت/اترحّلت دعوة " + updated.length + ": " + updated.join("، ") + "<br>" : "") +
+          (skipped.length ? "↷ متخطّى (موجود مسبقاً) " + skipped.length + ": " + skipped.join("، ") + "<br>" : "") +
+          (failed.length ? "⚠ فشل " + failed.length + ": " + failed.join("، ") : "");
+        return;
+      }
+      var u = candidates[i]; i++;
+      var email = u.email.trim().toLowerCase();
+      if (members[email]) { skipped.push(u.name + " (عنده حساب)"); next(); return; }
+      var docUrl = projUrl + "/invites/" + encodeURIComponent(email);
+      window.CloudStore._internal.authedRequest("GET", docUrl, null).then(function (r) {
+        var f = r.ok && r.data && r.data.fields;
+        /* دعوة موجودة: نحافظ على دورها كما حدّده المدير، ونكتب لها سرّ التليفون (ترحيل الدعوات القديمة
+           اللي كان التليفون فيها مكشوفاً داخل الدعوة نفسها). دعوة جديدة: بدور العضو المحلي. */
+        var role = (f && f.role && f.role.stringValue) || u.role || "";
+        if (!inviteRoleOk(role)) { failed.push(u.name + " (دور غير صالح)"); next(); return; }
+        if (phoneKeyOf(u.phone).length < 7) { failed.push(u.name + " (بلا رقم تليفون)"); next(); return; }
+        var nm = (f && f.name && f.name.stringValue) || u.name || "";
+        saveInvite(email, u.name || nm, u.phone || "", role, officeId, function (ok) {
+          if (!ok) failed.push(u.name); else (f ? updated : created).push(u.name);
+          next();
+        });
+      }).catch(function () { failed.push(u.name); next(); });
+    }
+    cloudMemberEmails(function (m) { members = m; next(); });
+  }
+  document.getElementById("bulkInvite").onclick = function () {
+    Ask.confirm("رفع دعوات لكل الأعضاء المحليين (" + T.users.filter(function (u) {
+      return u.role !== "owner" && u.role !== "client" && (u.email || "").trim().indexOf("@") > 0;
+    }).length + ") اللي لسه مالهمش دعوة على السحابة؟", { ok: "ابدأ الرفع" }, bulkInviteAll);
+  };
+
+  document.getElementById("addCloud").onclick = function () {
+    fillCloudRoleSelect();
+    document.getElementById("cloudForm").hidden = false;
+    document.getElementById("cName").focus();
+  };
+  document.getElementById("cCancel").onclick = function () {
+    document.getElementById("cloudForm").hidden = true;
+  };
+  document.getElementById("cSave").onclick = addCloudMember;
+
+  /* «قضايا المحامين» — لمدير المكتب بس (team.js/case-scope.js) */
+  function drawScope() {
+    var show = Team.current().role === "owner" && Team.lawyerScope && !Team.isClean;
+    document.getElementById("scopeTitle").hidden = !show;
+    document.getElementById("scopeCard").hidden = !show;
+    if (!show) return;
+    var cur = Team.lawyerScope();
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="lawyerScope"]'), function (r) {
+      r.checked = r.value === cur;
+      r.onchange = function () {
+        if (!r.checked) return;
+        Team.setLawyerScope(r.value);
+        if (window.PL && PL.toast) PL.toast("اتحفظ", r.value === "mine" ? "كل محامي هيشوف قضاياه بس." : "المحامين هيشوفوا كل القضايا.", "");
+      };
+    });
+  }
+  /* ١٫٥١: كل جهاز بيسجّل نسخته مرة في اليوم (records/devices) + استهلاك الجهاز ده النهارده */
+  function drawDevices() {
+    var box = document.getElementById("devicesBox"), title = document.getElementById("devicesTitle");
+    if (!box || Team.current().role !== "owner" || !window.CloudStore || !CloudStore.collection) return;
+    var b = CloudStore.budget ? CloudStore.budget() : null;
+    CloudStore.collection.list("devices", function (list) {
+      title.hidden = false;
+      var latest = 0;
+      (list || []).forEach(function (d) { latest = Math.max(latest, +d.appVer || 0); });
+      var rows = (list || []).sort(function (a, b2) { return String(b2.at) < String(a.at) ? -1 : 1; }).map(function (d) {
+        var old = latest && (+d.appVer || 0) < latest;
+        return '<div style="padding:6px 0;border-bottom:1px dashed var(--line,#ddd)">' +
+          '<b>' + (d.name || d.email || "—") + '</b> <span style="color:var(--muted)">' + (d.device || "") + '</span><br>' +
+          'نسخة ' + (d.appVer || "؟") + (old ? ' <span style="color:#b3261e">⚠ قديمة</span>' : "") +
+          ' · آخر ظهور ' + String(d.at || "").slice(0, 10) + (d.clean ? " · نسخة المحامين" : "") + '</div>';
+      });
+      box.innerHTML = (rows.join("") || '<div style="color:var(--muted)">لسه مفيش أجهزة سجّلت — بتسجّل أول ما تفتح نسخة ١٫٥١.</div>') +
+        (b ? '<div style="margin-top:8px;color:var(--muted)">الجهاز ده النهارده: ' + b.reads + ' قراءة من ' + b.capReads +
+          ' · ' + b.writes + ' كتابة من ' + b.capWrites + '</div>' : "");
+    });
+  }
+  function drawAll() { roleOptions(); drawMe(); drawList(); drawRoles(); drawCloudMembers(); drawScope(); drawDevices(); }
+  /* القائمة اتحدّثت من جهاز تاني (مزامنة records/team) */
+  window.addEventListener("team:synced", function () { T = Team.data; drawAll(); });
+  drawAll();
+})();
+</script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مركز التنبيهات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="index.html">→</a>
+    <h1>مركز التنبيهات</h1>
+    <span class="screen-id">PRO-02</span>
+  </div>
+
+
+  <main>
+
+    <div class="soundbar">
+      <span>صوت التنبيهات</span>
+      <button type="button" class="btn sm" data-sound-toggle>الصوت: مفعّل 🔊</button>
+      <button type="button" class="btn sm ghost" data-sound-test="">عادي</button>
+      <button type="button" class="btn sm ghost" data-sound-test="urgent">عاجل</button>
+    </div>
+
+    <div class="chips" id="alertChips">
+      <button class="on" data-filter="all">الكل</button>
+      <button data-filter="sessions">جلسات</button>
+      <button data-filter="papers">أوراق محضرين</button>
+      <button data-filter="appeal">مواعيد طعن</button>
+      <button data-filter="appts">مواعيد</button>
+      <button data-filter="birthday">أعياد ميلاد</button>
+    </div>
+
+    <section class="card" id="bdayCard" style="display:none">
+      <header>🎂 أعياد ميلاد النهارده <span class="hint">الرسالة بتتفتح جاهزة، وإنت اللي بتدوس إرسال</span></header>
+      <div class="body" style="padding:0" id="alBirthdays"></div>
+    </section>
+
+    <section class="card" id="attFeedCard" style="display:none">
+      <header>رسائل موقع المحامين <span class="hint">الأحمر = إدخال يدوي أو وقت مشكوك فيه</span></header>
+      <div class="body" style="padding:0" id="attFeed"></div>
+    </section>
+
+    <!-- F-REP-2: الشاشة كانت صورة ثابتة؛ دلوقتي بتتملى من محرك التنبيهات الحقيقي (reminders.js) -->
+    <section class="card">
+      <header>عاجل <span class="hint">التنبيه شغال دلوقتي</span></header>
+      <div class="body" style="padding:0" id="alUrgent"></div>
+    </section>
+
+    <section class="card">
+      <header>قادم <span class="hint">خلال ٣٠ يوم</span></header>
+      <div class="body" style="padding:0" id="alUpcoming"></div>
+    </section>
+
+    <section class="card">
+      <header>إعدادات التنبيه</header>
+      <div class="body">
+        <div class="field">
+          <label class="lbl">التنبيهات</label>
+          <div class="choices">
+            <label><input type="radio" name="alOn" value="on"><span>مُفعّلة</span></label>
+            <label><input type="radio" name="alOn" value="off"><span>مقفولة</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">تنبيه الجلسات</label>
+          <input type="number" id="alSessDays" min="1" max="30" style="width:90px"> يوم قبل الجلسة
+        </div>
+        <div class="field">
+          <label class="lbl">ساعة التنبيه للجلسة اللي مالهاش ساعة</label>
+          <input type="number" id="alHour" min="0" max="23" style="width:90px"> (٠–٢٣)
+        </div>
+        <div class="note">أوراق المحضرين: تنبيه يومي من ٥ أيام قبل الجلسة لحد ما تتعلّم «تم الاستلام». مواعيد الطعن: تنبيه يومي من أسبوع قبل آخر ميعاد (ممتد للعطلات).</div>
+      </div>
+    </section>
+
+    <section class="card" id="bdaySettings" style="display:none">
+      <header>رسالة تهنئة عيد الميلاد <span class="hint">{الاسم} بيتبدّل باسم الموكل</span></header>
+      <div class="body">
+        <div class="field">
+          <label class="lbl" for="bdayTplAr">النص العربي</label>
+          <textarea id="bdayTplAr" rows="6" dir="rtl" data-nosave="1"></textarea>
+        </div>
+        <div class="field">
+          <label class="lbl" for="bdayTplEn">English (للموكل الأجنبي)</label>
+          <textarea id="bdayTplEn" rows="5" dir="ltr" lang="en" data-latin="1" data-nosave="1"></textarea>
+        </div>
+        <button type="button" class="btn" id="bdayTplSave">حفظ النص</button>
+        <button type="button" class="btn ghost" id="bdayTplReset">رجّع النص الأصلي</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="legal">PRO-02 · مركز التنبيهات</footer>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script>
+/* رسائل موقع المحامين (بيملاها attendance.js على جهاز المدير) — بتتعلّم «مقروءة» بمجرد ما تتعرض */
+(function () {
+  var f = [];
+  try { f = JSON.parse(localStorage.getItem("proflawyer.att.feed.v1") || "[]") || []; } catch (e) { }
+  if (!f.length) return;
+  function ar(v) { return String(v).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }); }
+  function el(t, cls, txt) { var e = document.createElement(t); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  var box = document.getElementById("attFeed");
+  document.getElementById("attFeedCard").style.display = "";
+  f.slice(0, 40).forEach(function (x) {
+    var it = el("div", "alert-item"); it.setAttribute("data-kind", "att");
+    if (!x.read) it.style.background = x.red ? "#fdecea" : "#eaf5ef";
+    var dt = el("span", "dot " + (x.red ? "red" : "")); if (!x.red) dt.style.background = "#1c6b4a"; it.appendChild(dt);
+    var tx = el("div", "txt");
+    tx.appendChild(el("strong", "", (x.name || x.email) + " — " + (x.kind === "court" ? "المحكمة" : "المكتب") + " الساعة " + ar(x.time || "—")));
+    tx.appendChild(document.createTextNode(" — " + ar(String(x.date || "").split("-").reverse().join("/")) +
+      (x.kind === "court" ? " · " + (x.loc || "—") + (x.task ? " · المهمة: " + x.task : "") : "")));
+    var fl = el("div", "when", x.flag || ""); fl.style.color = x.red ? "#b3261e" : "#1c6b4a"; fl.style.fontWeight = "700";
+    tx.appendChild(fl);
+    if (x.place) tx.appendChild(el("div", "when", x.place));
+    it.appendChild(tx);
+    it.style.cursor = "pointer";
+    it.onclick = function () { location.href = "99-attendance.html"; };
+    box.appendChild(it);
+  });
+  f.forEach(function (x) { x.read = true; });
+  try { localStorage.setItem("proflawyer.att.feed.v1", JSON.stringify(f)); } catch (e) { }
+})();
+</script>
+<script>
+/* تهنئة عيد الميلاد: لكل موكل واتساب/إيميل/تخطي، والمحاولة بتتسجل علشان ما تتكررش في نفس السنة */
+(function () {
+  "use strict";
+  var B = window.Birthdays;
+  if (!B || !B.isOwner()) return;
+  var VIA = { whatsapp: "فتحت واتساب", email: "فتحت الإيميل", skip: "اتخطّى" };
+  var lang = {};
+  function ar(v) { return String(v).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }); }
+  function el(t, cls, txt) { var e = document.createElement(t); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function btn(txt, cls, fn) {
+    var b = el("button", cls, txt); b.type = "button";
+    b.style.cssText = "min-height:42px;margin:6px 0 0 6px";
+    b.onclick = fn;
+    return b;
+  }
+  function open(url) { if (window.AndroidNotify) location.href = url; else window.open(url, "_blank"); }
+  function row(x) {
+    var c = x.c, it = el("div", "alert-item"); it.setAttribute("data-kind", "birthday");
+    var l = lang[c.id] || (B.isForeign(c) ? "en" : "ar"), phone = B.phoneOf(c), mail = B.emailOf(c);
+    var dot = el("span", "dot"); dot.style.background = x.greet ? "#1c6b4a" : "#c98a1b"; it.appendChild(dot);
+    var tx = el("div", "txt");
+    tx.appendChild(el("strong", "", c.name + (c.officeNo ? " (" + ar(c.officeNo) + ")" : "")));
+    function send(via, url) { return function () { if (B.mark(c.id, via)) { open(url); draw(); } else alert("تعذّر تسجيل التهنئة."); }; }
+    if (x.greet) {
+      tx.appendChild(el("div", "when", "✓ " + VIA[x.greet.via] + " — " + ar(x.greet.at.split("-").reverse().join("/"))));
+      tx.appendChild(btn("تراجع", "btn sm ghost", function () { B.unmark(c.id); draw(); }));
+    } else {
+      tx.appendChild(el("div", "when", [phone && ar("+" + phone), mail, l === "en" ? "الرسالة بالإنجليزي" : "الرسالة بالعربي"].filter(Boolean).join(" · ")));
+      var wa = btn("إرسال تهنئة واتساب", "btn sm", send("whatsapp", B.whatsappUrl(c, l))); wa.disabled = !phone;
+      var em = btn("إرسال بالإيميل", "btn sm ghost", send("email", B.mailUrl(c, l))); em.disabled = !mail;
+      tx.appendChild(wa); tx.appendChild(em);
+      tx.appendChild(btn("تخطي", "btn sm ghost", function () { B.mark(c.id, "skip"); draw(); }));
+      tx.appendChild(btn(l === "en" ? "عربي" : "English", "btn sm ghost", function () { lang[c.id] = l === "en" ? "ar" : "en"; draw(); }));
+    }
+    it.appendChild(tx);
+    return it;
+  }
+  var box = document.getElementById("alBirthdays"), card = document.getElementById("bdayCard");
+  function draw() {
+    var list = B.todayList();
+    box.textContent = "";
+    list.forEach(function (x) { box.appendChild(row(x)); });
+    card.style.display = list.length ? "" : "none";
+  }
+  var fA = document.getElementById("bdayTplAr"), fE = document.getElementById("bdayTplEn");
+  function fillTpl() { var t = B.templates(); fA.value = t.ar; fE.value = t.en; }
+  document.getElementById("bdaySettings").style.display = "";
+  document.getElementById("bdayTplSave").onclick = function () {
+    if (B.saveTemplates(fA.value, fE.value)) { fillTpl(); draw(); if (window.PL && PL.toast) PL.toast("اتحفظ", "نص تهنئة عيد الميلاد.", "ok"); }
+    else alert("تعذّر الحفظ — المساحة ممتلئة.");
+  };
+  document.getElementById("bdayTplReset").onclick = function () { fA.value = B.DEFAULTS.ar; fE.value = B.DEFAULTS.en; };
+  fillTpl(); draw();
+  B.pullTemplates(function (changed) { if (changed) { fillTpl(); draw(); } });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  if (!window.Reminders) return;
+  var KIND = { "جلسة": "sessions", "ورقة محضرين": "papers", "ميعاد طعن": "appeal" };
+  function ar(v) { return String(v).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; }); }
+  function el(t, cls, txt) { var e = document.createElement(t); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function dayIso(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function daysTo(iso) {
+    var p = String(iso || "").split("-"); if (p.length < 3) return null;
+    var t = new Date(); t.setHours(0, 0, 0, 0);
+    return Math.round((new Date(+p[0], +p[1] - 1, +p[2]) - t) / 864e5);
+  }
+  function whenText(x) {
+    var n = daysTo(x.date || dayIso(new Date(x.at)));
+    var what = x.kind === "ميعاد طعن" ? "آخر ميعاد" : x.kind === "ورقة محضرين" ? "الجلسة" : x.kind;
+    if (n == null) return "";
+    if (x.kind === "تجديد بطاقة") {
+      var t = n < 0 ? "البطاقة منتهية من " + ar(-n) + " يوم" : n === 0 ? "البطاقة بتنتهي النهارده" : "البطاقة بتنتهي بعد " + ar(n) + " يوم";
+      return t + " — اضغط لإرسال طلب البطاقة الجديدة للموكل";
+    }
+    if (n < 0) return what + " فات من " + ar(-n) + " يوم";
+    if (n === 0) return what + " النهارده";
+    if (n === 1) return what + " بكرة";
+    return what + " بعد " + ar(n) + " يوم";
+  }
+  function item(x, urgent) {
+    var n = daysTo(x.date || dayIso(new Date(x.at)));
+    var it = el("div", "alert-item"); it.setAttribute("data-kind", KIND[x.kind] || "appts");
+    it.appendChild(el("span", "dot " + (urgent || (n != null && n <= 1) ? "red" : n != null && n <= 3 ? "amber" : "blue")));
+    var tx = el("div", "txt");
+    tx.appendChild(el("strong", "", x.title || x.kind));
+    if (x.detail) tx.appendChild(document.createTextNode(" — " + x.detail));
+    tx.appendChild(el("div", "when", whenText(x)));
+    it.appendChild(tx);
+    if (x.caseId) { it.style.cursor = "pointer"; it.onclick = function () { location.href = "90-case-file.html?open=" + encodeURIComponent(x.caseId); }; }
+    /* تجديد بطاقة الموكل ← كارت الموكل وفيه زرار «طلب البطاقة المحدّثة» */
+    else if (x.clientQ) { it.style.cursor = "pointer"; it.onclick = function () { location.href = "89-clients.html?q=" + encodeURIComponent(x.clientQ); }; }
+    return it;
+  }
+  function empty(box, txt) { box.appendChild(el("div", "", txt)).style.cssText = "padding:16px;color:var(--muted);font-size:13.5px;text-align:center"; }
+  function draw() {
+    var now = Date.now(), horizon = now + 30 * 864e5;
+    var today = dayIso(new Date()), sod = new Date(); sod.setHours(0, 0, 0, 0);
+    /* اللي فات خلاص ما بقاش تنبيه — بنعرض النهارده وبعده بس */
+    /* البطاقات المنتهية بتفضل ظاهرة (لحد ٦٠ يوم) لحد ما الموكل يبعت الجديدة */
+    var grace = dayIso(new Date(Date.now() - 60 * 864e5));
+    var all = Reminders.items().filter(function (x) {
+      if (x.kind === "تجديد بطاقة" && x.date && x.date < today) return x.date >= grace;
+      return x.date ? x.date >= today : x.at >= sod.getTime();
+    });
+    var urgent = all.filter(function (x) { return x.at - (x.before || 0) * 60000 <= now; });
+    var soon = all.filter(function (x) { return urgent.indexOf(x) < 0 && x.at <= horizon; });
+    var U = document.getElementById("alUrgent"), S = document.getElementById("alUpcoming");
+    U.textContent = ""; S.textContent = "";
+    urgent.forEach(function (x) { U.appendChild(item(x, true)); });
+    soon.slice(0, 80).forEach(function (x) { S.appendChild(item(x, false)); });
+    if (!urgent.length) empty(U, "مفيش تنبيهات شغالة دلوقتي.");
+    if (!soon.length) empty(S, "مفيش جلسات ولا مواعيد خلال ٣٠ يوم.");
+    if (soon.length > 80) empty(S, "و" + ar(soon.length - 80) + " غيرهم — كلهم في التقويم.");
+  }
+  /* الإعدادات: نفس مخزن المحرك (proflawyer.remind.v1) */
+  var P = Reminders.prefs();
+  var onR = document.querySelector('input[name="alOn"][value="' + (P.on ? "on" : "off") + '"]'); if (onR) onR.checked = true;
+  var sd = document.getElementById("alSessDays"), hr = document.getElementById("alHour");
+  sd.value = Math.max(1, Math.round((P.sessionBefore || 1440) / 1440)); hr.value = P.hour;
+  function savePrefs() {
+    var on = (document.querySelector('input[name="alOn"]:checked') || {}).value !== "off";
+    var d = Math.min(30, Math.max(1, parseInt(sd.value, 10) || 1)), h = Math.min(23, Math.max(0, parseInt(hr.value, 10)));
+    Reminders.setPrefs({ on: on, sessionBefore: d * 1440, hour: isNaN(h) ? 9 : h });
+    draw();
+  }
+  document.querySelectorAll('input[name="alOn"]').forEach(function (r) { r.onchange = savePrefs; });
+  sd.onchange = savePrefs; hr.onchange = savePrefs;
+  draw();
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

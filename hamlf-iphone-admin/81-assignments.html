@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المحامي المحترف — التكليفات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .a-card { background:#fff; border:1px solid var(--line); border-radius:12px;
+            padding:13px; margin-bottom:10px; border-right:4px solid var(--line); }
+  .a-card.p-عاجل  { border-right-color:#b3261e; }
+  .a-card.p-عادي  { border-right-color:#c8a165; }
+  .a-top  { display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; }
+  .a-ttl  { font-weight:600; font-size:15px; flex:1; min-width:120px; line-height:1.6; }
+  .chip   { font-size:11.5px; padding:3px 9px; border-radius:20px; white-space:nowrap;
+            background:#efe7db; color:#5b3a21; }
+  .chip.s-جديد        { background:#e8eef7; color:#24487d; }
+  .chip.s-قيد-التنفيذ { background:#fdf3dd; color:#7a5c14; }
+  .chip.s-تم          { background:#e9f6ef; color:#14603a; }
+  .a-sub  { font-size:12.5px; color:var(--muted); margin-top:6px; line-height:1.9; }
+  .a-act  { display:flex; gap:7px; margin-top:11px; flex-wrap:wrap; }
+  .a-act button { flex:1 1 auto; min-width:76px; min-height:42px; font-family:inherit;
+            font-size:13px; border-radius:8px; border:1px solid var(--line);
+            background:#fff; color:var(--brand); }
+  .late   { color:#b3261e; font-weight:600; }
+  .fld    { margin-bottom:12px; }
+  .fld label { display:block; font-size:13px; font-weight:600; margin-bottom:5px; }
+  .fld input, .fld select, .fld textarea {
+            width:100%; min-height:46px; font-family:inherit; font-size:15px;
+            padding:10px; border:1px solid var(--line); border-radius:9px;
+            direction:rtl; text-align:right; background:#fff; }
+  .fld textarea { min-height:96px; line-height:1.8; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">→</a>
+    <h1>التكليفات</h1>
+    <span class="screen-id">ASG</span>
+  </div>
+
+  <main>
+
+    <div class="alertbox" style="background:#fff8e6;border-color:#eddaa8;color:#6b5330">
+      <strong>نموذج.</strong> التكليف يُحفظ على هذا الجهاز. الإرسال عبر واتساب أو
+      البريد يعمل فعلياً، لكن <em>حالة التنفيذ لا تعود تلقائياً</em> — ذلك يحتاج
+      حسابات على السيرفر.
+    </div>
+
+    <div class="section-title">تكليف جديد</div>
+    <div class="card" style="background:#fff;border:1px solid var(--line);
+         border-radius:12px;padding:14px;margin-bottom:16px">
+
+      <div class="fld">
+        <label for="to">المكلَّف</label>
+        <select id="to"></select>
+      </div>
+
+      <div class="fld">
+        <label for="subject">الموضوع</label>
+        <input type="text" id="subject" lang="ar" dir="rtl"
+               placeholder="مثال: حضور جلسة ١٢٣٤ لسنة ٢٠٢٦">
+      </div>
+
+      <div class="fld">
+        <label for="file">رقم الملف / القضية</label>
+        <input type="text" id="file" lang="ar" dir="rtl" placeholder="اختياري">
+      </div>
+
+      <div class="fld">
+        <label for="due">الموعد النهائي</label>
+        <input type="date" id="due">
+      </div>
+
+      <div class="fld">
+        <label for="prio">الأولوية</label>
+        <select id="prio">
+          <option>عادي</option>
+          <option>عاجل</option>
+        </select>
+      </div>
+
+      <div class="fld">
+        <label for="body">التفاصيل</label>
+        <textarea id="body" lang="ar" dir="rtl"></textarea>
+      </div>
+
+      <button type="button" class="btn" id="save"
+              style="width:100%;min-height:50px;font-size:16px">حفظ التكليف</button>
+    </div>
+
+    <div class="section-title">التكليفات القائمة</div>
+    <div id="list"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="81-assignments.html" class="active"><span class="bi">📋</span>التكليفات</a>
+    <a href="80-team.html"><span class="bi">👤</span>الفريق</a>
+    <a href="99-chat.html"><span class="bi">💬</span>المحادثات</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script>
+(function () {
+  "use strict";
+  var T = Team.data;
+  var STATES = ["جديد", "قيد التنفيذ", "تم"];
+
+  function byId(id) { return document.getElementById(id); }
+  function userById(id) {
+    var f = T.users.filter(function (u) { return u.id === id; });
+    return f[0] || null;
+  }
+
+  /* المكلَّف: كل الأعضاء ما عدا المستخدم الحالي، ومعهم "نفسي" */
+  function fillTo() {
+    var sel = byId("to"), me = Team.current();
+    sel.innerHTML = "";
+    T.users.forEach(function (u) {
+      var o = document.createElement("option");
+      o.value = u.id;
+      o.textContent = u.name + (u.id === me.id ? " (أنا)" : "") +
+                      " — " + ((T.roles[u.role] || {}).name || u.role);
+      sel.appendChild(o);
+    });
+  }
+
+  byId("save").onclick = function () {
+    var subj = byId("subject").value.trim();
+    if (!subj) { alert("اكتب موضوع التكليف."); byId("subject").focus(); return; }
+
+    T.assignments.unshift({
+      id:      "a" + Date.now(),
+      to:      byId("to").value,
+      from:    Team.current().id,
+      subject: subj,
+      file:    byId("file").value.trim(),
+      due:     byId("due").value,
+      prio:    byId("prio").value,
+      body:    byId("body").value.trim(),
+      state:   "جديد",
+      at:      new Date().toISOString()
+    });
+    if (!Team.save()) { alert("تعذّر الحفظ — المساحة ممتلئة."); return; }
+
+    byId("subject").value = ""; byId("file").value = "";
+    byId("due").value = "";     byId("body").value = "";
+    draw();
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  };
+
+  function text(a) {
+    var to = userById(a.to), from = userById(a.from);
+    var L = ["*تكليف — مؤسسة المستشار حسن عبد المنعم*", ""];
+    L.push("إلى: " + (to ? to.name : "—"));
+    L.push("من: "  + (from ? from.name : "—"));
+    L.push("الموضوع: " + a.subject);
+    if (a.file) L.push("الملف: " + a.file);
+    if (a.due)  L.push("الموعد النهائي: " + a.due);
+    L.push("الأولوية: " + a.prio);
+    if (a.body) { L.push(""); L.push(a.body); }
+    return L.join("\n");
+  }
+
+  function sendWhats(a) {
+    var u = userById(a.to);
+    if (!u || !u.phone) {
+      alert("لا يوجد رقم واتساب لهذا العضو.\nأضفه من شاشة «المحامون والصلاحيات».");
+      return;
+    }
+    location.href = "https://wa.me/" + u.phone.replace(/[^0-9]/g, "") +
+                    "?text=" + encodeURIComponent(text(a));
+  }
+
+  function sendMail(a) {
+    var u = userById(a.to);
+    if (!u || !u.email) {
+      alert("لا يوجد بريد إلكتروني لهذا العضو.\nأضفه من شاشة «المحامون والصلاحيات».");
+      return;
+    }
+    location.href = "mailto:" + encodeURIComponent(u.email) +
+      "?subject=" + encodeURIComponent("تكليف: " + a.subject) +
+      "&body="    + encodeURIComponent(text(a));
+  }
+
+  /* أي نص جاي من بيانات (مستوردة أو متزامنة) بيتهرّب قبل ما يدخل HTML (F-AGN-3) */
+  function esc(v) {
+    return String(v == null ? "" : v).replace(/[&<>"']/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+    });
+  }
+
+  /* PDF: يفتح حوار الطباعة في أندرويد حيث يوجد خيار «حفظ بصيغة PDF» */
+  function asPdf(a) {
+    var to = userById(a.to), from = userById(a.from);
+    var w = document.createElement("div");
+    w.id = "__print";
+    w.style.cssText = "padding:28px;direction:rtl;font-family:inherit;line-height:2";
+    w.innerHTML =
+      '<h2 style="margin:0 0 4px">تكليف</h2>' +
+      '<div style="color:#7d7166;margin-bottom:18px">مؤسسة المستشار حسن عبد المنعم</div>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:15px">' +
+      row("إلى", to ? to.name : "—") +
+      row("من", from ? from.name : "—") +
+      row("الموضوع", a.subject) +
+      (a.file ? row("الملف", a.file) : "") +
+      (a.due ? row("الموعد النهائي", a.due) : "") +
+      row("الأولوية", a.prio) +
+      row("الحالة", a.state) +
+      '</table>' +
+      (a.body ? '<div style="margin-top:20px;white-space:pre-wrap">' + esc(a.body) + '</div>' : '');
+
+    function row(k, v) {
+      return '<tr><td style="padding:7px 0;color:#7d7166;width:130px;vertical-align:top">' +
+             esc(k) + '</td><td style="padding:7px 0">' + esc(v) + '</td></tr>';
+    }
+
+    var keep = document.body.innerHTML;
+    document.body.innerHTML = "";
+    document.body.appendChild(w);
+
+    if (typeof AndroidSaver !== "undefined" && AndroidSaver.printPage) {
+      AndroidSaver.printPage("تكليف-" + a.subject.slice(0, 24));
+      setTimeout(function () { document.body.innerHTML = keep; draw(); }, 1400);
+    } else {
+      window.print();
+      setTimeout(function () { document.body.innerHTML = keep; draw(); }, 700);
+    }
+  }
+
+  function draw() {
+    var box = byId("list");
+    box.innerHTML = "";
+    var me = Team.current();
+
+    // مدير المكتب يرى الكل؛ غيره يرى ما كلّفه أو ما كُلّف به
+    var mine = T.assignments.filter(function (a) {
+      return Team.can("team") || a.to === me.id || a.from === me.id;
+    });
+
+    if (!mine.length) {
+      box.innerHTML = '<div style="text-align:center;color:#7d7166;padding:26px;' +
+                      'font-size:14px">لا توجد تكليفات بعد.</div>';
+      return;
+    }
+
+    var today = new Date().toISOString().slice(0, 10);
+
+    mine.forEach(function (a) {
+      var to = userById(a.to), from = userById(a.from);
+      var late = a.due && a.due < today && a.state !== "تم";
+
+      var c = document.createElement("div");
+      c.className = "a-card p-" + a.prio;
+      c.innerHTML =
+        '<div class="a-top"><span class="a-ttl">' + esc(a.subject) + '</span>' +
+        '<span class="chip s-' + esc(String(a.state || "").replace(/ /g, "-")) + '">' + esc(a.state) + '</span></div>' +
+        '<div class="a-sub">' +
+          "إلى: " + esc(to ? to.name : "—") + " · من: " + esc(from ? from.name : "—") +
+          (a.file ? "<br>الملف: " + esc(a.file) : "") +
+          (a.due ? '<br><span class="' + (late ? "late" : "") + '">الموعد: ' + esc(a.due) +
+                   (late ? " — متأخر" : "") + '</span>' : "") +
+        '</div>';
+
+      var act = document.createElement("div");
+      act.className = "a-act";
+
+      [["واتساب", function () { sendWhats(a); }],
+       ["إيميل",  function () { sendMail(a); }],
+       ["PDF",    function () { asPdf(a); }],
+       ["الحالة", function () {
+          a.state = STATES[(STATES.indexOf(a.state) + 1) % STATES.length];
+          Team.save(); draw();
+        }],
+       ["حذف", function () {
+          if (!confirm("حذف هذا التكليف؟")) return;
+          T.assignments = T.assignments.filter(function (x) { return x.id !== a.id; });
+          Team.save(); draw();
+        }]].forEach(function (p) {
+        var b = document.createElement("button");
+        b.type = "button"; b.textContent = p[0]; b.onclick = p[1];
+        if (p[0] === "حذف") b.style.color = "#b3261e";
+        act.appendChild(b);
+      });
+
+      c.appendChild(act);
+      box.appendChild(c);
+    });
+  }
+
+  fillTo();
+  draw();
+})();
+</script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

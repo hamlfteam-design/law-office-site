@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الإدارة المالية</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">→</a>
+    <h1>الإدارة المالية</h1>
+    <a class="bell" href="07-alerts.html">🔔<b>3</b></a>
+  </div>
+
+  <main>
+
+    <div class="money">
+      <div class="m in"><div class="v" id="fIn">—</div><div class="l">العهدة المستلمة</div></div>
+      <div class="m out"><div class="v" id="fOut">—</div><div class="l">المنصرف</div></div>
+      <div class="m net"><div class="v" id="fNet">—</div><div class="l">الرصيد</div></div>
+    </div>
+
+    <div class="alertbox">
+      <strong>٧ ملفات</strong> عليها أتعاب مستحقة لم تُحصَّل — إجمالي ٦٢٬٠٠٠ جنيه.
+    </div>
+
+    <div class="section-title">الإيرادات</div>
+    <ul class="rowlist">
+      <li>
+        <a href="91-expenses.html">
+          <span class="ic" style="background:#1c6b4a">💼</span>
+          <span class="tx"><span class="t">المصروفات والعهدة</span>
+            <span class="d">العهدة المستلمة · المصروف · الرصيد — كلٌّ في خانته</span></span>
+          <span class="go">‹</span>
+        </a>
+      </li>
+      <li>
+        <a href="31-case-revenue.html">
+          <span class="ic" style="background:#1c6b4a">💵</span>
+          <span class="tx"><span class="t">أتعاب القضايا ومصروفاتها</span>
+            <span class="d">كل قضية بأتعابها ورسومها ومصروفاتها المستقلة — مرتبطة بملف القضية</span></span>
+          <span class="go">‹</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="section-title">المصروفات</div>
+    <ul class="rowlist">
+      <li>
+        <a href="33-office-expenses.html">
+          <span class="ic" style="background:#b3261e">🏢</span>
+          <span class="tx"><span class="t">مصروفات المكتب العمومية</span>
+            <span class="d">كهرباء · إيجار · رواتب · صيانة · مطبوعات</span></span>
+          <span class="go">‹</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="section-title">تقارير</div>
+    <ul class="rowlist">
+      <li>
+        <a href="61-report-builder.html">
+          <span class="ic" style="background:#8a6242">🖨</span>
+          <span class="tx"><span class="t">تقرير المسددات</span>
+            <span class="d">ما تم تحصيله خلال فترة — قابل للطباعة</span></span>
+          <span class="go">‹</span>
+        </a>
+      </li>
+      <li>
+        <a href="61-report-builder.html">
+          <span class="ic" style="background:#8a6242">🖨</span>
+          <span class="tx"><span class="t">تقرير المصروفات</span>
+            <span class="d">مصروفات القضايا والمكتب خلال فترة</span></span>
+          <span class="go">‹</span>
+        </a>
+      </li>
+      <li>
+        <a href="61-report-builder.html">
+          <span class="ic" style="background:#8a6242">📊</span>
+          <span class="tx"><span class="t">تقرير المستحقات</span>
+            <span class="d">الأتعاب المتبقية على الموكلين وتواريخ استحقاقها</span></span>
+          <span class="go">‹</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="infobox">
+      التقارير هنا <strong>واجهات مقترحة</strong> — الأزرار موجودة في الصور («طباعة تقرير المسددات»
+      و«طباعة تقرير المصروفات») ولم تُبنَ شاشاتها بعد.
+    </div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="30-finance-hub.html" class="active"><span class="bi">💰</span>المالية</a>
+    <a href="40-hr-hub.html"><span class="bi">👥</span>الموظفين</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script>
+/* الأرقام محسوبة من دفتر مصروفات المكتب (expenses.js — نفس دفتر «يومية
+   المصروفات» وصفحة ٣٣) لا من سجل مصاريف المحامين في السجلات، اللي كان
+   بيدّي أرقام مختلفة عن اللي المكتب مسجّله فعلاً. expenses.js بيتحمّل
+   بعد السكربت ده، فالرسم بيستنى DOMContentLoaded. */
+(function () {
+  "use strict";
+  function put(id, v) {
+    var e = document.getElementById(id);
+    if (e) e.textContent = v;
+  }
+  function draw() {
+    var E = window.Expenses;
+    if (!E || !E.totals) return;
+    var t = E.totals();
+    var any = t.custody || t.spent;
+    put("fIn",  any ? E.fmt(t.custody) : "—");
+    put("fOut", any ? E.fmt(t.spent)   : "—");
+    put("fNet", any ? E.fmt(t.balance) : "—");
+    if (!any) {
+      var box = document.querySelector(".money, .metrics, .stats");
+      if (box) box.title = "لا حركات مالية مسجَّلة بعد";
+    }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", draw);
+  } else { draw(); }
+})();
+</script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

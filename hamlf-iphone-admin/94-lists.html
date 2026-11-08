@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٩٤ · إدارة القوائم العامة</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .lgrid { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+  .lgrid button { flex:1 1 auto; min-width:104px; min-height:46px; border-radius:10px;
+        font-family:inherit; font-size:13px; border:1px solid var(--line);
+        background:transparent; color:var(--brand); padding:6px 10px; }
+  .lgrid button.on { background:var(--brand); color:#fff; border-color:var(--brand); }
+  .lgrid button .c { display:block; font-size:11px; opacity:.75; margin-top:2px; }
+
+  .ctxbar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .ctxbar > div { flex:1 1 150px; }
+  .ctxbar label { display:block; font-family:var(--f-title); font-size:13px;
+        margin-bottom:4px; color:var(--brand-dark); }
+
+  .val { display:flex; gap:8px; align-items:center; background:var(--card);
+         border:1px solid var(--line); border-radius:10px; padding:9px 11px;
+         margin-bottom:7px; }
+  .val .t { flex:1; font-size:14px; line-height:1.8; word-break:break-word; }
+  .val .tag { flex:0 0 auto; font-size:10.5px; padding:2px 8px; border-radius:20px; }
+  .val .tag.add { background:#1f7a4d; color:#fff; }
+  .val .tag.off { background:var(--line); color:var(--muted); }
+  .val button { flex:0 0 auto; min-width:42px; min-height:40px; border-radius:8px;
+        border:1px solid var(--line); background:transparent; color:var(--brand);
+        font-family:inherit; font-size:14px; }
+  .val button.del { color:#b3261e; border-color:#e3c9c6; }
+  /* أجهزة الفريق (غير المدير): عرض بس — القوائم بيديرها المدير (١٫٥٥) */
+  body.ref-locked .val button, body.ref-locked #addBtn, body.ref-locked #newVal { display:none !important; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">&rarr;</a>
+    <h1>إدارة القوائم العامة</h1>
+    <span class="screen-id">SCR-94</span>
+  </div>
+
+  <main>
+
+    <div class="infobox">
+      كل قائمة منسدلة في التطبيق مصدرها هنا. ما تضيفه يظهر فوراً في كل شاشة
+      تُستعمل فيها القائمة، وما تخفيه يختفي منها جميعاً — ولا يُمسّ الأصل
+      الرسمي للمحاكم والدوائر، بل يُستبعد من العرض فقط.
+    </div>
+
+    <div class="lgrid" id="tabs" data-nosave="1"></div>
+
+    <div class="ctxbar" id="ctx" data-nosave="1" hidden></div>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px" data-nosave="1">
+      <input type="text" id="newVal" lang="ar" dir="rtl" autocomplete="off"
+             placeholder="أضف قيمة جديدة إلى هذه القائمة…"
+             style="flex:1;min-height:50px;font-size:16px;padding:10px 14px;
+                    border:1px solid var(--line);border-radius:10px;
+                    background:var(--card);direction:rtl;text-align:right;
+                    font-family:inherit">
+      <button type="button" class="btn" id="addBtn"
+              style="flex:0 0 auto;min-width:92px;min-height:50px">إضافة</button>
+    </div>
+
+    <input type="text" id="filter" lang="ar" dir="rtl" autocomplete="off"
+           placeholder="تصفية داخل القائمة…" data-nosave="1"
+           style="width:100%;min-height:46px;font-size:15px;padding:9px 13px;
+                  border:1px solid var(--line);border-radius:10px;background:var(--card);
+                  direction:rtl;text-align:right;font-family:inherit;margin-bottom:12px">
+
+    <div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="list"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="90-case-file.html"><span class="bi">🗂</span>سجل القضايا</a>
+    <a href="80-team.html"><span class="bi">👤</span>الصلاحيات</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+(function () {
+  "use strict";
+
+  var cur = "sessionTypes";
+  var ctx = {};
+
+  function ar(n) {
+    return String(n == null ? "" : n)
+      .replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; });
+  }
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  /* ---------------------------------------------------------- التبويبات */
+
+  function drawTabs() {
+    var box = document.getElementById("tabs");
+    box.textContent = "";
+    box.style.display = "block";
+    var sel = document.createElement("select");
+    sel.setAttribute("data-no-combo", "1");
+    sel.style.cssText = "width:100%;min-height:50px;font-family:inherit;font-size:16px;padding:8px 12px;" +
+      "border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--brand)";
+    Lists.keys().forEach(function (k) {
+      var o = document.createElement("option");
+      o.value = k;
+      o.textContent = Lists.label(k) + " — " + ar(Lists.get(k, k === cur ? ctx : {}).length) + " قيمة";
+      if (k === cur) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.onchange = function () { cur = sel.value; ctx = {}; drawAll(); };
+    box.appendChild(sel);
+  }
+
+  /* ------------------------------------------------- سياق القوائم المتسلسلة
+
+     المحاكم تتبع الدرجة، وأنواع الدعاوى تتبعهما، والدوائر تتبع الثلاثة.
+     فتُعرض هنا حقول السياق لتُصفّى بها القائمة المعروضة. */
+
+  function drawCtx() {
+    var def = Lists.defs()[cur] || {};
+    var need = def.ctx || [];
+    var bar = document.getElementById("ctx");
+    bar.textContent = "";
+    bar.hidden = !need.length;
+    if (!need.length) return;
+
+    var LABEL = { level: "درجة التقاضي", court: "المحكمة", type: "نوع الدعوى" };
+    var SRC   = { level: "courtLevels", court: "courts", type: "caseTypes" };
+
+    need.forEach(function (k) {
+      var g = el("div");
+      g.appendChild(el("label", "", LABEL[k]));
+      var sel = document.createElement("select");
+      sel.id = "ctx_" + k;
+      sel.style.cssText = "width:100%;min-height:46px;font-size:15px;padding:8px 10px;" +
+        "border:1px solid var(--line);border-radius:9px;background:var(--card);" +
+        "font-family:inherit;direction:rtl;text-align:right";
+      var blank = document.createElement("option");
+      blank.value = ""; blank.textContent = "— الكل —";
+      sel.appendChild(blank);
+      Lists.get(SRC[k], ctx).forEach(function (v) {
+        var o = document.createElement("option");
+        o.value = v; o.textContent = v;
+        sel.appendChild(o);
+      });
+      sel.value = ctx[k] || "";
+      sel.onchange = function () {
+        ctx[k] = sel.value;
+        /* تغيير الأعلى يُلغي ما تحته */
+        if (k === "level") { ctx.court = ""; ctx.type = ""; }
+        if (k === "court") { ctx.type = ""; }
+        drawAll();
+      };
+      g.appendChild(sel);
+      bar.appendChild(g);
+    });
+  }
+
+  /* ------------------------------------------------------------- القيم */
+
+  function drawList() {
+    var q = document.getElementById("filter").value.trim();
+    var vals = Lists.get(cur, ctx).slice().sort(function (a, b) {
+      return String(a).localeCompare(String(b), "ar");   /* ترتيب أبجدي */
+    });
+    var off = Lists.hidden(cur).slice().sort(function (a, b) {
+      return String(a).localeCompare(String(b), "ar");
+    });
+
+    if (q) {
+      var nq = Lists.norm(q);
+      vals = vals.filter(function (v) { return Lists.norm(v).indexOf(nq) >= 0; });
+      off  = off.filter(function (v) { return Lists.norm(v).indexOf(nq) >= 0; });
+    }
+
+    document.getElementById("stat").textContent =
+      "المعروض: " + ar(vals.length) + " قيمة" +
+      (off.length ? "  ·  مخفيّة: " + ar(off.length) : "");
+
+    var box = document.getElementById("list");
+    box.textContent = "";
+
+    if (!vals.length && !off.length) {
+      box.appendChild(el("div",
+        "padding:18px;text-align:center;color:var(--muted);font-size:13.5px",
+        q ? "لا قيمة تطابق «" + q + "»"
+          : "هذه القائمة فارغة — أضف إليها من الحقل أعلاه."));
+      return;
+    }
+
+    vals.slice(0, 400).forEach(function (v) {
+      var row = el("div"); row.className = "val";
+      row.appendChild(el("span", "", v)).className = "t";
+
+      if (Lists.isAdded(cur, v)) {
+        row.appendChild(el("span", "", "مُضاف")).className = "tag add";
+      }
+
+      var ed = document.createElement("button");
+      ed.type = "button"; ed.textContent = "✎"; ed.title = "تعديل";
+      ed.onclick = function () { editValue(v); };
+      row.appendChild(ed);
+
+      var rm = document.createElement("button");
+      rm.type = "button"; rm.textContent = "✕"; rm.title = "إخفاء من القوائم";
+      rm.className = "del";
+      rm.onclick = function () {
+        Ask.confirm("إخفاء هذه القيمة من القوائم؟", {
+          detail: v + String.fromCharCode(10) +
+                  (Lists.isAdded(cur, v)
+                    ? "قيمة أضفتها بنفسك — تُحذف نهائياً."
+                    : "قيمة من الأصل الرسمي — تُستبعد من العرض ويمكن إرجاعها."),
+          ok: "إخفاء"
+        }, function () { Lists.hide(cur, v); drawAll(); });
+      };
+      row.appendChild(rm);
+
+      box.appendChild(row);
+    });
+
+    if (vals.length > 400) {
+      box.appendChild(el("div",
+        "padding:11px;text-align:center;color:var(--muted);font-size:12.5px",
+        "…و" + ar(vals.length - 400) + " قيمة — استخدم التصفية"));
+    }
+
+    if (off.length) {
+      box.appendChild(el("div",
+        "font-family:var(--f-title);font-size:14px;margin:16px 0 8px;" +
+        "color:var(--brand-dark)", "المخفيّة"));
+      off.forEach(function (v) {
+        var row = el("div"); row.className = "val";
+        row.style.opacity = ".75";
+        row.appendChild(el("span", "", v)).className = "t";
+        row.appendChild(el("span", "", "مخفيّة")).className = "tag off";
+        var back = document.createElement("button");
+        back.type = "button"; back.textContent = "↩"; back.title = "إرجاعها";
+        back.onclick = function () { Lists.unhide(cur, v); drawAll(); };
+        row.appendChild(back);
+        box.appendChild(row);
+      });
+    }
+  }
+
+  function editValue(v) {
+    var back = el("div",
+      "position:fixed;inset:0;background:rgba(20,14,8,.62);z-index:10050;" +
+      "display:flex;align-items:flex-end;justify-content:center");
+    back.setAttribute("data-modal", "1");
+    back.setAttribute("data-nosave", "1");
+    var box = el("div",
+      "background:var(--card);border-radius:18px 18px 0 0;padding:18px 18px 26px;" +
+      "width:100%;max-width:560px;direction:rtl;color:var(--text)");
+    box.appendChild(el("div",
+      "font-family:var(--f-title);font-size:17px;margin-bottom:10px", "تعديل القيمة"));
+
+    var inp = document.createElement("input");
+    inp.type = "text"; inp.value = v;
+    inp.setAttribute("lang", "ar"); inp.setAttribute("dir", "rtl");
+    inp.style.cssText = "width:100%;min-height:50px;font-size:16px;padding:10px 12px;" +
+      "border:1px solid var(--line);border-radius:9px;background:var(--card);" +
+      "font-family:inherit;direction:rtl;text-align:right";
+    box.appendChild(inp);
+    box.appendChild(el("div",
+      "font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.8",
+      Lists.isAdded(cur, v)
+        ? "قيمة أضفتها — يُعدَّل نصّها مباشرةً."
+        : "قيمة من الأصل الرسمي — تُخفى ويحلّ محلّها ما تكتبه."));
+
+    var r = el("div", "display:flex;gap:9px;margin-top:16px");
+    function b(t, css, on) {
+      var x = document.createElement("button");
+      x.type = "button"; x.textContent = t;
+      x.style.cssText = "flex:1;padding:14px;border-radius:11px;font-family:inherit;" +
+                        "font-size:16px;min-height:52px;" + css;
+      x.onclick = on;
+      r.appendChild(x);
+    }
+    b("حفظ", "border:0;background:var(--brand);color:#fff;font-weight:600", function () {
+      var nv = inp.value.trim();
+      if (!nv) { inp.focus(); return; }
+      Lists.rename(cur, v, nv);
+      back.remove();
+      drawAll();
+    });
+    b("إلغاء", "border:1px solid var(--line);background:transparent;color:var(--muted)",
+      function () { back.remove(); });
+    box.appendChild(r);
+
+    back.appendChild(box);
+    back.onclick = function (e) { if (e.target === back) back.remove(); };
+    document.body.appendChild(back);
+    setTimeout(function () { inp.focus(); }, 60);
+  }
+
+  function drawAll() { drawTabs(); drawCtx(); drawList(); }
+
+  /* ------------------------------------------------------------ الأحداث */
+
+  document.getElementById("addBtn").onclick = function () {
+    var inp = document.getElementById("newVal");
+    var v = inp.value.trim();
+    if (!v) { inp.focus(); return; }
+    Lists.add(cur, v);
+    inp.value = "";
+    drawAll();
+  };
+  /* المدير: أي تعديل هنا يترفع للفريق على طول. باقي الفريق: الشاشة للعرض بس */
+  document.addEventListener("click", function (e) {
+    if (e.target && e.target.closest && e.target.closest(".val button, #addBtn") && window.CloudStore && CloudStore.refSync) {
+      setTimeout(function () { CloudStore.refSync(); }, 300);
+    }
+  });
+  (function () {
+    var u = null;
+    try { u = window.Team && Team.current && Team.current(); } catch (e) { }
+    if (window.HAMLF_PC || !u || !u.role || u.role === "owner") return;
+    document.body.classList.add("ref-locked");
+    var info = document.querySelector(".infobox");
+    if (info) info.textContent = "القوائم والمحاكم بيديرها مدير المكتب، وبتوصلك منه تلقائياً. الشاشة دي للعرض بس.";
+  })();
+  window.addEventListener("ref:synced", function () { drawAll(); });
+  document.getElementById("newVal").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") document.getElementById("addBtn").click();
+  });
+
+  var timer;
+  document.getElementById("filter").addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(drawList, 150);
+  });
+
+  /* ?list=key يفتح قائمةً بعينها */
+  var m = location.search.match(/[?&]list=([^&]*)/);
+  if (m && Lists.defs()[decodeURIComponent(m[1])]) cur = decodeURIComponent(m[1]);
+
+  drawAll();
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

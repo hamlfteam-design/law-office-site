@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٥ · سجل التوكيلات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="index.html">→</a>
+    <h1>سجل التوكيلات</h1>
+    <span class="screen-id">SCR-05</span>
+  </div>
+
+  <main>
+  <form>
+
+    <section class="card">
+      <header>بيانات التوكيل</header>
+      <div class="body">
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="poaOfficeNo">رقم التوكيل بالمكتب <span class="req">*</span></label>
+            <input type="number" id="poaOfficeNo" placeholder="رقم">
+            <div class="note">يدخله المستخدم — قد يُدخل عشوائياً ويُعاد الفرز.</div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="poaAuthNo">رقم التوثيق</label>
+            <input type="number" id="poaAuthNo" placeholder="رقم">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="poaLetter">الحرف</label>
+            <input type="text" id="poaLetter" placeholder="نص">
+          </div>
+          <div class="field">
+            <label class="lbl" for="poaYear">السنة</label>
+            <input type="number" id="poaYear" placeholder="رقم">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="poaOffice">مكتب التوثيق <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <input type="text" id="poaOffice" list="dlNotaryOffices" placeholder="مثال: مكتب توثيق الزيتون">
+          <datalist id="dlNotaryOffices">
+            <option value="مكتب توثيق الزيتون"></option>
+            <option value="مكتب توثيق مصر الجديدة"></option>
+          </datalist>
+          <div class="note">نص حر الآن، ويخضع لاحقاً للاختيارات من قائمة مخزّنة.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="poaDate">بتاريخ</label>
+          <input type="date" id="poaDate">
+          <div class="note">التاريخ من واقع المسجل بالتوكيل.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">الموكل <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <div class="multi" id="mPrincipals">
+            <div class="item">
+              <input type="text" list="dlPrincipals" placeholder="اسم الموكل">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mPrincipals">+ إضافة أخر في حالة التعدد</button>
+        </div>
+
+        <div class="field">
+          <label class="lbl">الوكيل (المحامي) <span class="badge lookup">قائمة تُبنى بالاستخدام</span></label>
+          <div class="multi" id="mAgents">
+            <div class="item">
+              <input type="text" list="dlAgents" placeholder="اسم الصادر لصالحه التوكيل بالمكتب">
+            </div>
+          </div>
+          <button type="button" class="btn ghost sm" data-add="#mAgents">+ إضافة أخر في حالة التعدد</button>
+        </div>
+
+        <div class="field">
+          <label class="lbl">نوع التوكيل</label>
+          <div class="choices">
+            <label><input type="radio" name="poaType" value="general-cases" checked><span>عام قضايا</span></label>
+            <label><input type="radio" name="poaType" value="special-cases"><span>خاص قضايا</span></label>
+            <label><input type="radio" name="poaType" value="admin"><span>إدارة</span></label>
+            <label><input type="radio" name="poaType" value="general-specific"><span>عام مخصص</span></label>
+            <label><input type="radio" name="poaType" value="incorporation"><span>تأسيس شركات</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">صورة التوكيل</label>
+          <div class="upload">
+            مرفق واحد بصيغة <strong>PDF</strong> أو <strong>JPG</strong>
+            <div>
+              <button type="button" class="btn sm">التقاط صورة</button>
+              <button type="button" class="btn sm ghost">رفع ملف</button>
+            </div>
+          </div>
+          <div class="note">Take a photo / Upload — يُخزَّن المرفق مرتبطاً بسجل التوكيل.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ السجل والفرز ============ -->
+    <section class="card">
+      <header>السجل <span class="hint">فرز تصاعدي</span></header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl" for="poaSort">ترتيب حسب</label>
+          <select id="poaSort">
+            <option value="client">اسم الموكل (أبجدياً)</option>
+            <option value="officeNo">رقم التوكيل بالمكتب</option>
+            <option value="year">السنة</option>
+          </select>
+          <div class="note">
+            يبقى الوضع على آخر اختيار للمستخدم (محفوظ محلياً)، ويُعاد الفرز تلقائياً عند إدخال بيانات جديدة.
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="grid">
+            <thead>
+              <tr>
+                <th>رقمه بالمكتب</th>
+                <th>الموكل</th>
+                <th>السنة</th>
+                <th>حرف</th>
+                <th>رقم التوثيق</th>
+                <th>مكتب توثيق</th>
+                <th>نوعه</th>
+                <th>الصورة</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn">حفظ</button>
+      <button type="reset" class="btn ghost">تفريغ</button>
+    </div>
+
+  </form>
+  </main>
+
+  <datalist id="dlPrincipals">
+    <option value="حسن عبد المنعم حسن"></option>
+    <option value="محمد أحمد السيد"></option>
+    <option value="أحمد رياض البكري"></option>
+  </datalist>
+  <datalist id="dlAgents">
+    <option value="أ/ حسن عبد المنعم"></option>
+    <option value="أ/ إبراهيم داوود"></option>
+  </datalist>
+
+  <footer class="legal">SCR-05 · سجل التوكيلات · V1</footer>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+  <script src="assets/fixups.js?v=1"></script>
+  <script src="assets/poa-merge.js?v=6"></script>
+  <script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٩١ · المصروفات والعهدة</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  /* الخانات الثلاث منفصلة تماماً — لا يختلط الرصيد بالمصروف */
+  .money { display:flex; gap:9px; margin-bottom:14px; }
+  .money div { flex:1; border-radius:12px; padding:13px 8px; text-align:center;
+               border:1px solid var(--line); background:var(--card); }
+  .money .l { font-size:11.5px; color:var(--muted); }
+  .money .n { font-family:var(--f-title); font-size:19px; margin-top:4px;
+              direction:ltr; unicode-bidi:embed; }
+  .money .cu .n  { color:#1f7a4d; }
+  .money .sp .n  { color:#b3261e; }
+  .money .ba     { border-color:var(--brand); background:var(--bg,#f4ece0); }
+  .money .ba .n  { color:var(--brand-dark); }
+  .money .ba .l  { color:var(--brand-dark); }
+
+  .ex { background:var(--card); border:1px solid var(--line); border-radius:12px;
+        padding:12px; margin-bottom:9px; }
+  .ex .hd { display:flex; gap:8px; align-items:center; }
+  .ex .amt { flex:0 0 auto; border-radius:8px; padding:3px 11px; font-size:13px;
+             font-family:var(--f-title); direction:ltr; unicode-bidi:embed; }
+  .ex .amt.in  { background:#1f7a4d; color:#fff; }
+  .ex .amt.out { background:#b3261e; color:#fff; }
+  .ex .ttl { flex:1; font-family:var(--f-title); font-size:14.5px; line-height:1.7;
+             word-break:break-word; }
+  .ex .r { display:flex; gap:8px; font-size:12.5px; color:var(--muted);
+           margin-top:6px; line-height:1.9; }
+  .ex .r b { flex:0 0 82px; color:var(--brand-dark); font-family:var(--f-title);
+             font-weight:400; }
+  .ex .r span { flex:1; word-break:break-word; }
+  .ex .act { display:flex; gap:7px; margin-top:10px; }
+  .ex .act button { flex:1; min-height:42px; border:1px solid var(--line);
+        border-radius:8px; background:transparent; color:var(--brand);
+        font-family:inherit; font-size:12.5px; }
+  .tabs2 { display:flex; gap:7px; margin-bottom:12px; }
+  .tabs2 button { flex:1; min-height:46px; border-radius:10px; font-family:inherit;
+        font-size:14px; border:1px solid var(--line); background:transparent;
+        color:var(--brand); }
+  .tabs2 button.on { background:var(--brand); color:#fff; border-color:var(--brand); }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="30-finance-hub.html">&rarr;</a>
+    <h1>المصروفات والعهدة</h1>
+    <span class="screen-id">SCR-91</span>
+  </div>
+
+  <main>
+
+    <div class="money" id="money"></div>
+
+    <input type="text" id="q" data-nosave="1" lang="ar" dir="rtl" autocomplete="off"
+           placeholder="ابحث برقم الملف أو البند أو اسم الموكل…"
+           style="width:100%;min-height:50px;font-size:16px;padding:10px 14px;
+                  border:1px solid var(--line);border-radius:10px;background:var(--card);
+                  direction:rtl;text-align:right;font-family:inherit;margin-bottom:12px">
+
+    <button type="button" class="btn" id="add" data-nosave="1"
+            style="width:100%;min-height:48px;margin-bottom:12px">＋ حركة جديدة</button>
+
+    <div class="tabs2" data-nosave="1">
+      <button type="button" data-mode="all" class="on">الكل</button>
+      <button type="button" data-mode="case">قضايا</button>
+      <button type="button" data-mode="office">المكتب</button>
+      <button type="button" data-mode="custody">العهدة</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px" data-nosave="1">
+      <button type="button" id="analyze" class="btn ghost" data-nosave="1">📊 تحليل</button>
+      <button type="button" id="print" class="btn ghost"
+              style="flex:1;min-height:46px">🖨 طباعة البيان</button>
+    </div>
+
+    <div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="list"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="30-finance-hub.html"><span class="bi">💰</span>المالية</a>
+    <a href="90-case-file.html"><span class="bi">🗂</span>سجل القضايا</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+(function () {
+  "use strict";
+
+  var mode = "all";
+  var ar = Expenses.ar, fmt = Expenses.fmt, money = Expenses.money;
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  function filterOf() {
+    if (mode === "case")    return function (r) { return r.scope === "مصروفات قضية"; };
+    if (mode === "office")  return function (r) { return r.scope === "مصروفات المكتب"; };
+    if (mode === "custody") return function (r) { return r.kind === "عهدة مستلمة"; };
+    return null;
+  }
+
+  /* ثلاث خانات منفصلة: العهدة · المصروف · الرصيد */
+  function drawMoney() {
+    var t = Expenses.totals(filterOf());
+    var box = document.getElementById("money");
+    box.textContent = "";
+    [["العهدة المستلمة", t.custody, "cu"],
+     ["المصروف", t.spent, "sp"],
+     ["الرصيد", t.balance, "ba"]].forEach(function (p) {
+      var d = el("div");
+      d.className = p[2];
+      d.appendChild(el("div", "", p[0])).className = "l";
+      d.appendChild(el("div", "", fmt(p[1]))).className = "n";
+      box.appendChild(d);
+    });
+  }
+
+  function row(label, value) {
+    var r = el("div"); r.className = "r";
+    r.appendChild(el("b", "", label));
+    r.appendChild(el("span", "", value));
+    return r;
+  }
+
+  function current() {
+    var q = document.getElementById("q").value.trim();
+    var list = Expenses.search(q);
+    var f = filterOf();
+    return f ? list.filter(f) : list;
+  }
+
+  function draw() {
+    var list = current();
+
+    document.getElementById("stat").textContent =
+      list.length ? "المعروض: " + ar(list.length) + " حركة"
+                  : "لا حركات مسجَّلة — اضغط «حركة جديدة».";
+
+    var box = document.getElementById("list");
+    box.textContent = "";
+
+    list.forEach(function (r) {
+      var card = el("div"); card.className = "ex";
+      var isIn = r.kind === "عهدة مستلمة";
+
+      var hd = el("div"); hd.className = "hd";
+      var a = el("span", "", (isIn ? "+ " : "− ") + fmt(money(r.amount)));
+      a.className = "amt " + (isIn ? "in" : "out");
+      hd.appendChild(a);
+      hd.appendChild(el("span", "",
+        r.item || (isIn ? "عهدة مستلمة" : "مصروف"))).className = "ttl";
+      card.appendChild(hd);
+
+      if (r.date)  card.appendChild(row("التاريخ", ar(String(r.date).replace(/-/g, "/"))));
+      if (r.scope) card.appendChild(row("على حساب",
+        r.scope + (r.fileNo ? " — ملف " + ar(r.fileNo) : "")));
+      if (r.client) card.appendChild(row("الموكل", r.client));
+      if (r.by)     card.appendChild(row("القائم بالصرف", r.by));
+      if (r.charge) card.appendChild(row("التحميل", r.charge));
+      if (r.notes)  card.appendChild(row("ملاحظات", r.notes));
+
+      var act = el("div"); act.className = "act";
+      function b(label, on) {
+        var x = document.createElement("button");
+        x.type = "button"; x.textContent = label; x.onclick = on;
+        act.appendChild(x);
+        return x;
+      }
+      b("✎ تعديل", function () {
+        Expenses.edit(r.id, function () { drawMoney(); draw(); });
+      });
+      var d = b("🗑 حذف", function () {
+        Expenses.remove(r.id, function () { drawMoney(); draw(); });
+      });
+      d.style.color = "#b3261e";
+      d.style.borderColor = "#e3c9c6";
+      card.appendChild(act);
+
+      box.appendChild(card);
+    });
+  }
+
+  var timer;
+  document.getElementById("q").addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(draw, 160);
+  });
+
+  document.querySelectorAll(".tabs2 button").forEach(function (b) {
+    b.onclick = function () {
+      mode = b.getAttribute("data-mode");
+      document.querySelectorAll(".tabs2 button").forEach(function (x) {
+        x.classList.remove("on");
+      });
+      b.classList.add("on");
+      document.getElementById("analyze").onclick = function () { Expenses.showAnalysis(); };
+  setTimeout(function () { Expenses.pullFromCloud(function (ok, n) { if (n) { drawMoney(); draw(); } }); }, 1500);
+
+  drawMoney();
+      draw();
+    };
+  });
+
+  document.getElementById("add").onclick = function () {
+    Expenses.edit(null, function () { drawMoney(); draw(); });
+  };
+
+  document.getElementById("print").onclick = function () {
+    Expenses.print(current(), Expenses.totals(filterOf()));
+  };
+
+  drawMoney();
+  draw();
+})();
+</script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

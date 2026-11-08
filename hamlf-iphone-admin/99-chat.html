@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المحامي المحترف — المحادثات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .t-card { background:#fff; border:1px solid var(--line); border-radius:12px;
+            padding:12px; margin-bottom:9px; display:flex; align-items:center; gap:10px; }
+  .dot     { width:9px; height:9px; border-radius:50%; background:#c9c0b3; flex:0 0 auto; }
+  .dot.on  { background:#1c8a4a; }
+  .t-name  { font-weight:600; font-size:15px; }
+  .t-last  { font-size:12.5px; color:var(--muted); margin-top:3px;
+             overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:56vw; }
+  .t-body  { flex:1; min-width:0; }
+  .msg     { max-width:78%; padding:9px 12px; border-radius:13px; margin-bottom:8px;
+             font-size:14px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+  .msg.me  { background:#5b3a21; color:#fff; margin-inline-start:auto; border-bottom-end-radius:4px; }
+  .msg.other { background:#efe7db; color:#3c2f22; margin-inline-end:auto; border-bottom-start-radius:4px; }
+  #thread  { display:flex; flex-direction:column; height:calc(100vh - 230px); }
+  #msgs    { flex:1; overflow-y:auto; padding:6px 2px; display:flex; flex-direction:column; }
+  .sendrow { display:flex; gap:8px; margin-top:8px; }
+  .sendrow input { flex:1; min-height:46px; font-family:inherit; font-size:15px;
+             padding:10px; border:1px solid var(--line); border-radius:9px; direction:rtl; }
+  .sendrow button { min-height:46px; padding:0 18px; }
+  .c-card  { background:#fff; border:1px solid var(--line); border-radius:12px;
+            padding:11px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">→</a>
+    <h1>المحادثات</h1>
+    <span class="screen-id">CHT</span>
+  </div>
+
+  <main>
+
+    <div id="notConfigured" class="alertbox"
+         style="background:#fff5f4;border-color:#f0cfcb;color:#8c1d18" hidden>
+      <strong>المحادثات غير مفعّلة بعد.</strong> راجع مدير المكتب لإكمال إعداد
+      Firebase (ملف <code>assets/firebase-config.js</code>).
+    </div>
+
+    <div id="app" hidden>
+
+      <div class="alertbox" style="background:#fff8e6;border-color:#eddaa8;color:#6b5330">
+        مسجّل الدخول باسم <b id="meName"></b>. المحادثات تصل فوراً طول ما الطرفان
+        متصلان بالإنترنت، وتُخزَّن لو أحدهما غير متصل.
+      </div>
+
+      <!-- ------------------------------------------------------- قائمة المحادثات -->
+      <div id="listView">
+        <div class="section-title">محادثاتي</div>
+        <div id="threads"></div>
+
+        <div class="section-title">بدء محادثة جديدة</div>
+        <div id="people"></div>
+
+        <div class="section-title">جهات اتصال الموكلين</div>
+        <div class="note" style="font-size:12.5px;color:var(--muted);margin-bottom:9px;line-height:1.85">
+          البرنامج لا يحتفظ بدفتر إيميلات/أرقام موكلين مركزي بعد — أضِف هنا من
+          تريد إتاحة المحادثة معه من الموكلين (يبقى محفوظاً على هذا الجهاز).
+        </div>
+        <div id="clients"></div>
+        <div class="c-card" style="flex-direction:column;align-items:stretch">
+          <input type="text" id="ccName" placeholder="اسم الموكل"
+                 style="min-height:44px;border:1px solid var(--line);border-radius:8px;
+                        padding:9px;margin-bottom:7px;direction:rtl">
+          <input type="email" id="ccMail" data-latin="1" dir="ltr" lang="en" placeholder="بريده الإلكتروني"
+                 style="min-height:44px;border:1px solid var(--line);border-radius:8px;
+                        padding:9px;margin-bottom:7px">
+          <button type="button" class="btn" id="ccAdd" style="min-height:44px">
+            ＋ إضافة جهة اتصال
+          </button>
+        </div>
+      </div>
+
+      <!-- ------------------------------------------------------------ نافذة محادثة -->
+      <div id="thread" hidden>
+        <button type="button" class="btn ghost" id="back" style="margin-bottom:9px">→ كل المحادثات</button>
+        <div id="thread-with" style="font-weight:600;margin-bottom:6px"></div>
+        <div id="msgs"></div>
+        <div class="sendrow">
+          <input type="text" id="txt" placeholder="اكتب رسالة…" lang="ar" dir="rtl">
+          <button type="button" class="btn" id="send">إرسال</button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="81-assignments.html"><span class="bi">📋</span>التكليفات</a>
+    <a href="99-chat.html" class="active"><span class="bi">💬</span>المحادثات</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/firebase-config.js?v=3"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/chat.js?v=1"></script>
+<script>
+  /* نصوص جاية من السحابة (أسماء، آخر رسالة) بتتهرّب قبل innerHTML (F-SEC-4) */
+  function esc(v) {
+    return String(v == null ? "" : v).replace(/[&<>"']/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+    });
+  }
+(function () {
+  "use strict";
+
+  if (!window.FIREBASE_READY) {
+    document.getElementById("notConfigured").hidden = false;
+    return;
+  }
+
+  var link = Chat.myLink();
+  if (!link) { location.href = "98-connect.html"; return; }
+
+  document.getElementById("app").hidden = false;
+  document.getElementById("meName").textContent = link.name + " (" + link.role + ")";
+  Chat.startPresence(link.uid);
+  window.addEventListener("beforeunload", Chat.stopPresence);
+
+  var byUid = {};   // uid -> {name, role, lastSeen}
+  var unsubThreads = null, unsubMsgs = null, curThread = null, curOther = null;
+
+  /* ------------------------------------------------------------- بدء محادثة */
+  function drawPeople() {
+    var box = document.getElementById("people");
+    box.innerHTML = "";
+    var team = (Team.data.users || []).filter(function (u) { return u.id !== link.localId || link.localType !== "team"; });
+    var clients = Chat.loadClients();
+
+    function row(name, roleLabel, matchKey) {
+      var c = document.createElement("div"); c.className = "c-card";
+      c.innerHTML = '<div style="flex:1"><b>' + esc(name) + '</b><div style="font-size:12px;' +
+        'color:var(--muted)">' + esc(roleLabel) + '</div></div>';
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "btn"; b.textContent = "محادثة";
+      b.style.cssText = "min-height:40px;padding:0 16px";
+      b.onclick = function () { openByMatch(matchKey, name); };
+      c.appendChild(b);
+      box.appendChild(c);
+    }
+
+    team.forEach(function (u) {
+      if (!u.email && !u.phone) return;   // لا هوية لمطابقتها بحساب Firebase
+      row(u.name, (Team.data.roles[u.role] || {}).name || u.role, u.email || u.phone);
+    });
+    clients.forEach(function (c) {
+      if (!c.email && !c.phone) return;
+      row(c.name, "موكل", c.email || c.phone);
+    });
+
+    if (!box.children.length) {
+      box.innerHTML = '<div style="text-align:center;color:var(--muted);' +
+        'font-size:13px;padding:14px">أضِف بريداً/رقماً لعضو الفريق أو موكل أولاً.</div>';
+    }
+  }
+
+  /* --------------------------------------------------- دفتر جهات اتصال الموكلين */
+  function drawClients() {
+    var box = document.getElementById("clients");
+    var list = Chat.loadClients();
+    box.innerHTML = "";
+    if (!list.length) {
+      box.innerHTML = '<div style="text-align:center;color:var(--muted);' +
+        'font-size:13px;padding:10px">لا يوجد موكلون مضافون بعد.</div>';
+      return;
+    }
+    list.forEach(function (c) {
+      var d = document.createElement("div"); d.className = "c-card";
+      d.innerHTML = '<div style="flex:1"><b>' + esc(c.name) + '</b><div style="font-size:12px;' +
+        'color:var(--muted)">' + esc(c.email || c.phone || "") + '</div></div>';
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = "حذف"; b.style.cssText = "min-height:40px;padding:0 14px;color:#b3261e";
+      b.onclick = function () { Chat.removeClientContact(c.id); drawClients(); drawPeople(); };
+      d.appendChild(b);
+      box.appendChild(d);
+    });
+  }
+
+  document.getElementById("ccAdd").onclick = function () {
+    var name = document.getElementById("ccName").value.trim();
+    var mail = document.getElementById("ccMail").value.trim();
+    if (!name) { alert("اكتب اسم الموكل."); return; }
+    if (!mail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { alert("اكتب بريداً إلكترونياً صحيحاً."); return; }
+    Chat.addClientContact(name, mail, "");
+    document.getElementById("ccName").value = "";
+    document.getElementById("ccMail").value = "";
+    drawClients(); drawPeople();
+  };
+
+  /* ------------------------------------------------------------------ المحادثات */
+  function findOtherUid(email) {
+    return Chat.auth() && Chat.auth().currentUser ? null : null; // انظر الملاحظة تحت
+  }
+
+  /* لا نعرف uid الطرف الآخر إلا بعد أن يسجّل هو نفسه دخوله لأول مرة (Firebase
+     لا يتيح البحث عن مستخدم بإيميله من طرف العميل لأسباب أمنية). لذلك نبحث في
+     مجموعة users في Firestore عن مستند بنفس الإيميل بدل ذلك. */
+  function openByMatch(emailOrPhone, displayName) {
+    var db = firebase.firestore();
+    db.collection("users").where("email", "==", emailOrPhone).limit(1).get()
+      .then(function (snap) {
+        if (snap.empty) {
+          alert(displayName + " لسه ما دخلش شاشة «المحادثات» على جهازه من قبل — " +
+                "لازم يسجّل دخول مرة واحدة الأول، وبعدها تقدر تبدأ المحادثة معه.");
+          return;
+        }
+        var otherUid = snap.docs[0].id;
+        Chat.ensureThread(link.uid, otherUid, displayName).then(function (tid) {
+          openThread(tid, otherUid, displayName);
+        });
+      });
+  }
+
+  function drawThreads(list) {
+    var box = document.getElementById("threads");
+    box.innerHTML = "";
+    if (!list.length) {
+      box.innerHTML = '<div style="text-align:center;color:var(--muted);' +
+        'font-size:13px;padding:14px">لا توجد محادثات بعد.</div>';
+      return;
+    }
+    list.forEach(function (t) {
+      var otherUid = t.participantUids.filter(function (u) { return u !== link.uid; })[0];
+      var c = document.createElement("div"); c.className = "t-card";
+      c.innerHTML =
+        '<span class="dot" id="dot-' + esc(otherUid) + '"></span>' +
+        '<div class="t-body"><div class="t-name">' + esc(t.participantNames && t.participantNames[otherUid] || otherUid) +
+        '</div><div class="t-last">' + esc(t.lastMessage || "") + '</div></div>';
+      c.onclick = function () {
+        openThread(t.id, otherUid, (t.participantNames && t.participantNames[otherUid]) || "المحادثة");
+      };
+      box.appendChild(c);
+
+      firebase.firestore().collection("users").doc(otherUid).get().then(function (doc) {
+        var dotEl = document.getElementById("dot-" + otherUid);
+        if (dotEl && doc.exists && Chat.isOnline(doc.data().lastSeen)) dotEl.classList.add("on");
+      });
+    });
+  }
+
+  function openThread(tid, otherUid, name) {
+    curThread = tid; curOther = otherUid;
+    document.getElementById("listView").hidden = true;
+    document.getElementById("thread").hidden = false;
+    document.getElementById("thread-with").textContent = name;
+
+    if (unsubMsgs) unsubMsgs();
+    unsubMsgs = Chat.listenMessages(tid, function (msgs) {
+      var box = document.getElementById("msgs");
+      box.innerHTML = "";
+      msgs.forEach(function (m) {
+        var d = document.createElement("div");
+        d.className = "msg " + (m.senderUid === link.uid ? "me" : "other");
+        d.textContent = m.text;
+        box.appendChild(d);
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+  }
+
+  document.getElementById("back").onclick = function () {
+    document.getElementById("thread").hidden = true;
+    document.getElementById("listView").hidden = false;
+    if (unsubMsgs) { unsubMsgs(); unsubMsgs = null; }
+    curThread = null;
+  };
+
+  document.getElementById("send").onclick = function () {
+    var box = document.getElementById("txt");
+    if (!curThread || !box.value.trim()) return;
+    Chat.sendMessage(curThread, link.uid, box.value);
+    box.value = "";
+  };
+  document.getElementById("txt").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") document.getElementById("send").click();
+  });
+
+  drawPeople();
+  drawClients();
+  unsubThreads = Chat.listenMyThreads(link.uid, drawThreads);
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المحامي المحترف — قضاياي</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .wrap { padding:14px; direction:rtl; }
+  .case-card { background:#fff; border:1px solid var(--line,#ddd); border-radius:12px;
+    padding:14px; margin-bottom:12px; }
+  .case-card h3 { margin:0 0 8px; font-family:var(--f-title); font-size:16px; color:var(--brand-dark,#5b3a21); }
+  .case-row { font-size:13.5px; color:#5b4636; margin-bottom:4px; line-height:1.8; }
+  .case-row b { color:var(--brand-dark,#5b3a21); }
+  .next-session { background:var(--bg,#f4ece0); border-radius:9px; padding:10px 12px; margin-top:8px;
+    font-size:13.5px; border-inline-start:4px solid var(--brand,#5b3a21); }
+  .empty { text-align:center; color:var(--muted,#8a7f6f); padding:40px 20px; font-size:14px; line-height:1.9; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:8px 4px 14px; }
+  .topbar b { font-family:var(--f-title); font-size:15px; }
+  .logout { padding:6px 12px; border-radius:8px; border:1px solid #b3261e; background:#fff;
+    color:#b3261e; font-family:inherit; font-size:12.5px; min-height:34px; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <span></span>
+    <h1>قضاياي</h1>
+    <span class="screen-id">CLI</span>
+  </div>
+
+  <main>
+    <div class="wrap">
+      <div class="topbar">
+        <b id="who"></b>
+        <button class="logout" id="logout">خروج</button>
+      </div>
+      <div id="upcoming" class="next-session" hidden style="margin-bottom:12px"></div>
+      <div id="list"><div class="empty">جارٍ التحميل…</div></div>
+    </div>
+  </main>
+
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+
+  function ar(n) {
+    return String(n == null ? "" : n).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; });
+  }
+  function dayName(iso) {
+    var days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    if (!iso) return "";
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d.getTime())) return ar(String(iso).replace(/-/g, "/"));
+    return days[d.getDay()] + " " + ar(d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate());
+  }
+  function normName(t) { return window.lawyerNorm(t); }
+  function clientNamesOf(txt) {
+    return String(txt || "").split("·").map(function (p) {
+      return p.replace(/\([^)]*\)/g, "").trim();
+    }).filter(Boolean);
+  }
+
+  var listEl = document.getElementById("list");
+  var whoEl = document.getElementById("who");
+
+  document.getElementById("logout").onclick = function () {
+    if (!confirm("تسجيل الخروج؟")) return;
+    if (window.Auth) Auth.logout(function () { location.href = "98-login.html"; });
+  };
+
+  function render(cases) {
+    listEl.textContent = "";
+    if (!cases.length) {
+      listEl.innerHTML = '<div class="empty">لا توجد قضايا مسجَّلة باسمك حتى الآن.<br>' +
+        'لو متأكد إن عندك قضية بالمكتب، تأكد إن بريدك الإلكتروني مسجَّل في بياناتك كموكل.</div>';
+      return;
+    }
+    cases.forEach(function (c) {
+      var card = document.createElement("div");
+      card.className = "case-card";
+      card.style.cursor = "pointer";
+      card.onclick = function () { if (window.CaseFile && CaseFile.printCase) CaseFile.printCase(c); };
+      var h = document.createElement("h3");
+      h.textContent = (c.subject || "قضية") + (c.fileNo ? " — ملف " + ar(c.fileNo) : "");
+      card.appendChild(h);
+      [["المحكمة", [c.courtName, c.circuit].filter(Boolean).join(" — ")],
+       ["درجة التقاضي", c.courtLevel],
+       ["نوع الدعوى", c.caseType],
+       ["رقم الدعوى", c.caseNo ? ar(c.caseNo) + (c.caseYear ? " لسنة " + ar(c.caseYear) : "") : ""]
+      ].forEach(function (p) {
+        if (!p[1]) return;
+        var row = document.createElement("div");
+        row.className = "case-row";
+        row.innerHTML = "<b>" + p[0] + ":</b> " + p[1];
+        card.appendChild(row);
+      });
+      var next = w.CaseFile.nextSession ? w.CaseFile.nextSession(c) : null;
+      if (next) {
+        var ns = document.createElement("div");
+        ns.className = "next-session";
+        ns.textContent = "📅 الجلسة القادمة: " + dayName(next.date) +
+          ((next.raw && next.raw.type) ? " — " + next.raw.type : "");
+        card.appendChild(ns);
+      }
+      /* العرائض والمذكرات (نصوص مكتوبة داخل الملف) تصل مع القضية نفسها،
+         فتُعرض هنا للقراءة والطباعة فقط. المرفقات المصوَّرة (📎 توكيلات/
+         مستندات ممسوحة ضوئياً) لا تُزامَن للسحابة إطلاقاً بعد — تبقى على
+         جهاز المكتب فقط، فلا تظهر هنا. */
+      var docs = c.docs || [];
+      if (docs.length) {
+        var dWrap = document.createElement("div");
+        dWrap.style.cssText = "margin-top:10px;border-top:1px solid var(--line,#eee);padding-top:8px";
+        dWrap.appendChild((function () {
+          var t = document.createElement("div");
+          t.style.cssText = "font-family:var(--f-title);font-size:12.5px;color:var(--brand-dark,#5b3a21);margin-bottom:5px";
+          t.textContent = "📜 مستندات القضية";
+          return t;
+        })());
+        docs.forEach(function (d) {
+          var row = document.createElement("div");
+          row.style.cssText = "font-size:12.5px;padding:5px 0;cursor:pointer;color:var(--brand,#5b3a21)";
+          row.textContent = "· " + (d.type || "مستند") + (d.title ? " — " + d.title : "");
+          row.onclick = function (e) {
+            e.stopPropagation();
+            var win = document.createElement("div");
+            win.style.cssText = "position:fixed;inset:0;background:#fff;color:#000;z-index:10060;" +
+              "overflow:auto;padding:24px;direction:rtl;font-family:inherit";
+            win.innerHTML = "<div style='font-size:18px;font-family:var(--f-title);margin-bottom:14px'>" +
+              (d.type || "مستند") + (d.title ? " — " + d.title : "") + "</div>" +
+              "<div style='font-size:15px;line-height:2.1'>" + (d.html || "") + "</div>" +
+              "<button type='button' style='margin-top:20px;padding:14px;width:100%;border:1px solid #ccc;" +
+              "border-radius:11px;background:transparent;font-family:inherit;font-size:15px'>رجوع</button>";
+            win.querySelector("button").onclick = function () { win.remove(); };
+            document.body.appendChild(win);
+          };
+          dWrap.appendChild(row);
+        });
+        card.appendChild(dWrap);
+      }
+      listEl.appendChild(card);
+    });
+  }
+
+  /** ملخص الجلسات القادمة أعلى الشاشة — تذكير داخل التطبيق فقط، بنفس حد
+      شاشات المكتب (لا إشعار من نظام أندرويد والتطبيق مغلق — انظر
+      reminders.js). */
+  function renderUpcoming(cases) {
+    var box = document.getElementById("upcoming");
+    box.textContent = "";
+    var items = [];
+    cases.forEach(function (c) {
+      var n = w.CaseFile.nextSession ? w.CaseFile.nextSession(c) : null;
+      if (n) items.push({ c: c, s: n });
+    });
+    items.sort(function (a, b) { return String(a.s.date).localeCompare(String(b.s.date)); });
+    if (!items.length) { box.hidden = true; return; }
+    box.hidden = false;
+    box.textContent = "";
+    var t = document.createElement("div");
+    t.style.cssText = "font-family:var(--f-title);font-size:13.5px;margin-bottom:6px";
+    t.textContent = "📅 جلساتك القادمة";
+    box.appendChild(t);
+    items.slice(0, 5).forEach(function (it) {
+      var row = document.createElement("div");
+      row.style.cssText = "font-size:12.5px;padding:3px 0";
+      row.textContent = dayName(it.s.date) + " — " +
+        (it.c.subject || "قضية") + (it.c.fileNo ? " (ملف " + ar(it.c.fileNo) + ")" : "");
+      box.appendChild(row);
+    });
+  }
+
+  function loadMine() {
+    var email = (window.__clientEmail || "").toLowerCase().trim();
+    if (!email) { listEl.innerHTML = '<div class="empty">تعذّر تحديد حسابك.</div>'; return; }
+
+    var clients = (window.ClientsPOA && ClientsPOA.all) ? ClientsPOA.all() : [];
+    var myNames = {};
+    clients.forEach(function (c) {
+      var mails = [].concat(c.emails || [], c.email ? [c.email] : [])
+        .map(function (x) { return String(x).toLowerCase().trim(); });
+      if (mails.indexOf(email) >= 0 && c.name) {
+        myNames[normName(c.name)] = true;
+        /* أول دخول من صاحب هذا البريد؟ يربط حسابه بسجله كموكل — بلا حاجة
+           لتدخّل المكتب. راجع claimClientUid في cloud-store.js وقواعد
+           الأمان (firestore.rules) لشرط الأمان الحقيقي للربط. */
+        var myUid = window.__clientUid;
+        if (myUid && c.clientUid !== myUid && window.CloudStore && CloudStore.collection.claimClientUid) {
+          var cid = c.id || ("cl_off_" + String(c.officeNo || "").replace(/[^0-9A-Za-z]+/g, "_"));
+          CloudStore.collection.claimClientUid("clients", cid, myUid, function () {});
+        }
+      }
+    });
+
+    if (!Object.keys(myNames).length) {
+      listEl.innerHTML = '<div class="empty">بريدك الإلكتروني (' + email + ') غير مسجَّل في بيانات أي موكل بالمكتب حتى الآن.<br>' +
+        'تواصل مع المكتب لتسجيله في بيانات موكلته.</div>';
+      return;
+    }
+
+    var cases = (window.CaseFile && CaseFile.all) ? CaseFile.all() : [];
+    var mine = cases.filter(function (c) {
+      return clientNamesOf(c.clients).some(function (n) { return myNames[normName(n)]; });
+    });
+    renderUpcoming(mine);
+    render(mine);
+  }
+
+  var w = window;
+  window.Auth && Auth.whenKnown(function (user) {
+    if (!user) { location.replace("98-login.html"); return; }
+    window.__clientEmail = user.email;
+    window.__clientUid = user.uid;
+    whoEl.textContent = user.email;
+    if (window.CloudStore && CloudStore.whenReady) {
+      CloudStore.whenReady(function () { setTimeout(loadMine, 600); });
+    } else { loadMine(); }
+  });
+
+  /* تحديث دوري بسيط (كل ٣٠ ثانية) لالتقاط أي تغيير في قضاياه فور حدوثه */
+  setInterval(function () { location.reload(); }, 30000);
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

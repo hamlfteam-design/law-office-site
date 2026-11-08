@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المواقع الصديقة</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">→</a>
+    <h1>مواقع صديقة</h1>
+    <span class="screen-id">LNK</span>
+  </div>
+
+  <main>
+
+    <div class="field">
+      <input type="text" id="linkSearch" placeholder="ابحث عن موقع… (مثال: نقض · توكيل · الضرائب · أسوان)" autocomplete="off">
+    </div>
+
+    <div class="chips" id="linkChips">
+      <button class="on" data-cat="all">الكل</button>
+      <button data-cat="judicial">قضائي واستعلامات</button>
+      <button data-cat="gov">جهات حكومية</button>
+      <button data-cat="council">مجلس الدولة بالمحافظات</button>
+    </div>
+
+    <div class="section-title">خدمات قضائية واستعلامات</div>
+    <div class="links-grid" data-group="judicial">
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic court">⚖</span><span class="nm">المحامي المحترف</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic gov">🇪🇬</span><span class="nm">مصر الرقمية</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">🔎</span><span class="nm">استعلامات وزارة العدل — دعوى</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">🔎</span><span class="nm">استعلامات وزارة العدل — طعن</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic court">🏛</span><span class="nm">المحكمة الدستورية</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic court">🏛</span><span class="nm">محكمة النقض</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">⚖</span><span class="nm">مجلس الدولة</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">🏛</span><span class="nm">النيابة العامة</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">🏦</span><span class="nm">المحاكم الاقتصادية</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">📝</span><span class="nm">أرغب في عمل توكيل</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">📚</span><span class="nm">بوابة التشريعات والأحكام</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">📣</span><span class="nm">شكاوى مجلس الوزراء — في خدمتك</span></a>
+    </div>
+
+    <div class="section-title">جهات حكومية</div>
+    <div class="links-grid" data-group="gov">
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">🏛</span><span class="nm">رئاسة مجلس الوزراء</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">🛡</span><span class="nm">خدمات وزارة الداخلية</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic tax">💰</span><span class="nm">مصلحة الضرائب</span></a>
+      <a class="link-item" href="#" onclick="return false"><span class="badge-ic">📈</span><span class="nm">الهيئة العامة للاستثمار</span></a>
+    </div>
+
+    <div class="section-title">مجلس الدولة بالمحافظات</div>
+    <div class="links-grid" data-group="council" id="councilGrid"></div>
+
+    <div class="infobox" style="margin-top:18px">
+      الروابط من لوحة «المحامي المحترف» (المواقع الصديقة). الموقع اللي لسه ما لهوش رابط بيفتح خانة تكتبه فيها.
+    </div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="89-clients.html"><span class="bi">👤</span>الموكلين</a>
+    <a href="60-reports-hub.html"><span class="bi">📄</span>التقارير</a>
+    <a href="90-links.html" class="active"><span class="bi">🌐</span>مواقع</a>
+  </nav>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script>
+(function () {
+  // فروع مجلس الدولة
+  var govs = ["بني سويف","الفيوم","المنيا","قنا","سوهاج","أسيوط","الأقصر","أسوان",
+              "البحر الأحمر","القليوبية","المنوفية","الغربية","البحيرة","الإسكندرية",
+              "كفر الشيخ","المنصورة","بورسعيد","الإسماعيلية","الشرقية","دمياط","العباسية"];
+  var grid = document.getElementById("councilGrid");
+  govs.forEach(function (g) {
+    var a = document.createElement("a");
+    a.className = "link-item";
+    a.href = "#";
+    a.onclick = function () { return false; };
+    a.innerHTML = '<span class="badge-ic">⚖</span><span class="nm"></span>';
+    a.querySelector(".nm").textContent = "مجلس الدولة بـ" + g;
+    grid.appendChild(a);
+  });
+
+  // بحث
+  var q = document.getElementById("linkSearch");
+  var norm = function (s) { return window.lawyerNorm(s); };
+  var apply = function () {
+    var term = norm(q.value);
+    var cat = document.querySelector("#linkChips button.on").getAttribute("data-cat");
+    document.querySelectorAll(".links-grid").forEach(function (g) {
+      var grp = g.getAttribute("data-group");
+      var anyVisible = false;
+      g.querySelectorAll(".link-item").forEach(function (it) {
+        var okCat = (cat === "all" || cat === grp);
+        var okTerm = !term || norm(it.querySelector(".nm").textContent).indexOf(term) >= 0;
+        var show = okCat && okTerm;
+        it.style.display = show ? "" : "none";
+        if (show) anyVisible = true;
+      });
+      g.style.display = anyVisible ? "" : "none";
+      var title = g.previousElementSibling;
+      if (title && title.classList.contains("section-title")) {
+        title.style.display = anyVisible ? "" : "none";
+      }
+    });
+  };
+  q.addEventListener("input", apply);
+  document.getElementById("linkChips").addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    this.querySelectorAll("button").forEach(function (x) { x.classList.remove("on"); });
+    b.classList.add("on");
+    apply();
+  });
+  apply();
+})();
+</script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

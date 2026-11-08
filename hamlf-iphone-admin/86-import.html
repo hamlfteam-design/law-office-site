@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٨٦ · استيراد واستعادة</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .drop { border:2px dashed var(--line); border-radius:14px; padding:26px 16px;
+          text-align:center; background:var(--card); }
+  .drop .ic { font-size:38px; display:block; margin-bottom:10px; }
+  .rowline { display:flex; gap:8px; padding:9px 0; border-bottom:1px solid var(--line);
+             font-size:13.5px; }
+  .rowline b { flex:0 0 108px; color:var(--brand-dark); font-family:var(--f-title); }
+  .prev { max-height:280px; overflow-y:auto; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="09-backup.html">&rarr;</a>
+    <h1>استيراد واستعادة</h1>
+    <span class="screen-id">SCR-86</span>
+  </div>
+
+  <main>
+
+    <div class="infobox">
+      يقبل ملفين: <strong>نسخة احتياطية من هذا التطبيق</strong> فيستعيدها كاملة، أو <strong>جلسات تقويم الجلسات والمواعيد</strong> فيستوردها:
+      تُضاف كل جلسة إلى <strong>المواعيد</strong> بتاريخها وتنبيهها، وتُحفظ
+      تفاصيلها كاملة في <strong>سجل الجلسات المستوردة</strong>.
+    </div>
+
+    <section class="card">
+      <header>كيف أحصل على الملف؟</header>
+      <div class="body">
+        <div class="note" style="line-height:2">
+          ١) افتح تطبيق التقويم على الجهاز نفسه.<br>
+          ٢) اضغط <strong>«⬇ تصدير»</strong> — ينزل ملف JSON في مجلد التنزيلات.<br>
+          ٣) ارجع هنا واضغط <strong>«اختر ملف النسخة أو التقويم»</strong> بالأسفل.
+        </div>
+        <div class="note" style="margin-top:10px;color:var(--warn)">
+          إن لم يكن بالتقويم زر تصدير، انسخ محتوى المفتاح <code>agenda_v1</code>
+          والصقه في المربع بالأسفل.
+        </div>
+      </div>
+    </section>
+
+    <div class="drop" id="drop">
+      <span class="ic">📥</span>
+      <input type="file" id="file" accept=".json,application/json" hidden>
+      <button type="button" class="btn" id="pick"
+              style="min-height:50px;padding:0 26px;font-size:16px">اختر ملف النسخة أو التقويم</button>
+      <div class="note" style="margin-top:12px">أو الصق المحتوى في المربع بالأسفل</div>
+      <textarea id="paste" rows="3" placeholder='{"sessions": { ... }}'
+                style="width:100%;margin-top:10px;font-family:monospace;font-size:12px;
+                       direction:ltr;text-align:left"></textarea>
+      <button type="button" class="btn ghost" id="readPaste"
+              style="margin-top:8px;min-height:44px">قراءة المُلصَق</button>
+    </div>
+
+    <div id="report" hidden>
+      <div class="section-title">ما وجدته</div>
+      <section class="card"><div class="body">
+        <div id="summary"></div>
+        <div class="prev" id="preview" style="margin-top:12px"></div>
+        <button type="button" class="btn" id="doImport"
+                style="width:100%;min-height:52px;font-size:16px;margin-top:14px">
+          ✔ استيراد إلى التطبيق</button>
+      </div></section>
+    </div>
+
+    <div class="section-title">تنظيف الازدواج</div>
+    <section class="card"><div class="body">
+      <div class="note" style="margin-bottom:10px">
+        الموعد الذي يطابق جلسة قضية في اليوم نفسه يُحذف كموعد وتبقى الجلسة —
+        لأنها تحمل بيانات القضية كاملة.
+      </div>
+      <button type="button" class="btn" id="dedupeBtn" data-nosave="1"
+              style="width:100%;min-height:48px">🧹 دمج المواعيد المكرّرة مع الجلسات</button>
+    </div></section>
+
+    <div class="section-title">الجلسات المستوردة</div>
+    <div id="stored"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="85-appointments.html"><span class="bi">📅</span>المواعيد</a>
+    <a href="09-backup.html"><span class="bi">💾</span>النسخ</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/agenda-import.js?v=4"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+/* =============================================================================
+   استيراد جلسات التقويم.
+
+   شكل ملف التقويم:  { sessions: { "YYYY-MM-DD": [ {no,year,court,circle,
+                       client,opp,subject,result,notes}, … ] } }
+   نقبل أيضاً الملف مغلّفاً داخل مفتاح agenda_v1 أو data أو DB.
+   ============================================================================= */
+(function () {
+  "use strict";
+
+  var AP_KEY  = "proflawyer.appointments.v1";
+  var SES_KEY = "proflawyer.sessions.imported.v1";
+  var parsed = null;
+  /* كتابة كذا مخزن مع بعض «يا كله يا ولا حاجة» (F-AGN-1): لو المساحة خلصت في
+     النص، بيرجّع اللي اتكتب لقيمته القديمة بدل ما يسيب القاعدة نص جديدة ونص قديمة */
+  function atomicSet(pairs) {
+    var old = pairs.map(function (p) { return localStorage.getItem(p[0]); });
+    try {
+      pairs.forEach(function (p) { localStorage.setItem(p[0], p[1]); });
+      return true;
+    } catch (e) {
+      pairs.forEach(function (p, i) {
+        try { if (old[i] === null) localStorage.removeItem(p[0]); else localStorage.setItem(p[0], old[i]); } catch (e2) { }
+      });
+      return false;
+    }
+  }
+
+
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+  function ar(n, p) {
+    var s = String(n);
+    if (p) while (s.length < p) s = "0" + s;
+    return s.replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩"[+d]; });
+  }
+  function arDate(iso) {
+    var p = String(iso).split("-");
+    return p.length >= 3 ? ar(p[0]) + "/" + ar(p[1], 2) + "/" + ar(p[2], 2) : iso;
+  }
+  function read(k, d) {
+    try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; }
+  }
+
+  /* ------------------------------------------------------------- التحليل */
+
+  function findSessions(obj) {
+    if (!obj || typeof obj !== "object") return null;
+    if (obj.sessions && typeof obj.sessions === "object") return obj.sessions;
+    var keys = ["agenda_v1", "DB", "db", "data"];
+    for (var i = 0; i < keys.length; i++) {
+      if (obj[keys[i]]) {
+        var r = findSessions(obj[keys[i]]);
+        if (r) return r;
+      }
+    }
+    /* أو يكون الجذر نفسه مفهرساً بالتواريخ */
+    var dateKeys = Object.keys(obj).filter(function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); });
+    if (dateKeys.length) return obj;
+    return null;
+  }
+
+  function analyse(text) {
+    var raw;
+    try { raw = JSON.parse(text); }
+    catch (e) { alert("الملف ليس JSON صالحاً.\n" + e.message); return; }
+
+    /* نسخة احتياطية من هذا التطبيق؟ نستعيدها مباشرةً. */
+    if (raw && (raw.screens || raw.manual || raw.agendaCases)) { restoreBackup(raw); return; }
+    /* النسخة الكاملة (data — من «النسخ الاحتياطي» أو زرار «نسخة») */
+    if (raw && raw.data && typeof raw.data === "object" && raw.data["proflawyer.agenda.cases.v1"] !== undefined) {
+      restoreFull(raw); return;
+    }
+
+    /* ملف التوكيلات من الإكسل؟ */
+    if (window.PoaMerge && PoaMerge.detect(raw)) { poaFlow(raw); return; }
+
+    /* تصديرة تقويم الجلسات بصيغة القضايا؟ */
+    if (window.AgendaImport && AgendaImport.detect(raw)) { agendaFlow(raw); return; }
+
+    var sessions = findSessions(raw);
+    if (!sessions) {
+      alert("لم أتعرّف على هذا الملف.\n\nالمقبول:\n" +
+            "· نسخة احتياطية من هذا التطبيق (تحوي screens)\n" +
+            "· ملف جلسات من التقويم (يحوي sessions)");
+      return;
+    }
+
+    var rows = [];
+    Object.keys(sessions).sort().forEach(function (d) {
+      var list = sessions[d];
+      if (!Array.isArray(list)) return;
+      list.forEach(function (s) { rows.push({ date: d, s: s }); });
+    });
+
+    if (!rows.length) { alert("الملف سليم لكنه لا يحتوي أي جلسة."); return; }
+
+    parsed = rows;
+    var dates = rows.map(function (r) { return r.date; }).sort();
+
+    document.getElementById("report").hidden = false;
+    var sum = document.getElementById("summary");
+    sum.textContent = "";
+    [["عدد الجلسات", ar(rows.length)],
+     ["عدد الأيام", ar(Object.keys(sessions).length)],
+     ["من", arDate(dates[0])],
+     ["إلى", arDate(dates[dates.length - 1])]].forEach(function (p) {
+      var r = el("div", "", "");
+      r.className = "rowline";
+      r.appendChild(el("b", "", p[0]));
+      r.appendChild(el("span", "", p[1]));
+      sum.appendChild(r);
+    });
+
+    var pv = document.getElementById("preview");
+    pv.textContent = "";
+    rows.slice(0, 12).forEach(function (r) {
+      var line = el("div",
+        "padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.9");
+      line.textContent = arDate(r.date) + "  ·  " + (r.s.court || "—") +
+                         "  ·  " + (r.s.client || "");
+      pv.appendChild(line);
+    });
+    if (rows.length > 12) {
+      pv.appendChild(el("div", "padding:8px 0;color:var(--muted);font-size:12.5px",
+        "…و" + ar(rows.length - 12) + " جلسة أخرى"));
+    }
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  /* -------------------------------------------------- استعادة نسخة التطبيق */
+
+  function restoreBackup(raw) {
+    var scr = raw.screens ? Object.keys(raw.screens).length : 0;
+    var recs = 0;
+    if (raw.screens) {
+      Object.keys(raw.screens).forEach(function (k) {
+        recs += (raw.screens[k] || []).length;
+      });
+    }
+    var when = "غير معروف";
+    if (raw.exportedAt) {
+      try { when = new Date(raw.exportedAt).toLocaleString("ar-EG"); } catch (e) { }
+    }
+
+    if (!confirm("هذه نسخة احتياطية من التطبيق.\n\n" +
+                 "تاريخها: " + when + "\n" +
+                 "الشاشات: " + scr + "\n" +
+                 "السجلات: " + recs + "\n\n" +
+                 "الاستعادة تستبدل كل المحفوظ الآن. أُتابع؟")) return;
+
+    var pairs = [];
+    [["screens", "proflawyer.screens.v1"], ["manual", "proflawyer.manual.v1"], ["appointments", "proflawyer.appointments.v1"],
+     ["agendaCases", "proflawyer.agenda.cases.v1"], ["agendaClients", "proflawyer.agenda.clients.v1"],
+     ["importedSessions", "proflawyer.sessions.imported.v1"], ["team", "proflawyer.team.v1"]].forEach(function (m) {
+      if (raw[m[0]]) pairs.push([m[1], JSON.stringify(raw[m[0]])]);
+    });
+    if (!atomicSet(pairs)) {
+      alert("تعذّرت الاستعادة — المساحة ممتلئة. ما اتغيّرش أي حاجة في البيانات الحالية.");
+      return;
+    }
+    alert("تمت الاستعادة.\nاستُعيد " + recs + " سجلاً في " + scr + " شاشة.");
+    location.href = "home.html";
+  }
+
+  function restoreFull(raw) {
+    var d = raw.data, keys = Object.keys(d).filter(function (k) { return k.indexOf("proflawyer.") === 0; });
+    var when = "غير معروف";
+    if (raw.exportedAt) { try { when = new Date(raw.exportedAt).toLocaleString("ar-EG"); } catch (e) { } }
+    var cases = (d["proflawyer.agenda.cases.v1"] || []).length, clients = (d["proflawyer.agenda.clients.v1"] || []).length;
+    var NL = String.fromCharCode(10);
+    if (!confirm("هذه نسخة احتياطية كاملة من التطبيق." + NL + NL +
+                 "تاريخها: " + when + NL +
+                 "القضايا: " + cases + " · الموكلون: " + clients + " · المخازن: " + keys.length + NL + NL +
+                 "الاستعادة تستبدل كل المحفوظ الآن. أُتابع؟")) return;
+    var pairs = keys.filter(function (k) { return d[k] != null; })
+      .map(function (k) { return [k, typeof d[k] === "string" ? d[k] : JSON.stringify(d[k])]; });
+    if (!atomicSet(pairs)) { alert("تعذّرت الاستعادة — المساحة ممتلئة. ما اتغيّرش أي حاجة في البيانات الحالية."); return; }
+    alert("تمت الاستعادة.");
+    location.href = "home.html";
+  }
+
+  /* ------------------------------------------ استيراد قضايا التقويم */
+
+  function agendaFlow(raw) {
+    var box = document.getElementById("report");
+    var sum = document.getElementById("summary");
+    var pv  = document.getElementById("preview");
+    box.hidden = false;
+    sum.textContent = ""; pv.textContent = "";
+
+    var onlyActive = false;
+
+    function render() {
+      var info = AgendaImport.summarise(raw, onlyActive);
+      sum.textContent = "";
+      [["نوع الملف", "تصديرة تقويم الجلسات"],
+       ["القضايا المتداولة", ar(AgendaImport.summarise(raw, true).cases)],
+       ["كل القضايا", ar(info.allCases)],
+       ["سيُستورد الآن", ar(info.cases)],
+       ["الجلسات", ar(info.sessions)],
+       ["جلسات قادمة", ar(info.upcoming)],
+       ["الموكلون", ar(info.clients)]].forEach(function (p) {
+        var r = document.createElement("div");
+        r.className = "rowline";
+        r.appendChild(el("b", "", p[0]));
+        r.appendChild(el("span", "", p[1]));
+        sum.appendChild(r);
+      });
+
+      var t = el("label",
+        "display:flex;gap:9px;align-items:center;margin-top:12px;font-size:14px");
+      var cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = onlyActive;
+      cb.style.cssText = "width:22px;height:22px;accent-color:#5b3a21";
+      cb.onchange = function () { onlyActive = cb.checked; render(); };
+      t.appendChild(cb);
+      t.appendChild(el("span", "", "القضايا المتداولة فقط"));
+      sum.appendChild(t);
+
+      pv.textContent = "";
+      info.list.slice(0, 12).forEach(function (c) {
+        pv.appendChild(el("div",
+          "padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.9",
+          AgendaImport.title(c) + (c.circuit ? "  ·  " + c.circuit : "")));
+      });
+      if (info.list.length > 12) {
+        pv.appendChild(el("div", "padding:8px 0;color:var(--muted);font-size:12.5px",
+          "…و" + ar(info.list.length - 12) + " قضية أخرى"));
+      }
+    }
+
+    render();
+
+    var btn = document.getElementById("doImport");
+    var fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    fresh.textContent = "✔ استيراد القضايا";
+    fresh.onclick = function () {
+      var r = AgendaImport.run(raw, { onlyActive: onlyActive });
+      if (!r.ok) { alert(r.error); return; }
+      alert("تم الاستيراد.\n\nقضايا جديدة: " + r.added +
+            (r.dup ? "\nمكرّرة تُخطّيت: " + r.dup : "") +
+            "\nمواعيد جلسات: " + r.appointments +
+            "\nالإجمالي المحفوظ: " + r.total +
+            "\n\nتجدها في: مركز السجلات · التقويم · البحث.");
+      location.href = "88-records.html";
+    };
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  /* ------------------------------------------ دمج ملف التوكيلات */
+
+  function poaFlow(raw) {
+    var info = PoaMerge.summarise(raw);
+    var box = document.getElementById("report");
+    var sum = document.getElementById("summary");
+    var pv  = document.getElementById("preview");
+    box.hidden = false;
+    sum.textContent = ""; pv.textContent = "";
+
+    [["نوع الملف", "ملف التوكيلات"],
+     ["سجلات الملف", ar(info.incoming)],
+     ["منها أسماء مفصولة", ar(info.split)],
+     ["موكلون موجودون سيُحدَّثون", ar(info.matched)],
+     ["موكلون جدد سيُضافون", ar(info.fresh)],
+     ["في القاعدة الآن", ar(info.existing)],
+     ["الرقم التالي للموكل", ar(info.nextNo)]].forEach(function (p) {
+      var r = document.createElement("div");
+      r.className = "rowline";
+      r.appendChild(el("b", "", p[0]));
+      r.appendChild(el("span", "", p[1]));
+      sum.appendChild(r);
+    });
+
+    (raw.clients || []).slice(0, 12).forEach(function (c) {
+      pv.appendChild(el("div",
+        "padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.9",
+        "‏" + (c.officeNo ? ar(c.officeNo) + " · " : "") + c.name +
+        (c.poaNo ? "  —  توكيل " + ar(c.poaNo) +
+                   (c.poaYear ? "/" + ar(c.poaYear) : "") : "") +
+        (c.notary ? "  ·  " + c.notary : "")));
+    });
+    if ((raw.clients || []).length > 12) {
+      pv.appendChild(el("div", "padding:8px 0;color:var(--muted);font-size:12.5px",
+        "…و" + ar(raw.clients.length - 12) + " سجلاً"));
+    }
+
+    var btn = document.getElementById("doImport");
+    var fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    fresh.textContent = "✔ دمج التوكيلات";
+    fresh.onclick = function () {
+      var r = PoaMerge.run(raw);
+      if (!r.ok) { alert(r.error); return; }
+      alert("تم الدمج." +
+            String.fromCharCode(10) + "حُدِّث: " + r.updated +
+            String.fromCharCode(10) + "أُضيف: " + r.added +
+            String.fromCharCode(10) + "الإجمالي: " + r.total);
+      location.href = "89-clients.html";
+    };
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  /* ------------------------------------------------------------ الاستيراد */
+
+  document.getElementById("doImport").addEventListener("click", function () {
+    if (!parsed) return;
+
+    var aps  = read(AP_KEY, []);
+    var seen = {};
+    aps.forEach(function (a) { seen[a.id] = true; });
+
+    var store = read(SES_KEY, []);
+    var storeSeen = {};
+    store.forEach(function (r) { storeSeen[r.key] = true; });
+
+    var added = 0, dup = 0;
+    parsed.forEach(function (r, i) {
+      var s = r.s;
+      var key = r.date + "|" + (s.no || "") + "|" + (s.court || "") + "|" + i;
+      if (storeSeen[key]) { dup++; return; }
+
+      var title = "جلسة " + (s.no ? ar(s.no) : "") +
+                  (s.year ? "/" + ar(s.year) : "") +
+                  (s.court ? " — " + s.court : "");
+      var notes = [];
+      if (s.client)  notes.push("الموكل: " + s.client);
+      if (s.opp)     notes.push("الخصم: " + s.opp);
+      if (s.subject) notes.push("الموضوع: " + s.subject);
+      if (s.circle)  notes.push("الدائرة: " + s.circle);
+      if (s.result)  notes.push("النتيجة: " + s.result);
+      if (s.notes)   notes.push(s.notes);
+
+      var id = "im" + r.date.replace(/-/g, "") + "_" + i;
+      if (!seen[id]) {
+        aps.push({
+          id: id, title: title.trim(), with: s.client || "",
+          date: arDate(r.date), time: "",
+          kind: "جلسة", before: 1440,
+          notes: notes.join("\n"), done: false, imported: true
+        });
+        seen[id] = true;
+      }
+
+      store.push({ key: key, date: r.date, no: s.no || "", year: s.year || "",
+                   court: s.court || "", circle: s.circle || "",
+                   client: s.client || "", opp: s.opp || "",
+                   subject: s.subject || "", result: s.result || "",
+                   notes: s.notes || "" });
+      storeSeen[key] = true;
+      added++;
+    });
+
+    if (!atomicSet([[AP_KEY, JSON.stringify(aps)], [SES_KEY, JSON.stringify(store)]])) {
+      alert("المساحة ممتلئة — تعذّر إتمام الاستيراد، وما اتغيّرش حاجة.");
+      return;
+    }
+
+    alert("تم الاستيراد.\nأُضيفت " + added + " جلسة" +
+          (dup ? "\nوتُخطّيت " + dup + " مكرّرة." : "") +
+          "\nتجدها في شاشة المواعيد.");
+    document.getElementById("report").hidden = true;
+    parsed = null;
+    drawStored();
+  });
+
+  /* ------------------------------------------------------- المعروض حالياً */
+
+  function drawStored() {
+    var box = document.getElementById("stored");
+    box.textContent = "";
+    var all = read(SES_KEY, []);
+
+    if (!all.length) {
+      box.appendChild(el("div",
+        "text-align:center;color:var(--muted);padding:24px;font-size:14px",
+        "لم تُستورد جلسات بعد."));
+      return;
+    }
+
+    var head = el("div",
+      "display:flex;gap:9px;align-items:center;margin-bottom:10px;flex-wrap:wrap");
+    head.appendChild(el("span", "flex:1;font-size:14px",
+      "محفوظ: " + ar(all.length) + " جلسة"));
+    var clr = el("button",
+      "min-height:44px;padding:0 16px;border:1px solid #e3c9c6;border-radius:9px;" +
+      "background:transparent;color:#b3261e;font-family:inherit;font-size:13.5px",
+      "حذف الكل");
+    clr.type = "button";
+    clr.onclick = function () {
+      if (!confirm("حذف كل الجلسات المستوردة؟\nالمواعيد المضافة منها تبقى كما هي.")) return;
+      localStorage.removeItem(SES_KEY);
+      drawStored();
+    };
+    head.appendChild(clr);
+    box.appendChild(head);
+
+    all.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; })
+       .slice(0, 60).forEach(function (r) {
+      var c = el("div",
+        "background:var(--card);border:1px solid var(--line);border-radius:11px;" +
+        "padding:11px;margin-bottom:8px");
+      c.appendChild(el("div",
+        "font-family:var(--f-title);font-size:14.5px;line-height:1.7",
+        arDate(r.date) + "  ·  " + (r.court || "—")));
+      var sub = [r.no ? "دعوى " + ar(r.no) + (r.year ? "/" + ar(r.year) : "") : "",
+                 r.client, r.subject].filter(Boolean).join("  ·  ");
+      if (sub) c.appendChild(el("div",
+        "font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.9", sub));
+      box.appendChild(c);
+    });
+  }
+
+  /* ------------------------------------------------------------ المدخلات */
+
+  document.getElementById("pick").addEventListener("click", function () {
+    document.getElementById("file").click();
+  });
+  document.getElementById("file").addEventListener("change", function () {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () { analyse(String(rd.result)); };
+    rd.onerror = function () { alert("تعذّر قراءة الملف."); };
+    rd.readAsText(f, "utf-8");
+  });
+  document.getElementById("readPaste").addEventListener("click", function () {
+    var t = document.getElementById("paste").value.trim();
+    if (!t) { alert("الصق محتوى الملف أولاً."); return; }
+    analyse(t);
+  });
+
+  var dbtn = document.getElementById("dedupeBtn");
+  if (dbtn) {
+    dbtn.onclick = function () {
+      if (!window.AgendaImport || !AgendaImport.dedupe) { alert("غير متاح."); return; }
+      var r = AgendaImport.dedupe();
+      alert(r.removed
+        ? "حُذف " + r.removed + " موعداً مكرّراً." +
+          String.fromCharCode(10) + "بقي " + r.kept + " موعداً."
+        : "لا يوجد ازدواج — المواعيد كلها فريدة.");
+    };
+  }
+
+  drawStored();
+})();
+</script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

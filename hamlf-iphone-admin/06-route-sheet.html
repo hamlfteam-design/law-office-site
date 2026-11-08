@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>خط السير</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .crt{ background:var(--bg,#f4ece0); border-radius:12px; padding:10px; margin-bottom:12px; }
+  .crt > h3{ margin:0 0 8px; font-size:15px; font-family:var(--f-title); color:var(--brand-dark); }
+  .it{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 10px; margin-bottom:7px; }
+  .it .hd{ display:flex; justify-content:space-between; gap:8px; align-items:flex-start; }
+  .it .dt{ font-size:11.5px; color:var(--muted); white-space:nowrap; }
+  .it .lb{ font-size:13.5px; line-height:1.7; flex:1; }
+  .it .sb{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+  .it .ac{ display:flex; gap:6px; margin-top:7px; }
+  .it .ac button{ flex:1; min-height:34px; border-radius:8px; font-family:inherit; font-size:12.5px;
+        border:1px solid var(--line); background:transparent; }
+  .it textarea{ width:100%; margin-top:6px; min-height:36px; font-size:12.5px; font-family:inherit;
+        border:1px solid var(--line); border-radius:7px; padding:5px 7px; direction:rtl; }
+  .empty{ color:var(--muted); font-size:13.5px; text-align:center; padding:30px 10px; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="home.html">&rarr;</a>
+    <h1>خط السير</h1>
+    <span class="screen-id">SCR-06</span>
+  </div>
+
+  <main>
+    <div class="note" style="margin-bottom:10px">
+      الأعمال الإدارية المفتوحة + جلسات الاطلاع الفائتة بلا قرار، مجمَّعة حسب المحكمة ومرتَّبة بأقرب موعد.
+      احذف أو عدّل قبل التصدير — التعديل هنا لا يغيّر بيانات القضايا نفسها.
+    </div>
+    <button type="button" class="btn" id="exportBtn" style="width:100%;margin-bottom:12px">📤 تصدير Word</button>
+    <div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="body"></div>
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="96-tasks.html"><span class="bi">📋</span>الأعمال</a>
+    <a href="04-bailiff-papers.html"><span class="bi">📨</span>المحضرين</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/route-sheet.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var RS = window.RouteSheet;
+  var ar = (window.CaseFile && CaseFile.ar) || function (x) { return String(x == null ? "" : x); };
+  var groups = [];
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  function removeItem(g, it) {
+    var i = g.items.indexOf(it);
+    if (i >= 0) g.items.splice(i, 1);
+    groups = groups.filter(function (x) { return x.items.length; });
+    draw();
+  }
+  function move(g, it, dir) {
+    var i = g.items.indexOf(it);
+    var j = i + dir;
+    if (j < 0 || j >= g.items.length) return;
+    var tmp = g.items[i]; g.items[i] = g.items[j]; g.items[j] = tmp;
+    draw();
+  }
+
+  function card(g, it) {
+    var r = el("div"); r.className = "it";
+    var hd = el("div"); hd.className = "hd";
+    hd.appendChild(el("div", "", it.label)).className = "lb";
+    hd.appendChild(el("div", "", it.date ? RS.dayDate(it.date) : "—")).className = "dt";
+    r.appendChild(hd);
+    r.appendChild(el("div", "", it.sub)).className = "sb";
+
+    var note = document.createElement("textarea");
+    note.placeholder = "ملاحظة (اختياري)…";
+    note.value = it.note || "";
+    note.addEventListener("input", function () { it.note = note.value; });
+    r.appendChild(note);
+
+    var ac = el("div"); ac.className = "ac";
+    var up = el("button", "", "↑"); up.type = "button"; up.onclick = function () { move(g, it, -1); };
+    var down = el("button", "", "↓"); down.type = "button"; down.onclick = function () { move(g, it, 1); };
+    var del = el("button", "color:#b3261e", "✕ حذف"); del.type = "button"; del.onclick = function () { removeItem(g, it); };
+    ac.appendChild(up); ac.appendChild(down); ac.appendChild(del);
+    r.appendChild(ac);
+    return r;
+  }
+
+  function draw() {
+    var body = document.getElementById("body");
+    var stat = document.getElementById("stat");
+    body.textContent = "";
+    var total = groups.reduce(function (n, g) { return n + g.items.length; }, 0);
+    if (!total) {
+      body.appendChild(el("div", "", "لا أعمال مفتوحة ولا جلسات اطلاع فائتة حالياً.")).className = "empty";
+      stat.textContent = "";
+      return;
+    }
+    stat.textContent = ar(total) + " بند في " + ar(groups.length) + " محكمة — مرتَّبة بأقرب موعد.";
+    groups.forEach(function (g) {
+      var box = el("div"); box.className = "crt";
+      box.appendChild(el("h3", "", "🏛 " + g.court));
+      g.items.forEach(function (it) { box.appendChild(card(g, it)); });
+      body.appendChild(box);
+    });
+  }
+
+  function load() {
+    groups = RS.groupByCourt(RS.collectItems());
+    draw();
+  }
+
+  document.getElementById("exportBtn").onclick = function () {
+    var total = groups.reduce(function (n, g) { return n + g.items.length; }, 0);
+    if (!total) { alert("لا بنود لتصديرها."); return; }
+    RS.exportDoc(groups, function (ok) {
+      if (!ok) alert("تعذّر التصدير على هذا الجهاز.");
+    });
+  };
+
+  load();
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

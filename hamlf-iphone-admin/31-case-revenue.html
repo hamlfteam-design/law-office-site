@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>أتعاب القضايا ومصروفاتها</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="30-finance-hub.html">→</a>
+    <h1>أتعاب القضايا ومصروفاتها</h1>
+    <span class="screen-id">FIN-01</span>
+  </div>
+
+  <main>
+
+    <div class="infobox">
+      كل قضية لها <strong>أتعابها ورسومها ومصروفاتها المستقلة</strong> — البيان يُسجَّل من
+      <a href="20-cases-hub.html">صفحة القضية</a> نفسها ويظهر هنا مجمَّعاً، أو يُضاف مباشرةً
+      من هذه الصفحة فيظهر في ملف القضية.
+    </div>
+
+    <section class="card">
+      <header>اختيار القضية</header>
+      <div class="body">
+        <div class="field">
+          <label class="lbl" for="feeFile">رقم الملف <span class="badge lookup">من ملفات المكتب</span></label>
+          <div class="combo">
+            <select id="feeFile">
+              <option value="">— اختر الملف —</option>
+            </select>
+            <button type="button" class="btn ghost sm" id="openCaseBtn">فتح الملف</button>
+          </div>
+          <div class="note">
+            الأتعاب والمصروفات <strong>مرتبطة بملف قضية</strong> — لا تُدخَل منفصلة، فيظل حساب الموكل مجمّعاً.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl">اسم الموكل <span class="badge auto">من الملف</span></label>
+          <input type="text" class="readonly" id="feeClient" value="" readonly>
+        </div>
+
+        <div class="field">
+          <label class="lbl">موضوع القضية <span class="badge auto">من الملف</span></label>
+          <input type="text" class="readonly" id="feeSubject" value="" readonly>
+        </div>
+
+        <div class="field">
+          <label class="lbl">درجة التقاضي <span class="badge auto">من الملف</span></label>
+          <input type="text" class="readonly" id="feeCourtLevel" value="" readonly>
+          <div class="note">الأتعاب تُحسب لكل درجة على حدة — وترحيل الملف لدرجة أعلى يفتح أتعاباً جديدة.</div>
+        </div>
+      </div>
+    </section>
+
+    <div id="noFileMsg" class="alertbox">اختر ملف قضية أولاً لعرض أتعابه ومصروفاته أو تسجيل بيان جديد.</div>
+
+    <div id="feeArea" hidden>
+
+      <!-- ============ الأتعاب المتفق عليها ============ -->
+      <section class="card">
+        <header>الأتعاب المتفق عليها</header>
+        <div class="body">
+          <div class="field">
+            <label class="lbl" for="feeKind">نوع الاتفاق</label>
+            <select id="feeKind">
+              <option value="قيمة">قيمة ثابتة</option>
+              <option value="نسبة">نسبة من نتيجة القضية</option>
+            </select>
+          </div>
+          <div class="field" id="feeStartWrap">
+            <label class="lbl" for="feeStart">الأتعاب المتفق عليها <span class="req">*</span></label>
+            <input type="number" id="feeStart" placeholder="جنيه">
+          </div>
+          <div class="field" id="feePctWrap" hidden>
+            <label class="lbl" for="feePct">النسبة (%)</label>
+            <input type="number" id="feePct" placeholder="%">
+          </div>
+
+          <div class="calcrow">
+            <span>إجمالي المقبوض (من سجل العهدة/التحصيل)</span>
+            <span class="v" id="feeCustody">٠</span>
+          </div>
+          <div class="calcrow">
+            <span>الباقي من الأتعاب المتفق عليها</span>
+            <span class="v" id="feeRemain">٠</span>
+          </div>
+          <div class="note">الباقي يُحسب تلقائياً = الأتعاب المتفق عليها − إجمالي المقبوض. لا يُدخله المستخدم.</div>
+
+          <div class="field" style="margin-top:14px">
+            <label class="lbl" for="dueDate">
+              تاريخ استحقاق الباقي <span class="badge alert">تنبيه</span>
+            </label>
+            <input type="date" id="dueDate"
+                   data-session-date="#feeAlert"
+                   data-alert-days="7"
+                   data-alert-text="تنبيه: باقي {d} يوم/أيام على استحقاق باقي الأتعاب."
+                   data-alert-title="استحقاق أتعاب قريب">
+            <div class="note">تنبيه بصوت قبل الاستحقاق بـ ٧ أيام.</div>
+          </div>
+
+          <div class="field">
+            <label class="lbl" for="feeNotes">ملاحظات استحقاق باقي الأتعاب</label>
+            <textarea id="feeNotes" maxlength="1000"
+                      placeholder="مثال: يُسدَّد الباقي عند صدور الحكم الابتدائي…"></textarea>
+          </div>
+
+          <div class="alertbox" id="feeAlert" hidden></div>
+
+          <button type="button" class="btn sm" id="saveFeeAgreement" style="margin-top:10px">حفظ اتفاق الأتعاب</button>
+        </div>
+      </section>
+
+      <!-- ============ سجل التحصيل والمصروفات ============ -->
+      <section class="card">
+        <header>سجل التحصيل ورسوم ومصروفات هذا الملف</header>
+        <div class="body">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <button type="button" class="btn sm" id="addPaymentBtn">＋ تحصيل / دفعة أتعاب</button>
+            <button type="button" class="btn sm ghost" id="addExpenseBtn">＋ رسم / مصروف</button>
+          </div>
+          <div id="movesList"></div>
+          <div class="note">
+            كل حركة على هذا الملف — دفعة أتعاب أو رسم أو مصروف — تُسجَّل هنا وفي دفتر
+            المصروفات العام معاً، فلا يُكتب البيان مرتين.
+          </div>
+        </div>
+      </section>
+
+      <div class="calcrow">
+        <span>إجمالي المحمَّل على الموكل</span>
+        <span class="v" id="feeOnClient">٠</span>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn ghost" id="printMovesBtn">طباعة تقرير هذا الملف</button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="30-finance-hub.html" class="active"><span class="bi">💰</span>المالية</a>
+    <a href="40-hr-hub.html"><span class="bi">👥</span>الموظفين</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/data.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/case-revenue.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

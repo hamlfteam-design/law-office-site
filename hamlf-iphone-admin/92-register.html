@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٩٢ · السجلات</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .picks { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .picks button { flex:1 1 46%; min-height:52px; border-radius:11px; font-family:inherit;
+        font-size:14px; border:1px solid var(--line); background:var(--card);
+        color:var(--brand); display:flex; align-items:center; justify-content:center;
+        gap:6px; }
+  .picks button.on { background:var(--brand); color:#fff; border-color:var(--brand); }
+  .money { display:flex; gap:9px; margin-bottom:14px; }
+  .money div { flex:1; border-radius:12px; padding:13px 8px; text-align:center;
+               border:1px solid var(--line); background:var(--card); }
+  .money .l { font-size:11.5px; color:var(--muted); }
+  .money .n { font-family:var(--f-title); font-size:19px; margin-top:4px;
+              direction:ltr; unicode-bidi:embed; }
+  .money .cu .n { color:#1f7a4d; }
+  .money .sp .n { color:#b3261e; }
+  .money .ba    { border-color:var(--brand); background:var(--bg,#f4ece0); }
+  .money .ba .n { color:var(--brand-dark); }
+  .rg { background:var(--card); border:1px solid var(--line); border-radius:12px;
+        padding:12px; margin-bottom:9px; }
+  .rg .r { display:flex; gap:8px; font-size:12.5px; color:var(--muted);
+           margin-top:5px; line-height:1.9; }
+  .rg .r b { flex:0 0 96px; color:var(--brand-dark); font-family:var(--f-title);
+             font-weight:400; }
+  .rg .r span { flex:1; word-break:break-word; unicode-bidi:isolate; }
+  .rg .t1 { font-family:var(--f-title); font-size:15px; line-height:1.7; }
+  .rg .t1 bdi { unicode-bidi:isolate; }
+  .rg .t1 .sep { color:var(--muted); }
+  .rg .act { display:flex; gap:7px; margin-top:10px; }
+  .rg .act button { flex:1; min-height:42px; border:1px solid var(--line);
+        border-radius:8px; background:transparent; color:var(--brand);
+        font-family:inherit; font-size:12.5px; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="20-cases-hub.html">&rarr;</a>
+    <h1 id="ttl">السجلات</h1>
+    <span class="screen-id">SCR-92</span>
+  </div>
+
+  <main>
+
+
+
+    <div class="picks" id="picks" data-nosave="1"></div>
+
+    <div class="money" id="money" hidden></div>
+
+    <input type="text" id="q" data-nosave="1" lang="ar" dir="rtl" autocomplete="off"
+           placeholder="ابحث في هذا السجل…"
+           style="width:100%;min-height:50px;font-size:16px;padding:10px 14px;
+                  border:1px solid var(--line);border-radius:10px;background:var(--card);
+                  direction:rtl;text-align:right;font-family:inherit;margin-bottom:12px">
+
+    <div style="display:flex;gap:8px;margin-bottom:12px" data-nosave="1">
+      <button type="button" class="btn" id="add"
+              style="flex:2;min-height:48px">＋ قيد جديد</button>
+      <button type="button" class="btn ghost" id="print"
+              style="flex:1;min-height:48px">🖨 طباعة</button>
+    </div>
+    <button type="button" class="btn ghost" id="syncExperts" data-nosave="1" hidden
+            style="width:100%;min-height:46px;margin-bottom:12px;font-size:13.5px">
+      🔄 مزامنة تلقائية من سجل القضايا (كل قضية بها «خبير» أو «لورود التقرير»)</button>
+    <button type="button" class="btn ghost" id="waraqAdmin" data-nosave="1" hidden
+            style="width:100%;min-height:46px;margin-bottom:12px;font-size:13.5px">
+      ⤵ تنزيل أوراق المحضرين اللي لسه ما اتستلمتش في «الأعمال الإدارية»</button>
+<div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="list"></div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="90-case-file.html"><span class="bi">🗂</span>سجل القضايا</a>
+    <a href="89-clients.html"><span class="bi">👤</span>الموكلون</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/regs-def.js?v=2"></script>
+<script src="assets/registers.js?v=5"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script>
+(function () {
+  "use strict";
+
+  var R = Registers;
+  var ar = R.ar;
+  var keys = Object.keys(window.REGS);
+  var cur = keys[0];
+
+  /* ?reg=mahader يفتح سجلاً بعينه */
+  var m = location.search.match(/[?&]reg=([^&]*)/);
+  if (m && window.REGS[decodeURIComponent(m[1])]) cur = decodeURIComponent(m[1]);
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  function drawPicks() {
+    var box = document.getElementById("picks");
+    box.textContent = "";
+    keys.forEach(function (k) {
+      var reg = window.REGS[k];
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = reg.i + " " + reg.n.replace(/^سجل\s*(متابعة\s*)?/, "");
+      if (k === cur) b.className = "on";
+      b.onclick = function () {
+        cur = k;
+        document.getElementById("q").value = "";
+        drawPicks(); drawMoney(); draw();
+      };
+      box.appendChild(b);
+    });
+    document.getElementById("ttl").textContent = window.REGS[cur].n;
+    document.getElementById("syncExperts").hidden = (cur !== "khubara");
+    document.getElementById("waraqAdmin").hidden = (cur !== "waraq");
+  }
+
+  function current() {
+    return R.search(cur, document.getElementById("q").value.trim());
+  }
+
+  /* المصاريف وحدها لها العهدة والمنصرف والرصيد — كلٌّ في خانته */
+  function drawMoney() {
+    var box = document.getElementById("money");
+    if (!window.REGS[cur].exp) { box.hidden = true; return; }
+    box.hidden = false;
+    var t = R.expenseTotals(current());
+    box.textContent = "";
+    [["العهدة", t.custody, "cu"], ["المنصرف", t.spent, "sp"], ["الرصيد", t.balance, "ba"]]
+      .forEach(function (p) {
+        var d = el("div");
+        d.className = p[2];
+        d.appendChild(el("div", "", p[0])).className = "l";
+        d.appendChild(el("div", "", R.fmtMoney(p[1]))).className = "n";
+        box.appendChild(d);
+      });
+  }
+
+  function draw() {
+    var reg = window.REGS[cur];
+    var list = current();
+
+    document.getElementById("stat").textContent =
+      list.length ? "المعروض: " + ar(list.length) + " قيد"
+                  : "لا قيود في هذا السجل — اضغط «قيد جديد».";
+
+    var box = document.getElementById("list");
+    box.textContent = "";
+
+    list.forEach(function (r) {
+      var card = el("div"); card.className = "rg";
+
+      /* أول ثلاثة حقول عنواناً، والباقي أسطراً — والفارغ لا يُعرض.
+         كل جزء داخل bdi حتى لا تُقلب الأرقام العربية ترتيبها بخوارزمية
+         الاتجاه فتبدو كأنها من الشمال لليمين. */
+      var t1el = el("div"); t1el.className = "t1";
+      var segs = reg.F.slice(0, 3).map(function (f) {
+        return r[f.k] ? ar(r[f.k]) : "";
+      }).filter(Boolean);
+      if (!segs.length) {
+        t1el.textContent = "قيد بلا بيان";
+      } else {
+        segs.forEach(function (sgv, i) {
+          if (i) t1el.appendChild(el("span", "", " · ")).className = "sep";
+          var bd = document.createElement("bdi");
+          bd.textContent = sgv;
+          t1el.appendChild(bd);
+        });
+      }
+      card.appendChild(t1el);
+
+      reg.F.slice(3).forEach(function (f) {
+        if (f.act) return;
+        var v = f.calc
+          ? R.fmtMoney(R.money(r.custody) - R.money(r.amount))
+          : r[f.k];
+        if (!v) return;
+        var row = el("div"); row.className = "r";
+        row.appendChild(el("b", "", f.t));
+        row.appendChild(el("span", "", ar(v)));
+        card.appendChild(row);
+      });
+
+      var act = el("div"); act.className = "act";
+      function b(label, on) {
+        var x = document.createElement("button");
+        x.type = "button"; x.textContent = label; x.onclick = on;
+        act.appendChild(x);
+        return x;
+      }
+      b("✎ تعديل", function () {
+        R.edit(cur, r._id, function () { drawMoney(); draw(); });
+      });
+      if (cur === "waraq" && R.shareWaraq) {
+        var sw = b("🟢 إرسال لفريق المحضرين", function () { R.shareWaraq(r, sw); });
+        sw.style.color = "#128c3e"; sw.style.borderColor = "#25d366";
+        var dl = b("⬇ تنزيل البطاقة", function () { R.downloadWaraq(r, dl); });
+      }
+      var d = b("🗑 حذف", function () {
+        R.remove(cur, r._id, function () { drawMoney(); draw(); });
+      });
+      d.style.color = "#b3261e";
+      d.style.borderColor = "#e3c9c6";
+      card.appendChild(act);
+
+      box.appendChild(card);
+    });
+  }
+
+  var timer;
+  document.getElementById("q").addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () { drawMoney(); draw(); }, 160);
+  });
+
+  document.getElementById("add").onclick = function () {
+    R.edit(cur, null, function () { drawMoney(); draw(); });
+  };
+  document.getElementById("print").onclick = function () {
+    R.print(cur, current());
+  };
+  document.getElementById("syncExperts").onclick = function () {
+    if (!R.syncExpertsFromCases) { alert("المزامنة غير متاحة في هذه النسخة."); return; }
+    var r = R.syncExpertsFromCases();
+    if (!r.matched) {
+      alert("لم يُعثر على قضايا تحتوي «خبير» أو «لورود التقرير».");
+      return;
+    }
+    alert("تمّت المزامنة — " + ar(r.matched) + " قضية مطابقة" +
+      (r.added ? "، أُضيف منها " + ar(r.added) + " قيد جديد" : "") +
+      (r.updated ? "، وتحدَّث " + ar(r.updated) + " قيد قائم" : "") +
+      (!r.added && !r.updated ? " — كل القيود محدَّثة بالفعل." : "."));
+    drawMoney(); draw();
+  };
+
+  /* القيود القديمة (قبل التنزيل التلقائي): اللي لسه ما اتستلمتش بس، بعد تأكيد */
+  document.getElementById("waraqAdmin").onclick = function () {
+    if (!R.waraqToAdmin || !window.CaseFile) { alert("غير متاح في هذه النسخة."); return; }
+    var open = R.rows("waraq").filter(function (r) {
+      return !String(r.received || "").trim() && !/^تم/.test(String(r.done || "").trim());
+    });
+    if (!open.length) { alert("كل أوراق المحضرين مستلمة — مفيش حاجة تنزل."); return; }
+    Ask.confirm("تنزيل " + ar(open.length) + " ورقة في «الأعمال الإدارية»؟", {
+      danger: false, ok: "تنزيل (" + ar(open.length) + ")",
+      detail: "كل ورقة بتنزل مهمة في قضيتها برقم الملف (أو التكليفات العامة لو مالهاش قضية)، " +
+              "واللي نزلت قبل كده بتتحدّث بس من غير تكرار."
+    }, function () {
+      var n = 0;
+      open.forEach(function (r) { if (R.waraqToAdmin(r)) n++; });
+      if (window.PL && PL.toast) PL.toast("تم", "نزلت " + ar(n) + " ورقة في الأعمال الإدارية.", "ok");
+    });
+  };
+
+  /* تعديل من جهاز تاني في الفريق (المدير مثلاً) وصل من السحابة ← يبان على طول ومكان الشاشة ثابت */
+  window.addEventListener("regs:synced", function (e) {
+    var y = window.scrollY || 0;
+    drawMoney(); draw();
+    window.scrollTo(0, y);
+    if (window.PL && PL.toast) PL.toast("اتحدّثت السجلات", "وصل " + ar((e.detail && e.detail.n) || 1) + " تعديل من الفريق.", "ok");
+  });
+  /* أول ما الشاشة تتفتح: هات الجديد على طول من غير ما تستنى الدقيقة */
+  setTimeout(function () { if (R.pull) R.pull(); }, 1200);
+
+  drawPicks();
+  drawMoney();
+  draw();
+})();
+</script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/findall.js?v=4"></script>
+<script src="assets/findbar.js?v=1"></script>
+<script src="assets/autofit.js?v=1"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الحضور والانصراف</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .att-tabs{ display:flex; gap:6px; overflow-x:auto; margin-bottom:14px; }
+  .att-tabs button{ flex:0 0 auto; padding:10px 16px; border-radius:20px; border:1px solid var(--line);
+    background:var(--card); color:var(--text); font-family:inherit; font-size:13.5px; min-height:42px; }
+  .att-tabs button.on{ background:var(--brand); color:#fff; border-color:var(--brand); }
+  .att-view{ display:none; } .att-view.on{ display:block; }
+  .att-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 15px; margin-bottom:10px; }
+  .att-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .att-row > *{ flex:1 1 150px; min-width:0; }
+  .att-field label{ display:block; font-family:var(--f-title); font-size:13px; margin-bottom:4px; color:var(--brand-dark); }
+  .att-field select, .att-field input{ width:100%; min-height:46px; font-size:14.5px; padding:8px 11px;
+    border:1px solid var(--line); border-radius:9px; background:var(--card); font-family:inherit;
+    direction:rtl; text-align:right; }
+  .att-field input[type=time]{ direction:ltr; text-align:center; }
+  .badge-att{ display:inline-block; font-size:11.5px; padding:2px 10px; border-radius:20px; margin-inline-start:6px; }
+  .badge-good{ background:#e3f3e9; color:#1c6b4a; } .badge-bad{ background:#fbe4e2; color:#b3261e; }
+  .badge-warn{ background:#fdf1dc; color:#916017; }
+  .mini{ display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .mini:last-child{ border-bottom:0; }
+  .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
+  .kpi{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px; text-align:center; }
+  .kpi .n{ font-size:21px; font-weight:700; color:var(--brand-dark); }
+  .kpi .l{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+  @media (min-width:768px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); } }
+  .remind-bar{ background:#fdece9; border:1px solid #f3b8ae; border-radius:12px;
+    padding:12px 14px; margin-bottom:14px; }
+  .remind-bar .t{ font-weight:700; color:#8a2418; margin-bottom:4px; font-size:14px; }
+  .remind-bar .d{ font-size:12.5px; color:#8a2418; line-height:1.8; margin-bottom:10px; }
+  .gps-btn{ width:100%; min-height:48px; border-radius:10px; border:0; background:#b3261e;
+    color:#fff; font-family:inherit; font-size:14px; font-weight:600; }
+  .gps-btn.ok{ background:#1c6b4a; }
+  .gps-note{ font-size:11.5px; color:var(--muted); margin-top:6px; line-height:1.8; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="40-hr-hub.html">→</a>
+    <h1>الحضور والانصراف والأجور</h1>
+    <span class="screen-id">ATT-1</span>
+  </div>
+
+  <main>
+    <div id="reminderBanner"></div>
+
+    <div class="att-tabs" id="tabs" data-nosave="1">
+      <button type="button" data-v="dash" class="on">لوحة القيادة</button>
+      <button type="button" data-v="day">تسجيل يومي</button>
+      <button type="button" data-v="report">التقرير الشهري</button>
+      <button type="button" data-v="settings">الإعدادات والعطلات</button>
+    </div>
+    <!-- رواتب المحامين: زرار واضح بدل ما الخانة تفضل مدفونة في آخر «الإعدادات» -->
+    <button type="button" id="goSal" class="btn block" style="display:none;margin:-4px 0 14px">💰 رواتب المحامين — تحديد / تعديل الراتب</button>
+
+    <!-- ============ لوحة القيادة ============ -->
+    <div class="att-view on" id="v-dash">
+      <div class="att-field" style="margin-bottom:12px">
+        <label>الشهر</label>
+        <input type="month" id="dashMonth">
+      </div>
+      <div class="kpi-grid" id="dashKpi"></div>
+      <div id="dashList"></div>
+    </div>
+
+    <!-- ============ تسجيل يومي ============ -->
+    <div class="att-view" id="v-day">
+      <div class="att-row">
+        <div class="att-field"><label>الموظف</label><select id="dayEmp"></select></div>
+        <div class="att-field"><label>التاريخ</label><input type="date" id="dayDate"></div>
+      </div>
+      <div id="unrecPanel"></div>
+      <div class="att-field" style="margin-bottom:12px">
+        <label>حالة اليوم</label>
+        <select id="dayStatus" data-no-manual="1">
+          <option value="present">حاضر</option>
+          <option value="absent">غائب بدون إذن مسبق</option>
+          <option value="excused">غائب بإذن مسبق</option>
+        </select>
+      </div>
+      <div id="dayInfo" class="note" style="margin-bottom:12px"></div>
+      <div id="dayBody"></div>
+    </div>
+
+    <!-- ============ التقرير الشهري ============ -->
+    <div class="att-view" id="v-report">
+      <div class="att-row">
+        <div class="att-field"><label>الموظف</label><select id="repEmp"></select></div>
+        <div class="att-field"><label>الشهر</label><input type="month" id="repMonth"></div>
+      </div>
+      <button type="button" class="btn block" id="repBuild" style="margin-bottom:14px">بناء التقرير</button>
+      <div id="repOut"></div>
+    </div>
+
+    <!-- ============ الإعدادات والعطلات ============ -->
+    <div class="att-view" id="v-settings">
+      <div class="section-title">أيام العمل الأسبوعية</div>
+      <div class="note" style="margin-bottom:10px">
+        كل مكتب له نظامه — حدِّد لكل يوم: دوام كامل (محكمة وصباحية) · محكمة فقط · مكتب فقط · عطلة أسبوعية.
+      </div>
+      <div id="scheduleList"></div>
+
+      <div class="section-title" style="margin-top:20px">مواقع الحضور (بديل البصمة)</div>
+      <div class="note" style="margin-bottom:10px">
+        الموقع يُرسَل حياً لحظة الضغط (لا نسخة قديمة) ويُقبل بدقة ٥٠ م أو أقل. اعتمد مقر المكتب ومقرّ كل محكمة وأنت فيها،
+        فيُقبل حضور الفريق فقط لو كانوا على بعد ٥٠ م أو أقل منه.
+      </div>
+      <div id="placesBox"></div>
+
+      <div class="section-title" style="margin-top:20px">بدء تطبيق الغياب التلقائي</div>
+      <div class="note" style="margin-bottom:8px">
+        من التاريخ ده أي يوم عمل يعدّي من غير تسجيل حضور بيتحسب غياب بدون إذن. اللي قبله محسوب كامل.
+        الموظف الجديد بيبدأ من اليوم التالي لإضافته للفريق. المالك خارج القاعدة.
+      </div>
+      <div class="att-field" style="margin-bottom:10px"><label>تاريخ البدء</label><input type="date" id="polStart"></div>
+
+      <div class="section-title" style="margin-top:20px">رواتب الموظفين الأساسية</div>
+      <div class="note" style="margin-bottom:8px">
+        اكتب الراتب واختار الشهر اللي بيسري منه ودوس «حفظ». تعديل الراتب بعدين ما بيغيّرش الشهور اللي فاتت،
+        والخصم بيتحسب على الراتب الساري في الشهر أيّاً كان الرقم.
+      </div>
+      <div id="salList"></div>
+
+      <div class="section-title" style="margin-top:20px">العطلات الرسمية (تلقائية حسب السنة)</div>
+      <div class="att-field" style="margin-bottom:10px"><label>السنة</label>
+        <select id="holYear"><option>2025</option><option selected>2026</option><option>2027</option></select>
+      </div>
+      <div id="holAuto"></div>
+
+      <div class="section-title" style="margin-top:20px">استثناءات إضافية بقرار المكتب</div>
+      <div class="att-row">
+        <div class="att-field"><label>التاريخ</label><input type="date" id="holDate"></div>
+        <div class="att-field"><label>الوصف</label><input type="text" id="holName" placeholder="مثال: إجازة عارضة"></div>
+      </div>
+      <button type="button" class="btn ghost block" id="holAdd" style="margin-bottom:14px">+ إضافة استثناء</button>
+      <div id="holCustom"></div>
+
+      <div class="infobox" style="margin-top:16px">
+        قواعد الحساب: يوم الدوام الكامل = صباحية بالمحكمة ٣٫٥ ساعة + مسائية بالمكتب ٥ ساعات —
+        وأيام المحكمة فقط/المكتب فقط/العطلة تُحدَّد لكل يوم من «أيام العمل الأسبوعية» أعلاه
+        حسب نظام المكتب. كل فترة لا تُحتسب إلا بإثبات تواجد (وقت رسالة الموقع). التأخير ١–٢ ساعة
+        في فترة المكتب = خصم نصف الفترة، وأكثر من
+        ساعتين = خصم الفترة كاملة. الغياب بلا إذن = خصم ضعف ساعات اليوم. خصم ٣٠٪+ من الراتب
+        الشهري = تنبيه (فيُفصل عند التكرار)، و٥٠٪+ = فصل فوري.
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="40-hr-hub.html" class="active"><span class="bi">👥</span>الموظفين</a>
+    <a href="80-team.html"><span class="bi">👤</span>الفريق</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=5"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/attendance.js?v=11"></script>
+<script>/* تذكير الحضور كإشعار موبايل — يتحسب كل ما البرنامج يتفتح */ try { Attendance.syncNotifications(); } catch (e) { }</script>
+<script>
+(function () {
+  "use strict";
+  var AT = window.Attendance;
+  var AR = "٠١٢٣٤٥٦٧٨٩";
+  function ar(n) { return String(n == null ? "" : n).replace(/[0-9]/g, function (d) { return AR[+d]; }); }
+  function fmtH(h) { return ar((Math.round(h * 10) / 10).toString().replace(".", "٫")); }
+  function fmtMoney(v) { return ar(Math.round(v).toLocaleString("en-US")); }
+  function el(t, css, txt) { var e = document.createElement(t); if (css) e.style.cssText = css; if (txt != null) e.textContent = txt; return e; }
+  /* datepicker.js يحوّل كل input[type=date/month] لحقل نصّ للعرض العربي —
+     قيمته الخام بعدها نص عربي منسَّق لا ISO، فتُقرأ عبر lawyerISO لا .value
+     مباشرة (نفس إصلاح data-date-kind الجذري في باقي شاشات التطبيق). */
+  function V(id) {
+    var f = document.getElementById(id);
+    if (!f) return "";
+    if (f.dataset && f.dataset.dateKind && window.lawyerISO) return window.lawyerISO(f) || "";
+    return f.value.trim();
+  }
+  function dayNameAr(d) {
+    var names = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    return names[new Date(d + "T12:00:00").getDay()];
+  }
+  function statusLabel(s) { return { absent: "غائب بدون إذن", excused: "غائب بإذن", holiday: "عطلة", present: "حاضر" }[s] || s; }
+  function alertBadge(a) {
+    /* تنبيه/فصل: للمالك بس (بيظهر له في تقرير الموظف ولوحة القيادة) */
+    if (!IS_OWNER) return "";
+    if (a === "terminate") return '<span class="badge-att badge-bad">فصل</span>';
+    if (a === "warn") return '<span class="badge-att badge-warn">تنبيه</span>';
+    return '<span class="badge-att badge-good">طبيعي</span>';
+  }
+
+  /* -------------------------------------------------------------- تبويبات */
+  document.querySelectorAll("#tabs button").forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll("#tabs button").forEach(function (x) { x.classList.remove("on"); });
+      document.querySelectorAll(".att-view").forEach(function (x) { x.classList.remove("on"); });
+      b.classList.add("on");
+      document.getElementById("v-" + b.dataset.v).classList.add("on");
+      renderAll();
+    };
+  });
+
+  /* ---------------------------------------------------------- الصلاحيات
+     «الحضور والرواتب» (Team.PERMKEYS.payroll): عرض = اللوحة والتقرير الشهري
+     لكل الفريق · تعديل = كمان المرتبات والإعدادات والعطلات. من غيرها الموظف
+     بيشوف «تسجيل يومي» لنفسه بس — عشان يبعت موقعه — من غير مرتبات حد. */
+  var HAS_TEAM = !!(window.Team && Team.canView && Team.PERMKEYS && Team.PERMKEYS.payroll);
+  var PAY_VIEW = HAS_TEAM ? Team.canView("payroll") : true;
+  var PAY_EDIT = HAS_TEAM ? Team.canEdit("payroll") : true;
+  var ME = (window.Team && Team.current) ? Team.current() : null;
+  var IS_OWNER = !HAS_TEAM || !!(ME && ME.role === "owner");
+  (function applyPerms() {
+    function hide(v) {
+      var b = document.querySelector('#tabs button[data-v="' + v + '"]');
+      if (b) b.style.display = "none";
+      var view = document.getElementById("v-" + v);
+      if (view) { view.classList.remove("on"); view.style.display = "none"; }
+    }
+    if (!PAY_EDIT) hide("settings");
+    if (!PAY_VIEW) {
+      hide("dash");   /* التقرير الشهري بيفضل ظاهر — لنفسه بس ومن غير أرقام الرواتب */
+      /* الموظف مقصور على نفسه: combo.js بيضيف «إضافة يدوية» لأي select،
+         فالقائمة بتتقفل عشان محدش يكتب اسم موظف تاني بإيده */
+      var de = document.getElementById("dayEmp");
+      de.setAttribute("data-no-combo", "1"); de.setAttribute("data-no-manual", "1");
+      de.disabled = true;
+      var re = document.getElementById("repEmp");
+      re.setAttribute("data-no-combo", "1"); re.setAttribute("data-no-manual", "1");
+      re.disabled = true;
+      document.querySelectorAll("#tabs button").forEach(function (x) { x.classList.remove("on"); });
+      var dayBtn = document.querySelector('#tabs button[data-v="day"]');
+      if (dayBtn) dayBtn.classList.add("on");
+      document.getElementById("v-day").classList.add("on");
+    }
+  })();
+
+  function fillEmpSelects() {
+    var emps = AT.employees();
+    /* الموظف بيشوف نفسه بس — بيتعرّف ببريده (AT.meEmp) مش برقم حسابه السحابي */
+    if (!PAY_VIEW) { var mine = AT.meEmp ? AT.meEmp() : null; emps = emps.filter(function (e) { return mine && e.id === mine.id; }); }
+    var opts = emps.map(function (e) { return '<option value="' + e.id + '">' + e.name + '</option>'; }).join("");
+    ["dayEmp", "repEmp"].forEach(function (id) {
+      var s = document.getElementById(id);
+      var cur = s.value;
+      s.innerHTML = opts || '<option value="">— لا يوجد موظفون بعد —</option>';
+      if (cur) s.value = cur;
+    });
+  }
+
+  var today = AT.todayStr();
+  document.getElementById("dayDate").value = today;
+  document.getElementById("dashMonth").value = today.slice(0, 7);
+  document.getElementById("repMonth").value = today.slice(0, 7);
+  document.getElementById("polStart").value = AT.policyStart();
+  document.getElementById("polStart").onchange = function () {
+    var d = V("polStart");
+    if (d) AT.setPolicyStart(d);
+  };
+
+  /* -------------------------------------------------------- تذكير إرسال الموقع
+     يخصّ من يستخدم الجهاز الآن (Team.current — نفس منطق «قضاياي/شغل المكتب»
+     المستخدم في كل شاشات التطبيق). لا يوجد إشعار نظام أندرويد حقيقي وقت
+     إغلاق التطبيق — هذا تذكير داخل التطبيق يظهر بمجرد فتحه في وقت الفترة. */
+  /* صورة خريطة الموقع المرسَل (زي رسالة الموقع في واتساب) — الضغط عليها يفتح خرائط جوجل */
+  /* سطر التحقق من الوقت تحت الخريطة: متراجع على السيرفر / ساعة الموبايل مختلفة / من غير نت */
+  function placeLine(pl) {
+    var t = AT.placeLabel ? AT.placeLabel(pl) : "";
+    return t ? el("div", "margin:-4px 0 6px;font-size:12.5px;color:var(--text);line-height:1.8", "📌 " + t) : el("div", "display:none");
+  }
+  /* سطر البعد عن المقر (المقرات اللي جاية من خرائط جوجل ما بتمنعش الإرسال، بتعلّمه بس) + سطر الوقت */
+  function timeCheck(meta) {
+    meta = meta || {};
+    var box = el("div");
+    if (meta.far) box.appendChild(el("div", "margin:-2px 0 6px;padding:7px 12px;border-radius:9px;background:#fdecea;color:#b3261e;font-size:12.5px;font-weight:700",
+      "⚠ على بعد " + ar(meta.dist) + " م من " + (meta.refName || "المقر") + " حسب خرائط جوجل"));
+    else if (meta.dist != null) box.appendChild(el("div", "margin:-2px 0 4px;font-size:12px;color:#1c6b4a",
+      "✓ على بعد " + ar(meta.dist) + " م من " + (meta.refName || "المقر المعتمد")));
+    box.appendChild(timeCheck0(meta));
+    return box;
+  }
+  function timeCheck0(meta) {
+    meta = meta || {};
+    var lim = AT.SKEW_WARN || 5;
+    if (meta.verified && Math.abs(meta.skew || 0) > lim)
+      return el("div", "margin:-2px 0 10px;padding:7px 12px;border-radius:9px;background:#fdecea;color:#b3261e;font-size:12.5px;font-weight:700",
+        "⚠ ساعة الموبايل كانت مختلفة عن الوقت الحقيقي بـ " + ar(Math.abs(meta.skew)) + " دقيقة (الموبايل: " + ar(meta.deviceTime || "—") +
+        ") — الوقت المعتمد من السيرفر");
+    if (meta.verified)
+      return el("div", "margin:-2px 0 10px;font-size:12px;color:#1c6b4a", "✓ الوقت متراجع على السيرفر لحظة الإرسال");
+    if (meta.verified === false)
+      return el("div", "margin:-2px 0 10px;padding:7px 12px;border-radius:9px;background:#fff4e5;color:#8a5300;font-size:12.5px;font-weight:700",
+        "⚠ الوقت من ساعة الموبايل — ما اتراجعش على السيرفر (الإرسال كان من غير إنترنت)");
+    return el("div", "display:none");
+  }
+  function mapThumb(lat, lng, time, acc, date) {
+    var a = document.createElement("a");
+    a.href = AT.mapsUrl ? AT.mapsUrl(lat, lng) : ("https://maps.google.com/?q=" + lat + "," + lng);
+    a.style.cssText = "display:block;margin:8px 0;border-radius:10px;overflow:hidden;border:1px solid var(--line);" +
+      "background:#eee;min-height:60px;text-decoration:none;color:var(--muted);font-size:12.5px;text-align:center";
+    a.textContent = "جارٍ تحميل خريطة الموقع…";
+    if (!AT.mapImage) { a.textContent = "📍 فتح الموقع على الخريطة"; return a; }
+    AT.mapImage(lat, lng, { time: time ? ar(time) : "", acc: acc, date: date ? ar(String(date).split("-").reverse().join("/")) : "" }).then(function (url) {
+      a.textContent = "";
+      if (!url) { a.textContent = "📍 فتح الموقع على الخريطة (الخريطة محتاجة إنترنت)"; a.style.padding = "12px"; return; }
+      var im = document.createElement("img"); im.src = url; im.alt = "خريطة الموقع";
+      im.style.cssText = "display:block;width:100%;height:auto";
+      a.appendChild(im);
+    });
+    return a;
+  }
+  /* إدخال وقت بالإيد (من غير زرار الموقع) — مش إثبات تواجد */
+  function notLive() {
+    return el("div", "margin:6px 0 10px;padding:8px 12px;border-radius:9px;background:#fdecea;color:#b3261e;" +
+      "font-size:12.5px;font-weight:700", "⚠ الموقع ليس من البرنامج - إدخال يدوي");
+  }
+  /* الإدخال اليدوي ما يتحسبش حضور إلا لو المدير اعتمده — زرار الاعتماد للمدير بس */
+  function manualBox(isOk, onToggle, who) {
+    var box = el("div");
+    box.appendChild(notLive());
+    if (isOk) {
+      box.appendChild(el("div", "margin:-4px 0 10px;font-size:12.5px;color:#1c6b4a;font-weight:700",
+        "✓ معتمد من المدير — بيتحسب حضور" + (who ? " (" + who + ")" : "")));
+    } else {
+      box.appendChild(el("div", "margin:-4px 0 10px;font-size:12.5px;color:#b3261e",
+        "مش محسوب حضور لحد ما المدير يعتمده — من غير اعتماد اليوم بيتحسب غياب بخصم مضاعف."));
+    }
+    if (PAY_EDIT) {
+      var b = el("button", "min-height:36px;border-radius:9px;margin:0 0 10px;padding:0 14px;font-family:inherit;font-size:12.5px;" +
+        (isOk ? "border:1px solid var(--line);background:transparent;color:var(--muted)" : "border:0;background:#1c6b4a;color:#fff"),
+        isOk ? "إلغاء الاعتماد" : "✓ اعتماد الإدخال اليدوي (يتحسب حضور)");
+      b.type = "button";
+      b.onclick = function () { onToggle(!isOk); };
+      box.appendChild(b);
+    }
+    return box;
+  }
+  function renderReminder() {
+    var box = document.getElementById("reminderBanner");
+    box.innerHTML = "";
+    if (!window.Team) return;
+    var me = AT.meEmp ? AT.meEmp() : Team.current();
+    if (!me) return;
+    var r = AT.checkInReminder(me.id);
+    if (!r) return;
+    var d = el("div"); d.className = "remind-bar";
+    d.innerHTML =
+      '<div class="t">📍 ابعت موقعك الآن — ' + r.label + "</div>" +
+      '<div class="d">عدم إرسال الموقع خلال هذه الفترة يعني أنك غير مثبت الحضور، وستُطبَّق عليك قواعد الغياب والخصم لهذه الفترة تلقائياً.</div>';
+    var btn = el("button", "", "📍 إرسال موقعي الآن");
+    btn.className = "gps-btn"; btn.type = "button";
+    btn.onclick = function () {
+      btn.disabled = true; btn.textContent = "جارٍ تحديد الموقع…";
+      var go = r.period === "court" ? AT.checkInCourt(me.id, today, "", "حضور دوري", finish) : AT.checkInOffice(me.id, today, finish);
+      function finish(res) {
+        if (res.error) { alert(res.error); btn.disabled = false; btn.textContent = "📍 إرسال موقعي الآن"; return; }
+        btn.className = "gps-btn ok"; btn.textContent = "✓ تم إرسال الموقع — " + res.time;
+        if (res.lat != null) { d.appendChild(mapThumb(res.lat, res.lng, res.time, res.acc, res.date || today)); d.appendChild(placeLine(res.place)); d.appendChild(timeCheck(res)); }
+        setTimeout(function () { renderAll(); }, 1200);
+      }
+    };
+    d.appendChild(btn);
+    box.appendChild(d);
+  }
+  renderReminder();
+  setInterval(renderReminder, 60000);
+
+  /* -------------------------------------------------------------- Dashboard */
+  function renderDash() {
+    var ym = V("dashMonth") || today.slice(0, 7);
+    var emps = AT.employees();
+    var totalExpected = 0, totalActual = 0, totalDeduction = 0, totalPayroll = 0, totalUnrec = 0, atRisk = 0;
+    var rows = emps.map(function (e) {
+      var m = AT.computeMonth(e.id, ym);
+      var refDate = ym === today.slice(0, 7) ? today : ym + "-" + ar(AT.daysInMonth(ym));
+      refDate = ym === today.slice(0, 7) ? today : (ym + "-" + (AT.daysInMonth(ym) < 10 ? "0" : "") + AT.daysInMonth(ym));
+      var missing = AT.unrecordedDatesFor(e.id, refDate).length;
+      totalExpected += m.expected; totalActual += m.actual; totalDeduction += m.deduction;
+      totalPayroll += m.net; totalUnrec += missing;
+      if (m.alert !== "none") atRisk++;
+      var manual = 0, susp = 0, lim = AT.SKEW_WARN || 5;
+      AT.monthDates(ym).forEach(function (dt) {
+        var rr = AT.getRecord(e.id, dt);
+        (rr.courtEntries || []).forEach(function (c) {
+          if (!AT.entryLive(c)) { if (!c.confirmed) manual++; }
+          else if (c.verified === false || (c.verified && Math.abs(c.skew || 0) > lim)) susp++;
+        });
+        if (rr.officeIn) {
+          var L = rr.officeInLoc;
+          if (!AT.officeLive(rr)) { if (!rr.officeConfirmed) manual++; }
+          else if (L.verified === false || (L.verified && Math.abs(L.skew || 0) > lim)) susp++;
+        }
+      });
+      return { e: e, m: m, missing: missing, manual: manual, susp: susp };
+    });
+
+    var kpi = document.getElementById("dashKpi");
+    kpi.innerHTML = "";
+    [["ساعات فعلية", fmtH(totalActual) + " / " + fmtH(totalExpected)],
+     ["ساعات الخصم", fmtH(totalDeduction)],
+     ["إجمالي المستحقات", fmtMoney(totalPayroll) + " ج.م"],
+     ["أيام بلا تسجيل (غياب)", ar(totalUnrec)]].forEach(function (p) {
+      var d = el("div", "", null); d.className = "kpi";
+      d.innerHTML = '<div class="n">' + p[1] + '</div><div class="l">' + p[0] + '</div>';
+      kpi.appendChild(d);
+    });
+
+    var list = document.getElementById("dashList");
+    list.innerHTML = "";
+    if (!rows.length) {
+      list.appendChild(el("div", "text-align:center;color:var(--muted);padding:20px", "لا يوجد موظفون بعد — أضفهم من «المحامون والصلاحيات»."));
+      return;
+    }
+    rows.forEach(function (r) {
+      var c = el("div"); c.className = "att-card";
+      c.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+        '<b style="font-family:var(--f-title)">' + r.e.name + "</b>" + alertBadge(r.m.alert) + "</div>" +
+        '<div class="mini"><span>صافي الساعات</span><span>' + fmtH(r.m.netHours) + " / " + fmtH(r.m.expected) + "</span></div>" +
+        '<div class="mini"><span>ساعات الخصم</span><span>' + fmtH(r.m.deduction) + "</span></div>" +
+        '<div class="mini"><span>الكفاءة</span><span>' + fmtH(r.m.efficiency) + "٪</span></div>" +
+        '<div class="mini"><span>المستحق بعد الخصم</span><span>' + fmtMoney(r.m.payable) + " ج.م</span></div>" +
+        (r.m.bonusTotal ? '<div class="mini"><span>حوافز ومكافآت</span><span>+ ' + fmtMoney(r.m.bonusTotal) + " ج.م</span></div>" +
+          '<div class="mini"><span><b>صافي المستحق</b></span><span><b>' + fmtMoney(r.m.net) + " ج.م</b></span></div>" : "") +
+        (r.missing ? '<div class="mini"><span>أيام بلا تسجيل</span><span style="color:#b3261e">' + ar(r.missing) + "</span></div>" : "") +
+        (r.manual ? '<div class="mini"><span style="color:#b3261e">⚠ إدخالات يدوية مستنية اعتمادك</span><span style="color:#b3261e"><b>' + ar(r.manual) + "</b></span></div>" : "") +
+        (r.susp ? '<div class="mini"><span style="color:#8a5300">⚠ وقت غير متراجع أو ساعة الموبايل مختلفة</span><span style="color:#8a5300"><b>' + ar(r.susp) + "</b></span></div>" : "");
+      if (PAY_EDIT && r.e.role !== "owner" && r.e.role !== "client") {
+        var sb = el("button", "margin-top:8px;padding:8px 14px;border:1px solid var(--brand);border-radius:9px;" +
+          "background:transparent;color:var(--brand);font-family:inherit;font-size:13px;min-height:40px",
+          AT.salaryOf(r.e.id, ym) ? "💰 تعديل الراتب" : "💰 تحديد الراتب");
+        sb.type = "button";
+        sb.onclick = function () { goSalary(r.e.id); };
+        c.appendChild(sb);
+      }
+      list.appendChild(c);
+    });
+  }
+
+  /* -------------------------------------------------------------- تسجيل يومي */
+  function unrecordedPanel() {
+    var empId = document.getElementById("dayEmp").value, date = V("dayDate");
+    var panel = document.getElementById("unrecPanel");
+    panel.innerHTML = "";
+    /* الأيام دي بتتحسب غياب بلا إذن تلقائياً؛ تحويلها «بإذن» قرار المدير/المحاسب بس */
+    if (!PAY_EDIT) return;
+    if (!empId || !date) return;
+    var missing = AT.unrecordedDatesFor(empId, date);
+    if (!missing.length) return;
+    var emp = AT.employees().filter(function (e) { return e.id === empId; })[0];
+    var box = el("div"); box.className = "att-card"; box.style.borderColor = "#b3261e";
+    box.innerHTML = '<div style="font-weight:700;margin-bottom:8px">⚠ ' + ar(missing.length) +
+      " يوم بلا تسجيل لـ" + (emp ? emp.name : "") + " — محسوبة غياب بلا إذن (خصم ضعف الساعات). لو كان فيه إذن مسبق دوس «غياب بإذن».</div>";
+    missing.forEach(function (d) {
+      var row = el("div", "display:flex;justify-content:space-between;align-items:center;" +
+        "padding:7px 0;border-bottom:1px solid var(--line);font-size:13px");
+      row.innerHTML = "<span>" + ar(d.replace(/-/g, "/")) + " — " + dayNameAr(d) + "</span>";
+      var btns = el("div", "display:flex;gap:6px");
+      var b2 = el("button", "padding:6px 10px;border-radius:8px;border:1px solid var(--line);" +
+        "background:transparent;color:var(--brand);font-family:inherit;font-size:12px", "غياب بإذن");
+      b2.type = "button";
+      b2.onclick = function () { AT.saveRecord(empId, d, Object.assign(AT.getRecord(empId, d), { status: "excused" })); loadDay(); };
+      btns.appendChild(b2);
+      row.appendChild(btns);
+      box.appendChild(row);
+    });
+    panel.appendChild(box);
+  }
+
+  function loadDay() {
+    unrecordedPanel();
+    var empId = document.getElementById("dayEmp").value, date = V("dayDate");
+    var body = document.getElementById("dayBody");
+    var info = document.getElementById("dayInfo");
+    body.innerHTML = ""; info.textContent = "";
+    if (!empId || !date) return;
+    var rec = AT.getRecord(empId, date);
+    document.getElementById("dayStatus").value = rec.status;
+    /* الموظف بيسجّل حضوره وموقعه بس؛ الغياب (بإذن أو بدون) بيحدده المدير/المحاسب */
+    document.getElementById("dayStatus").disabled = !PAY_EDIT;
+
+    var exp = AT.expectedHoursFor(date);
+    var dn = dayNameAr(date);
+    var cfg = AT.dayConfig(date);
+    var dayTypeLabel = { full: "٣٫٥ محكمة + ٥ مكتب", court: "محكمة فقط", office: "مكتب فقط", off: "عطلة" }[cfg.type] || "";
+    if (cfg.type === "off") info.textContent = dn + " — عطلة أسبوعية (حسب جدول أيام العمل)، لا يُحسب عمل.";
+    else if (AT.isHoliday(date)) info.textContent = dn + " — عطلة رسمية (" + AT.holidayNameOn(date) + ")، لا حساب ولا خصم.";
+    else info.textContent = dn + " — الساعات المتوقعة: " + fmtH(exp) + " ساعة (" + dayTypeLabel + ")";
+
+    if (rec.status !== "present" || cfg.type === "off" || AT.isHoliday(date)) {
+      if (rec.status !== "present") body.appendChild(el("div", "color:var(--muted);padding:10px 0",
+        "الحالة المسجَّلة: " + statusLabel(rec.status) + " — لا حاجة لتسجيل فترات عمل."));
+      return;
+    }
+
+    /* قسما المحكمة/المكتب يظهران بحسب نوع اليوم في جدول أيام العمل (الإعدادات)
+       — يوم كامل يظهر كلاهما، ويوم فترة واحدة يظهر قسمها فقط. */
+    var showCourt = cfg.type === "full" || cfg.type === "court";
+    var showOffice = cfg.type === "full" || cfg.type === "office";
+    var court = el("div"); court.className = "att-card";
+    var courtHead = el("div", "font-family:var(--f-title);margin-bottom:8px", "الفترة الصباحية — المحكمة");
+    court.appendChild(courtHead);
+    var courtListEl = el("div"); court.appendChild(courtListEl);
+    function drawCourt() {
+      courtListEl.innerHTML = "";
+      (rec.courtEntries || []).forEach(function (c, i) {
+        var r = el("div", "display:flex;justify-content:space-between;padding:6px 0;" +
+          "border-bottom:1px solid var(--line);font-size:13px");
+        r.innerHTML = "<span>" + (c.loc || "—") + " · " + (c.task || "—") + " · " + (c.time ? ar(c.time) : "بلا وقت") + "</span>";
+        var rm = el("button", "color:#b3261e;border:0;background:transparent;font-size:16px", "✕");
+        rm.type = "button";
+        rm.onclick = function () { rec.courtEntries.splice(i, 1); AT.saveRecord(empId, date, rec); drawCourt(); };
+        r.appendChild(rm);
+        courtListEl.appendChild(r);
+        if (c.live && c.lat != null && c.lng != null) { courtListEl.appendChild(mapThumb(c.lat, c.lng, c.time, c.acc, date)); courtListEl.appendChild(placeLine(c.place)); courtListEl.appendChild(timeCheck(c)); }
+        else courtListEl.appendChild(manualBox(!!c.confirmed, function (v) {
+          c.confirmed = v; c.confirmedBy = v && AT.myEmail ? AT.myEmail() : ""; c.confirmedAt = v ? Date.now() : null;
+          AT.saveRecord(empId, date, rec); drawCourt();
+        }, c.confirmedBy));
+      });
+    }
+    drawCourt();
+    var cRow = el("div"); cRow.className = "att-row"; cRow.style.marginTop = "6px";
+    cRow.innerHTML =
+      '<div class="att-field"><label>مكان التواجد</label><input type="text" id="cLoc" placeholder="اسم المحكمة" list="courtNames"></div>' +
+      '<div class="att-field"><label>المهمة</label><input type="text" id="cTask" placeholder="حضور جلسة رقم..."></div>' +
+      '<div class="att-field"><label>وقت رسالة الموقع</label><input type="time" id="cTime"></div>';
+    court.appendChild(cRow);
+    if (!document.getElementById("courtNames")) {
+      var dl = document.createElement("datalist"); dl.id = "courtNames";
+      var cs = AT.places().courts || {};
+      Object.keys(cs).map(function (k) { return cs[k].name || k; }).sort().forEach(function (n) {
+        var o = document.createElement("option"); o.value = n; dl.appendChild(o);
+      });
+      document.body.appendChild(dl);
+    }
+    var cBtn = el("button", "min-height:42px;border-radius:9px;border:1px solid var(--brand);" +
+      "background:transparent;color:var(--brand);font-family:inherit;font-size:13px;width:100%", "+ إضافة مهمة");
+    cBtn.type = "button";
+    cBtn.onclick = function () {
+      var loc = document.getElementById("cLoc").value.trim();
+      var task = document.getElementById("cTask").value.trim();
+      var time = document.getElementById("cTime").value;
+      if (!loc && !task && !time) return;
+      rec.courtEntries = rec.courtEntries || [];
+      rec.courtEntries.push({ loc: loc, task: task, time: time, manual: true, by: AT.myEmail ? AT.myEmail() : "",
+        confirmed: !!PAY_EDIT, confirmedBy: PAY_EDIT && AT.myEmail ? AT.myEmail() : "" });
+      AT.saveRecord(empId, date, rec);
+      drawCourt();
+      document.getElementById("cLoc").value = ""; document.getElementById("cTask").value = ""; document.getElementById("cTime").value = "";
+    };
+    court.appendChild(cBtn);
+    var cGps = el("button", "", "📍 أرسل موقعك الآن بدل الكتابة اليدوية");
+    cGps.className = "gps-btn"; cGps.type = "button"; cGps.style.marginTop = "8px";
+    cGps.onclick = function () {
+      var loc = document.getElementById("cLoc").value.trim();
+      var task = document.getElementById("cTask").value.trim();
+      cGps.disabled = true; cGps.textContent = "جارٍ تحديد الموقع…";
+      AT.checkInCourt(empId, date, loc, task, function (res) {
+        if (res.error) { alert(res.error); cGps.disabled = false; cGps.textContent = "📍 أرسل موقعك الآن بدل الكتابة اليدوية"; return; }
+        loadDay();
+      });
+    };
+    court.appendChild(cGps);
+    if (showCourt) body.appendChild(court);
+
+    var office = el("div"); office.className = "att-card";
+    office.appendChild(el("div", "font-family:var(--f-title);margin-bottom:8px", "الفترة المسائية — المكتب"));
+    var oRow = el("div"); oRow.className = "att-row";
+    oRow.innerHTML =
+      '<div class="att-field"><label>ساعة الحضور (رسالة الموقع)</label><input type="time" id="oIn" value="' + (rec.officeIn || "") + '"></div>' +
+      '<div class="att-field"><label>ساعة الانصراف</label><input type="time" id="oOut" value="' + (rec.officeOut || "") + '"></div>';
+    office.appendChild(oRow);
+    var oSave = el("button", "min-height:42px;border-radius:9px;border:0;background:var(--brand);" +
+      "color:#fff;font-family:inherit;font-size:13px;width:100%;margin-bottom:10px", "حفظ ساعات المكتب");
+    oSave.type = "button";
+    oSave.onclick = function () {
+      var nin = document.getElementById("oIn").value;
+      if (nin !== (rec.officeIn || "")) {
+        rec.officeConfirmed = !!(PAY_EDIT && nin);
+        rec.officeConfirmedBy = rec.officeConfirmed && AT.myEmail ? AT.myEmail() : "";
+      }
+      rec.officeIn = nin;
+      rec.officeOut = document.getElementById("oOut").value;
+      AT.saveRecord(empId, date, rec);
+      loadDay();
+    };
+    office.appendChild(oSave);
+    var oGps = el("button", "", rec.officeIn ? "✓ تم إرسال الموقع — " + rec.officeIn : "📍 أرسل موقعك الآن بدل الكتابة اليدوية");
+    oGps.className = "gps-btn" + (rec.officeIn ? " ok" : ""); oGps.type = "button"; oGps.style.marginBottom = "10px";
+    oGps.onclick = function () {
+      oGps.disabled = true; oGps.textContent = "جارٍ تحديد الموقع…";
+      AT.checkInOffice(empId, date, function (res) {
+        if (res.error) { alert(res.error); oGps.disabled = false; oGps.textContent = "📍 أرسل موقعك الآن بدل الكتابة اليدوية"; return; }
+        loadDay();
+      });
+    };
+    office.appendChild(oGps);
+    if (AT.officeLive(rec)) {
+      office.appendChild(mapThumb(rec.officeInLoc.lat, rec.officeInLoc.lng, rec.officeIn, rec.officeInLoc.acc, date));
+      office.appendChild(placeLine(rec.officeInLoc.place));
+      office.appendChild(timeCheck(rec.officeInLoc));
+    }
+    else if (rec.officeIn) office.appendChild(manualBox(!!rec.officeConfirmed, function (v) {
+      rec.officeConfirmed = v; rec.officeConfirmedBy = v && AT.myEmail ? AT.myEmail() : ""; rec.officeConfirmedAt = v ? Date.now() : null;
+      AT.saveRecord(empId, date, rec); loadDay();
+    }, rec.officeConfirmedBy));
+
+    var taskListEl = el("div"); office.appendChild(taskListEl);
+    function drawTasks() {
+      taskListEl.innerHTML = "";
+      (rec.tasks || []).forEach(function (t, i) {
+        var r = el("div", "display:flex;justify-content:space-between;padding:6px 0;" +
+          "border-bottom:1px solid var(--line);font-size:13px");
+        r.innerHTML = "<span>" + (t.name || "—") + " · " + (t.open || "—") + "–" + (t.close || "—") + "</span>";
+        var rm = el("button", "color:#b3261e;border:0;background:transparent;font-size:16px", "✕");
+        rm.type = "button";
+        rm.onclick = function () { rec.tasks.splice(i, 1); AT.saveRecord(empId, date, rec); drawTasks(); };
+        r.appendChild(rm);
+        taskListEl.appendChild(r);
+      });
+    }
+    drawTasks();
+    var tRow = el("div"); tRow.className = "att-row"; tRow.style.marginTop = "6px";
+    tRow.innerHTML =
+      '<div class="att-field"><label>القضية/المهمة</label><input type="text" id="tName" placeholder="قضية رقم..."></div>' +
+      '<div class="att-field"><label>وقت الفتح</label><input type="time" id="tOpen"></div>' +
+      '<div class="att-field"><label>وقت الانتهاء</label><input type="time" id="tClose"></div>';
+    office.appendChild(tRow);
+    var tBtn = el("button", "min-height:42px;border-radius:9px;border:1px solid var(--brand);" +
+      "background:transparent;color:var(--brand);font-family:inherit;font-size:13px;width:100%", "+ إضافة مهمة مكتب");
+    tBtn.type = "button";
+    tBtn.onclick = function () {
+      var name = document.getElementById("tName").value.trim();
+      var open = document.getElementById("tOpen").value, close = document.getElementById("tClose").value;
+      if (!name) return;
+      rec.tasks = rec.tasks || [];
+      rec.tasks.push({ name: name, open: open, close: close });
+      AT.saveRecord(empId, date, rec);
+      drawTasks();
+      document.getElementById("tName").value = "";
+    };
+    office.appendChild(tBtn);
+    if (showOffice) body.appendChild(office);
+
+    var noteCard = el("div"); noteCard.className = "att-card";
+    noteCard.innerHTML = '<div class="att-field"><label>ملاحظات مدير المكتب</label>' +
+      '<textarea id="dNote" style="min-height:70px;width:100%;padding:9px;border:1px solid var(--line);' +
+      'border-radius:9px;font-family:inherit;direction:rtl">' + (rec.note || "") + "</textarea></div>";
+    body.appendChild(noteCard);
+    var nSave = el("button", "min-height:44px;border-radius:9px;border:0;background:var(--brand);" +
+      "color:#fff;font-family:inherit;font-size:13px;width:100%", "💾 حفظ الملاحظة");
+    nSave.type = "button";
+    nSave.onclick = function () {
+      rec.note = document.getElementById("dNote").value.trim();
+      AT.saveRecord(empId, date, rec);
+    };
+    body.appendChild(nSave);
+  }
+
+  document.getElementById("dayEmp").onchange = loadDay;
+  document.getElementById("dayDate").onchange = loadDay;
+  document.getElementById("dayStatus").onchange = function () {
+    var empId = document.getElementById("dayEmp").value, date = V("dayDate");
+    if (!empId || !date) return;
+    var rec = AT.getRecord(empId, date);
+    rec.status = document.getElementById("dayStatus").value;
+    AT.saveRecord(empId, date, rec);
+    loadDay();
+  };
+
+  /* ------------------------------------------------- الحوافز والمكافآت */
+  function bonusBox(out, empId, ym) {
+    var list = AT.bonusesFor(empId, ym);
+    var box = el("div"); box.className = "att-card";
+    box.appendChild(el("div", "font-family:var(--f-title);font-size:14px;margin-bottom:8px", "الحوافز والمكافآت"));
+    if (!list.length) box.appendChild(el("div", "color:var(--muted);font-size:12.5px;margin-bottom:6px", "مفيش حوافز أو مكافآت الشهر ده."));
+    list.forEach(function (b) {
+      var r = el("div", "display:flex;justify-content:space-between;align-items:center;padding:6px 0;" +
+        "border-bottom:1px solid var(--line);font-size:13px");
+      r.appendChild(el("span", "", b.kind + (b.note ? " — " + b.note : "")));
+      var right = el("span", "display:flex;gap:10px;align-items:center");
+      right.appendChild(el("b", "", "+ " + fmtMoney(b.amount) + " ج.م"));
+      if (PAY_EDIT) {
+        var rm = el("button", "color:#b3261e;border:0;background:transparent;font-family:inherit;font-size:13px", "حذف");
+        rm.type = "button";
+        rm.onclick = function () {
+          if (!confirm("حذف «" + b.kind + "» بـ " + fmtMoney(b.amount) + " ج.م؟")) return;
+          AT.removeBonus(empId, b.id); document.getElementById("repBuild").click();
+        };
+        right.appendChild(rm);
+      }
+      r.appendChild(right);
+      box.appendChild(r);
+    });
+    if (PAY_EDIT) {
+      var f = el("div", "display:flex;gap:6px;flex-wrap:wrap;margin-top:10px");
+      var kind = document.createElement("select"); kind.setAttribute("data-no-combo", "1"); kind.setAttribute("data-no-manual", "1");
+      ["حافز", "مكافأة"].forEach(function (k) { var o = document.createElement("option"); o.textContent = k; kind.appendChild(o); });
+      var amt = document.createElement("input"); amt.type = "text"; amt.inputMode = "numeric";
+      amt.placeholder = "المبلغ"; amt.setAttribute("dir", "ltr");
+      var note = document.createElement("input"); note.type = "text"; note.placeholder = "السبب (اختياري)";
+      var css = "min-height:42px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit";
+      kind.style.cssText = css + ";flex:0 0 90px";
+      amt.style.cssText = css + ";flex:0 0 100px;text-align:center";
+      note.style.cssText = css + ";flex:1 1 140px";
+      var add = el("button", "min-height:42px;padding:0 14px;border-radius:9px;border:0;background:var(--brand);" +
+        "color:#fff;font-family:inherit", "+ إضافة");
+      add.type = "button";
+      add.onclick = function () {
+        var v = +String(amt.value).replace(/[٠-٩]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".indexOf(d); }).replace(/[^\d.]/g, "");
+        if (!v) { alert("اكتب المبلغ."); return; }
+        AT.addBonus(empId, ym, kind.value, v, note.value.trim());
+        document.getElementById("repBuild").click();
+      };
+      f.appendChild(kind); f.appendChild(amt); f.appendChild(note); f.appendChild(add);
+      box.appendChild(f);
+    }
+    out.appendChild(box);
+  }
+
+  /* -------------------------------------------------------------- التقرير الشهري */
+  document.getElementById("repBuild").onclick = function () {
+    var empId = document.getElementById("repEmp").value, ym = V("repMonth");
+    var out = document.getElementById("repOut");
+    out.innerHTML = "";
+    if (!empId || !ym) { out.textContent = "اختر موظفاً وشهراً."; return; }
+    var emp = AT.employees().filter(function (e) { return e.id === empId; })[0];
+    var m = AT.computeMonth(empId, ym);
+
+    var sum = el("div"); sum.className = "att-card";
+    sum.innerHTML =
+      '<div style="font-family:var(--f-title);font-size:15px;margin-bottom:8px">' + (emp ? emp.name : "") + "</div>" +
+      '<div class="mini"><span>الساعات المتوقعة</span><span>' + fmtH(m.expected) + "</span></div>" +
+      '<div class="mini"><span>الساعات الفعلية</span><span>' + fmtH(m.actual) + "</span></div>" +
+      '<div class="mini"><span>ساعات الخصم</span><span>' + fmtH(m.deduction) + "</span></div>" +
+      '<div class="mini"><span>صافي الساعات</span><span>' + fmtH(m.netHours) + "</span></div>" +
+      '<div class="mini"><span>أيام غياب</span><span>' + ar(m.absentDays) + "</span></div>" +
+      '<div class="mini"><span>أيام تأخير</span><span>' + ar(m.lateDays) + "</span></div>" +
+      (!PAY_VIEW ? "" :
+      '<div class="mini"><span>الراتب الأساسي</span><span>' + (m.salary ? fmtMoney(m.salary) + " ج.م" :
+        '<span style="color:#b3261e">مش متسجّل — حطّه من الإعدادات</span>') + "</span></div>" +
+      '<div class="mini"><span>قيمة الخصم</span><span>' + fmtMoney(m.deductionValue) + " ج.م (" + fmtH(m.deductionPct) + "٪)</span></div>" +
+      '<div class="mini"><span>الأجر بعد الخصم</span><span>' + fmtMoney(m.payable) + " ج.م</span></div>" +
+      '<div class="mini"><span>الحوافز والمكافآت</span><span>+ ' + fmtMoney(m.bonusTotal) + " ج.م</span></div>" +
+      '<div class="mini"><span><b>صافي المستحق</b></span><span><b>' + fmtMoney(m.net) + " ج.م</b></span></div>") +
+      '<div class="mini"><span>نسبة الكفاءة</span><span>' + fmtH(m.efficiency) + "٪</span></div>" +
+      (IS_OWNER ? '<div class="mini"><span>الحالة</span><span>' + alertBadge(m.alert) + "</span></div>" : "");
+    out.appendChild(sum);
+    if (PAY_VIEW) bonusBox(out, empId, ym);
+
+    out.appendChild(el("div", "font-family:var(--f-title);font-size:14px;margin:14px 0 8px", "تفصيل الأيام — سجل رسائل الموقع"));
+    var lim = AT.SKEW_WARN || 5, esc = function (x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    function srcFlag(live, ok) {
+      return live ? '<span style="color:#1c6b4a;font-weight:700">📍 موقع مباشر حي — من البرنامج</span>'
+                  : '<span style="color:#b3261e;font-weight:700">⚠ الموقع ليس من البرنامج - إدخال يدوي</span>' +
+                    (ok ? ' · <span style="color:#1c6b4a">✓ معتمد من المدير</span>' : ' · <span style="color:#b3261e">غير معتمد — مش محسوب حضور</span>');
+    }
+    function timeFlag(x) {
+      if (!x || x.verified == null) return "";
+      if (x.verified && Math.abs(x.skew || 0) > lim)
+        return ' · <span style="color:#b3261e">⚠ ساعة الموبايل مختلفة بـ ' + ar(Math.abs(x.skew)) + " دقيقة (الموبايل " + ar(x.deviceTime || "—") + ")</span>";
+      if (x.verified) return ' · <span style="color:#1c6b4a">✓ الوقت متراجع على السيرفر</span>';
+      return ' · <span style="color:#8a5300">⚠ الوقت من الموبايل (من غير إنترنت)</span>';
+    }
+    function placeTxt(x) {
+      if (!x || x.lat == null) return "";
+      var pl = AT.placeLabel ? AT.placeLabel(x.place) : "";
+      return (pl ? '<div style="font-size:12px">📌 ' + esc(pl) + "</div>" : "") +
+        '<div style="color:var(--muted);font-size:11.5px">الموقع: <span dir="ltr">' + (+x.lat).toFixed(5) + ", " + (+x.lng).toFixed(5) + "</span>" +
+        (x.acc != null ? " · دقة " + ar(x.acc) + " م" : "") +
+        (x.dist != null ? (x.far ? ' · <b style="color:#b3261e">⚠ على بعد ' + ar(x.dist) + " م من " + esc(x.refName || "المقر") + " حسب خرائط جوجل</b>"
+          : " · على بعد " + ar(x.dist) + " م من " + esc(x.refName || "المقر المعتمد")) : (x.refChecked === false ? " · المقر مش معتمد" : "")) +
+        ' · <a href="' + esc(x.mapsUrl || ("https://maps.google.com/?q=" + x.lat + "," + x.lng)) + '">الخريطة</a></div>';
+    }
+    AT.monthDates(ym).forEach(function (d) {
+      var day = AT.computeDay(empId, d);
+      if (day.expected === 0 && day.status === "off") return;
+      var statusTxt = { ok: "منتظم", late: "تأخير", absent: "غياب", excused: "إذن", unrecorded: "غير مسجَّل",
+        pre: "قبل بدء التطبيق", pending: "لم يُستحق بعد" }[day.status] || day.status;
+      var box = el("div", "padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.9");
+      var head = el("div", "display:flex;justify-content:space-between;font-weight:700");
+      head.innerHTML = "<span>" + dayNameAr(d) + " " + ar(d.split("-").reverse().join("/")) + "</span>" +
+        "<span>" + fmtH(day.actual) + "/" + fmtH(day.expected) + " س · " + statusTxt +
+        (day.manualPending ? ' · <span style="color:#b3261e">(إدخال يدوي غير معتمد)</span>' : "") +
+        (day.lateMin ? " · تأخير " + ar(day.lateMin) + " د" : "") +
+        (day.deduction ? ' · <span style="color:#b3261e">خصم ' + fmtH(day.deduction) + " س</span>" : "") + "</span>";
+      box.appendChild(head);
+      var rec = AT.getRecord(empId, d), lines = [];
+      (rec.courtEntries || []).forEach(function (c) {
+        var live = AT.entryLive(c);
+        lines.push('<div style="margin-top:4px">🏛 <b>المحكمة</b> · الساعة <b>' + (c.time ? ar(c.time) : "—") + "</b> · المكان: " + esc(c.loc || "—") +
+          " · المهمة: " + esc(c.task || "—") + "<br>" + srcFlag(live, c.confirmed) + (live ? timeFlag(c) : "") + "</div>" + (live ? placeTxt(c) : ""));
+      });
+      if (rec.officeIn || rec.officeOut) {
+        var L = rec.officeInLoc, liveO = AT.officeLive(rec);
+        lines.push('<div style="margin-top:4px">🏢 <b>المكتب</b> · حضور <b>' + (rec.officeIn ? ar(rec.officeIn) : "—") + "</b>" +
+          (rec.officeOut ? " · انصراف " + ar(rec.officeOut) : "") + "<br>" +
+          (rec.officeIn ? srcFlag(liveO, rec.officeConfirmed) + (liveO ? timeFlag(L) : "") : "") + "</div>" + (liveO ? placeTxt(L) : ""));
+      }
+      (rec.tasks || []).forEach(function (t) {
+        lines.push('<div style="margin-top:2px;color:var(--muted)">• مهمة بالمكتب: ' + esc(t.name || "—") + " (" + ar(t.open || "—") + "–" + ar(t.close || "—") + ")</div>");
+      });
+      if (rec.status && rec.status !== "present") lines.push('<div style="margin-top:2px">الحالة المسجّلة: ' + statusLabel(rec.status) + (rec.note ? " — " + esc(rec.note) : "") + "</div>");
+      if (lines.length) {
+        var det = el("div"); det.innerHTML = lines.join("") +
+          (rec.empEmail ? '<div style="color:var(--muted);font-size:11px;margin-top:3px">أُرسل من حساب: <span dir="ltr">' + esc(rec.empEmail) + "</span></div>" : "");
+        box.appendChild(det);
+      } else if (day.status === "absent") {
+        box.appendChild(el("div", "color:#b3261e", "مفيش أي رسالة موقع ولا تسجيل في اليوم ده."));
+      }
+      out.appendChild(box);
+    });
+    out.appendChild(el("div", "margin-top:12px;padding:10px 12px;border-radius:9px;background:var(--bg,#f4ece0);font-size:12px;line-height:1.9",
+      "البيانات دي متسجّلة من حساب المحامي نفسه من داخل البرنامج: كل «موقع مباشر حي» اتلقط من GPS الموبايل لحظة الإرسال، " +
+      "ووقته متراجع على السيرفر (مش ساعة الموبايل). أي إدخال مكتوب باليد متعلَّم «الموقع ليس من البرنامج - إدخال يدوي» " +
+      "وما بيتحسبش حضور إلا لو المدير اعتمده. " +
+      "منها بيتحسب الالتزام بالمواعيد والتأخير والخصم."));
+
+    var pr = el("button", "min-height:46px;border-radius:9px;border:1px solid var(--brand);" +
+      "background:transparent;color:var(--brand);font-family:inherit;font-size:13px;width:100%;margin-top:14px",
+      "🖨 طباعة التقرير");
+    pr.type = "button";
+    pr.onclick = function () { window.print(); };
+    out.appendChild(pr);
+  };
+
+  /* -------------------------------------------------------------- الإعدادات */
+  function renderSchedule() {
+    var box = document.getElementById("scheduleList");
+    box.innerHTML = "";
+    var sch = AT.getSchedule();
+    var TYPES = [["full", "دوام كامل (محكمة + مكتب)"], ["court", "محكمة فقط"], ["office", "مكتب فقط"], ["off", "عطلة أسبوعية"]];
+    [0, 1, 2, 3, 4, 5, 6].forEach(function (dow) {
+      var cfg = sch[dow] || { type: "off" };
+      var card = el("div"); card.className = "att-card"; card.style.padding = "10px 13px";
+      var row1 = el("div", "display:flex;align-items:center;gap:8px;margin-bottom:8px");
+      row1.appendChild(el("div", "font-weight:700;flex:0 0 70px", AT.DOW_NAMES[dow]));
+      var sel = document.createElement("select");
+      sel.style.cssText = "flex:1;min-height:42px;padding:6px 10px;border:1px solid var(--line);" +
+        "border-radius:9px;font-family:inherit;direction:rtl;text-align:right";
+      TYPES.forEach(function (t) {
+        var o = document.createElement("option"); o.value = t[0]; o.textContent = t[1];
+        if (t[0] === cfg.type) o.selected = true;
+        sel.appendChild(o);
+      });
+      row1.appendChild(sel);
+      card.appendChild(row1);
+
+      var row2 = el("div", "display:flex;gap:8px");
+      var hoursInp = document.createElement("input");
+      hoursInp.type = "text"; hoursInp.setAttribute("dir", "ltr"); hoursInp.placeholder = "عدد الساعات";
+      hoursInp.value = cfg.hours || "";
+      hoursInp.style.cssText = "flex:1;min-height:40px;padding:7px 9px;border:1px solid var(--line);" +
+        "border-radius:8px;font-family:inherit;text-align:center;font-size:13px";
+      var startInp = document.createElement("input");
+      startInp.type = "time"; startInp.value = cfg.start || "09:00";
+      startInp.style.cssText = "flex:1;min-height:40px;padding:7px 9px;border:1px solid var(--line);" +
+        "border-radius:8px;font-family:inherit;text-align:center;font-size:13px";
+      row2.appendChild(hoursInp); row2.appendChild(startInp);
+      card.appendChild(row2);
+
+      function toggleFields() {
+        var t = sel.value;
+        hoursInp.style.display = (t === "court" || t === "office") ? "" : "none";
+        startInp.style.display = "none"; /* وقت البدء يُترك ٩ص افتراضياً؛ لا حاجة لإدخاله يدوياً هنا */
+      }
+      toggleFields();
+      sel.onchange = toggleFields;
+
+      var save = el("button", "min-height:38px;border-radius:8px;border:0;background:var(--brand);" +
+        "color:#fff;font-family:inherit;font-size:12.5px;width:100%;margin-top:8px", "حفظ هذا اليوم");
+      save.type = "button";
+      save.onclick = function () {
+        var newCfg = { type: sel.value };
+        if (sel.value === "court" || sel.value === "office") newCfg.hours = +hoursInp.value || 5;
+        if (sel.value === "office") newCfg.start = startInp.value || "09:00";
+        AT.setDaySchedule(dow, newCfg);
+        renderAll();
+      };
+      card.appendChild(save);
+      box.appendChild(card);
+    });
+  }
+
+  function renderPlaces() {
+    var box = document.getElementById("placesBox"); if (!box) return;
+    box.innerHTML = "";
+    var pl = AT.places();
+    var st = el("div", "font-size:13px;margin-bottom:8px;line-height:1.9",
+      "مقر المكتب: " + (pl.office ? "معتمد ✔" + (pl.office.src === "google" ? " (من hamlf.com وخرائط جوجل" + (pl.office.addr ? ": " + pl.office.addr : "") + ")" : " (من الموقع نفسه)") : "غير معتمد") +
+      " · محاكم معتمدة: " + ar(Object.keys(pl.courts || {}).length) +
+      (function () { var g = 0, cs = pl.courts || {}; Object.keys(cs).forEach(function (k) { if (cs[k].src === "google") g++; });
+        return g ? " (منها " + ar(g) + " من خرائط جوجل — الإرسال البعيد عنها بيتعلّم أحمر ومش بيتمنع؛ اعتماد المقر من المحكمة نفسها بيخلّي الحد ٥٠ م)" : ""; })());
+    box.appendChild(st);
+    var b1 = el("button", "width:100%;min-height:46px;border-radius:10px;border:1px solid var(--brand);background:transparent;color:var(--brand);font-family:inherit;margin-bottom:8px", "📍 اعتماد موقعي الآن كمقر للمكتب");
+    b1.type = "button";
+    b1.onclick = function () {
+      b1.disabled = true; b1.textContent = "جارٍ تحديد الموقع…";
+      AT.setOfficeHere(function (r) { b1.disabled = false; alert(r.error ? r.error : "اعتُمد مقر المكتب (دقة " + ar(r.acc) + " م)."); renderPlaces(); });
+    };
+    box.appendChild(b1);
+    var inp = document.createElement("input"); inp.type = "text"; inp.placeholder = "اسم المحكمة (مطابقاً لما يُكتب في حضور المحكمة)";
+    inp.style.cssText = "width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;margin-bottom:6px";
+    box.appendChild(inp);
+    var b2 = el("button", "width:100%;min-height:46px;border-radius:10px;border:1px solid var(--brand);background:transparent;color:var(--brand);font-family:inherit", "📍 اعتماد موقعي الآن كمقر لهذه المحكمة");
+    b2.type = "button";
+    b2.onclick = function () {
+      b2.disabled = true; b2.textContent = "جارٍ تحديد الموقع…";
+      AT.setCourtHere(inp.value, function (r) { b2.disabled = false; b2.textContent = "📍 اعتماد موقعي الآن كمقر لهذه المحكمة"; alert(r.error ? r.error : "اعتُمد مقر المحكمة (دقة " + ar(r.acc) + " م)."); renderPlaces(); });
+    };
+    box.appendChild(b2);
+  }
+
+  function renderSettings() {
+    renderPlaces();
+    renderSchedule();
+    var sal = document.getElementById("salList");
+    sal.innerHTML = "";
+    var emps = AT.employees();
+    if (!emps.length) {
+      sal.appendChild(el("div", "color:var(--muted);padding:10px 0",
+        "لا يوجد موظفون — أضفهم من شاشة «المحامون والصلاحيات» أولاً."));
+    }
+    var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+    function monthLabel(ym) { return ym === "0000-00" ? "البداية" : MONTHS[+ym.slice(5) - 1] + " " + ar(ym.slice(0, 4)); }
+    function shiftYm(ym, n) {
+      var y = +ym.slice(0, 4), m = +ym.slice(5) - 1 + n;
+      y += Math.floor(m / 12); m = ((m % 12) + 12) % 12 + 1;
+      return y + "-" + (m < 10 ? "0" : "") + m;
+    }
+    var curYm = today.slice(0, 7);
+    emps.forEach(function (e) {
+      if (e.role === "client" || e.role === "owner") return;
+      var card = el("div"); card.className = "att-card"; card.style.padding = "10px 13px";
+      card.setAttribute("data-emp", e.id);
+      var row = el("div", "display:flex;gap:6px;align-items:center;flex-wrap:wrap");
+      row.appendChild(el("div", "flex:1 1 110px;font-size:13.5px;font-weight:700", e.name));
+      var inp = document.createElement("input");
+      inp.type = "text"; inp.setAttribute("dir", "ltr"); inp.inputMode = "numeric"; inp.placeholder = "الراتب";
+      inp.value = AT.salaryOf(e.id, curYm) || "";
+      inp.style.cssText = "width:100px;min-height:42px;padding:8px 10px;border:1px solid var(--line);" +
+        "border-radius:9px;font-family:inherit;text-align:center";
+      var from = document.createElement("select"); from.setAttribute("data-no-combo", "1"); from.setAttribute("data-no-manual", "1");
+      from.style.cssText = "min-height:42px;padding:6px 8px;border:1px solid var(--line);border-radius:9px;font-family:inherit";
+      for (var i = -2; i <= 6; i++) {
+        var ym = shiftYm(curYm, i), o = document.createElement("option");
+        o.value = ym; o.textContent = "من " + monthLabel(ym); if (i === 0) o.selected = true;
+        from.appendChild(o);
+      }
+      var save = el("button", "min-height:42px;padding:0 12px;border-radius:9px;border:0;background:var(--brand);" +
+        "color:#fff;font-family:inherit", "حفظ");
+      save.type = "button";
+      save.onclick = function () {
+        var v = +String(inp.value).replace(/[٠-٩]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".indexOf(d); }).replace(/[^\d.]/g, "");
+        if (!v) { alert("اكتب الراتب."); return; }
+        AT.setSalary(e.id, v, from.value);
+        renderSettings();
+      };
+      row.appendChild(inp); row.appendChild(from); row.appendChild(save);
+      card.appendChild(row);
+      var hist = AT.salaryHistory(e.id);
+      if (hist.length) {
+        var h = el("div", "margin-top:6px;font-size:12px;color:var(--muted)");
+        hist.forEach(function (x, idx) {
+          var line = el("div", "display:flex;justify-content:space-between;align-items:center;padding:3px 0");
+          line.appendChild(el("span", "", fmtMoney(x.amount) + " ج.م — " + (x.from === "0000-00" ? "من البداية" : "من " + monthLabel(x.from))));
+          var rm = el("button", "color:#b3261e;border:0;background:transparent;font-family:inherit;font-size:12px", "حذف");
+          rm.type = "button";
+          rm.onclick = function () {
+            if (!confirm("حذف راتب " + fmtMoney(x.amount) + " الساري " + (x.from === "0000-00" ? "من البداية" : "من " + monthLabel(x.from)) + "؟")) return;
+            AT.removeSalaryStep(e.id, x.from); renderSettings();
+          };
+          line.appendChild(rm);
+          h.appendChild(line);
+        });
+        card.appendChild(h);
+      } else {
+        card.appendChild(el("div", "margin-top:6px;font-size:12px;color:#b3261e", "مفيش راتب متسجّل — الخصم مش هيتحسب بفلوس."));
+      }
+      sal.appendChild(card);
+    });
+
+    var y = document.getElementById("holYear").value;
+    var auto = AT.officialHolidaysForYear(+y);
+    var holAuto = document.getElementById("holAuto");
+    holAuto.innerHTML = "";
+    if (!auto.length) holAuto.appendChild(el("div", "color:var(--muted);font-size:13px", "لا بيانات لهذه السنة بعد."));
+    auto.forEach(function (h) {
+      var r = el("div", "display:flex;justify-content:space-between;padding:6px 0;" +
+        "border-bottom:1px solid var(--line);font-size:12.5px");
+      r.innerHTML = "<span>" + ar(h.date.replace(/-/g, "/")) + " — " + h.name + "</span>" +
+        (h.est ? '<span class="badge-att badge-warn">تقديري</span>' : '<span class="badge-att badge-good">مؤكد</span>');
+      holAuto.appendChild(r);
+    });
+
+    var holCustom = document.getElementById("holCustom");
+    holCustom.innerHTML = "";
+    var custom = AT.customHolidays();
+    if (!custom.length) holCustom.appendChild(el("div", "color:var(--muted);font-size:13px", "لا استثناءات مضافة."));
+    custom.forEach(function (h) {
+      var r = el("div", "display:flex;justify-content:space-between;padding:6px 0;" +
+        "border-bottom:1px solid var(--line);font-size:12.5px");
+      r.innerHTML = "<span>" + ar(h.date.replace(/-/g, "/")) + " — " + h.name + "</span>";
+      var rm = el("button", "color:#b3261e;border:0;background:transparent;font-size:14px", "حذف");
+      rm.type = "button";
+      rm.onclick = function () { AT.removeHoliday(h.id); renderSettings(); };
+      r.appendChild(rm);
+      holCustom.appendChild(r);
+    });
+  }
+  document.getElementById("holYear").onchange = renderSettings;
+  document.getElementById("holAdd").onclick = function () {
+    var d = V("holDate"), n = document.getElementById("holName").value.trim();
+    if (!d) { alert("اختر تاريخ العطلة."); return; }
+    AT.addHoliday(d, n);
+    document.getElementById("holName").value = "";
+    renderSettings();
+  };
+
+  function renderAll() {
+    fillEmpSelects();
+    var active = document.querySelector(".att-view.on");
+    if (!active) return;
+    if (active.id === "v-dash") renderDash();
+    else if (active.id === "v-day") loadDay();
+    else if (active.id === "v-settings") renderSettings();
+  }
+
+  /* يفتح «الإعدادات» على خانة رواتب المحامين (ولو اتحدد محامي يوصل لكارته ويعلّمه) */
+  function goSalary(empId) {
+    var b = document.querySelector('#tabs button[data-v="settings"]');
+    if (b) b.click(); else renderSettings();
+    setTimeout(function () {
+      var target = empId ? document.querySelector('#salList [data-emp="' + empId + '"]') : document.getElementById("salList");
+      if (!target) target = document.getElementById("salList");
+      if (!target) return;
+      target.scrollIntoView({ block: "center", behavior: "smooth" });
+      if (empId) {
+        target.style.boxShadow = "0 0 0 3px var(--brand)";
+        var inp = target.querySelector("input");
+        if (inp) setTimeout(function () { inp.focus(); }, 350);
+        setTimeout(function () { target.style.boxShadow = ""; }, 3500);
+      }
+    }, 120);
+  }
+  if (PAY_EDIT) {
+    var gs = document.getElementById("goSal");
+    gs.style.display = "";
+    gs.onclick = function () { goSalary(""); };
+  }
+
+  document.getElementById("dashMonth").onchange = renderDash;
+  renderAll();
+  if (PAY_EDIT && /salar/.test(location.hash)) setTimeout(function () { goSalary(""); }, 300);
+  /* حضور المحامين ومقرّات المكتب/المحاكم من السحابة (بعد الدخول) */
+  setTimeout(function () { AT.pullFromCloud(function (ok, n) { if (n) renderAll(); }); }, 1500);
+  /* الرواتب والحوافز من السحابة — للمالك والمحاسب بس (السيرفر كمان بيرفض غيرهم) */
+  if (PAY_VIEW) setTimeout(function () { AT.pullPayroll(function (n) { if (n) renderAll(); }); }, 1800);
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

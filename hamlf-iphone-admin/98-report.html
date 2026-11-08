@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>بناء التقارير</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .row > div{ flex:1 1 45%; min-width:150px; }
+  label.l{ display:block; font-family:var(--f-title); font-size:13px; margin-bottom:4px; color:var(--brand-dark); }
+  .fld{ width:100%; min-height:46px; font-size:15px; padding:8px 11px; border:1px solid var(--line);
+        border-radius:9px; background:var(--card); direction:rtl; text-align:right; font-family:inherit; }
+  .quick{ display:flex; gap:7px; margin-bottom:10px; }
+  .quick button{ flex:1; min-height:42px; border-radius:9px; border:1px solid var(--line); background:var(--card);
+        color:var(--brand); font-family:inherit; font-size:13px; }
+  #stat{ margin:8px 0; }
+  .rcard{ border:1px solid var(--line); border-radius:11px; padding:11px 13px; margin-bottom:9px;
+          background:var(--card); page-break-inside:avoid; }
+  .rcard .h{ font-family:var(--f-title); font-size:14px; margin-bottom:7px; color:var(--brand-dark);
+             border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .rcard .g{ display:flex; flex-wrap:wrap; gap:6px 18px; align-items:baseline; }
+  .rcard .g .c{ flex:0 1 auto; max-width:100%; font-size:13px; line-height:1.95; white-space:nowrap; }
+  .rcard .g .c.wide{ flex:1 1 100%; white-space:normal; }
+  .rcard .g b{ color:var(--brand-dark); font-family:var(--f-title); font-weight:700; margin-inline-end:6px; }
+  .badges{ display:flex; gap:7px; flex-wrap:wrap; margin:10px 0; }
+  .badges div{ flex:1 1 30%; min-width:100px; background:var(--card); border:1px solid var(--line);
+        border-radius:10px; padding:9px 6px; text-align:center; }
+  .badges .n{ font-family:var(--f-title); font-size:17px; } .badges .l{ font-size:11px; color:var(--muted); }
+  .sbar{ display:flex; gap:7px; flex-wrap:wrap; margin:12px 0; }
+  .sbar button{ flex:1 1 22%; min-width:90px; min-height:46px; border-radius:10px; font-family:inherit; font-size:13.5px; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+  <div class="appbar">
+    <a class="back" href="60-reports-hub.html">&rarr;</a>
+    <h1>بناء التقارير</h1>
+    <span class="screen-id">SCR-98</span>
+  </div>
+  <main>
+    <div class="row" data-nosave="1">
+      <div style="flex:1 1 100%">
+        <label class="l">مصدر التقرير</label>
+        <select id="src" class="fld">
+          <option value="sessions">الجلسات</option>
+          <option value="waraq">أوراق المحضرين</option>
+          <option value="both">الجلسات وأوراق المحضرين معاً</option>
+          <option value="accounts">حسابات (أتعاب ومصروفات)</option>
+          <option value="yearStat">إحصاء آخر السنة (سنة التعامل × الدرجة)</option>
+          <option value="dealYear">حسب سنة التعامل</option>
+          <option value="clientCases">قضايا موكل بعينه</option>
+        </select>
+      </div>
+    </div>
+    <div class="quick" data-nosave="1">
+      <button type="button" id="qMonth">هذا الشهر</button>
+      <button type="button" id="qWeek">الأسبوع القادم</button>
+      <button type="button" id="qClear">مسح الفترة</button>
+    </div>
+    <div class="row" data-nosave="1">
+      <div><label class="l">من تاريخ</label><input type="date" id="from" class="fld"></div>
+      <div><label class="l">إلى تاريخ</label><input type="date" id="to" class="fld"></div>
+    </div>
+    <div class="row" data-nosave="1">
+      <div><label class="l">موكل بعينه</label><input type="text" id="fClient" class="fld" placeholder="اسم الموكل…"></div>
+      <div><label class="l">رقم قضية</label><input type="text" id="fCase" class="fld" placeholder="رقم الدعوى…"></div>
+    </div>
+    <div class="row" data-nosave="1">
+      <div><label class="l">سنة التعامل</label><input type="text" id="fYear" class="fld" placeholder="مثال ٢٠٢٦"></div>
+      <div><label class="l">طريقة العرض</label>
+        <select id="mode" class="fld">
+          <option value="detail">تتابع الجلسات بالتفصيل</option>
+          <option value="last">آخر جلسة فقط لكل قضية</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin:6px 0 4px" data-nosave="1">
+      <button type="button" class="btn" id="build" style="flex:1;min-height:48px">بناء التقرير</button>
+    </div>
+    <div id="stat" class="note"></div>
+    <div id="sbar" class="sbar" data-nosave="1" hidden></div>
+    <div id="out"></div>
+  </main>
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html"><span class="bi">⚖</span>القضايا</a>
+    <a href="90-case-file.html"><span class="bi">🗂</span>سجل القضايا</a>
+    <a href="60-reports-hub.html" class="active"><span class="bi">📄</span>التقارير</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/firebase-config.js?v=4"></script>
+<script src="assets/auth.js?v=3"></script>
+<script src="assets/cloud-store.js?v=30"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/regs-def.js?v=1"></script>
+<script src="assets/registers.js?v=5"></script>
+<script>
+(function () {
+  "use strict";
+  var CF = window.CaseFile, EX = window.Expenses, RG = window.Registers;
+  var ar = (CF && CF.ar) || function (x) { return String(x == null ? "" : x); };
+  var norm = (CF && CF.norm) || function (x) { return String(x || "").toLowerCase(); };
+  function la(t) { return String(t == null ? "" : t).replace(/[٠-٩]/g, function (d) { return d.charCodeAt(0) - 0x0660; }); }
+  function money(v) { return EX && EX.money ? EX.money(v) : (parseFloat(String(v).replace(/[^0-9.\-]/g, "")) || 0); }
+  function fmt(v) { return EX && EX.fmt ? EX.fmt(v) : String(Math.round(v)); }
+  function el(t, css, txt) { var e = document.createElement(t); if (css) e.style.cssText = css; if (txt != null) e.textContent = txt; return e; }
+  function cases() { return (CF && CF.all && CF.all()) || []; }
+  function iso(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function V(id) {
+    var f = document.getElementById(id);
+    if (!f) return "";
+    /* حقول التاريخ (from/to) يحوّلها datepicker.js لعرض عربي منسَّق —
+       نعيدها لصيغة ISO قابلة للمقارنة عبر lawyerISO بدل القيمة الخام. */
+    if (f.dataset && f.dataset.dateKind && window.lawyerISO) return window.lawyerISO(f) || "";
+    return f.value.trim();
+  }
+  function dmy(s) { return ar(String(s || "").replace(/-/g, "/")); }
+
+  function inPeriod(dateStr) {
+    var f = V("from"), t = V("to"), d = String(dateStr || "");
+    if (!d) return false;
+    if (f && d < f) return false;
+    if (t && d > t) return false;
+    return true;
+  }
+  function passCase(c) {
+    var cl = V("fClient"), cs = la(V("fCase")), yr = la(V("fYear"));
+    if (cl && norm(c.clients || "").indexOf(norm(cl)) < 0) return false;
+    if (cs && la(c.caseNo || "").indexOf(cs) < 0) return false;
+    if (yr && la(c.dealYear || "").trim() !== yr) return false;
+    return true;
+  }
+  function venue(c) { return [c.courtName, c.circuit].filter(Boolean).join(" — "); }
+  function firstClient(c) { return String(c.clients || "").split("·")[0].replace(/\([^)]*\)/g, "").trim(); }
+  function agreedText(c) {
+    return c.feeKind === "نسبة" ? (c.feePct ? ar(c.feePct) + "%" : "نسبة") : (c.feeStart ? fmt(money(c.feeStart)) + " ج" : "");
+  }
+  function caseFin(c) {
+    var fn = la(c.fileNo || "").trim(), coll = 0, spent = 0;
+    var mv = (EX && EX.all) ? EX.all() : [];
+    if (fn) mv.forEach(function (r) {
+      if (la(r.fileNo || "").trim() !== fn) return;
+      if (r.kind === "عهدة مستلمة") coll += money(r.amount); else spent += money(r.amount);
+    });
+    return { coll: coll, spent: spent };
+  }
+
+  /* ---------- تقارير: كل تقرير يعيد سجلات كروت ---------- */
+
+  function repSessions() {
+    var recs = [], i = 0;
+    cases().forEach(function (c) {
+      if (!passCase(c)) return;
+      var ss = (c.sessions || []).slice().sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+      if (document.getElementById("mode").value === "last") ss = ss.slice(-1);
+      ss.forEach(function (s) {
+        if ((V("from") || V("to")) && !inPeriod(s.date)) return;
+        var raw = s.raw || {};
+        recs.push({ title: "جلسة " + dmy(s.date) + " — ملف " + ar(c.fileNo || "—"), pairs: [
+          ["الجهة", venue(c)], ["الدعوى", ar(c.caseNo || "") + (c.caseYear ? " لسنة " + ar(c.caseYear) : "")],
+          ["الأطراف", [firstClient(c), c.opponents].filter(Boolean).join(" / "), true],
+          ["الموضوع", c.subject, true],
+          ["ما تم/القرار", raw.result || raw.decision || "", true],
+          ["سبب التأجيل", raw["for"] || ""]
+        ] });
+        i++;
+      });
+    });
+    return { title: "تقرير الجلسات", recs: recs, count: i, unit: "جلسة" };
+  }
+
+  function repWaraq() {
+    var recs = [], i = 0;
+    var list = (RG && RG.rows) ? RG.rows("waraq") : [];
+    var cl = V("fClient");
+    list.forEach(function (r) {
+      var d1 = r.handed || "", d2 = r.jalsa || "";
+      if ((V("from") || V("to")) && !inPeriod(d1) && !inPeriod(d2)) return;
+      if (cl && norm(r.client || "").indexOf(norm(cl)) < 0) return;
+      recs.push({ title: "ورقة " + ar(r.no || "—") + (r.kind ? " — " + r.kind : ""), pairs: [
+        ["المحكمة", r.court || ""], ["قلم المحضرين", r.qalam || ""], ["الموكل", r.client || ""],
+        ["الموضوع", r.subject, true], ["التسليم", dmy(d1)], ["الجلسة", dmy(d2)], ["ملاحظات", r.done || ""]
+      ] });
+      i++;
+    });
+    return { title: "تقرير أوراق المحضرين", recs: recs, count: i, unit: "ورقة" };
+  }
+
+  function repAccounts() {
+    var recs = [], i = 0, tA = 0, tC = 0, tS = 0;
+    cases().forEach(function (c) {
+      if (!passCase(c)) return;
+      var f = caseFin(c);
+      if (!f.coll && !f.spent && !c.feeStart && c.feeKind !== "نسبة") return;
+      if (c.feeKind !== "نسبة") tA += money(c.feeStart);
+      tC += f.coll; tS += f.spent;
+      recs.push({ title: "ملف " + ar(c.fileNo || "—") + " — " + (firstClient(c) || "موكل"), pairs: [
+        ["القضية", venue(c) + " " + ar(c.caseNo || "")],
+        ["الأتعاب", agreedText(c)], ["المحصّل", fmt(f.coll) + " ج"],
+        ["المدفوع", fmt(f.spent) + " ج"], ["الرصيد", fmt(f.coll - f.spent) + " ج"]
+      ] });
+      i++;
+    });
+    recs.push({ title: "الإجمالي", pairs: [
+      ["الأتعاب (قيمية)", fmt(tA) + " ج"], ["المحصّل", fmt(tC) + " ج"],
+      ["المدفوع", fmt(tS) + " ج"], ["الرصيد", fmt(tC - tS) + " ج"]
+    ] });
+    return { title: "تقرير الحسابات (أتعاب ومصروفات)", recs: recs, count: i, unit: "قضية" };
+  }
+
+  function repYearStat() {
+    var years = {}, levels = {}, st = { total: 0, "متداولة": 0, "محجوزة للحكم": 0, "خبير": 0, "منتهية": 0 };
+    cases().forEach(function (c) {
+      if (!passCase(c)) return;
+      var y = la(c.dealYear || "").trim() || "—", lv = c.courtLevel || "—";
+      years[y] = years[y] || {}; years[y][lv] = (years[y][lv] || 0) + 1; levels[lv] = 1;
+      st.total++; if (st[c.status] != null) st[c.status]++;
+    });
+    var recs = Object.keys(years).sort().map(function (y) {
+      var pairs = [], tot = 0;
+      Object.keys(levels).sort().forEach(function (lv) { var n = years[y][lv] || 0; if (n) { pairs.push([lv, ar(n)]); tot += n; } });
+      pairs.push(["الإجمالي", ar(tot)]);
+      return { title: "سنة التعامل " + ar(y), pairs: pairs };
+    });
+    return { title: "إحصاء آخر السنة", recs: recs, count: st.total, unit: "قضية", badges: [
+      ["إجمالي القضايا", st.total], ["متداولة", st["متداولة"]], ["محجوزة للحكم", st["محجوزة للحكم"]],
+      ["لدى الخبراء", st["خبير"]], ["منتهية", st["منتهية"]]
+    ] };
+  }
+
+  function repDealYear() {
+    var recs = [];
+    cases().forEach(function (c) {
+      if (!passCase(c)) return;
+      recs.push({ _y: la(c.dealYear || "").trim(), title: "سنة " + ar(c.dealYear || "—") + " — ملف " + ar(c.fileNo || "—"), pairs: [
+        ["الموكل", firstClient(c)], ["المحكمة", venue(c)],
+        ["الدعوى", ar(c.caseNo || "—") + (c.caseYear ? " لسنة " + ar(c.caseYear) : "")], ["الحالة", c.status || ""]
+      ] });
+    });
+    recs.sort(function (a, b) { return String(a._y).localeCompare(String(b._y)); });
+    return { title: "قضايا حسب سنة التعامل", recs: recs, count: recs.length, unit: "قضية" };
+  }
+
+  function repClientCases() {
+    var cl = V("fClient");
+    if (!cl) return { title: "قضايا موكل", recs: [], count: 0, unit: "قضية", note: "اكتب اسم الموكل في فلتر «موكل بعينه»." };
+    var list = cases().filter(function (c) { return norm(c.clients || "").indexOf(norm(cl)) >= 0; });
+    var recs = [], tC = 0, tS = 0, tA = 0, pct = 0;
+    list.forEach(function (c) {
+      var f = caseFin(c); tC += f.coll; tS += f.spent;
+      if (c.feeKind === "نسبة") pct++; else tA += money(c.feeStart);
+      recs.push({ title: "ملف " + ar(c.fileNo || "—") + " — دعوى " + ar(c.caseNo || "—") + (c.caseYear ? " لسنة " + ar(c.caseYear) : ""), pairs: [
+        ["المحكمة", venue(c)], ["الدرجة", c.courtLevel || ""], ["نوع الدعوى", c.caseType || ""],
+        ["الموضوع", c.subject, true], ["الحالة", c.status || ""],
+        ["الأتعاب", agreedText(c)], ["المحصّل", fmt(f.coll) + " ج"],
+        ["المتبقي", (c.feeKind !== "نسبة" && c.feeStart) ? fmt(money(c.feeStart) - f.coll) + " ج" : "—"]
+      ] });
+    });
+    recs.unshift({ title: "الموكل: " + cl, pairs: [
+      ["عدد القضايا", ar(list.length)], ["الأتعاب (قيمية)", fmt(tA) + " ج"],
+      ["إجمالي المحصّل", fmt(tC) + " ج"], ["إجمالي المصروفات", fmt(tS) + " ج"],
+      ["المتبقي", fmt(tA - tC) + " ج"]
+    ] });
+    return { title: "قضايا الموكل: " + cl, recs: recs, count: list.length, unit: "قضية",
+      note: pct ? ("* " + ar(pct) + " قضية بأتعاب نسبة لا تدخل الإجماليات القيمية.") : "" };
+  }
+
+  /* ---------- عرض الكروت ---------- */
+
+  function recCard(rec) {
+    var card = el("div"); card.className = "rcard";
+    if (rec.title) card.appendChild(el("div", "", rec.title)).className = "h";
+    var g = el("div"); g.className = "g";
+    (rec.pairs || []).forEach(function (p) {
+      if (p[1] == null || p[1] === "") return;
+      var cell = el("div"); cell.className = "c" + (p[2] ? " wide" : "");
+      cell.appendChild(el("b", "", p[0]));
+      cell.appendChild(document.createTextNode(String(p[1])));
+      g.appendChild(cell);
+    });
+    card.appendChild(g);
+    return card;
+  }
+
+  var current = null;
+  function runReport() {
+    var src = document.getElementById("src").value;
+    if (src === "sessions") return repSessions();
+    if (src === "waraq") return repWaraq();
+    if (src === "both") { var a = repSessions(), b = repWaraq(); return { multi: [a, b] }; }
+    if (src === "accounts") return repAccounts();
+    if (src === "yearStat") return repYearStat();
+    if (src === "dealYear") return repDealYear();
+    if (src === "clientCases") return repClientCases();
+  }
+
+  function renderPart(host, p) {
+    host.appendChild(el("div", "font-family:var(--f-title);font-size:16px;margin:12px 0 8px;color:var(--brand-dark)", p.title));
+    if (p.note) host.appendChild(el("div", "font-size:12.5px;color:var(--muted);margin-bottom:8px", p.note));
+    (p.recs || []).forEach(function (r) { host.appendChild(recCard(r)); });
+    if (p.badges) {
+      var bd = el("div"); bd.className = "badges";
+      p.badges.forEach(function (x) { var d = el("div"); d.appendChild(el("div", "", ar(x[1]))).className = "n"; d.appendChild(el("div", "", x[0])).className = "l"; bd.appendChild(d); });
+      host.appendChild(bd);
+    }
+    host.appendChild(el("div", "font-size:12.5px;color:var(--muted);margin:6px 0 4px", "الإجمالي: " + ar(p.count) + " " + p.unit));
+  }
+
+  function build() {
+    var src = document.getElementById("src").value;
+    var out = document.getElementById("out"), stat = document.getElementById("stat");
+    out.textContent = "";
+    document.getElementById("sbar").hidden = true;
+    var needsPeriod = (src === "sessions" || src === "waraq" || src === "both");
+    if (needsPeriod && !V("from") && !V("to")) { stat.textContent = "حدِّد الفترة (من/إلى) لبناء هذا التقرير."; return; }
+    var res = runReport();
+    var parts = res.multi ? res.multi : [res];
+    var host = el("div");
+    parts.forEach(function (p) { renderPart(host, p); });
+    out.appendChild(host);
+    stat.textContent = "";
+    current = { parts: parts, node: host, title: parts.map(function (p) { return p.title; }).join(" + ") };
+    document.getElementById("sbar").hidden = false;
+  }
+
+  /* ---------- نصّ التقرير للمشاركة ---------- */
+  function reportText() {
+    if (!current) return "";
+    var L = ["مؤسسة المستشار حسن عبد المنعم — محامون ومستشارون قانونيون", current.title];
+    var per = (V("from") || V("to")) ? ("الفترة: " + dmy(V("from")) + " — " + dmy(V("to"))) : "";
+    if (per) L.push(per);
+    L.push("");
+    current.parts.forEach(function (p) {
+      L.push("■ " + p.title);
+      (p.recs || []).forEach(function (r) {
+        if (r.title) L.push("• " + r.title);
+        var seg = (r.pairs || []).filter(function (x) { return x[1] != null && x[1] !== ""; })
+          .map(function (x) { return x[0] + " " + x[1]; });
+        if (seg.length) L.push("   " + seg.join(" · "));
+      });
+      L.push("الإجمالي: " + ar(p.count) + " " + p.unit);
+      L.push("");
+    });
+    return L.join("\n");
+  }
+
+  /* ---------- نص → صفحات PDF عبر كانفاس ---------- */
+  function textToPages(title, text) {
+    var W = 1240, H = 1754, M = 74, pages = [], cv, ctx, y;
+    function newPage() {
+      cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+      ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
+      ctx.direction = "rtl"; ctx.textAlign = "right"; ctx.fillStyle = "#222"; y = M + 24;
+    }
+    function push() { pages.push(cv.toDataURL("image/jpeg", 0.92)); }
+    function writeLine(str, font) {
+      ctx.font = font;
+      var maxW = W - 2 * M, words = String(str).split(" "), line = "";
+      for (var i = 0; i < words.length; i++) {
+        var test = line ? line + " " + words[i] : words[i];
+        if (ctx.measureText(test).width > maxW && line) {
+          ctx.fillText(line, W - M, y); y += 36; line = words[i];
+          if (y > H - M) { push(); newPage(); ctx.font = font; }
+        } else line = test;
+      }
+      if (line) { ctx.fillText(line, W - M, y); y += 36; }
+      if (y > H - M) { push(); newPage(); }
+    }
+    newPage();
+    String(text).split("\n").forEach(function (ln) {
+      var bold = /^[■•]/.test(ln.trim());
+      if (ln.trim() === "") { y += 14; if (y > H - M) { push(); newPage(); } return; }
+      writeLine(ln, (bold ? "bold 27px" : "24px") + " 'Segoe UI',Tahoma,sans-serif");
+    });
+    push();
+    return pages;
+  }
+
+  function shareName() { return "تقرير-" + (current ? current.title : "") ; }
+  function doWhats() { if (window.Share) Share.shareText(reportText(), { name: shareName(), subject: current ? current.title : "تقرير" }); }
+  function doMail() {
+    var t = reportText();
+    window.location.href = "mailto:?subject=" + encodeURIComponent(current ? current.title : "تقرير") + "&body=" + encodeURIComponent(t);
+  }
+  function doPdf() {
+    if (!window.Share || !window.PdfBuild) { alert("المشاركة غير متاحة هنا."); return; }
+    if (!current) return;
+    function finish(pages) {
+      var pdf = PdfBuild.fromJpegs(pages);
+      if (!pdf) { alert("تعذّر بناء الـPDF."); return; }
+      Share.sharePdf(PdfBuild.toBase64(pdf), shareName() + ".pdf");
+    }
+    if (window.PdfDoc) {
+      var blocks = [{ center: current.title }];
+      if (V("from") || V("to")) blocks.push({ center: "الفترة: " + dmy(V("from")) + " — " + dmy(V("to")) });
+      current.parts.forEach(function (p) {
+        blocks.push({ h: p.title });
+        (p.recs || []).forEach(function (r) {
+          var rows = (r.pairs || []).filter(function (x) { return x[1] != null && x[1] !== ""; })
+            .map(function (x) { return [x[0], String(x[1])]; });
+          if (r.title) blocks.push({ center: r.title });
+          if (rows.length) blocks.push({ table: { headers: ["الحقل", "البيان"], widths: [1, 2.6], rows: rows } });
+        });
+      });
+      PdfDoc.build(blocks).then(finish);
+    } else {
+      finish(textToPages(current.title, reportText()));
+    }
+  }
+  function doPrint() {
+    if (!current) return;
+    var win = el("div", "position:fixed;inset:0;background:#fff;color:#000;z-index:10060;overflow:auto;padding:22px;direction:rtl;font-family:inherit");
+    win.setAttribute("data-nosave", "1"); win.className = "print-overlay";
+    var _lh = window.Letterhead && Letterhead.htmlHeader && Letterhead.htmlHeader();
+    if (_lh) win.appendChild(_lh);
+    else win.appendChild(el("div", "font-family:var(--f-title);font-size:15px;text-align:center;margin-bottom:4px", "مؤسسة المستشار حسن عبد المنعم — محامون ومستشارون قانونيون"));
+    win.appendChild(el("div", "font-size:19px;font-family:var(--f-title);text-align:center;margin-bottom:14px", current.title));
+    win.appendChild(current.node.cloneNode(true));
+    var bar = el("div", "display:flex;gap:9px;margin-top:20px");
+    var go = el("button", "flex:1;padding:14px;border:0;border-radius:11px;background:#5b3a21;color:#fff;font-weight:600;font-family:inherit;font-size:15px;min-height:50px", "🖨 طباعة / حفظ PDF");
+    go.type = "button"; go.onclick = function () { if (window.AndroidSaver && AndroidSaver.printPage) AndroidSaver.printPage(current.title); else window.print(); };
+    var back = el("button", "flex:1;padding:14px;border:1px solid #ccc;border-radius:11px;background:transparent;color:#333;font-family:inherit;font-size:15px;min-height:50px", "رجوع");
+    back.type = "button"; back.onclick = function () { win.remove(); };
+    bar.appendChild(go); bar.appendChild(back); win.appendChild(bar);
+    document.body.appendChild(win);
+  }
+
+  function sBtn(label, css, on) { var b = el("button", css, label); b.type = "button"; b.onclick = on; return b; }
+  var sbar = document.getElementById("sbar");
+  sbar.appendChild(sBtn("🟢 واتساب", "border:1px solid #25d366;background:transparent;color:#128c3e", doWhats));
+  sbar.appendChild(sBtn("✉ بريد", "border:1px solid var(--line);background:transparent;color:var(--brand)", doMail));
+  sbar.appendChild(sBtn("📄 PDF", "border:1px solid #5b3a21;background:transparent;color:#5b3a21;font-weight:600", doPdf));
+  sbar.appendChild(sBtn("🖨 طباعة", "border:0;background:#5b3a21;color:#fff", doPrint));
+
+  function setDateField(id, iso) {
+    var f = document.getElementById(id);
+    f.value = iso;
+    /* datepicker.js يعيد رسم القيمة عربياً عند change فقط — نطلقه هنا كي لا
+       يبقى الحقل نصاً لاتينياً خاماً بعد تعبئته برمجياً من أزرار الاختصار. */
+    f.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  function setRange(f, t) { setDateField("from", f); setDateField("to", t); }
+  document.getElementById("qMonth").onclick = function () { var n = new Date(); setRange(iso(new Date(n.getFullYear(), n.getMonth(), 1)), iso(new Date(n.getFullYear(), n.getMonth() + 1, 0))); };
+  document.getElementById("qWeek").onclick = function () { var n = new Date(); var e = new Date(n); e.setDate(e.getDate() + 7); setRange(iso(n), iso(e)); };
+  document.getElementById("qClear").onclick = function () { setRange("", ""); };
+  document.getElementById("build").onclick = build;
+  if (RG && RG.needCourtData) RG.needCourtData();
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

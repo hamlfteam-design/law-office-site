@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>تجميع الأعمال الإدارية</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .views{ display:flex; gap:7px; margin-bottom:12px; }
+  .views button{ flex:1; min-height:48px; border-radius:11px; font-family:inherit; font-size:14px;
+        border:1px solid var(--line); background:var(--card); color:var(--brand); }
+  .views button.on{ background:var(--brand); color:#fff; border-color:var(--brand); }
+  .filters{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+  .filters input{ flex:1 1 30%; min-height:46px; font-size:15px; padding:8px 11px; border:1px solid var(--line);
+        border-radius:9px; background:var(--card); font-family:inherit; direction:rtl; text-align:right; }
+  .tk{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px; margin-bottom:8px; cursor:pointer; }
+  .tk .cx{ font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .tk .wk{ font-size:13.5px; line-height:1.8; }
+  .tk .bd{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:5px; }
+  .tk .bd span{ font-size:11.5px; padding:2px 9px; border-radius:20px; color:#fff; }
+  .tk .mt{ font-size:12px; color:var(--muted); margin-top:5px; line-height:1.8; }
+  .kanban{ display:flex; gap:9px; overflow-x:auto; padding-bottom:8px; }
+  .kcol{ flex:0 0 240px; background:var(--bg,#f4ece0); border-radius:12px; padding:9px; }
+  .kcol > h3{ margin:0 0 8px; font-size:14px; text-align:center; font-family:var(--f-title); }
+  .crt{ background:var(--bg,#f4ece0); border-radius:12px; padding:10px; margin-bottom:12px; }
+  .crt > h3{ margin:0 0 4px; font-size:15px; font-family:var(--f-title); color:var(--brand-dark); }
+  .crt > .nx{ font-size:12.5px; color:var(--muted); margin-bottom:8px; line-height:1.8; }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+  <div class="appbar">
+    <a class="back" href="20-cases-hub.html">&rarr;</a>
+    <h1>تجميع الأعمال الإدارية</h1>
+    <span class="screen-id">SCR-96</span>
+  </div>
+  <main>
+    <div class="views" data-nosave="1">
+      <button type="button" id="vInbox" class="on">📥 تكليفاتي <b id="inboxN"></b></button>
+      <button type="button" id="vTable">☰ الكل</button>
+      <button type="button" id="vBoard">▦ بورد الحالات</button>
+      <button type="button" id="vCourt">🏛 حسب المحاكم</button>
+    </div>
+    <button type="button" class="btn" id="addGeneral" data-nosave="1" style="width:100%;margin-bottom:12px">＋ تكليف إداري (لا يتعلق بقضية)</button>
+    <div class="filters" data-nosave="1">
+      <input type="text" id="fCourt" placeholder="المحكمة…">
+      <input type="text" id="fClient" placeholder="الموكل…">
+      <input type="date" id="fDay">
+    </div>
+    <div id="stat" class="note" style="margin-bottom:10px"></div>
+    <div id="body"></div>
+  </main>
+  <nav class="bottomnav">
+    <a href="home.html"><span class="bi">🏠</span>الرئيسية</a>
+    <a href="20-cases-hub.html" class="active"><span class="bi">⚖</span>القضايا</a>
+    <a href="90-case-file.html"><span class="bi">🗂</span>سجل القضايا</a>
+    <a href="89-clients.html"><span class="bi">👤</span>الموكلون</a>
+    <a href="93-find.html"><span class="bi">🔎</span>البحث</a>
+  </nav>
+</div>
+
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/dateinput.js?v=1"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/court-data.js?v=5"></script>
+<script src="assets/courts.js?v=5"></script>
+<script src="assets/lists.js?v=5"></script>
+<script src="assets/app.js?v=16"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/pdfbuild.js?v=1"></script>
+<script src="assets/pdfdoc.js?v=6"></script>
+<script src="assets/letterhead.js?v=2"></script>
+<script src="assets/attach.js?v=1"></script>
+<script src="assets/share.js?v=10"></script>
+<script src="assets/expenses.js?v=4"></script>
+<script src="assets/drive-config.js?v=1"></script><script src="assets/drive-docs.js?v=1"></script>
+<script src="assets/case-statement.js?v=2"></script>
+<script src="assets/case-file.js?v=80"></script>
+<script src="assets/poa-merge.js?v=6"></script>
+<script src="assets/idcrop.js?v=7"></script>
+<script src="assets/scanfx.js?v=1"></script>
+<script src="assets/idocr.js?v=1"></script>
+<script src="assets/clients-poa.js?v=61"></script>
+<script src="assets/poa-sync.js?v=1"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script>
+(function () {
+  "use strict";
+  var CF = window.CaseFile;
+  var ar = (CF && CF.ar) || function (x) { return String(x == null ? "" : x); };
+  var norm = (CF && CF.norm) || function (x) { return String(x || "").toLowerCase(); };
+  var view = "inbox";
+
+  var PRIO = { "عاجل": "#b3261e", "عالي": "#e07b1a", "عادي": "#3d6cc4", "منخفض": "#8a7a63" };
+  var STATE = { "تم": "#1c8a4a", "قيد التنفيذ": "#e07b1a", "ملغي": "#8a7a63", "لم يتم": "#b3792a" };
+  var COLS = ["لم يتم", "قيد التنفيذ", "تم", "ملغي"];
+
+  function el(t, css, txt) {
+    var e = document.createElement(t);
+    if (css) e.style.cssText = css;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+  function me() {
+    try { return (window.Team && Team.current && Team.current()) || {}; } catch (e) { return {}; }
+  }
+  function names() {
+    var m = {};
+    try { (Team.data.users || []).forEach(function (u) { m[u.id] = u.name; }); } catch (e) {}
+    return m;
+  }
+  function cases() {
+    var l = ((CF && CF.all && CF.all()) || []).slice();
+    if (CF && CF.generalBox) l.push(CF.generalBox());   /* التكليفات العامة تظهر مع الباقي */
+    return l;
+  }
+
+  /* يجمع كل الأعمال مع سياق قضيتها */
+  function collect() {
+    var out = [];
+    cases().forEach(function (c) {
+      (c.adminTasks || []).forEach(function (t, idx) {
+        out.push({ c: c, t: t, idx: idx });
+      });
+    });
+    return out;
+  }
+
+  function passFilters(it) {
+    var court = document.getElementById("fCourt").value.trim();
+    var client = document.getElementById("fClient").value.trim();
+    var fDayEl = document.getElementById("fDay");
+    var day = (fDayEl.dataset && fDayEl.dataset.dateKind && window.lawyerISO)
+      ? (window.lawyerISO(fDayEl) || "") : fDayEl.value;
+    var tc = (CF && CF.taskCourt) ? CF.taskCourt(it.c, it.t) : (it.c.courtName || "");
+    if (court && norm(tc).indexOf(norm(court)) < 0) return false;
+    if (client && norm(it.c.clients || "").indexOf(norm(client)) < 0) return false;
+    if (day && String(it.t.taskDate || "") !== day) return false;
+    return true;
+  }
+
+  function isMine(t) {
+    var u = me();
+    var open = t.state !== "تم" && t.state !== "ملغي";
+    if (!open) return false;
+    if (u.id && (t.assignees || []).indexOf(u.id) >= 0) return true;
+    if (u.name && (t.watch || []).some(function (w) { return norm(w) === norm(u.name); })) return true;
+    return false;
+  }
+
+  function card(it) {
+    var nm = names();
+    var t = it.t, c = it.c;
+    var r = el("div"); r.className = "tk";
+    r.appendChild(el("div", "", c.general ? "عمل إداري عام (لا يتعلق بقضية)" :
+      "دعوى " + ar(c.caseNo || "—") +
+      (c.caseYear ? "/" + ar(c.caseYear) : "") + (c.courtName ? " · " + c.courtName : "")))
+      .className = "cx";
+    var bd = el("div"); bd.className = "bd";
+    if (t.prio) bd.appendChild(el("span", "background:" + (PRIO[t.prio] || "#8a7a63"), t.prio));
+    bd.appendChild(el("span", "background:" + (STATE[t.state] || "#b3792a"), t.state || "لم يتم"));
+    r.appendChild(bd);
+    r.appendChild(el("div", "", t.text || "(بلا وصف)")).className = "wk";
+    var meta = [];
+    if ((t.assignees || []).length) meta.push("المُكلَّفون: " +
+      t.assignees.map(function (id) { return nm[id] || "؟"; }).join("، "));
+    if (t.court && t.court !== c.courtName) meta.push("المحكمة: " + t.court);
+    if (t.taskDate) meta.push("العمل: " + ar(String(t.taskDate).replace(/-/g, "/")));
+    if (t.dueDate) meta.push("التسليم: " + ar(String(t.dueDate).replace(/-/g, "/")));
+    var subs = t.subs || [];
+    if (subs.length) meta.push("فرعية: " + ar(subs.filter(function (s) { return s.done; }).length) +
+      "/" + ar(subs.length));
+    if (meta.length) r.appendChild(el("div", "", meta.join(" · "))).className = "mt";
+    if (CF && CF.taskQuickActions) r.appendChild(CF.taskQuickActions(c, t, it.idx, draw));
+    r.onclick = function () {
+      if (CF && CF.editAdminTask) CF.editAdminTask(c.id, it.idx, draw);
+      else if (CF && CF.openCase) CF.openCase(c.id, draw);
+    };
+    return r;
+  }
+
+  function draw() {
+    var body = document.getElementById("body");
+    var stat = document.getElementById("stat");
+    body.textContent = "";
+    var all = collect().filter(passFilters);
+
+    /* عدّاد تكليفاتي */
+    var mineCount = collect().filter(function (it) { return isMine(it.t); }).length;
+    document.getElementById("inboxN").textContent = mineCount ? "(" + ar(mineCount) + ")" : "";
+
+    if (view === "inbox") {
+      var mine = all.filter(function (it) { return isMine(it.t); });
+      stat.textContent = mine.length ? "تكليفاتي المفتوحة: " + ar(mine.length)
+        : "لا تكليفات مفتوحة موجَّهة إليك.";
+      mine.forEach(function (it) { body.appendChild(card(it)); });
+      return;
+    }
+    if (view === "table") {
+      stat.textContent = all.length ? "المعروض: " + ar(all.length) + " عمل" : "لا أعمال مطابقة.";
+      all.forEach(function (it) { body.appendChild(card(it)); });
+      return;
+    }
+    if (view === "court") {
+      /* طلب المستخدم ٦-١٠: الأعمال المفتوحة متجمّعة تحت أقرب جلسة في كل محكمة —
+         اللي رايح يحضر الجلسة ياخد الإداريات معاه */
+      var open = all.filter(function (it) { var st = it.t.state || "لم يتم"; return st !== "تم" && st !== "ملغي"; });
+      var groups = {}, order = [];
+      open.forEach(function (it) {
+        var court = (CF && CF.taskCourt) ? CF.taskCourt(it.c, it.t) : (it.c.courtName || "");
+        var k = court ? ((CF && CF.courtKeyT) ? CF.courtKeyT(court) : norm(court)) : "";
+        if (!groups[k]) { groups[k] = { court: court, items: [] }; order.push(k); }
+        groups[k].items.push(it);
+      });
+      var t0 = new Date(), today = t0.getFullYear() + "-" + ("0" + (t0.getMonth() + 1)).slice(-2) + "-" + ("0" + t0.getDate()).slice(-2);
+      order.forEach(function (k) { var g = groups[k]; g.nd = (k && CF && CF.nextCourtDay) ? CF.nextCourtDay(g.court, today) : null; });
+      order.sort(function (a, b) {
+        var da = (groups[a].nd || {}).date || "9999", db = (groups[b].nd || {}).date || "9999";
+        return da < db ? -1 : da > db ? 1 : 0;
+      });
+      stat.textContent = open.length ? "أعمال مفتوحة: " + ar(open.length) + " في " + ar(order.length) + " محكمة — مرتّبة بأقرب جلسة"
+        : "لا أعمال مفتوحة مطابقة.";
+      order.forEach(function (k) {
+        var g = groups[k], box = el("div"); box.className = "crt";
+        box.appendChild(el("h3", "", g.court || "من غير محكمة"));
+        box.appendChild(el("div", "", g.nd && CF.courtDayText ? CF.courtDayText(g.nd)
+          : (g.court ? "مفيش جلسة جاية مسجّلة في المحكمة دي — حدّد التاريخ بنفسك." : "حدّد المحكمة في العمل علشان يتربط بجلساتها."))).className = "nx";
+        g.items.sort(function (a, b) { return String(a.t.taskDate || "9999") < String(b.t.taskDate || "9999") ? -1 : 1; })
+          .forEach(function (it) { box.appendChild(card(it)); });
+        body.appendChild(box);
+      });
+      return;
+    }
+    /* board */
+    stat.textContent = "بورد الحالات — " + ar(all.length) + " عمل";
+    var kb = el("div"); kb.className = "kanban";
+    COLS.forEach(function (col) {
+      var kc = el("div"); kc.className = "kcol";
+      var items = all.filter(function (it) { return (it.t.state || "لم يتم") === col; });
+      kc.appendChild(el("h3", "", col + " (" + ar(items.length) + ")"));
+      items.forEach(function (it) { kc.appendChild(card(it)); });
+      kb.appendChild(kc);
+    });
+    body.appendChild(kb);
+  }
+
+  function setView(v, btnId) {
+    view = v;
+    ["vInbox", "vTable", "vBoard", "vCourt"].forEach(function (id) {
+      document.getElementById(id).className = id === btnId ? "on" : "";
+    });
+    draw();
+  }
+  document.getElementById("vInbox").onclick = function () { setView("inbox", "vInbox"); };
+  document.getElementById("vTable").onclick = function () { setView("table", "vTable"); };
+  document.getElementById("vBoard").onclick = function () { setView("board", "vBoard"); };
+  document.getElementById("vCourt").onclick = function () { setView("court", "vCourt"); };
+  ["fCourt", "fClient", "fDay"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", draw);
+  });
+
+  document.getElementById("addGeneral").onclick = function () {
+    if (CF && CF.editAdminTask) CF.editAdminTask(CF.GENERAL_ID, -1, draw);
+  };
+
+  draw();
+})();
+</script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>

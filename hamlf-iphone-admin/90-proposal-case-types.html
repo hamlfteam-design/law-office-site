@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="assets/web-store.js?v=1"></script>
+<script src="assets/ios-bridges.js?v=1"></script>
+<script src="assets/big-store.js?v=2"></script>
+<script src="assets/identity-gate.js?v=2"></script>
+<script src="assets/case-scope.js?v=1"></script>
+<meta charset="utf-8">
+<script src="assets/login-gate.js?v=2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>٩٠ · مقترح: أنواع الدعاوى الاقتصادية</title>
+<link rel="stylesheet" href="assets/app.css?v=17">
+<script src="assets/drive-file-sync.js?v=2"></script>
+
+<style>
+  .cmp{display:grid;grid-template-columns:1fr;gap:12px}
+  .cmp .pane{border:1px solid #d9dee5;border-radius:10px;overflow:hidden}
+  .cmp .pane>h4{margin:0;padding:8px 12px;font-size:13px;background:#f1f4f8;border-bottom:1px solid #d9dee5}
+  .cmp .pane>div{padding:12px}
+  .bad{border-color:#e5c2c2}.bad>h4{background:#fbeaea;color:#8a2b2b}
+  .good{border-color:#bfd8c4}.good>h4{background:#e9f5ec;color:#1f6b35}
+  .lst{margin:0;padding-inline-start:18px;font-size:13px;line-height:1.9;color:#41505f}
+  .chip{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:#eef2f7;color:#41505f;margin:2px}
+  pre{background:#0f1720;color:#d7e2ee;padding:12px;border-radius:8px;overflow:auto;font-size:12px;line-height:1.7;direction:ltr;text-align:left}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hamlf مدير">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/pwa.css?v=1">
+</head>
+<body>
+<div class="phone">
+
+  <div class="appbar">
+    <a class="back" href="index.html">→</a>
+    <h1>مقترح: نوع الدعوى الاقتصادية</h1>
+    <span class="screen-id">SCR-90</span>
+  </div>
+
+  <main>
+
+    <!-- ================= الخلاصة ================= -->
+    <section class="card">
+      <header>التوصية</header>
+      <div class="body">
+        <div class="infobox">
+          <strong>لا تحاكي البوابة.</strong>
+          شكل البوابة مصمَّم لـ<em>معالج رفع دعوى</em> (wizard) يقود المستخدم لملء استمارة،
+          بينما تطبيقك <em>سجل قضايا</em> يقيّد دعوى قائمة بالفعل. الاحتياجان مختلفان.
+        </div>
+        <p class="note" style="margin-top:10px">
+          لكن <strong>لا تُبسِّط بحذف البيانات</strong> — بسِّط بإعادة ترتيبها.
+          الـ ١٦٤ تصنيفًا في البوابة ليست ١٦٤ نوعًا حقيقيًا، بل
+          <strong>٩ أنواع × ٢٧ قانونًا</strong> مضروبة في بعضها.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= لماذا ================= -->
+    <section class="card">
+      <header>السبب: التكرار في بيانات البوابة</header>
+      <div class="body">
+        <div class="cmp">
+
+          <div class="pane bad">
+            <h4>✕ محاكاة البوابة — قائمة مسطّحة ١٦٤ صفًّا</h4>
+            <div>
+              <ul class="lst">
+                <li>اقتصادي ← قانون التجارة في شأن عمليات البنوك</li>
+                <li>المستعجل ← قانون التجارة في شأن عمليات البنوك</li>
+                <li>تسوية ودية ← قانون التجارة في شأن عمليات البنوك</li>
+                <li>إشكالات تنفيذ ← قانون التجارة في شأن عمليات البنوك</li>
+                <li>منازعات تنفيذ ← قانون التجارة في شأن عمليات البنوك</li>
+              </ul>
+              <p class="note" style="margin:8px 0 0">
+                نفس القانون مكرَّر ٥ مرات بـ٥ معرِّفات مختلفة.
+                لو المكتب عايز تقرير «كل قضايا البنوك» هيضطر يجمع ٥ قيم.
+                وأي قانون جديد يعني إضافة ٥ صفوف.
+              </p>
+            </div>
+          </div>
+
+          <div class="pane good">
+            <h4>✓ المقترح — بُعدان مستقلان</h4>
+            <div>
+              <p style="margin:0 0 6px;font-size:13px"><strong>نوع الدعوى</strong> (٩ قيم):</p>
+              <span class="chip">اقتصادي</span><span class="chip">مستعجل</span><span class="chip">تسوية ودية</span><span class="chip">إفلاس</span><span class="chip">منازعات تنفيذ</span><span class="chip">إشكالات تنفيذ</span><span class="chip">أوامر على عرائض</span><span class="chip">إدارة التنفيذ</span><span class="chip">كشف سرية حسابات</span>
+              <p style="margin:12px 0 6px;font-size:13px"><strong>القانون الحاكم</strong> (٢٧ قيمة، مشتركة):</p>
+              <span class="chip">عمليات البنوك</span><span class="chip">التجارة البحرية</span><span class="chip">الملكية الفكرية</span><span class="chip">سوق رأس المال</span><span class="chip">الشركات</span><span class="chip">حماية المستهلك</span><span class="chip">التمويل العقاري</span><span class="chip">المنافسة</span><span class="chip">…</span>
+              <p class="note" style="margin:8px 0 0">
+                ٩ + ٢٧ = <strong>٣٦ سجلًا</strong> بدل ١٦٤.
+                تقرير «قضايا البنوك» = فلتر واحد. وقانون جديد = صف واحد.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= الشكل في الشاشة ================= -->
+    <section class="card">
+      <header>الشكل داخل شاشة القضية (SCR-01 · بيانات المحكمة)</header>
+      <div class="body">
+
+        <div class="field">
+          <label class="lbl" for="courtLevel">درجة التقاضي <span class="req">*</span></label>
+          <select id="courtLevel">
+            <option>جزئي</option>
+            <option selected>ابتدائي</option>
+            <option>استئناف عالي</option>
+            <option>نقض</option>
+            <option>إدارية</option>
+            <option>تأديبية</option>
+            <option>قضاء إداري</option>
+            <option>إدارية عليا</option>
+            <option>دستورية</option>
+          </select>
+          <div class="note">بدون تغيير — القائمة الثابتة الحالية (٩ قيم).</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="courtName">اسم المحكمة <span class="badge auto">مرتبطة بالدرجة</span></label>
+          <select id="courtName">
+            <option selected>محكمة القاهرة الاقتصادية</option>
+            <option>محكمة الإسكندرية الاقتصادية</option>
+            <option>محكمة المنصورة الاقتصادية</option>
+            <option>محكمة طنطا الاقتصادية</option>
+            <option>محكمة الإسماعيلية الاقتصادية</option>
+            <option>محكمة بني سويف الاقتصادية</option>
+            <option>محكمة أسيوط الاقتصادية</option>
+            <option>محكمة قنا الاقتصادية</option>
+          </select>
+          <div class="note">الثماني محاكم الاقتصادية تُحقن مسبقًا في القائمة (بدل أن يكتبها المستخدم).</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="caseType">نوع الدعوى <span class="badge auto">مرتبطة بالدرجة</span></label>
+          <select id="caseType">
+            <option selected>اقتصادي</option>
+            <option>مستعجل</option>
+            <option>طلبات تسوية ودية</option>
+            <option>طلبات إدارة إفلاس</option>
+            <option>منازعات تنفيذ موضوعية</option>
+            <option>إشكالات تنفيذ</option>
+            <option>أوامر على عرائض</option>
+            <option>إدارة التنفيذ</option>
+            <option>كشف سرية الحسابات</option>
+          </select>
+          <div class="note">بدون تغيير في النموذج — تظل <code>CaseTypeRef</code> مسطّحة تحت الدرجة.</div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="govLaw">
+            القانون الحاكم / موضوع النزاع
+            <span class="badge">جديد · اختياري</span>
+          </label>
+          <select id="govLaw">
+            <option value="">— بدون —</option>
+            <option selected>قانون التجارة في شأن عمليات البنوك</option>
+            <option>قانون التجارة البحرية</option>
+            <option>قانون حماية حقوق الملكية الفكرية</option>
+            <option>قانون سوق رأس المال</option>
+            <option>قانون الشركات والمساهمة والمسئولية المحدودة</option>
+            <option>قانون حماية المستهلك</option>
+            <option>قانون التمويل العقاري</option>
+            <option>قانون حماية المنافسة ومنع الاحتكار</option>
+            <option>قانون الاستثمار</option>
+            <option>قانون البنك المركزي والجهاز المصرفي</option>
+            <option>قانون مكافحة جرائم تقنية المعلومات</option>
+            <option>قانون التأمين الموحد</option>
+            <option>قانون التجارة فيما يزيد على ١٠ مليون جنيه</option>
+            <option>أخرى</option>
+          </select>
+          <div class="note">
+            <strong>حقل واحد جديد فقط.</strong> يظهر فقط لو نوع الدعوى من العائلات الخمس القانونية.
+            هو اللي يستوعب الـ٢٧ قانونًا بدل تفجير قائمة نوع الدعوى لـ١٦٤.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="valuation">تقدير القيمة <span class="badge">جديد · اختياري</span></label>
+          <select id="valuation">
+            <option value="">— بدون —</option>
+            <option selected>مقدر القيمة</option>
+            <option>غير مقدر القيمة</option>
+          </select>
+          <div class="note">مفيد للرسوم والتقارير المالية — البوابة بتخزّنه في <code>ldv_subrequesttypecode</code>.</div>
+        </div>
+
+        <div class="infobox" style="margin-bottom:0">
+          <strong>المحصّلة:</strong> حقلان اختياريان جديدان، وصفر تغيير في بنية
+          <code>CourtLevel → Court / CaseTypeRef</code> القائمة.
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= النموذج ================= -->
+    <section class="card">
+      <header>نموذج البيانات</header>
+      <div class="body">
+<pre>CourtLevel (enum ثابت 9)
+  ├── Court        (level → 1:N)     ← يُحقن: 8 محاكم اقتصادية
+  └── CaseTypeRef  (level → 1:N)     ← يُحقن: 9 أنواع اقتصادية
+                                        بدون تغيير في البنية
+
+GoverningLaw  (جدول مستقل، غير مرتبط بالدرجة)   🆕
+  { id, name, scope: "economic" }               ← 27 صفًّا
+
+Case
+  courtLevelId
+  courtId
+  caseTypeId
+  governingLawId?   ← nullable
+  valuation?        ← "مقدر" | "غير مقدر" | null</pre>
+
+        <p class="note" style="margin-top:10px">
+          <code>GoverningLaw</code> جدول مرجعي مسطّح غير مرتبط بالدرجة — عشان نفس القانون
+          يخدم الابتدائي والاستئناف ومحاكم أخرى مستقبلًا بدون تكرار.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= تنبيهات ================= -->
+    <section class="card">
+      <header>نقطتان محتاجتان قرارك</header>
+      <div class="body">
+        <ol class="lst">
+          <li style="margin-bottom:10px">
+            <strong>«اقتصادية» غير موجودة في درجات التقاضي التسع.</strong>
+            البوابة عندها درجتان: <em>ابتدائي</em> و<em>كلي</em>.
+            إما تُدرجان تحت «ابتدائي» و«استئناف عالي» الحاليتين،
+            أو تُضاف درجة عاشرة «اقتصادية». الأول أبسط ولا يكسر جدول الترحيل للدرجة الأعلى (§٣-١-ج).
+          </li>
+          <li>
+            <strong>الجنائي غير موجود في البوابة إطلاقًا.</strong>
+            الـ API مدني/تجاري بالكامل. الاختصاص الجنائي للمحاكم الاقتصادية مصدره
+            المادة ٤ من القانون ١٢٠ لسنة ٢٠٠٨ ولازم يُضاف يدويًا —
+            وده يمسّ قاعدة «نوع التنفيذ يُحدَّد تلقائيًا من نوع الدعوى» (§ تنفيذ الأحكام).
+          </li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+</div>
+<script src="assets/norm.js?v=2"></script>
+<script src="assets/ask.js?v=2"></script>
+<script src="assets/cleanup.js?v=33"></script>
+<script src="assets/holidays.js?v=3"></script>
+<script src="assets/reminders.js?v=14"></script>
+<script src="assets/birthdays.js?v=1"></script>
+<script src="assets/team.js?v=10"></script>
+<script src="assets/contacts-sync.js?v=2"></script>
+<script src="assets/store.js?v=4"></script>
+<script src="assets/stats.js?v=5"></script>
+<script src="assets/actions.js?v=1"></script>
+<script src="assets/mobile.js?v=10"></script>
+<script src="assets/combo.js?v=6"></script>
+<script src="assets/datepicker.js?v=4"></script>
+<script src="assets/extras.js?v=8"></script>
+<script src="assets/empty.js?v=1"></script>
+<script src="assets/pwa.js?v=1"></script>
+</body>
+</html>
