@@ -7,7 +7,8 @@
     "inspect": "node backfill.mjs --inspect",
     "dry-run": "node backfill.mjs",
     "apply": "node backfill.mjs --apply",
-    "test": "node --test plan.test.mjs"
+    "full": "node backfill.mjs --apply --full",
+    "test": "node --test plan.test.mjs state.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^12.7.0"
