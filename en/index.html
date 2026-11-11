@@ -621,7 +621,7 @@ location.replace("https://hamlf.com/");
 <p>A downtown Cairo law firm whose founder has been admitted to the Bar since 1994 and before the Court of Cassation since 2012. We appear before the Court of Cassation, the Supreme Administrative Court and the Supreme Constitutional Court; we cover criminal, civil, commercial, administrative, corporate, real estate and personal status matters; and we act for companies, individuals, and foreign and Arab clients as their attorney and correspondent counsel inside Egypt — in Arabic and English.</p>
 <div class="hero-ctas">
 <a href="booking.html" class="btn-primary">📅 Book an Appointment</a>
-<a href="#contact" class="btn-outline">Book a Consultation</a>
+<a href="#contact-consult" class="btn-outline">Book a Consultation</a>
 <a href="portal/index.html" class="btn-outline">Access Your Case</a>
 <a href="tel:+201208555806" class="btn-ghost">📞 Call Now</a>
 </div>
@@ -1098,6 +1098,36 @@ location.replace("https://hamlf.com/");
 <p><strong>Our Google rating:</strong> <a href="https://search.google.com/local/writereview?placeid=ChIJ28LCe4AVWBQRL1UKgIqlKmQ" target="_blank" rel="noopener">Rate us on Google Maps</a></p>
 <p class="section-note" style="margin-top:2px;">(This link is our Google Maps page itself — use it to leave a review or find our location)</p>
 </div>
+<style>
+.ci-wrap{display:flex;flex-direction:column;gap:14px;}
+.ci-title{color:var(--navy);font-size:1.15rem;margin:0;}
+.ci-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ci-choice{font-family:inherit;text-align:start;cursor:pointer;background:var(--white);border:1px solid #d8d4cb;border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:6px;color:var(--text);transition:border-color .2s,box-shadow .2s;}
+.ci-choice strong{font-family:var(--f-label);color:var(--navy);font-size:1rem;}
+.ci-choice span{color:var(--muted);font-size:.85rem;line-height:1.6;}
+.ci-choice:hover{border-color:var(--gold);}
+.ci-choice[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold);}
+.js .ci-panel{display:none;}
+.js .ci-panel.ci-open{display:block;}
+.ci-notice{background:var(--bg);border-inline-start:3px solid var(--gold);padding:14px 18px;border-radius:6px;color:var(--muted);font-size:.92rem;margin:0 0 14px;}
+.ci-notice a{color:var(--navy);font-weight:700;text-decoration:underline;}
+.contact-form .ci-ack{display:flex;align-items:flex-start;gap:10px;font-size:.88rem;color:var(--text);}
+.contact-form .ci-ack input{padding:0;width:auto;margin-top:4px;flex-shrink:0;}
+.ci-types{display:grid;grid-template-columns:1fr;gap:12px;}
+.ci-type{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:8px;}
+.ci-type h4{font-family:var(--f-label);color:var(--navy);font-size:1rem;margin:0;}
+.ci-type p{color:var(--muted);font-size:.88rem;margin:0;}
+.ci-type .btn-primary{align-self:flex-start;}
+@media(max-width:520px){.ci-choices{grid-template-columns:1fr;}}
+</style>
+<div class="ci-wrap" id="contact-consult">
+<h3 class="ci-title">What do you need?</h3>
+<div class="ci-choices" role="group" aria-label="Choose the type of your request">
+<button type="button" class="ci-choice" data-ci="general" aria-pressed="false" aria-controls="ci-general"><strong>General question</strong><span>A brief reply to your question, at no charge</span></button>
+<button type="button" class="ci-choice" data-ci="consult" aria-pressed="false" aria-controls="ci-consult"><strong>Specialist legal consultation</strong><span>Your matter assessed by a specialist lawyer, by prior appointment</span></button>
+</div>
+<div class="ci-panel" id="ci-general">
+<p class="ci-notice">Replies to general enquiries are brief and indicative only. They do not include a review of documents or a legal opinion on any specific matter. To have your matter assessed, you may <a href="#contact-consult">book a specialist consultation</a>.</p>
 <form class="contact-form" id="contactForm" action="https://formsubmit.co/info@hamlf.com" method="POST">
 <input type="text" name="name" placeholder="Your name" required="">
 <input type="tel" name="phone" placeholder="Phone number" required="">
@@ -1107,6 +1137,8 @@ location.replace("https://hamlf.com/");
 <input type="hidden" name="_captcha" value="false">
 <input type="hidden" name="_template" value="table">
 <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+<input type="hidden" name="Request type" value="General enquiry">
+<label class="ci-ack"><input type="checkbox" name="Acknowledgement" value="I understand the reply is general guidance and not a substitute for a consultation" required><span>I understand the reply is general guidance and not a substitute for a consultation</span></label>
 <button type="submit" class="btn-primary">Send</button>
 <p class="form-note" id="formStatus" role="status" aria-live="polite">Your request will reach our team directly, and we will contact you within 48 working hours at the latest.</p>
 </form>
@@ -1116,7 +1148,7 @@ var f=document.getElementById('contactForm'); if(!f) return;
 var st=document.getElementById('formStatus'); var btn=f.querySelector('button[type=submit]');
 f.addEventListener('submit',function(e){
 e.preventDefault(); btn.disabled=true; var old=btn.textContent; btn.textContent='Sending...';
-fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:f.name.value,phone:f.phone.value,email:f.email.value,message:f.message.value,_subject:'New message from hamlf.com website',_captcha:'false',_template:'table',_honey:f._honey.value})})
+fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:f.name.value,phone:f.phone.value,email:f.email.value,message:f.message.value,'Request type':'General enquiry','Acknowledgement':'I understand the reply is general guidance and not a substitute for a consultation',_subject:'New message from hamlf.com website',_captcha:'false',_template:'table',_honey:f._honey.value})})
 .then(function(r){return r.json();})
 .then(function(j){ if(j&&(j.success===true||j.success==='true')){ st.textContent='Your message was sent successfully, and we will contact you within 48 working hours at the latest.'; f.reset(); } else { throw new Error('fail'); } })
 .catch(function(){ st.textContent='Sending failed at the moment — please email us at info@hamlf.com'; })
@@ -1124,6 +1156,30 @@ fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Conte
 });
 })();
 </script>
+</div>
+<div class="ci-panel" id="ci-consult">
+<div class="ci-types">
+<div class="ci-type"><h4>Office Visit</h4><p>30 minutes at the firm's office in Downtown Cairo.</p><a href="booking.html?type=office" class="btn-primary">Book this consultation</a></div>
+<div class="ci-type"><h4>Felony Case — Document Review &amp; Opinion</h4><p>A review of your felony case documents and a legal opinion on them.</p><a href="booking.html?type=criminal" class="btn-primary">Book this consultation</a></div>
+<div class="ci-type"><h4>Cassation Appeal — Document Review &amp; Written Opinion</h4><p>A review of your cassation appeal documents and a written legal opinion.</p><a href="booking.html?type=cassation" class="btn-primary">Book this consultation</a></div>
+<div class="ci-type"><h4>Online Session</h4><p>By video, phone or WhatsApp, at a booked time.</p><a href="booking.html?type=video" class="btn-primary">Book this consultation</a></div>
+<div class="ci-type"><h4>Civil Case — Written Reply + Document Research</h4><p>You send the documents of your civil case; we research them and reply in writing.</p><a href="booking.html?type=written" class="btn-primary">Book this consultation</a></div>
+</div>
+</div>
+<script>
+(function(){
+var w=document.getElementById('contact-consult'); if(!w) return;
+var btns=w.querySelectorAll('.ci-choice'), panels={general:document.getElementById('ci-general'),consult:document.getElementById('ci-consult')};
+function pick(k,scroll){btns.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-ci')===k?'true':'false');});
+for(var n in panels){if(panels[n])panels[n].classList.toggle('ci-open',n===k);}
+if(scroll)w.scrollIntoView({behavior:'smooth',block:'start'});}
+btns.forEach(function(b){b.addEventListener('click',function(){pick(b.getAttribute('data-ci'),false);});});
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href="#contact-consult"]'); if(a){e.preventDefault();pick('consult',true);try{history.replaceState(null,'','#contact-consult');}catch(x){}}});
+function fromHash(){if(location.hash==='#contact-consult')pick('consult',true);}
+window.addEventListener('hashchange',fromHash); fromHash();
+})();
+</script>
+</div>
 </div>
 </div>
 </section>
