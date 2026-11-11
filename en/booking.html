@@ -419,7 +419,7 @@ function switchRegion(r){
 }
 try{document.getElementById('toArBooking').href='../booking.html'+(location.search||'');}catch(e){}
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
-(function(){try{var t=new URLSearchParams(location.search).get('type');if(t&&typeOptions.querySelector('.bk-opt[data-type="'+t+'"]'))pendingType=t;}catch(e){}})();
+(function(){try{var t=new URLSearchParams(location.search).get('type')||new URLSearchParams(location.hash.replace(/^#/,'')).get('type');if(t&&typeOptions.querySelector('.bk-opt[data-type="'+t+'"]'))pendingType=t;}catch(e){}})();
 
 function showStep(n){
   [1,2,3,4,5].forEach(i=>{

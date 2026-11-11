@@ -621,7 +621,7 @@ location.replace("https://hamlf.com/");
 <p>A downtown Cairo law firm whose founder has been admitted to the Bar since 1994 and before the Court of Cassation since 2012. We appear before the Court of Cassation, the Supreme Administrative Court and the Supreme Constitutional Court; we cover criminal, civil, commercial, administrative, corporate, real estate and personal status matters; and we act for companies, individuals, and foreign and Arab clients as their attorney and correspondent counsel inside Egypt — in Arabic and English.</p>
 <div class="hero-ctas">
 <a href="booking.html" class="btn-primary">📅 Book an Appointment</a>
-<a href="#contact" class="btn-outline">Book a Consultation</a>
+<a href="#contact-consult" class="btn-outline">Book a Consultation</a>
 <a href="portal/index.html" class="btn-outline">Access Your Case</a>
 <a href="tel:+201208555806" class="btn-ghost">📞 Call Now</a>
 </div>
@@ -1098,6 +1098,35 @@ location.replace("https://hamlf.com/");
 <p><strong>Our Google rating:</strong> <a href="https://search.google.com/local/writereview?placeid=ChIJ28LCe4AVWBQRL1UKgIqlKmQ" target="_blank" rel="noopener">Rate us on Google Maps</a></p>
 <p class="section-note" style="margin-top:2px;">(This link is our Google Maps page itself — use it to leave a review or find our location)</p>
 </div>
+<div class="cx-wrap" id="contactBox">
+<style>
+/* contact chooser (cx-) — uses existing style.css variables only */
+.cx-q{font-size:1.15rem;color:var(--navy);margin-bottom:12px;}
+.cx-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.cx-choice{font-family:inherit;text-align:start;background:var(--white);border:1px solid #d8d4cb;border-radius:var(--radius);padding:14px 16px;cursor:pointer;color:var(--text);line-height:1.6;transition:border-color .2s,box-shadow .2s;}
+.cx-choice strong{display:block;font-family:var(--f-label);color:var(--navy);font-size:1rem;margin-bottom:4px;}
+.cx-choice span{display:block;color:var(--muted);font-size:.85rem;}
+.cx-choice:hover{border-color:var(--gold);}
+.cx-choice[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset;}
+.cx-alert{background:var(--bg);border-inline-start:4px solid var(--gold);border-radius:8px;padding:12px 14px;font-size:.9rem;color:var(--text);margin-bottom:14px;}
+.cx-alert a{color:var(--navy);font-weight:700;text-decoration:underline;}
+.cx-ack{display:flex;gap:10px;align-items:flex-start;font-size:.88rem;color:var(--text);cursor:pointer;}
+.contact-form .cx-ack input{margin-top:6px;padding:0;flex:none;width:18px;height:18px;accent-color:var(--gold);}
+.cx-cards{display:grid;gap:12px;}
+.cx-card{background:var(--white);border:1px solid #d8d4cb;border-radius:var(--radius);padding:14px 16px;}
+.cx-card h4{font-family:var(--f-label);color:var(--navy);font-size:1rem;margin-bottom:2px;}
+.cx-card p{color:var(--muted);font-size:.86rem;margin-bottom:10px;}
+.cx-card .btn-primary{padding:9px 22px;font-size:.9rem;}
+.cx-note{color:var(--muted);font-size:.82rem;margin-top:10px;}
+@media(max-width:560px){.cx-choices{grid-template-columns:1fr;}}
+</style>
+<h3 class="cx-q">What do you need?</h3>
+<div class="cx-choices">
+<button type="button" class="cx-choice" data-cx="general" aria-pressed="false" aria-controls="cxGeneral"><strong>General question</strong><span>A brief question; the reply is general guidance, without charge</span></button>
+<button type="button" class="cx-choice" data-cx="consult" aria-pressed="false" aria-controls="contact-consult"><strong>Specialist legal consultation</strong><span>A study of your case and documents with a legal opinion — a paid service</span></button>
+</div>
+<div class="cx-panel" id="cxGeneral" hidden>
+<p class="cx-alert" role="note">Replies to general enquiries are brief and for general guidance only. They do not include a review of documents or a legal opinion on any particular case. To have your matter examined, you may book a specialist consultation. <a href="#contact-consult">Book a consultation</a></p>
 <form class="contact-form" id="contactForm" action="https://formsubmit.co/info@hamlf.com" method="POST">
 <input type="text" name="name" placeholder="Your name" required="">
 <input type="tel" name="phone" placeholder="Phone number" required="">
@@ -1107,16 +1136,31 @@ location.replace("https://hamlf.com/");
 <input type="hidden" name="_captcha" value="false">
 <input type="hidden" name="_template" value="table">
 <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+<input type="hidden" name="Request type" value="General enquiry">
+<label class="cx-ack"><input type="checkbox" name="acknowledgement" id="cxAck" required> <span>I understand the reply is general guidance and not a substitute for a consultation</span></label>
 <button type="submit" class="btn-primary">Send</button>
 <p class="form-note" id="formStatus" role="status" aria-live="polite">Your request will reach our team directly, and we will contact you within 48 working hours at the latest.</p>
 </form>
+</div>
+<div class="cx-panel" id="contact-consult" hidden>
+<div class="cx-cards">
+<div class="cx-card"><h4>🏢 Office Visit</h4><p>An in-person meeting at the firm's office in Downtown Cairo, by prior appointment.</p><a class="btn-primary" href="booking.html?type=office">Book this consultation</a></div>
+<div class="cx-card"><h4>💻 Online Session</h4><p>By video, phone or WhatsApp, for up to 20 or 30 minutes.</p><a class="btn-primary" href="booking.html?type=video">Book this consultation</a></div>
+<div class="cx-card"><h4>⚖️ Felony Case — Document Review &amp; Opinion</h4><p>A review of your felony case documents and a legal opinion on them.</p><a class="btn-primary" href="booking.html?type=criminal">Book this consultation</a></div>
+<div class="cx-card"><h4>🏛️ Cassation Appeal — Document Review &amp; Written Opinion</h4><p>A review of your cassation appeal documents and a written legal opinion.</p><a class="btn-primary" href="booking.html?type=cassation">Book this consultation</a></div>
+<div class="cx-card"><h4>📝 Civil Case — Written Reply + Document Research</h4><p>You send your civil case documents; we research them and reply in writing.</p><a class="btn-primary" href="booking.html?type=written">Book this consultation</a></div>
+<div class="cx-card"><h4>🚨 Felony Case — Urgent Consultation (clients abroad)</h4><p>A reply within hours and immediate coverage in urgent cases.</p><a class="btn-primary" href="booking.html?type=urgent">Book this consultation</a></div>
+</div>
+<p class="cx-note">Fees and duration are shown at booking, after you select your nationality and time slot.</p>
+</div>
+</div>
 <script>
 (function(){
 var f=document.getElementById('contactForm'); if(!f) return;
 var st=document.getElementById('formStatus'); var btn=f.querySelector('button[type=submit]');
 f.addEventListener('submit',function(e){
 e.preventDefault(); btn.disabled=true; var old=btn.textContent; btn.textContent='Sending...';
-fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:f.name.value,phone:f.phone.value,email:f.email.value,message:f.message.value,_subject:'New message from hamlf.com website',_captcha:'false',_template:'table',_honey:f._honey.value})})
+fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:f.name.value,phone:f.phone.value,email:f.email.value,message:f.message.value,'Request type':'General enquiry',acknowledgement:f.acknowledgement.checked?'I understand the reply is general guidance and not a substitute for a consultation':'',_subject:'New message from hamlf.com website',_captcha:'false',_template:'table',_honey:f._honey.value})})
 .then(function(r){return r.json();})
 .then(function(j){ if(j&&(j.success===true||j.success==='true')){ st.textContent='Your message was sent successfully, and we will contact you within 48 working hours at the latest.'; f.reset(); } else { throw new Error('fail'); } })
 .catch(function(){ st.textContent='Sending failed at the moment — please email us at info@hamlf.com'; })
@@ -1126,6 +1170,17 @@ fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Conte
 </script>
 </div>
 </div>
+<script>
+(function(){
+var box=document.getElementById('contactBox');if(!box)return;
+var btns=box.querySelectorAll('.cx-choice');var g=document.getElementById('cxGeneral');var c=document.getElementById('contact-consult');
+function pick(k,scroll){btns.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-cx')===k?'true':'false');});g.hidden=k!=='general';c.hidden=k!=='consult';if(scroll){(k==='consult'?c:box).scrollIntoView({behavior:'smooth',block:'start'});}}
+btns.forEach(function(b){b.addEventListener('click',function(){pick(b.getAttribute('data-cx'),false);});});
+function fromHash(){if(location.hash==='#contact-consult')pick('consult',true);}
+document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact-consult"]');if(a){e.preventDefault();try{history.replaceState(null,'','#contact-consult')}catch(x){}pick('consult',true);}});
+window.addEventListener('hashchange',fromHash);fromHash();
+})();
+</script>
 </section>
 
 <footer class="site-footer">
