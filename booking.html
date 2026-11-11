@@ -361,7 +361,7 @@ pkgOptions.addEventListener('click', e=>{
 });
 
 // ---- Preselect a consultation type from the URL (e.g. booking.html?type=criminal from the criminal-cases page/ads) ----
-(function(){try{var t=new URLSearchParams(location.search).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){window.__pendingType=t;if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='القضايا الجنائية';}if(t==='cassation'){var n=document.getElementById('fCategory');if(n)n.value='الطعن بالنقض والمحاكم العليا';}}}catch(e){}})();
+(function(){try{var t=new URLSearchParams(location.search).get('type')||new URLSearchParams(location.hash.replace(/^#/,'')).get('type');if(!t)return;var o=typeOptions.querySelector('.bk-opt[data-type="'+t+'"]');if(o){window.__pendingType=t;if(t==='criminal'){var c=document.getElementById('fCategory');if(c)c.value='القضايا الجنائية';}if(t==='cassation'){var n=document.getElementById('fCategory');if(n)n.value='الطعن بالنقض والمحاكم العليا';}}}catch(e){}})();
 
 // ---- Nationality (added 2026-11-02): Egyptian = EGP prices; non-Egyptian = fixed USD prices + card payment link ----
 // Initial answer from the visitor's country (api/geo.php, IP-based) or device time zone; the visitor can change it,
