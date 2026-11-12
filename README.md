@@ -62,7 +62,7 @@
 قضاياه بس (اللي فيها `clientUids` شايلة الـ uid بتاعه) ومواعيد جلساتها.
 
 ⚠️ **مهم تعرفه**: الربط بين الموكل وقضاياه بيتم عبر حقل `clientUids` على وثيقة القضية، وده بيتحدّث
-تلقائياً من تطبيق المكتب (com.sherif.lawyer) كل 6 ساعات — مش فوري. يعني لو موكل سجّل دخول للمرة الأولى
+تلقائياً من تطبيق المكتب (hamlf) كل 6 ساعات — مش فوري. يعني لو موكل سجّل دخول للمرة الأولى
 في البوابة، ممكن ياخد لحد 6 ساعات لحد ما قضاياه تظهرله (لو التطبيق مفتوح ومتصل بالنت على جهاز في المكتب).
 القضايا القديمة اللي اتسجلت قبل إضافة الحقل ده هتاخد نفس المدة عشان تتحدّث.
 
@@ -156,3 +156,23 @@
 - اشتري الدومين من أي موفر (Namecheap, GoDaddy, إلخ)
 - في **Settings → Pages → Custom domain** بتاع الـ repo، حط اسم الدومين
 - اعمل إعدادات DNS عند موفر الدومين تشاور على GitHub Pages (GitHub بيوضحلك القيم بالظبط بعد ما تكتب الدومين)
+
+## ربط Claude بقاعدة بيانات المكتب (api/mcp.php)
+
+Claude (على claude.ai) يقدر يدوّر فى القضايا والموكلين ويعرض جدول الجلسات وحالة بوابة الموكلين — **قراءة بس**،
+مفيش أى إضافة أو تعديل على Firestore من هنا (عشان مايتعارضش مع مزامنة تطبيق المكتب).
+
+**التفعيل (مرة واحدة):**
+1. **مفتاح خدمة للقراءة بس:** Google Cloud Console (مشروع `profissional-lawyer-updat`) ← IAM & Admin ← Service accounts ←
+   Create service account ← الدور **Cloud Datastore Viewer** ← Keys ← Add key ← JSON. ارفع الملف على Hostinger
+   **فوق** public_html باسم `hamlf-mcp-service-account.json`.
+2. انسخ `api/mcp-config.example.php` على Hostinger **فوق** public_html باسم `mcp-config.php`، واكتب فيه `connector_key`
+   (40 حرف عشوائى على الأقل).
+3. فى claude.ai: Settings ← Connectors ← Add custom connector ← الرابط `https://hamlf.com/api/mcp.php/<connector_key>`
+   (سيب إعدادات OAuth فاضية).
+
+**الأدوات:** `office_overview` · `search_cases` · `get_case` · `list_sessions` · `search_clients` · `get_client`.
+
+**الأمان:** الرابط زى كلمة السر — أى حد معاه يقرا بيانات المكتب. لإيقافه: غيّر `connector_key` فى `mcp-config.php`.
+مفتاح غلط = 404. الكاش (`mcp-cache.bin`) متخزّن جنب ملف الإعدادات برّه public_html ومشفّر.
+**حصة Firestore:** أول طلب بيقرا كل القضايا والموكلين مرة، وبعد كده بس اللى اتغيّر (`updatedAt`)، وقراءة كاملة مرة فى اليوم.
