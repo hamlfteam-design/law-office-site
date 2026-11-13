@@ -720,4 +720,16 @@
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/articles/digital-transformation-lawyers-egypt.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/articles/digital-transformation-lawyers-egypt.html"/>
   </url>
+  <url>
+    <loc>https://hamlf.com/privacy.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/privacy.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/privacy.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/privacy.html"/>
+  </url>
 </urlset>
