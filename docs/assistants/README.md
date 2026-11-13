@@ -58,7 +58,7 @@
 | الموقع (الريبو ده) | ✅ متاح |
 | Firestore (`profissional-lawyer-updat`، مكتب `office_UDdH9ctTHcd3`) | ⚙️ قراءة عن طريق سكريبتات بمفتاح الخدمة (GitHub Secret). لسه مفيش أدوات تقارير |
 | إيميل info@hamlf.com | ⚙️ على Hostinger Mail (مش Gmail)، ومحتاج ربط IMAP/SMTP |
-| واتساب 01208555806 | ⚙️ متسجّل على تطبيق واتساب بيزنس، ومحتاج ربط WhatsApp Cloud API |
+| واتساب 01208555806 | ⚙️ الكود جاهز (`api/whatsapp.php` وصفحة `whatsapp/admin.html`)، ومستني ربط Meta وملف الإعدادات. شوف `docs/whatsapp-setup.md` |
 | جوجل بيزنس / Search Console | ⚙️ محتاج ربط Google API |
 | فيسبوك (نشر الصفحة) | ⚙️ محتاج صلاحية Page API (اللي متوصل حاليًا الإعلانات بس) |
 | Google Drive / Calendar / Asana | ✅ متوصلين من حساب Claude، ولازم نتأكد إنهم حسابات المكتب |

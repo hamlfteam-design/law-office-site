@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>واتساب المكتب | مؤسسة د. حسن عبد المنعم حسن</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=20260924">
+<style>
+.wa-wrap{max-width:1180px;margin:0 auto;padding:24px 16px 60px;}
+.wa-card{background:var(--white);border:1px solid #e7e4dd;border-radius:var(--radius);padding:18px;margin-bottom:16px;}
+.wa-card h2{font-size:1.05rem;color:var(--navy);margin:0 0 12px;}
+.wa-btn{font-family:inherit;font-weight:700;border-radius:8px;padding:8px 13px;cursor:pointer;border:1px solid var(--navy);background:var(--navy);color:var(--gold-light);font-size:.85rem;white-space:nowrap;}
+.wa-btn.ghost{background:var(--white);color:var(--navy);border-color:#d8d4cb;}
+.wa-btn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy-dark);}
+.wa-btn.danger{background:#fff;color:#a33;border-color:#e3b9b9;}
+.wa-btn:disabled{opacity:.45;cursor:not-allowed;}
+.wa-input{width:100%;font-family:inherit;padding:10px 12px;border-radius:8px;border:1px solid #d8d4cb;font-size:.95rem;background:var(--white);}
+textarea.wa-input{min-height:84px;resize:vertical;line-height:1.7;}
+.wa-grid{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start;}
+@media(max-width:860px){.wa-grid{grid-template-columns:1fr;} .wa-grid.open .wa-list{display:none;} .wa-grid:not(.open) .wa-thread{display:none;}}
+.wa-tools{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+.wa-tools select{width:auto;flex:1;}
+.wa-conv{display:block;width:100%;text-align:start;font-family:inherit;background:var(--bg);border:1px solid #e7e4dd;border-radius:10px;padding:11px 12px;margin-bottom:8px;cursor:pointer;}
+.wa-conv.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(200,151,58,.18);}
+.wa-conv .top{display:flex;align-items:center;gap:6px;}
+.wa-conv .name{font-weight:800;color:var(--navy);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wa-conv .time{font-size:.75rem;color:var(--muted);}
+.wa-conv .last{font-size:.83rem;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wa-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.wa-badge{font-size:.72rem;font-weight:800;border-radius:999px;padding:1px 9px;background:#eee;color:#555;}
+.wa-badge.unread{background:#1e7a3d;color:#fff;}
+.wa-badge.draft{background:#fbf3df;color:#8a6a1f;}
+.wa-badge.cat{background:#e9eef8;color:#22406e;}
+.wa-badge.closed{background:#eee;color:#777;}
+.wa-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.wa-head .who{font-weight:900;color:var(--navy);font-size:1.05rem;}
+.wa-head .num{direction:ltr;unicode-bidi:isolate;color:var(--muted);font-size:.85rem;}
+.wa-summary{background:#f6f3ec;border-radius:8px;padding:9px 12px;font-size:.88rem;line-height:1.8;margin-bottom:10px;}
+.wa-msgs{display:flex;flex-direction:column;gap:8px;max-height:56vh;overflow-y:auto;padding:4px 2px 8px;}
+.wa-msg{max-width:80%;padding:9px 12px;border-radius:12px;font-size:.93rem;line-height:1.75;white-space:pre-wrap;word-break:break-word;}
+.wa-msg.in{background:#efe7db;color:#3c2f22;align-self:flex-start;}
+.wa-msg.out{background:var(--navy);color:#fff;align-self:flex-end;}
+.wa-msg.draft{background:#fff8e6;color:#3c2f22;border:1px dashed var(--gold);align-self:flex-end;max-width:92%;width:92%;}
+.wa-msg.failed{border:2px solid #c0392b;}
+.wa-msg .meta{font-size:.72rem;opacity:.75;margin-top:4px;}
+.wa-msg a{color:inherit;text-decoration:underline;}
+.wa-draft-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.wa-warn{background:#fdecec;color:#8a2a2a;border-radius:8px;padding:9px 12px;font-size:.86rem;margin:10px 0;line-height:1.7;}
+.wa-err{color:#a33;font-weight:700;font-size:.85rem;margin-top:8px;min-height:1em;}
+.wa-note{font-size:.82rem;color:var(--muted);line-height:1.8;}
+.wa-row{display:flex;gap:8px;align-items:flex-end;margin-top:10px;}
+.wa-row textarea{flex:1;}
+[hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand"><a href="../index.html"><img src="../assets/images/logo.png" alt="مؤسسة د. حسن عبد المنعم حسن" class="brand-logo"></a></div>
+  </div>
+</header>
+
+<div class="wa-wrap">
+  <h1 class="section-title">واتساب المكتب</h1>
+
+  <section class="wa-card" id="loginCard" hidden>
+    <h2>دخول الإدارة</h2>
+    <form id="loginForm" class="wa-row">
+      <input class="wa-input" type="password" id="pw" autocomplete="current-password" placeholder="كلمة السر" required>
+      <button class="wa-btn" type="submit">دخول</button>
+    </form>
+    <div class="wa-err" id="loginErr"></div>
+  </section>
+
+  <div id="app" hidden>
+    <div class="wa-grid" id="grid">
+      <section class="wa-card wa-list">
+        <div class="wa-tools">
+          <select class="wa-input" id="filter">
+            <option value="">كل المحادثات</option>
+            <option value="awaiting_approval">بانتظار الموافقة</option>
+            <option value="open">مفتوحة</option>
+            <option value="closed">مقفولة</option>
+          </select>
+          <button class="wa-btn ghost" id="refresh" title="تحديث">↻</button>
+          <button class="wa-btn ghost" id="logout">خروج</button>
+        </div>
+        <div id="convs"><p class="wa-note">مفيش محادثات لسه.</p></div>
+        <div class="wa-err" id="listErr"></div>
+      </section>
+
+      <section class="wa-card wa-thread">
+        <div id="empty" class="wa-note">اختار محادثة من القايمة.</div>
+        <div id="thread" hidden>
+          <div class="wa-head">
+            <button class="wa-btn ghost" id="back">→ رجوع</button>
+            <span class="who" id="who"></span>
+            <span class="num" id="num"></span>
+            <span style="margin-inline-start:auto;display:flex;gap:6px;">
+              <button class="wa-btn ghost" id="toggleStatus"></button>
+            </span>
+          </div>
+          <div class="wa-summary" id="summary" hidden></div>
+          <div class="wa-msgs" id="msgs"></div>
+          <div class="wa-warn" id="windowWarn" hidden>
+            عدّى أكتر من 24 ساعة على آخر رسالة من العميل، فواتساب مش هيسمح برد حر.
+            الرد دلوقتي محتاج قالب معتمد من Meta، أو تستنى العميل يبعت رسالة جديدة.
+          </div>
+          <form id="replyForm" class="wa-row">
+            <textarea class="wa-input" id="reply" maxlength="4096" placeholder="اكتب رد…" required></textarea>
+            <button class="wa-btn gold" type="submit" id="sendBtn">إرسال</button>
+          </form>
+          <div class="wa-err" id="threadErr"></div>
+          <p class="wa-note">مسودات مساعد التواصل بتظهر هنا بإطار ذهبي. راجعها وعدّلها لو محتاج، وبعدين اضغط «اعتماد وإرسال». مفيش رسالة بتتبعت لوحدها.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const API = '../api/whatsapp.php';
+  const $ = id => document.getElementById(id);
+  const statusAr = {open:'مفتوحة', awaiting_approval:'بانتظار الموافقة', closed:'مقفولة'};
+  const catAr = {inquiry:'استفسار', appointment:'ميعاد', consultation:'استشارة', case_update:'متابعة قضية', complaint:'شكوى', other:'أخرى'};
+  const routeAr = {'communications':'مسؤول التواصل', 'legal-counsel':'المستشار الفني', 'admin-assistant':'الإداري', 'finance-assistant':'المالي', 'management':'الإدارة'};
+  const msgStatusAr = {received:'', sent:'اتبعتت', delivered:'اتسلمت ✓✓', read:'اتقرت ✓✓', failed:'فشل الإرسال', discarded:'اتلغت'};
+  const typeAr = {image:'📷 صورة', document:'📄 مستند', audio:'🎤 رسالة صوتية', video:'🎬 فيديو', sticker:'ملصق', location:'📍 موقع', contacts:'👤 جهة اتصال', reaction:'تفاعل'};
+  const errAr = {
+    wrong_password:'كلمة السر غير صحيحة', unauthorized:'انتهت الجلسة، ادخل تاني',
+    config_missing:'ملف الإعدادات مش موجود على السيرفر', config_incomplete:'ملف الإعدادات ناقص',
+    window_closed:'عدّت 24 ساعة على آخر رسالة من العميل، والرد الحر مش مسموح',
+    send_failed:'واتساب رفض الرسالة', empty_body:'اكتب نص الرسالة', draft_not_found:'المسودة دي مش موجودة أو اتبعتت',
+    not_found:'المحادثة مش موجودة'
+  };
+  let current = null, convs = [];
+
+  async function call(action, body, query){
+    const opt = body ? {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)} : {};
+    const res = await fetch(API + '?action=' + action + (query || ''), Object.assign({cache:'no-store', credentials:'same-origin'}, opt));
+    let data = {};
+    try { data = await res.json(); } catch(e){}
+    if (!res.ok || !data.ok) {
+      const err = new Error((errAr[data.error] || ('حصل خطأ (' + res.status + ')')) + (data.detail ? ': ' + data.detail : ''));
+      err.code = data.error;
+      throw err;
+    }
+    return data;
+  }
+
+  function el(tag, cls, text){
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function fmt(ts){
+    if (!ts) return '';
+    const d = new Date(ts * 1000), now = new Date();
+    const sameDay = d.toDateString() === now.toDateString();
+    return sameDay ? d.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})
+                   : d.toLocaleDateString('ar-EG', {day:'numeric', month:'short'}) + ' ' + d.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function lastText(c){
+    if (!c.last) return '';
+    const prefix = c.last.direction === 'out' ? (c.last.status === 'draft' ? 'مسودة: ' : 'أنت: ') : '';
+    return prefix + (c.last.body || typeAr[c.last.type] || c.last.type);
+  }
+
+  function renderList(){
+    const box = $('convs');
+    box.textContent = '';
+    if (!convs.length) { box.appendChild(el('p', 'wa-note', 'مفيش محادثات هنا.')); return; }
+    convs.forEach(c => {
+      const b = el('button', 'wa-conv' + (current === c.wa ? ' active' : ''));
+      b.type = 'button';
+      const top = el('div', 'top');
+      top.appendChild(el('span', 'name', c.name || ('+' + c.wa)));
+      top.appendChild(el('span', 'time', fmt(c.last_message_at)));
+      b.appendChild(top);
+      const last = el('div', 'last', lastText(c)); last.dir = 'auto'; b.appendChild(last);
+      const badges = el('div', 'wa-badges');
+      if (c.unread) badges.appendChild(el('span', 'wa-badge unread', c.unread + ' جديدة'));
+      if (c.drafts) badges.appendChild(el('span', 'wa-badge draft', c.drafts + ' مسودة'));
+      if (c.category) badges.appendChild(el('span', 'wa-badge cat', catAr[c.category] || c.category));
+      if (c.status === 'closed') badges.appendChild(el('span', 'wa-badge closed', 'مقفولة'));
+      if (badges.childNodes.length) b.appendChild(badges);
+      b.onclick = () => openThread(c.wa);
+      box.appendChild(b);
+    });
+  }
+
+  async function loadList(){
+    try {
+      const f = $('filter').value;
+      const data = await call('inbox', null, f ? '&status=' + encodeURIComponent(f) : '');
+      convs = data.conversations;
+      $('loginCard').hidden = true; $('app').hidden = false;
+      $('listErr').textContent = '';
+      renderList();
+    } catch(e) {
+      if (e.code === 'unauthorized') { $('app').hidden = true; $('loginCard').hidden = false; }
+      else $('listErr').textContent = e.message;
+    }
+  }
+
+  function renderThread(data){
+    const c = data.conversation;
+    $('who').textContent = c.name || ('+' + c.wa);
+    $('num').textContent = '+' + c.wa;
+    $('toggleStatus').textContent = c.status === 'closed' ? 'إعادة فتح' : 'قفل المحادثة';
+    $('toggleStatus').dataset.next = c.status === 'closed' ? 'open' : 'closed';
+
+    const sum = [];
+    if (c.category) sum.push('التصنيف: ' + (catAr[c.category] || c.category));
+    if (c.route_to) sum.push('المسؤول: ' + (routeAr[c.route_to] || c.route_to));
+    if (c.summary) sum.push('الملخص: ' + c.summary);
+    $('summary').hidden = !sum.length;
+    $('summary').textContent = sum.join(' · ');
+
+    $('windowWarn').hidden = c.window_open;
+    $('sendBtn').disabled = !c.window_open;
+
+    const box = $('msgs');
+    box.textContent = '';
+    data.messages.filter(m => m.status !== 'discarded').forEach(m => {
+      if (m.status === 'draft') { box.appendChild(draftBox(m, c)); return; }
+      const d = el('div', 'wa-msg ' + (m.direction === 'in' ? 'in' : 'out') + (m.status === 'failed' ? ' failed' : ''));
+      d.dir = 'auto';
+      if (m.type !== 'text' && m.type !== 'reaction') {
+        const label = (typeAr[m.type] || m.type) + (m.filename ? ' — ' + m.filename : '');
+        if (m.media_id) {
+          const a = el('a', null, label);
+          a.href = API + '?action=media&id=' + encodeURIComponent(m.media_id);
+          a.target = '_blank'; a.rel = 'noopener';
+          d.appendChild(a);
+        } else d.appendChild(el('div', null, label));
+        if (m.body) d.appendChild(el('div', null, m.body));
+      } else {
+        d.appendChild(document.createTextNode(m.body || ''));
+      }
+      const meta = [fmt(m.created_at)];
+      if (m.direction === 'out') meta.push(msgStatusAr[m.status] || m.status);
+      if (m.drafted_by && m.drafted_by !== 'admin') meta.push('صياغة: ' + (routeAr[m.drafted_by] || m.drafted_by));
+      if (m.error) meta.push(m.error);
+      d.appendChild(el('div', 'meta', meta.filter(Boolean).join(' · ')));
+      box.appendChild(d);
+    });
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function draftBox(m, c){
+    const d = el('div', 'wa-msg draft');
+    d.appendChild(el('div', 'meta', 'مسودة من ' + (routeAr[m.drafted_by] || m.drafted_by || 'المساعد') + ' — بانتظار موافقتك'));
+    const ta = el('textarea', 'wa-input');
+    ta.value = m.body || '';
+    ta.dir = 'auto';
+    ta.maxLength = 4096;
+    d.appendChild(ta);
+    const actions = el('div', 'wa-draft-actions');
+    const ok = el('button', 'wa-btn gold', 'اعتماد وإرسال');
+    ok.type = 'button';
+    ok.disabled = !c.window_open;
+    ok.onclick = async () => {
+      ok.disabled = true; $('threadErr').textContent = '';
+      try { await call('send', {wa: c.wa, body: ta.value, draft_id: m.id}); }
+      catch(e) { $('threadErr').textContent = e.message; }
+      await refreshThread();
+    };
+    const no = el('button', 'wa-btn danger', 'إلغاء المسودة');
+    no.type = 'button';
+    no.onclick = async () => {
+      if (!confirm('إلغاء المسودة دي؟')) return;
+      try { await call('discard', {draft_id: m.id}); } catch(e) { $('threadErr').textContent = e.message; }
+      await refreshThread();
+    };
+    actions.appendChild(ok); actions.appendChild(no);
+    d.appendChild(actions);
+    return d;
+  }
+
+  async function openThread(wa){
+    current = wa;
+    $('grid').classList.add('open');
+    $('empty').hidden = true; $('thread').hidden = false;
+    $('threadErr').textContent = '';
+    $('reply').value = '';
+    await refreshThread();
+  }
+
+  async function refreshThread(){
+    if (!current) return;
+    try {
+      const data = await call('thread', null, '&wa=' + encodeURIComponent(current));
+      renderThread(data);
+    } catch(e) { $('threadErr').textContent = e.message; }
+    loadList();
+  }
+
+  $('replyForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const b = $('sendBtn'); b.disabled = true; $('threadErr').textContent = '';
+    try { await call('send', {wa: current, body: $('reply').value}); $('reply').value = ''; }
+    catch(err) { $('threadErr').textContent = err.message; }
+    await refreshThread();
+  });
+
+  $('toggleStatus').onclick = async () => {
+    try { await call('status', {wa: current, status: $('toggleStatus').dataset.next}); } catch(e) { $('threadErr').textContent = e.message; }
+    refreshThread();
+  };
+
+  $('back').onclick = () => { current = null; $('grid').classList.remove('open'); $('thread').hidden = true; $('empty').hidden = false; renderList(); };
+  $('filter').onchange = loadList;
+  $('refresh').onclick = () => { loadList(); if (current) refreshThread(); };
+
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault(); $('loginErr').textContent = '';
+    try { await call('login', {password: $('pw').value}); $('pw').value = ''; loadList(); }
+    catch(err) { $('loginErr').textContent = err.message; }
+  });
+
+  $('logout').onclick = async () => { try { await call('logout', {}); } catch(e){} current = null; $('app').hidden = true; $('loginCard').hidden = false; };
+
+  loadList();
+  // تحديث تلقائى كل 20 ثانية (من غير ما يمسح رد بتكتبه)
+  setInterval(() => {
+    if ($('app').hidden || document.hidden) return;
+    loadList();
+    if (current && document.activeElement && document.activeElement.tagName !== 'TEXTAREA') refreshThread();
+  }, 20000);
+})();
+</script>
+</body>
+</html>
