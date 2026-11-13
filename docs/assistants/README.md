@@ -69,7 +69,7 @@
 |---|---|
 | الموقع (الريبو ده) | ✅ متاح |
 | Firestore (`profissional-lawyer-updat`، مكتب `office_UDdH9ctTHcd3`) | ⚙️ قراءة عن طريق سكريبتات بمفتاح الخدمة (GitHub Secret). لسه مفيش أدوات تقارير |
-| إيميل info@hamlf.com | ⚙️ على Hostinger Mail (مش Gmail)، ومحتاج ربط IMAP/SMTP |
+| إيميل info@hamlf.com | ✅ «مساعد المكتب»: `api/assistant.php` يسحب البريد (IMAP) ويجهّز مسودة بلغة المرسل + ترجمة عربى، والإرسال من `assistant/inbox.html` بعد موافقة الإدارة بس. الإعداد: `docs/assistant-setup.md` |
 | واتساب 01208555806 | ⚙️ الكود جاهز (`api/whatsapp.php` وصفحة `whatsapp/admin.html`)، ومستني ربط Meta وملف الإعدادات. شوف `docs/whatsapp-setup.md` |
 | جوجل بيزنس / Search Console | ⚙️ محتاج ربط Google API |
 | فيسبوك (نشر الصفحة) | ⚙️ محتاج صلاحية Page API (اللي متوصل حاليًا الإعلانات بس) |

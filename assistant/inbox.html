@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>مساعد المكتب — الإيميل</title>
+<style>
+@font-face { font-family: "SF Sultan Black"; src: url("../Sultan-Black.ttf") format("truetype"); font-display: swap; unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F; }
+@font-face { font-family: "SF Mada"; src: url("../SF-Mada-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F; }
+:root{ --brand:#BB8A57; --brand-dark:#8F6639; --bg:#F5F7FA; --card:#fff; --line:#E8EBE6; --text:#202244; --muted:#6E6E6E;
+  --ok:#1c8a4a; --warn:#B60000; --mail:#3d6cc4; --f-title:"SF Sultan Black","SF Mada","Segoe UI",Tahoma,Arial,sans-serif; --f-body:"SF Mada","Segoe UI",Tahoma,Arial,sans-serif; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-body);font-weight:700;font-size:14px;line-height:1.8}
+h1,h2,h3,.title{font-family:var(--f-title);font-weight:400}
+.bar{background:var(--brand);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+.bar h1{margin:0;font-size:18px;flex:1}
+.bar button{font-family:var(--f-body);font-weight:700;border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:9px;padding:6px 10px;cursor:pointer}
+.wrap{max-width:900px;margin:0 auto;padding:12px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 4px;font-family:var(--f-body);font-weight:700;font-size:13px;color:var(--brand);cursor:pointer}
+.tabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.tabs b{background:var(--warn);color:#fff;border-radius:20px;padding:0 7px;font-size:11px;margin-inline-start:4px}
+.tabs b:empty{display:none}
+.item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.item.wait{border-color:#d9b88c;box-shadow:0 0 0 2px rgba(217,184,140,.35)}
+.item .hd{display:flex;gap:8px;align-items:center;font-size:13px}
+.item .hd .who{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .t{color:var(--muted);font-size:12px}
+.item .p{color:#444;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.bd span{font-size:11.5px;color:#fff;border-radius:20px;padding:0 9px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.card h2{font-size:16px;margin:0 0 6px;color:var(--brand-dark)}
+.lbl{color:var(--muted);font-size:12.5px;margin:10px 0 4px}
+.box{background:#efe7db;border-radius:12px;padding:10px 12px;white-space:pre-wrap;word-break:break-word}
+.ai{background:#f6f3ec;border-radius:10px;padding:9px 11px;white-space:pre-wrap}
+textarea{width:100%;font-family:var(--f-body);font-weight:700;font-size:14px;line-height:1.8;border-radius:12px;padding:10px;resize:vertical}
+#reply{min-height:170px;border:1px dashed var(--brand);background:#fff8e6}
+#instr{min-height:70px;border:1px solid var(--line)}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.btn{flex:1;min-width:120px;border:0;border-radius:10px;padding:10px;font-family:var(--f-body);font-weight:700;font-size:14px;cursor:pointer;background:var(--brand);color:#fff}
+.btn.ok{background:var(--ok)} .btn.ghost{background:#fff;color:var(--brand-dark);border:1px solid var(--line)} .btn:disabled{opacity:.5;cursor:wait}
+.err{color:var(--warn);min-height:1em;margin-top:6px}
+.note{color:var(--muted);font-size:12.5px}
+.empty{text-align:center;color:var(--muted);padding:30px}
+#login{max-width:380px;margin:60px auto}
+#login input{width:100%;font-family:var(--f-body);font-size:15px;padding:10px;border:1px solid var(--line);border-radius:10px;margin:8px 0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="bar"><h1 class="title">مساعد المكتب — الإيميل</h1>
+  <button id="pollBtn" hidden>↻ تحديث الآن</button><button id="logoutBtn" hidden>خروج</button></div>
+
+<div id="login" class="card" hidden>
+  <h2>دخول الإدارة</h2>
+  <form id="loginForm"><input type="password" id="pw" placeholder="كلمة السر" autocomplete="current-password" required>
+  <button class="btn" type="submit" style="width:100%">دخول</button></form>
+  <div class="err" id="loginErr"></div>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div id="listView">
+    <div class="tabs">
+      <button data-s="drafted" class="on">⏳ مستنياك <b id="nWait"></b></button>
+      <button data-s="sent">✓ اتبعت</button>
+      <button data-s="all">📥 الكل</button>
+    </div>
+    <div class="note" id="lastPoll"></div>
+    <div id="list"></div>
+    <div class="err" id="listErr"></div>
+  </div>
+
+  <div id="detailView" hidden>
+    <div class="row" style="margin:0 0 10px"><button class="btn ghost" id="backBtn" style="flex:0 0 auto">→ رجوع</button></div>
+    <div class="card">
+      <h2 id="dSubject"></h2>
+      <div class="note" id="dFrom"></div>
+      <div class="bd" id="dBadges"></div>
+      <div class="lbl">الإيميل الأصلى</div>
+      <div class="box" id="dBody" dir="auto"></div>
+      <div class="note" id="dAtt"></div>
+      <div class="lbl">الترجمة ليك</div>
+      <div class="ai" id="dTrans"></div>
+      <div class="lbl">تحليل المساعد</div>
+      <div class="ai" id="dAnalysis"></div>
+    </div>
+    <div class="card" id="draftCard">
+      <h2>مسودة الرد</h2>
+      <div class="note" id="dTo"></div>
+      <textarea id="reply" dir="auto"></textarea>
+      <div class="lbl">ترجمة الرد ليك قبل ما توافق</div>
+      <div class="ai" id="dReplyAr"></div>
+      <div class="row">
+        <button class="btn ok" id="sendBtn">✓ إرسال</button>
+        <button class="btn ghost" id="ignoreBtn">✕ تجاهل</button>
+        <button class="btn ghost" id="redraftBtn">↻ مسودة جديدة</button>
+      </div>
+      <div class="lbl">عدّل بالعربى وهو يترجم (مثال: «خلّى الرد أقصر واطلب منه صورة الحكم»)</div>
+      <textarea id="instr"></textarea>
+      <div class="row"><button class="btn ghost" id="reviseBtn">✎ عدّل الرد</button></div>
+      <div class="err" id="dErr"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var API = "../api/assistant.php";
+  var $ = function (id) { return document.getElementById(id); };
+  var status = "drafted", current = null;
+  var CAT = {inquiry:["استفسار","#3d6cc4"], appointment:["ميعاد","#b3792a"], consultation:["استشارة","#6b4fa0"], case_update:["متابعة قضية","#2f7d6b"],
+    complaint:["شكوى","#B60000"], spam:["سبام","#8a7a63"], other:["أخرى","#8a7a63"]};
+  var ROUTE = {"communications":"مسؤول التواصل","legal-counsel":"المستشار الفنى","admin-assistant":"الإدارى","finance-assistant":"المالى","management":"الإدارة"};
+  var ST = {new:["جارى التجهيز","#8a7a63"], drafted:["مسودة جاهزة","#b3792a"], sent:["اتبعت ✓","#1c8a4a"], ignored:["اتجاهل","#8a7a63"],
+    skipped:["آلى — من غير رد","#8a7a63"], error:["خطأ","#B60000"]};
+  var ERR = {wrong_password:"كلمة السر غلط", unauthorized:"انتهت الجلسة — ادخل تانى", config_missing:"ملف الإعدادات مش موجود على السيرفر",
+    config_incomplete:"ملف الإعدادات ناقص", vendor_missing:"مكتبات المساعد مش مرفوعة (شوف دليل التشغيل)", imap_connect_failed:"مش قادر يتصل ببريد المكتب",
+    imap_error:"بريد المكتب رفض الطلب (راجع الإيميل والباسورد)", model_refused:"Claude رفض الطلب", already_sent:"الرد اتبعت قبل كده",
+    empty_reply:"الرد فاضى", bad_recipient:"عنوان الإيميل مش صحيح", server_error:"خطأ فى السيرفر"};
+
+  function el(t, cls, txt) { var e = document.createElement(t); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function badge(p, txt, color) { var s = el("span", null, txt); s.style.background = color; p.appendChild(s); }
+  function when(ts) { if (!ts) return ""; var d = new Date(ts * 1000); return d.toLocaleString("ar-EG", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}); }
+
+  function call(action, body, q) {
+    var opt = body ? {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)} : {};
+    return fetch(API + "?action=" + action + (q || ""), Object.assign({cache:"no-store", credentials:"same-origin"}, opt))
+      .then(function (r) { return r.json().catch(function () { return {ok:false, error:"server_error"}; }).then(function (d) {
+        if (!r.ok || !d.ok) { var e = new Error((ERR[d.error] || d.error || ("خطأ " + r.status)) + (d.detail ? " — " + d.detail : "")); e.code = d.error; throw e; }
+        return d; }); });
+  }
+  function authFail(e) { if (e.code === "unauthorized") { $("app").hidden = true; $("login").hidden = false; $("pollBtn").hidden = $("logoutBtn").hidden = true; return true; } return false; }
+
+  function loadList() {
+    return call("list", null, "&status=" + status).then(function (d) {
+      $("login").hidden = true; $("app").hidden = false; $("pollBtn").hidden = $("logoutBtn").hidden = false;
+      var c = d.counts || {}; $("nWait").textContent = (c.drafted || 0) + (c.error || 0) || "";
+      $("lastPoll").textContent = d.last_poll ? "آخر سحب للبريد: " + when(+d.last_poll) : "";
+      var box = $("list"); box.textContent = "";
+      if (!d.emails.length) box.appendChild(el("div", "empty", status === "drafted" ? "مفيش إيميلات مستنياك 👌" : "مفيش حاجة هنا."));
+      d.emails.forEach(function (m) {
+        var it = el("div", "item" + (m.status === "drafted" ? " wait" : ""));
+        var hd = el("div", "hd"); hd.appendChild(el("span", "who", m.from_name || m.from_addr)); hd.appendChild(el("span", "t", when(m.created_at)));
+        it.appendChild(hd);
+        var subj = el("div", null, m.subject || "(من غير موضوع)"); subj.dir = "auto"; it.appendChild(subj);
+        var p = el("div", "p", m.summary_ar || m.preview); p.dir = "auto"; it.appendChild(p);
+        var bd = el("div", "bd");
+        if (m.category && CAT[m.category]) badge(bd, CAT[m.category][0], CAT[m.category][1]);
+        if (m.lang_ar && m.lang !== "ar") badge(bd, m.lang_ar, "#555");
+        if (ST[m.status]) badge(bd, ST[m.status][0], ST[m.status][1]);
+        if (m.handoff_id) badge(bd, "اتحوّلت لـ" + (ROUTE[m.route_to] || m.route_to), "#2f7d6b");
+        it.appendChild(bd);
+        it.onclick = function () { openItem(m.id); };
+        box.appendChild(it);
+      });
+    }).catch(function (e) { if (!authFail(e)) $("listErr").textContent = e.message; });
+  }
+
+  function openItem(id) {
+    $("dErr").textContent = "";
+    call("get", null, "&id=" + id).then(function (d) { current = d.email; render(); $("listView").hidden = true; $("detailView").hidden = false; window.scrollTo(0, 0); })
+      .catch(function (e) { if (!authFail(e)) $("listErr").textContent = e.message; });
+  }
+
+  function render() {
+    var m = current;
+    $("dSubject").textContent = m.subject || "(من غير موضوع)"; $("dSubject").dir = "auto";
+    $("dFrom").textContent = "من: " + (m.from_name ? m.from_name + " — " : "") + m.from_addr + " · " + (m.sent_date || "");
+    var bd = $("dBadges"); bd.textContent = "";
+    if (m.category && CAT[m.category]) badge(bd, CAT[m.category][0], CAT[m.category][1]);
+    if (m.lang_ar) badge(bd, m.lang_ar, "#555");
+    if (ST[m.status]) badge(bd, ST[m.status][0], ST[m.status][1]);
+    $("dBody").textContent = m.body || "";
+    $("dAtt").textContent = (m.attachments && m.attachments.length ? "📎 مرفقات (افتحها من بريد المكتب): " + m.attachments.join("، ") : "") + (m.truncated ? " · الإيميل طويل واتقرا أوله بس" : "");
+    $("dTrans").textContent = m.translation_ar || "—";
+    var a = [];
+    if (m.summary_ar) a.push("الملخص: " + m.summary_ar);
+    if (m.route_to) a.push("المسؤول: " + (ROUTE[m.route_to] || m.route_to) + (m.handoff_id ? " — ✓ اتعملت بطاقة فى غرفة العمليات" : ""));
+    if (m.notes_ar) a.push("ملاحظات: " + m.notes_ar);
+    if (m.error) a.push("⚠ " + m.error);
+    $("dAnalysis").textContent = a.join("\n") || "—";
+    $("dTo").textContent = "هيتبعت لـ: " + (m.reply_to || m.from_addr) + " — من info@hamlf.com كرد فى نفس السلسلة";
+    $("reply").value = m.reply || "";
+    $("dReplyAr").textContent = m.reply_ar || "—";
+    var done = m.status === "sent";
+    ["sendBtn", "ignoreBtn", "redraftBtn", "reviseBtn"].forEach(function (b) { $(b).disabled = done; });
+    $("reply").readOnly = done; $("instr").value = "";
+  }
+
+  function busy(btn, p) {
+    var all = ["sendBtn", "ignoreBtn", "redraftBtn", "reviseBtn"]; all.forEach(function (b) { $(b).disabled = true; });
+    var old = btn.textContent; btn.textContent = "… جارى";
+    $("dErr").textContent = "";
+    return p.catch(function (e) { if (!authFail(e)) $("dErr").textContent = e.message; })
+      .then(function () { btn.textContent = old; if (current && current.status !== "sent") all.forEach(function (b) { $(b).disabled = false; }); });
+  }
+
+  $("sendBtn").onclick = function () {
+    if (!confirm("تبعت الرد ده لـ " + (current.reply_to || current.from_addr) + "؟")) return;
+    busy(this, call("send", {id: current.id, reply: $("reply").value}).then(function () { current.status = "sent"; render(); loadList(); alert("اتبعت ✓"); }));
+  };
+  $("ignoreBtn").onclick = function () {
+    busy(this, call("ignore", {id: current.id}).then(function () { $("backBtn").onclick(); }));
+  };
+  $("redraftBtn").onclick = function () {
+    busy(this, call("redraft", {id: current.id}).then(function (d) { current = d.email; render(); }));
+  };
+  $("reviseBtn").onclick = function () {
+    var ins = $("instr").value.trim(); if (!ins) { $("dErr").textContent = "اكتب التعديل اللى عايزه الأول"; return; }
+    busy(this, call("revise", {id: current.id, instruction: ins, reply: $("reply").value}).then(function (d) {
+      current.reply = d.reply; current.reply_ar = d.reply_ar; render(); }));
+  };
+  $("backBtn").onclick = function () { current = null; $("detailView").hidden = true; $("listView").hidden = false; loadList(); };
+  document.querySelectorAll(".tabs button").forEach(function (b) {
+    b.onclick = function () { status = b.getAttribute("data-s"); document.querySelectorAll(".tabs button").forEach(function (x) { x.classList.toggle("on", x === b); }); loadList(); };
+  });
+  $("pollBtn").onclick = function () {
+    var b = this; b.disabled = true; b.textContent = "… بيسحب";
+    call("poll", {}).then(function (d) { b.textContent = "↻ تحديث الآن"; b.disabled = false;
+      if (d.note === "baseline") alert("أول تشغيل: المساعد هيبدأ من الإيميلات اللى هتوصل من دلوقتى.");
+      loadList(); })
+      .catch(function (e) { b.textContent = "↻ تحديث الآن"; b.disabled = false; if (!authFail(e)) alert(e.message); });
+  };
+  $("logoutBtn").onclick = function () { call("logout", {}).catch(function () {}).then(function () { authFail({code: "unauthorized"}); }); };
+  $("loginForm").onsubmit = function (e) { e.preventDefault(); $("loginErr").textContent = "";
+    call("login", {password: $("pw").value}).then(function () { $("pw").value = ""; loadList(); }).catch(function (er) { $("loginErr").textContent = er.message; }); };
+
+  loadList();
+  setInterval(function () { if (!$("app").hidden && !$("listView").hidden && !document.hidden) loadList(); }, 60000);
+})();
+</script>
+</body>
+</html>
