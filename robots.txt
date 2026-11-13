@@ -5,6 +5,7 @@ Disallow: /app.html
 Disallow: /consult.html
 Disallow: /video/
 Disallow: /whatsapp/
+Disallow: /assistant/
 Disallow: /api/
 Disallow: /hamlf-iphone/
 Disallow: /hamlf-iphone-admin/
