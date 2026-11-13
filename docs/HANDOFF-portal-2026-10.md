@@ -37,7 +37,7 @@
 | `offices/{office}/records/cases/items/{id}` | `clientUids`، `collabEmails`، **`clientEmails` (جديد)**، `json` (فيه `clients` = أسماء الموكلين مفصولة بـ«·») |
 | `portalEmails/{email}` | فهرس صفحة الدخول: `linked`، `pending`، `foreign`، `collab` |
 
-**تطبيق المكتب** (Android `com.sherif.lawyer`) **مش موجود في أي مستودع متاح.** المستودع `nemo1113/professional-lawyer` اتفحص، وطلع نظام تاني (Laravel/MySQL) ومالوش علاقة بالبوابة.
+**تطبيق المكتب** (hamlf — Android) **مش موجود في أي مستودع متاح.** المستودع `nemo1113/professional-lawyer` اتفحص، وطلع نظام تاني (Laravel/MySQL) ومالوش علاقة بالبوابة.
 
 ---
 
