@@ -1162,7 +1162,7 @@ f.addEventListener('submit',function(e){
 e.preventDefault(); btn.disabled=true; var old=btn.textContent; btn.textContent='Sending...';
 fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:f.name.value,phone:f.phone.value,email:f.email.value,message:f.message.value,'Request type':'General enquiry',acknowledgement:f.acknowledgement.checked?'I understand the reply is general guidance and not a substitute for a consultation':'',_subject:'New message from hamlf.com website',_captcha:'false',_template:'table',_honey:f._honey.value})})
 .then(function(r){return r.json();})
-.then(function(j){ if(j&&(j.success===true||j.success==='true')){ st.textContent='Your message was sent successfully, and we will contact you within 48 working hours at the latest.'; f.reset(); } else { throw new Error('fail'); } })
+.then(function(j){ if(j&&(j.success===true||j.success==='true')){ st.textContent='Your message was sent successfully, and we will contact you within 48 working hours at the latest.'; try{if(typeof gtag==='function')gtag('event','generate_lead',{lead_source:'contact_form',event_category:'contact',page_path:location.pathname});}catch(_){} f.reset(); } else { throw new Error('fail'); } })
 .catch(function(){ st.textContent='Sending failed at the moment — please email us at info@hamlf.com'; })
 .then(function(){ btn.disabled=false; btn.textContent=old; });
 });
