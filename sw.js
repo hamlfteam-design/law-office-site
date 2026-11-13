@@ -31,6 +31,8 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  // ردود الـAPI (رسايل واتساب، مستندات، حالة دفع…) مابتتخزنش فى كاش المتصفح أبداً
+  if (new URL(event.request.url).pathname.indexOf("/api/") === 0) return;
   event.respondWith(
     fetch(event.request)
       .then((response) => {
