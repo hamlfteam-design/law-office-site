@@ -133,6 +133,6 @@
 
 - [ ] تأكيد من Hostinger → Deployments: آخر commit مسحوب وحالته (Completed / Current).
 - [ ] فتح `https://hamlf.com/en/services/cybercrime.html` والتأكد من النص النهائي.
-- [ ] فحص تحويل www (أولوية: نسخة www ما زالت تظهر في النتائج): `curl -IL https://www.hamlf.com/` يجب أن يُرجع `301` إلى `https://hamlf.com/`. القاعدة موجودة في `.htaccess`، لكن عملها على السيرفر لم يُتحقق منه.
+- [x] فحص تحويل www (2026-11-13): `curl.exe -IL https://www.hamlf.com/en/index.html` ← `301` إلى `https://hamlf.com/en/index.html` ثم `200`. التحويل يعمل؛ نسخة www في Search Console غالبًا من قبل 2026-10-26 وستختفي تدريجيًا.
 - [x] أحداث GA4 لنموذج التواصل ونموذج التعاون وروابط `app.html` (2026-11-13). يتبقى إعداد Key events وCustom dimension في لوحة GA4.
 - [ ] بعد النشر: التأكد أن `https://hamlf.com/docs/SEO-TRACKING.md` يرجع 404 (القاعدة في `.htaccess`).

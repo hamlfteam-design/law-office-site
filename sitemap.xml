@@ -403,6 +403,12 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/civil.html"/>
   </url>
   <url>
+    <loc>https://hamlf.com/services/judgment-enforcement.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/judgment-enforcement.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/judgment-enforcement.html"/>
+  </url>
+  <url>
     <loc>https://hamlf.com/services/commercial.html</loc>
     <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/commercial.html"/>
@@ -521,6 +527,12 @@
     <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/civil.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/civil.html"/>
+  </url>
+  <url>
+    <loc>https://hamlf.com/en/services/judgment-enforcement.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://hamlf.com/services/judgment-enforcement.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hamlf.com/en/services/judgment-enforcement.html"/>
   </url>
   <url>
     <loc>https://hamlf.com/en/services/commercial.html</loc>
