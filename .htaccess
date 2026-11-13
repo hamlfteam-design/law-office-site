@@ -3,6 +3,9 @@
 RewriteEngine On
 RewriteCond %{HTTP_HOST} ^www\.hamlf\.com$ [NC]
 RewriteRule ^(.*)$ https://hamlf.com/$1 [R=301,L]
+
+# مجلد docs/ ملفات عمل داخلية (هاندأوف، متابعة SEO) — لا يُعرض على الموقع
+RewriteRule ^docs(/|$) - [R=404,L]
 </IfModule>
 
 # تحويل دائم (301) للصفحات المكررة القديمة في جذر الموقع إلى نسخها الصحيحة

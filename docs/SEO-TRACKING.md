@@ -50,14 +50,28 @@
 
 ## GA4 (`G-0ZZMDL6461`)
 
-| التاريخ | نطاق المدة | الصفحة | المستخدمون | الجلسات | نقرات واتساب | نقرات اتصال | إرسال نموذج |
+| التاريخ | نطاق المدة | الصفحة | المستخدمون | الجلسات | `whatsapp_click` | `phone_click` | `generate_lead` (حسب `lead_source`) |
 |---|---|---|---|---|---|---|---|
 | | | | | | | | |
 
-> ⚠️ **تنبيه قياس:** الكود حاليًا يرسل حدثين فقط إلى GA4: `booking_pay_click` و`purchase`. لا توجد أحداث مخصصة لنقرات الواتساب أو الاتصال أو إرسال نموذج التواصل.
-> - نقرات `wa.me` قد تظهر كحدث `click` (روابط خارجية) **فقط** إذا كان Enhanced measurement → Outbound clicks مفعّلًا في GA4.
-> - نقرات `tel:` وإرسال النموذج لن تظهر إلا بإضافة أحداث في الكود.
-> حتى تُضاف هذه الأحداث، تُترك الأعمدة الثلاثة `—` ولا تُستنتج من الزيارات.
+### الأحداث المرسلة إلى GA4
+
+| الحدث | متى يُرسل | أين | منذ |
+|---|---|---|---|
+| `whatsapp_click` | نقر أي رابط `wa.me` (الزر العائم وروابط الصفحة) | كل صفحات الموقع التي تحمّل `js/script.js` + `app.html` | 2026-10-12 (`app.html`: 2026-11-13) |
+| `phone_click` | نقر أي رابط `tel:` | نفس الصفحات | 2026-10-12 (`app.html`: 2026-11-13) |
+| `booking_click` | نقر رابط إلى `booking.html` | صفحات `js/script.js` | 2026-10-12 |
+| `generate_lead` · `lead_source=contact_form` | **بعد نجاح** إرسال نموذج «تواصل معنا» (رد FormSubmit بالنجاح) | `index.html`، `en/index.html` | 2026-11-13 |
+| `generate_lead` · `lead_source=partner_form` | إرسال نموذج التعاون قبل فتح واتساب | `partners.html`، `en/partners.html` | 2026-11-13 |
+| `generate_lead` · `lead_source=booking` | زر «أرسل الطلب عبر واتساب» في الحجز | `booking.html`، `en/booking.html` | 2026-10-16 |
+| `booking_review` / `booking_pay_click` / `purchase` | مراحل الحجز والدفع | صفحات الحجز والدفع | 2026-10-16 |
+
+لا تُرسل أي بيانات شخصية (لا اسم ولا هاتف ولا نص الرسالة) مع هذه الأحداث.
+
+**إعداد مطلوب في لوحة GA4 (مرة واحدة):**
+1. Admin → Events: علّم `generate_lead` و`whatsapp_click` و`phone_click` كـ **Key events**.
+2. Admin → Custom definitions: أضف Custom dimension على مستوى الحدث باسم `lead_source` (Event parameter: `lead_source`) حتى يمكن فصل مصدر الطلب في التقارير.
+3. الأرقام قبل 2026-11-13 لا تشمل نموذج «تواصل معنا» ولا نموذج التعاون؛ لا تقارنها بما بعده.
 
 ## ظهور الموقع في إجابات ChatGPT
 
@@ -95,4 +109,5 @@
 - [ ] تأكيد من Hostinger → Deployments: آخر commit مسحوب وحالته (Completed / Current).
 - [ ] فتح `https://hamlf.com/en/services/cybercrime.html` والتأكد من النص النهائي.
 - [ ] فحص تحويل www: `curl -IL https://www.hamlf.com/` يجب أن يُرجع `301` إلى `https://hamlf.com/`. القاعدة موجودة في `.htaccess`، لكن عملها على السيرفر لم يُتحقق منه.
-- [ ] قرار: إضافة أحداث GA4 لنقرات الواتساب والاتصال وإرسال النموذج (انظر تنبيه القياس أعلاه).
+- [x] أحداث GA4 لنموذج التواصل ونموذج التعاون وروابط `app.html` (2026-11-13). يتبقى إعداد Key events وCustom dimension في لوحة GA4.
+- [ ] بعد النشر: التأكد أن `https://hamlf.com/docs/SEO-TRACKING.md` يرجع 404 (القاعدة في `.htaccess`).
