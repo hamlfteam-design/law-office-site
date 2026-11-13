@@ -25,6 +25,7 @@ var h=a.getAttribute('href')||'';
 if(h.indexOf('tel:')===0)track('phone_click');
 else if(h.indexOf('wa.me')>-1)track('whatsapp_click');
 else if(/booking\.html/.test(h))track('booking_click');
+else if(h.indexOf('writereview')>-1||h.indexOf('g.page/r/')>-1||/\/review\/?$/.test(h))track('review_click');
 });
 }catch(e){}
 })();

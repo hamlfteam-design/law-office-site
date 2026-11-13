@@ -85,6 +85,7 @@
 | `whatsapp_click` | نقر أي رابط `wa.me` (الزر العائم وروابط الصفحة) | كل صفحات الموقع التي تحمّل `js/script.js` + `app.html` | 2026-10-12 (`app.html`: 2026-11-13) |
 | `phone_click` | نقر أي رابط `tel:` | نفس الصفحات | 2026-10-12 (`app.html`: 2026-11-13) |
 | `booking_click` | نقر رابط إلى `booking.html` | صفحات `js/script.js` | 2026-10-12 |
+| `review_click` | نقر زر «قيّمنا على جوجل» (`g.page/r/…` أو `writereview` أو `/review/`) | صفحات `js/script.js` (الرئيسية والمقالات) — بوابة الموكلين بلا GA | 2026-11-13 |
 | `generate_lead` · `lead_source=contact_form` | **بعد نجاح** إرسال نموذج «تواصل معنا» (رد FormSubmit بالنجاح) | `index.html`، `en/index.html` | 2026-11-13 |
 | `generate_lead` · `lead_source=partner_form` | إرسال نموذج التعاون قبل فتح واتساب | `partners.html`، `en/partners.html` | 2026-11-13 |
 | `generate_lead` · `lead_source=booking` | زر «أرسل الطلب عبر واتساب» في الحجز | `booking.html`، `en/booking.html` | 2026-10-16 |
