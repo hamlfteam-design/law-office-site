@@ -242,5 +242,9 @@ document.getElementById("iosHint").classList.add("show");
 }
 })();
 </script>
+<script>
+/* Contact click tracking (this page does not load js/script.js) — same events as js/script.js */
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';var n=h.indexOf('tel:')===0?'phone_click':(h.indexOf('wa.me')>-1?'whatsapp_click':'');if(!n)return;try{if(typeof gtag==='function')gtag('event',n,{event_category:'contact',page_path:location.pathname});}catch(_){}});
+</script>
 </body>
 </html>

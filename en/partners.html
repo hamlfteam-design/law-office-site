@@ -308,7 +308,15 @@
       `Type of cooperation: ${coopType}\n` +
       `Additional details: ${details}`;
 
-    window.location.href = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
+    const waUrl = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
+    let gone = false;
+    const go = () => { if (gone) return; gone = true; window.location.href = waUrl; };
+    try {
+      if (typeof gtag === 'function') {
+        gtag('event', 'generate_lead', { lead_source: 'partner_form', event_category: 'contact', page_path: location.pathname, event_callback: go, event_timeout: 800 });
+        setTimeout(go, 1000);
+      } else { go(); }
+    } catch (_) { go(); }
   });
 </script>
 <script src="../js/translate.js"></script>

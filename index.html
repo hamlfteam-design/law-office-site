@@ -1474,7 +1474,7 @@ f.addEventListener('submit',function(e){
 e.preventDefault(); btn.disabled=true; var old=btn.textContent; btn.textContent='جارٍ الإرسال...';
 fetch('https://formsubmit.co/ajax/info@hamlf.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:f.name.value,phone:f.phone.value,email:f.email.value,message:f.message.value,'نوع الطلب':'استفسار عام',acknowledgement:f.acknowledgement.checked?'فهمت أن الرد استرشادي ولا يغني عن استشارة متخصصة':'',_subject:'رسالة جديدة من موقع hamlf.com',_captcha:'false',_template:'table',_honey:f._honey.value})})
 .then(function(r){return r.json();})
-.then(function(j){ if(j&&(j.success===true||j.success==='true')){ st.textContent='تم إرسال رسالتك بنجاح، وسنتواصل معك خلال ٤٨ ساعة عمل بحد أقصى.'; f.reset(); } else { throw new Error('fail'); } })
+.then(function(j){ if(j&&(j.success===true||j.success==='true')){ st.textContent='تم إرسال رسالتك بنجاح، وسنتواصل معك خلال ٤٨ ساعة عمل بحد أقصى.'; try{if(typeof gtag==='function')gtag('event','generate_lead',{lead_source:'contact_form',event_category:'contact',page_path:location.pathname});}catch(_){} f.reset(); } else { throw new Error('fail'); } })
 .catch(function(){ st.textContent='تعذّر الإرسال حاليًا، برجاء المراسلة على info@hamlf.com مباشرة.'; })
 .then(function(){ btn.disabled=false; btn.textContent=old; });
 });
