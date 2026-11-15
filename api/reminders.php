@@ -39,26 +39,29 @@ $now = time();
 $changed = false;
 
 foreach ($orders as $ref => &$o) {
-    if (($o['status'] ?? '') !== 'SUCCESS' || !empty($o['reminded']) || empty($o['room'])) continue;
+    if (($o['status'] ?? '') !== 'SUCCESS' || !empty($o['reminded']) || (empty($o['room']) && ($o['booking']['app'] ?? '') !== 'facetime')) continue;
     $ts = (int) ($o['booking']['start_ts'] ?? 0);
     if ($ts <= 0 || $now < $ts - REMIND_BEFORE || $now > $ts + 15 * 60) continue;
 
     $b = $o['booking'];
     $time = date('g:i', $ts) . (date('G', $ts) < 12 ? ' AM' : ' PM');
     $en = ($b['pref_lang'] ?? 'ar') === 'en';
+    $ft = empty($o['room']);
+    $how = $ft ? ($en ? 'Please FaceTime us at the appointment time on: +201067772512' : 'في الميعاد اتصل بنا فيس تايم على الرقم: ‎+201067772512‎') : $o['room'];
+    $howOffice = $ft ? 'FaceTime — العميل هيتصل على +201067772512' : $o['room'];
     if (filter_var($b['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
         if ($en) {
             send_mail($b['email'], 'Reminder: your online session starts in 10 minutes', [
                 'Dear ' . $b['name'] . ',', '',
                 'This is a reminder that your online session with Dr. Hassan Abdel Moneim Hassan starts at ' . $time . ' Cairo time.',
-                'Please get ready and join through this link:', $o['room'], '',
+                ($ft ? 'Please get ready:' : 'Please get ready and join through this link:'), $how, '',
                 'Tel / WhatsApp: +201208555806', 'Kind regards,', 'Dr. Hassan Abdel Moneim Hassan — Attorneys & Counsellors',
             ], 'Dr. Hassan Abdel Moneim Hassan Law Firm');
         } else {
             send_mail($b['email'], 'تذكير: جلستك الأونلاين تبدأ بعد ١٠ دقائق', [
                 'الأستاذ/ة ' . $b['name'] . '،', '',
                 'نذكّرك بأن جلستك الأونلاين مع المستشار د. حسن عبد المنعم حسن تبدأ الساعة ' . $time . ' بتوقيت القاهرة.',
-                'من فضلك استعد وادخل من الرابط التالي:', $o['room'], '',
+                ($ft ? 'من فضلك استعد:' : 'من فضلك استعد وادخل من الرابط التالي:'), $how, '',
                 'Tel / WhatsApp: +201208555806', 'مع خالص التحية،', 'مؤسسة د. حسن عبد المنعم حسن — محامون ومستشارون',
             ], 'مؤسسة د. حسن عبد المنعم حسن');
         }
@@ -68,7 +71,7 @@ foreach ($orders as $ref => &$o) {
         'العميل: ' . $b['name'] . ' — ' . $b['phone'],
         'الخدمة: ' . ($o['label'] ?? ''),
         'لغة التواصل: ' . ($en ? 'English' : 'العربية'),
-        'رابط الجلسة: ' . $o['room'],
+        'وسيلة الجلسة: ' . $howOffice,
         'إدارة العداد: https://hamlf.com/video/admin.html',
         'المرجع: ' . $ref,
     ], 'hamlf.com');

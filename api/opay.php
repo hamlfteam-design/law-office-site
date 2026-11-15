@@ -179,7 +179,7 @@ function notify_office(string $ref, array $o): bool {
         'البريد: ' . $b['email'],
         'القطاع: ' . $b['category'],
         'تفضيل الرد: ' . $b['followup'],
-        'وسيلة الجلسة: ' . (($b['app'] ?? '') === 'daily' ? 'فيديو عبر رابط المؤسسة (Daily)' : (($b['app'] ?? '') === 'phone' ? 'مكالمة صوتية' : ($b['app'] ?? ''))),
+        'وسيلة الجلسة: ' . (($b['app'] ?? '') === 'daily' ? 'فيديو عبر رابط المؤسسة (Daily)' : (($b['app'] ?? '') === 'facetime' ? 'FaceTime على +201067772512' : (($b['app'] ?? '') === 'phone' ? 'مكالمة صوتية' : ($b['app'] ?? '')))),
         'رابط الجلسة: ' . (($o['room'] ?? '') !== '' ? $o['room'] : '—'),
         'لغة التواصل المفضلة: ' . ((($b['pref_lang'] ?? '') === 'en') ? 'English' : 'العربية'),
         'الجنسية: ' . ((($b['nationality'] ?? '') === 'non-egyptian') ? 'غير مصري' : 'مصري')
@@ -219,6 +219,7 @@ function notify_client(string $ref, array $o): bool {
             '• Requested appointment: ' . ($b['appointment'] !== '' ? $b['appointment'] : '—'),
             '• Reference: ' . $ref,
             '',
+            ...(($b['app'] ?? '') === 'facetime' ? ['Your session is a FaceTime video call: at the appointment time, please FaceTime us on +201067772512 (Apple devices). We will email you a reminder 10 minutes before.', ''] : []),
             ...($room !== '' ? ['Your video session link (opens at the appointment time; we will also email you a reminder 10 minutes before):', $room, ''] : []),
             'The office will contact you on WhatsApp to confirm your appointment. Please keep your reference number.',
             'For any enquiry: WhatsApp +20 120 855 5806 or info@hamlf.com',
@@ -243,6 +244,7 @@ function notify_client(string $ref, array $o): bool {
             '• الميعاد المطلوب: ' . ($b['appointment'] !== '' ? ar_digits($b['appointment']) : '—'),
             '• رقم المرجع: ' . $ref,
             '',
+            ...(($b['app'] ?? '') === 'facetime' ? ['جلستك مكالمة فيديو FaceTime: في ميعاد الجلسة اتصل بنا فيس تايم على الرقم ‎+201067772512‎ (لأجهزة آبل). وسيصلك تذكير على الإيميل قبلها بـ١٠ دقائق.', ''] : []),
             ...($room !== '' ? ['رابط جلسة الفيديو (يُفتح في ميعاد الجلسة، وسيصلك تذكير على الإيميل قبلها بـ١٠ دقائق):', $room, ''] : []),
             'سيتواصل معك المكتب على واتساب لتأكيد الميعاد، ونرجو الاحتفاظ برقم المرجع.',
             'للاستفسار: واتساب ‎+20 120 855 5806‎ أو info@hamlf.com',
@@ -293,7 +295,7 @@ if ($action === 'create') {
     if ($type === 'office' && $booking['phone_intl']) fail(400, 'office_requires_egypt_phone');
     // فيديو = رابط المؤسسة (Daily) أو مكالمة صوتية فقط؛ والفيديو محتاج إيميل للرابط والتذكير
     if (strpos($type, 'video') === 0) {
-        if (!in_array($booking['app'], ['daily', 'phone'], true)) $booking['app'] = 'daily';
+        if (!in_array($booking['app'], ['daily', 'facetime', 'phone'], true)) $booking['app'] = 'daily';
         if ($booking['app'] === 'daily' && !filter_var($booking['email'], FILTER_VALIDATE_EMAIL)) fail(400, 'email_required_for_video');
     }
     // ميعاد البداية بتوقيت القاهرة «YYYY-MM-DD HH:MM» → epoch (للغرفة والتذكير)

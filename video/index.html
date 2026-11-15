@@ -164,8 +164,8 @@ body{font-family:'Cairo',sans-serif;background:var(--navy-dark);color:var(--text
       if (joinError) {
         try { frame.destroy(); } catch(e){}
         frame = null;
-        showMsg('تعذّر بدء مكالمة الفيديو', 'حصلت مشكلة فنية في خدمة الفيديو. من فضلك بلّغ المكتب على واتساب وهنحلها أو نكمّل الجلسة على Google Meet أو Botim.',
-                'The video service could not start the call. Please let the firm know on WhatsApp; we will fix it or continue on Google Meet or Botim. (' + joinError + ')', true);
+        showMsg('تعذّر بدء مكالمة الفيديو', 'حصلت مشكلة فنية في خدمة الفيديو. من فضلك بلّغ المكتب على واتساب وهنحلها أو نكمّل الجلسة بمكالمة FaceTime على الرقم ‎+201067772512‎ أو مكالمة صوتية.',
+                'The video service could not start the call. Please let the firm know on WhatsApp; we will fix it or continue by FaceTime on +201067772512 or a voice call. (' + joinError + ')', true);
         return;
       }
       try { frame.destroy(); } catch(e){}
