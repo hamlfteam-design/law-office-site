@@ -191,7 +191,7 @@
   <!-- Step 3: date/time -->
   <section class="bk-card" id="step3" hidden>
     <h2>اختر الميعاد</h2>
-    <p class="section-note" style="margin:0 0 6px;">المواعيد متاحة أيام <strong>الأحد والثلاثاء فقط</strong>، من 2–3 م ومن 4–5 م.</p>
+    <p class="section-note" style="margin:0 0 6px;"><span id="daysNote">المقابلات بمقر المؤسسة أيام <strong>السبت والثلاثاء فقط</strong>، والجلسات الأونلاين والاتصالات الهاتفية أيام <strong>الأحد والاثنين والأربعاء</strong>، من 2–3 م ومن 4–5 م.</span></p>
     <div class="bk-cal" id="calDays"></div>
     <div class="bk-slots" id="timeSlots" hidden></div>
     <div class="bk-note" id="depositNote">بعد اختيار الميعاد وكتابة بياناتك، ستظهر لك في <strong>الخطوة الأخيرة</strong> صفحة السداد بكود وعنوان انستاباي. السداد كاملاً قبل الميعاد، ولا يتأكد الميعاد إلا بعد استلام المكتب للمبلغ.</div>
@@ -473,7 +473,7 @@ document.getElementById('disagreeService').onclick = ()=> showStep(1);
 document.getElementById('agreePrice').onclick = ()=>{ buildCalendar(); showStep(3); };
 document.getElementById('disagreePrice').onclick = ()=> showStep(1);
 
-// ---- Step 3: calendar (Sun=0, Tue=2 only), next occurrences ----
+// ---- Step 3: calendar — office: Sat=6, Tue=2 · online/phone: Sun=0, Mon=1, Wed=3 ----
 function buildCalendar(){
   const calDays = document.getElementById('calDays');
   calDays.innerHTML = '';
@@ -482,7 +482,8 @@ function buildCalendar(){
   let found = 0, d = new Date();
   d.setDate(d.getDate()+1);
   while(found < 6){
-    if(d.getDay()===0 || d.getDay()===2){
+    var _wd=d.getDay(); var _ok=(state.type==='office')?(_wd===6||_wd===2):(_wd===0||_wd===1||_wd===3);
+    if(_ok){
       found++;
       const busy = Math.random() < 0.25;
       const el = document.createElement('div');
