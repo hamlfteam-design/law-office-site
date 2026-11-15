@@ -36,6 +36,18 @@ Cairo-based Egyptian law firm (downtown, 48 Kasr El Nil St.). Represents compani
 كل الاستشارات المدفوعة تُخصم من الأتعاب عند الاتفاق عليها (All paid consultation fees are deducted from the legal fees once they are agreed). الأسعار قابلة للتغيير، والسعر المعتمد هو المعروض في صفحة الحجز وقت الدفع.
 Prices may change. The price shown on the booking page at the time of payment applies.
 
+## أسئلة يسألها الناس قبل التوكيل (Due-diligence questions answered)
+
+- الخبرة في نوع الاتهام: المؤسسة تتولى الجنح والجنايات بأنواعها؛ التخصص الشخصي لرئيسها الترافع أمام الجنايات والنقض والمحاكم العليا. Criminal defense from prosecution investigation to Cassation; the head of the firm personally specializes in pleading before criminal courts and the Court of Cassation.
+- مين يحضر: يُحدَّد في الاتفاق من يحضر كل مرحلة، والمرافعة في الجنايات والنقض تحت إشراف رئيس المؤسسة.
+- أحكام سابقة: تُعرض نماذج عند الطلب بعد إخفاء بيانات الموكلين حفاظاً على السرية. Sample past judgments are shown on request with client data redacted.
+- خطة الدفاع: لا رأي نهائي قبل فحص الأوراق. No final opinion before reviewing the documents.
+- الأتعاب: عقد مكتوب يحدد المراحل المشمولة وطريقة السداد؛ رسوم الاستشارة تُخصم من الأتعاب.
+- التقارير: متابعة القضية والمستندات عبر «بوابة الموكلين»، وتقارير مكتوبة بالعربية أو الإنجليزية.
+- لا ضمان لنتيجة: المؤسسة لا تعد بالبراءة أو بنتيجة حكم. The firm never guarantees outcomes.
+- الجمعيات والتمويل متناهي الصغر: تمثيل جهات التمويل متناهي الصغر والجمعيات في تحصيل المديونيات المتعثرة — https://hamlf.com/services/corporate.html#associations-microfinance
+- التفاصيل: https://hamlf.com/services/criminal.html#before-poa
+
 ## الصفحات الأساسية
 
 - [الرئيسية](https://hamlf.com/): نبذة، الخدمات، الفريق، الأسئلة الشائعة، التواصل
