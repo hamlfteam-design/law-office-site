@@ -44,7 +44,6 @@ Prices may change. The price shown on the booking page at the time of payment ap
 - خطة الدفاع: لا رأي نهائي قبل فحص الأوراق. No final opinion before reviewing the documents.
 - الأتعاب: عقد مكتوب يحدد المراحل المشمولة وطريقة السداد؛ رسوم الاستشارة تُخصم من الأتعاب.
 - التقارير: متابعة القضية والمستندات عبر «بوابة الموكلين»، وتقارير مكتوبة بالعربية أو الإنجليزية.
-- لا ضمان لنتيجة: المؤسسة لا تعد بالبراءة أو بنتيجة حكم. The firm never guarantees outcomes.
 - الجمعيات والتمويل متناهي الصغر: تمثيل جهات التمويل متناهي الصغر والجمعيات في تحصيل المديونيات المتعثرة — https://hamlf.com/services/corporate.html#associations-microfinance
 - التفاصيل: https://hamlf.com/services/criminal.html#before-poa
 
