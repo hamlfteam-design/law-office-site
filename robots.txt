@@ -9,5 +9,6 @@ Disallow: /assistant/
 Disallow: /api/
 Disallow: /hamlf-iphone/
 Disallow: /hamlf-iphone-admin/
+Disallow: /scanner/
 
 Sitemap: https://hamlf.com/sitemap.xml
