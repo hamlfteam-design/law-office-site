@@ -52,3 +52,4 @@ description: (روهى) المنسّق العام لفريق مساعدي مؤس
 | مينا | المساعد التقني (المحامي المحترف) | tech-assistant |
 | كنزي | مطوّرة شاشات تطبيق hamlf | hamlf-screen-builder |
 لما الإدارة تنادي مساعد باسمه، حوّل له الشغل على طول.
+صور الفريق (أفتار مرسوم لكل مساعد) في `.claude/agents/avatars/<اسم الملف>.svg`، والصفحة المجمعة: https://claude.ai/artifact/GBoUEHQhMt73wMLcejotyn
