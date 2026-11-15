@@ -1167,7 +1167,7 @@ location.replace("https://hamlf.com/");
 <p class="form-note" id="formStatus" role="status" aria-live="polite">Your request will reach our team directly, and we will contact you within 48 working hours at the latest.</p>
 </form>
 </div>
-<div class="cx-panel" id="contact-consult" hidden>
+<div class="cx-panel" id="contact-consult" style="scroll-margin-top:90px" hidden>
 <div class="cx-cards">
 <div class="cx-card"><h4>🏢 Office Visit</h4><p>An in-person meeting at the firm's office in Downtown Cairo, by prior appointment.</p><a class="btn-primary" href="booking.html?type=office">Book this consultation</a></div>
 <div class="cx-card"><h4>💻 Online Session</h4><p>By video, phone or WhatsApp, for up to 20 or 30 minutes.</p><a class="btn-primary" href="booking.html?type=video">Book this consultation</a></div>
@@ -1204,6 +1204,8 @@ btns.forEach(function(b){b.addEventListener('click',function(){pick(b.getAttribu
 function fromHash(){if(location.hash==='#contact-consult')pick('consult',true);}
 document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact-consult"]');if(a){e.preventDefault();try{history.replaceState(null,'','#contact-consult')}catch(x){}pick('consult',true);}});
 window.addEventListener('hashchange',fromHash);fromHash();
+// 2026-11-15: re-align after images/fonts finish loading (they push the section down on first load)
+if(location.hash==='#contact-consult'){var re=function(){c.scrollIntoView({behavior:'auto',block:'start'});};window.addEventListener('load',function(){re();setTimeout(re,400);setTimeout(re,1200);});}
 })();
 </script>
 </section>
