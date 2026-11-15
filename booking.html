@@ -211,6 +211,8 @@
       <input type="tel" id="fPhone" required>
       <label>البريد الإلكتروني (اختياري — لاستلام تأكيد الحجز)</label>
       <input type="email" id="fEmail" dir="ltr" placeholder="example@email.com" autocomplete="email">
+      <label>لغة التواصل المفضلة</label>
+      <select id="fLang"><option value="ar">العربية</option><option value="en">English</option></select>
       <label>قطاع الاستشارة</label>
       <select id="fCategory" required>
         <option value="">اختر القطاع...</option>
@@ -236,10 +238,8 @@
       <div id="appWrap" hidden>
         <label>وسيلة الجلسة</label>
         <select id="fApp">
-          <option>Google Meet</option>
-          <option>Botim</option>
-          <option>واتساب</option>
-          <option>مكالمة تليفونية</option>
+          <option value="daily">مكالمة فيديو عبر رابط المؤسسة (يصلك الرابط على الإيميل)</option>
+          <option value="phone">مكالمة صوتية (هاتف / واتساب)</option>
         </select>
       </div>
     </form>
@@ -572,14 +572,28 @@ document.getElementById('toStep5').onclick = ()=>{
 
 // ---- Nationality: phone confirmation + payment box for non-Egyptians (added 2026-11-02) ----
 (function(){
+  // ---- Booking rules (added 2026-11-15) ----
+  window.hbStartStr = function(){ if(!state.date || !state.slot) return ''; var d=state.date; var h=/^2/.test(state.slot)?14:16;
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+h+':00'; };
+  window.hbRules = function(){
+    var phone=document.getElementById('fPhone').value.trim(), k=phoneKind(phone);
+    if(state.type==='office' && phone && k==='intl'){
+      alert('«زيارة للمكتب» مقابلة حضورية في مقر المؤسسة بالقاهرة، ورقم هاتفك من خارج مصر.\n\nلو أنت مقيم خارج مصر، من فضلك اختر «جلسة أونلاين» (فيديو أو مكالمة) بدلاً منها.');
+      [...document.querySelectorAll('#typeOptions .bk-opt')].forEach(function(o){o.classList.remove('selected');});
+      state.type=null; showStep(1); return false; }
+    var app=document.getElementById('fApp'), em=document.getElementById('fEmail').value.trim();
+    if(state.type==='video' && app && app.value==='daily' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){
+      alert('لجلسة الفيديو لازم تكتب بريدك الإلكتروني، لأن رابط الجلسة والتذكير قبل الميعاد بيوصلوا عليه.'); document.getElementById('fEmail').focus(); return false; }
+    return true; };
   const b5 = document.getElementById('toStep5');
   const orig = b5.onclick;
   b5.onclick = function(){
+    if(!hbRules()) return;
     const phone = document.getElementById('fPhone').value.trim();
     const k = phoneKind(phone);
     state.phoneFlag = '';
     if(phone && state.region==='egypt' && k==='intl'){
-      if(!confirm('رقم هاتفك من خارج مصر. هل أنت مصري الجنسية؟\n\nاضغط «موافق» للمتابعة كمصري، أو «إلغاء» لتغيير اختيارك إلى «غير مصري».')){ switchRegion('abroad'); return; }
+      if(!confirm('رقم هاتفك من خارج مصر. هل أنت مصري الجنسية؟\n\nبالضغط على «موافق» تقر بأنك مصري الجنسية، وتعلم أن المكتب قد يطلب صورة بطاقة الرقم القومي أو جواز السفر المصري قبل الجلسة، وإذا ثبت غير ذلك يُستحق فرق الأتعاب بسعر غير المصريين.\n\nاضغط «موافق» للمتابعة كمصري، أو «إلغاء» لتغيير اختيارك إلى «غير مصري».')){ switchRegion('abroad'); return; }
       state.phoneFlag = 'تنبيه للمراجعة: اختار «مصري» ورقم الهاتف من خارج مصر.';
     } else if(phone && state.region==='abroad' && k==='eg'){
       if(!confirm('رقم هاتفك مصري. هل أنت غير مصري الجنسية؟\n\nاضغط «موافق» للمتابعة كغير مصري، أو «إلغاء» لتغيير اختيارك إلى «مصري».')){ switchRegion('egypt'); return; }
@@ -600,6 +614,7 @@ document.getElementById('toStep5').onclick = ()=>{
     const wa = document.getElementById('sendWhatsapp');
     let txt = decodeURIComponent(wa.href.split('?text=')[1] || '');
     if(abroad) txt = txt.replace('تم السداد عبر انستاباي إلى hassan.hamlf.lawyer@instapay — مرفق صورة الإيصال.', 'عميل غير مصري — تم الدفع بالبطاقة عبر رابط OPay (' + state.pay + ' دولار) — مرفق صورة التأكيد.');
+    txt += '\nلغة التواصل: ' + (document.getElementById('fLang').value==='en'?'English':'العربية');
     txt += '\nالجنسية: ' + (abroad ? 'غير مصري' : 'مصري') + (state.phoneFlag ? '\n⚠️ ' + state.phoneFlag : '');
     wa.href = 'https://wa.me/201208555806?text=' + encodeURIComponent(txt);
     if(abroad && !free) wa.textContent = 'تم الدفع — أرسل الطلب وصورة التأكيد عبر واتساب';
@@ -704,7 +719,11 @@ document.getElementById('copyIpa').onclick = function(){
       category: v('fCategory'), details: v('fDetails'),
       followup: fu ? fu.options[fu.selectedIndex].text : '',
       app: (state.type === 'video' && appEl) ? appEl.value : '',
-      appointment: (state.dateLabel || '') + (state.slot ? ' - ' + state.slot : '')
+      appointment: (state.dateLabel || '') + (state.slot ? ' - ' + state.slot : ''),
+      start: (window.hbStartStr ? hbStartStr() : ''),
+      pref_lang: v('fLang'),
+      nationality: state.region === 'abroad' ? 'non-egyptian' : 'egyptian',
+      phone_intl: phoneKind(v('fPhone')) === 'intl' ? 1 : 0
     };
     var wa = ''; try { wa = decodeURIComponent((document.getElementById('sendWhatsapp').href.split('text=')[1] || '')); } catch(e){}
     wa = wa.split('\n\nتم السداد عبر انستاباي')[0];

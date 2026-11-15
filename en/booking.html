@@ -196,6 +196,8 @@
       <input type="tel" id="fPhone" required="">
       <label>Email (optional — to receive your booking confirmation)</label>
       <input type="email" id="fEmail" dir="ltr" placeholder="example@email.com" autocomplete="email">
+      <label>Preferred language</label>
+      <select id="fLang"><option value="en">English</option><option value="ar">العربية</option></select>
       <label>Consultation sector</label>
       <select id="fCategory" required="">
         <option value="">Select sector...</option>
@@ -221,10 +223,8 @@
       <div id="appWrap" hidden>
         <label>Session method</label>
         <select id="fApp">
-          <option>Google Meet</option>
-          <option>Botim</option>
-          <option>WhatsApp</option>
-          <option>Phone call</option>
+          <option value="daily">Video call via the firm's link (sent to your email)</option>
+          <option value="phone">Voice call (phone / WhatsApp)</option>
         </select>
       </div>
     </form>
@@ -571,14 +571,28 @@ document.getElementById('toStep5').onclick = ()=>{
 };
 // ---- Nationality: phone confirmation (added 2026-11-02) ----
 (function(){
+  // ---- Booking rules (added 2026-11-15) ----
+  window.hbStartStr = function(){ if(!state.date || !state.slot) return ''; var d=state.date; var h=/^2/.test(state.slot)?14:16;
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+h+':00'; };
+  window.hbRules = function(){
+    var phone=document.getElementById('fPhone').value.trim(), k=phoneKind(phone);
+    if(state.type==='office' && phone && k==='intl'){
+      alert('An “Office visit” is an in-person meeting at our Cairo office, and your phone number is from outside Egypt.\n\nIf you live outside Egypt, please choose “Online session” (video or call) instead.');
+      [...document.querySelectorAll('#typeOptions .bk-opt')].forEach(function(o){o.classList.remove('selected');});
+      state.type=null; showStep(1); return false; }
+    var app=document.getElementById('fApp'), em=document.getElementById('fEmail').value.trim();
+    if(state.type==='video' && app && app.value==='daily' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){
+      alert('For a video session please enter your email: the session link and the reminder before the appointment are sent to it.'); document.getElementById('fEmail').focus(); return false; }
+    return true; };
   const b5 = document.getElementById('toStep5');
   const orig = b5.onclick;
   b5.onclick = function(){
+    if(!hbRules()) return;
     const phone = document.getElementById('fPhone').value.trim();
     const k = phoneKind(phone);
     let flag = '';
     if(phone && state.region==='egypt' && k==='intl'){
-      if(!confirm('Your phone number is from outside Egypt. Are you an Egyptian national?\n\nOK = continue as Egyptian. Cancel = change your answer to “Non-Egyptian”.')){ switchRegion('abroad'); return; }
+      if(!confirm('Your phone number is from outside Egypt. Are you an Egyptian national?\n\nBy pressing OK you declare that you are an Egyptian national and accept that the firm may ask for a copy of your Egyptian national ID or passport before the session; if not, the fee difference at the non-Egyptian rate becomes due.\n\nOK = continue as Egyptian. Cancel = change your answer to “Non-Egyptian”.')){ switchRegion('abroad'); return; }
       flag = 'Review: chose “Egyptian” with a non-Egyptian phone number.';
     } else if(phone && state.region==='abroad' && k==='eg'){
       if(!confirm('Your phone number is Egyptian. Are you a non-Egyptian national?\n\nOK = continue as Non-Egyptian. Cancel = change your answer to “Egyptian”.')){ switchRegion('egypt'); return; }
@@ -587,6 +601,7 @@ document.getElementById('toStep5').onclick = ()=>{
     orig.call(this);
     const wa = document.getElementById('sendWhatsapp');
     let txt = decodeURIComponent(wa.href.split('?text=')[1] || '');
+    txt += '\nPreferred language: ' + (document.getElementById('fLang').value==='en'?'English':'Arabic');
     txt += '\nNationality: ' + (state.region==='abroad' ? 'Non-Egyptian' : 'Egyptian') + (flag ? '\n⚠️ ' + flag : '');
     wa.href = 'https://wa.me/201208555806?text=' + encodeURIComponent(txt);
   };
@@ -647,7 +662,11 @@ document.getElementById('copyIpa').onclick = function(){
       category: v('fCategory'), details: v('fDetails'),
       followup: fu ? fu.options[fu.selectedIndex].text : '',
       app: (state.type === 'video' && appEl) ? appEl.value : '',
-      appointment: (state.dateLabel || '') + (state.slot ? ' - ' + state.slot : '')
+      appointment: (state.dateLabel || '') + (state.slot ? ' - ' + state.slot : ''),
+      start: (window.hbStartStr ? hbStartStr() : ''),
+      pref_lang: v('fLang'),
+      nationality: state.region === 'abroad' ? 'non-egyptian' : 'egyptian',
+      phone_intl: phoneKind(v('fPhone')) === 'intl' ? 1 : 0
     };
     var wa = ''; try { wa = decodeURIComponent((document.getElementById('sendWhatsapp').href.split('text=')[1] || '')); } catch(e){}
     wa = wa.split('\n\nPaid via InstaPay')[0];

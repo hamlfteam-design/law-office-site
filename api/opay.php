@@ -25,6 +25,16 @@ date_default_timezone_set('Africa/Cairo');
 
 const SITE = 'https://hamlf.com';
 
+require_once __DIR__ . '/video-lib.php';
+
+/** رقم من خارج مصر؟ (+ أو 00 بكود غير 20) — أضيفت 2026-11-15 */
+function phone_is_intl(string $p): bool {
+    $d = preg_replace('/[^0-9+]/', '', $p);
+    if (strpos($d, '00') === 0) $d = '+' . substr($d, 2);
+    if ($d === '' || $d[0] !== '+') return false;
+    return strpos($d, '+20') !== 0;
+}
+
 /** الأسعار بالجنيه — لازم تطابق booking.html و en/booking.html */
 const PRICES = [
     'office'   => ['amount' => 3000, 'ar' => 'استشارة بالمكتب',                       'en' => 'Office consultation'],
@@ -136,6 +146,11 @@ function refresh_order(string $ref): ?array {
             $o['status'] = ($data['status'] === 'SUCCESS' && !$paidOk) ? 'MISMATCH' : $data['status'];
             $o['orderNo'] = $data['orderNo'] ?? ($o['orderNo'] ?? '');
             $o['checkedAt'] = date('c');
+            // جلسة فيديو مدفوعة: غرفة Daily تلقائياً للميعاد المحجوز (2026-11-15)
+            if ($o['status'] === 'SUCCESS' && empty($o['room']) && strpos($o['type'], 'video') === 0
+                && ($o['booking']['app'] ?? '') === 'daily' && !empty($o['booking']['start_ts'])) {
+                $o['room'] = vl_create_room($o['booking']['name'], (int) substr($o['type'], 5), (int) $o['booking']['start_ts']) ?? '';
+            }
             if ($o['status'] === 'SUCCESS' && empty($o['notified'])) {
                 $o['notified'] = notify_office($ref, $o);
             }
@@ -164,7 +179,11 @@ function notify_office(string $ref, array $o): bool {
         'البريد: ' . $b['email'],
         'القطاع: ' . $b['category'],
         'تفضيل الرد: ' . $b['followup'],
-        'تطبيق المكالمة: ' . $b['app'],
+        'وسيلة الجلسة: ' . (($b['app'] ?? '') === 'daily' ? 'فيديو عبر رابط المؤسسة (Daily)' : (($b['app'] ?? '') === 'phone' ? 'مكالمة صوتية' : ($b['app'] ?? ''))),
+        'رابط الجلسة: ' . (($o['room'] ?? '') !== '' ? $o['room'] : '—'),
+        'لغة التواصل المفضلة: ' . ((($b['pref_lang'] ?? '') === 'en') ? 'English' : 'العربية'),
+        'الجنسية: ' . ((($b['nationality'] ?? '') === 'non-egyptian') ? 'غير مصري' : 'مصري')
+            . (!empty($b['phone_intl']) && ($b['nationality'] ?? '') !== 'non-egyptian' ? ' — ⚠️ رقم الهاتف من خارج مصر: راجع إثبات الجنسية' : ''),
         'الموضوع: ' . $b['details'],
         '',
         'الوضع: ' . (cfg()['mode'] === 'live' ? 'حقيقي' : 'اختبار (Test Mode) — مفيش فلوس حقيقية'),
@@ -183,7 +202,8 @@ function notify_client(string $ref, array $o): bool {
     $b = $o['booking'];
     $to = $b['email'] ?? '';
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return false;
-    $en = ($o['lang'] ?? 'ar') === 'en';
+    $en = (($b['pref_lang'] ?? '') !== '') ? $b['pref_lang'] === 'en' : (($o['lang'] ?? 'ar') === 'en');
+    $room = (string) ($o['room'] ?? '');
     $service = PRICES[$o['type']][$en ? 'en' : 'ar'] ?? $o['label'];
     $test = cfg()['mode'] !== 'live';
     if ($en) {
@@ -199,6 +219,7 @@ function notify_client(string $ref, array $o): bool {
             '• Requested appointment: ' . ($b['appointment'] !== '' ? $b['appointment'] : '—'),
             '• Reference: ' . $ref,
             '',
+            ...($room !== '' ? ['Your video session link (opens at the appointment time; we will also email you a reminder 10 minutes before):', $room, ''] : []),
             'The office will contact you on WhatsApp to confirm your appointment. Please keep your reference number.',
             'For any enquiry: WhatsApp +20 120 855 5806 or info@hamlf.com',
             '',
@@ -222,6 +243,7 @@ function notify_client(string $ref, array $o): bool {
             '• الميعاد المطلوب: ' . ($b['appointment'] !== '' ? ar_digits($b['appointment']) : '—'),
             '• رقم المرجع: ' . $ref,
             '',
+            ...($room !== '' ? ['رابط جلسة الفيديو (يُفتح في ميعاد الجلسة، وسيصلك تذكير على الإيميل قبلها بـ١٠ دقائق):', $room, ''] : []),
             'سيتواصل معك المكتب على واتساب لتأكيد الميعاد، ونرجو الاحتفاظ برقم المرجع.',
             'للاستفسار: واتساب ‎+20 120 855 5806‎ أو info@hamlf.com',
             '',
@@ -262,8 +284,21 @@ if ($action === 'create') {
         'followup'    => clean($in['followup'] ?? '', 60),
         'app'         => clean($in['app'] ?? '', 40),
         'appointment' => clean($in['appointment'] ?? '', 120),
+        'pref_lang'   => (($in['pref_lang'] ?? '') === 'en') ? 'en' : 'ar',
+        'nationality' => (($in['nationality'] ?? '') === 'non-egyptian') ? 'non-egyptian' : 'egyptian',
     ];
     if ($booking['name'] === '' || $booking['phone'] === '') fail(400, 'missing_name_phone');
+    $booking['phone_intl'] = phone_is_intl($booking['phone']);
+    // زيارة المكتب حضورية بالقاهرة: مش متاحة لرقم من خارج مصر (يختار جلسة أونلاين)
+    if ($type === 'office' && $booking['phone_intl']) fail(400, 'office_requires_egypt_phone');
+    // فيديو = رابط المؤسسة (Daily) أو مكالمة صوتية فقط؛ والفيديو محتاج إيميل للرابط والتذكير
+    if (strpos($type, 'video') === 0) {
+        if (!in_array($booking['app'], ['daily', 'phone'], true)) $booking['app'] = 'daily';
+        if ($booking['app'] === 'daily' && !filter_var($booking['email'], FILTER_VALIDATE_EMAIL)) fail(400, 'email_required_for_video');
+    }
+    // ميعاد البداية بتوقيت القاهرة «YYYY-MM-DD HH:MM» → epoch (للغرفة والتذكير)
+    $st = DateTime::createFromFormat('Y-m-d H:i', (string) ($in['start'] ?? ''), new DateTimeZone('Africa/Cairo'));
+    $booking['start_ts'] = $st ? $st->getTimestamp() : 0;
 
     $price = PRICES[$type];
     $ref = 'HB' . date('ymdHis') . strtoupper(bin2hex(random_bytes(3)));
