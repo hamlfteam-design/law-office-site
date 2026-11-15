@@ -175,7 +175,7 @@
   <!-- Step 3: date/time -->
   <section class="bk-card" id="step3" hidden="">
     <h2>Choose the Appointment</h2>
-    <p class="section-note" style="margin:0 0 6px;">Appointments are available on <strong>Sundays and Tuesdays only</strong>, from 2–3 PM and 4–5 PM.</p>
+    <p class="section-note" style="margin:0 0 6px;">In-person meetings at our office are on <strong>Saturdays and Tuesdays only</strong>; online sessions and phone calls are on <strong>Sundays, Mondays and Wednesdays</strong>, from 2–3 PM and 4–5 PM.</p>
     <div class="bk-cal" id="calDays"></div>
     <div class="bk-slots" id="timeSlots" hidden=""></div>
     <div class="bk-note" id="depositNote">After choosing the time and entering your details, the <strong>last step</strong> shows the payment page with the InstaPay code and address. Payment is due in full before the appointment, and the slot is confirmed only once the office receives the amount.</div>
@@ -469,7 +469,8 @@ function buildCalendar(){
   let found = 0, d = new Date();
   d.setDate(d.getDate()+1);
   while(found < 6){
-    if(d.getDay()===0 || d.getDay()===2){
+    var _wd=d.getDay(); var _ok=(state.type==='office')?(_wd===6||_wd===2):(_wd===0||_wd===1||_wd===3);
+    if(_ok){
       found++;
       const busy = Math.random() < 0.25;
       const el = document.createElement('div');
