@@ -96,7 +96,8 @@ window.idSheet=async function(a,b){const load=async s=>{const im=new Image();im.
 window.autoProcess=async function(){if(!pending.length){renderDoc();return}const b=$("#busy");let n=pending.length;busy(1);
  const f=normFilter(prefs().defaultFilter);let i=0;
  try{while(pending.length){const c=pending.shift();i++;b.textContent=`جاري معالجة الصفحات… ${i} من ${n}`;await new Promise(r=>setTimeout(r,20));
-  const q=c._quad||detectQuad(c);const nf=normalizeFormat(warp(c,q));const out=applyFilterX(nf.canvas,f);
+  if(window.loadCV&&i===1){b.textContent="جاري تجهيز كشف الحواف…";await loadCV()}
+  const q=(window.detectCV&&detectCV(c,cur.mode==="id"?1.586:null))||c._quad||detectQuad(c);const nf=normalizeFormat(warp(c,q));const out=applyFilterX(nf.canvas,f);
   cur.pages.push({img:out.toDataURL("image/jpeg",.88),raw:c.toDataURL("image/jpeg",.8),quad:q,filter:f,format:nf.format})}
   save(cur);
   if(window.autoOrient){await autoOrient(cur,cur.pages.length-n,(k,t)=>b.textContent=`جاري ضبط اتجاه الصفحات… ${k} من ${t}`);save(cur)}

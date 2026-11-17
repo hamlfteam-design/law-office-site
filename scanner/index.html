@@ -55,7 +55,7 @@ padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #editor .top span{flex:1;font-size:14px}
 #stage{flex:1;position:relative;overflow:hidden;touch-action:none}
 #stage canvas{position:absolute}
-.h{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:3px solid var(--acc2);background:rgba(227,100,20,.25);touch-action:none}
+.h{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:3px solid var(--acc2);background:rgba(227,100,20,.25);touch-action:none}
 #editor .bot{padding:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 #editor .bot .btn{padding:10px 12px;font-size:14px}
 .chip{background:#333;color:#fff;border:1px solid #555}
@@ -362,9 +362,22 @@ function editPage(c,quad,left,filter,bri0,con0){return new Promise(resolve=>{
  function render(){if(stage==="filter"){busy(1);out=applyFilterX(warped,fl,bri,con);busy(0)}sc=layout();draw();bar()}
  for(let i=0;i<4;i++){const h=document.createElement("div");h.className="h";st.appendChild(h);hs.push(h);
   h.addEventListener("pointerdown",e=>{h.setPointerCapture(e.pointerId);const mv=ev=>{const r=cv.getBoundingClientRect();
-    q[i]=[Math.max(0,Math.min(c.width,(ev.clientX-r.left)/sc)),Math.max(0,Math.min(c.height,(ev.clientY-r.top)/sc))];draw()};
-   h.onpointermove=mv;h.onpointerup=()=>{h.onpointermove=null}})}
- function finish(r){hs.forEach(h=>h.remove());ed.style.display="none";window.removeEventListener("resize",render);resolve(r)}
+    q[i]=[Math.max(0,Math.min(c.width,(ev.clientX-r.left)/sc)),Math.max(0,Math.min(c.height,(ev.clientY-r.top)/sc))];draw();loupe(q[i],ev)};
+   mv(e);h.onpointermove=mv;h.onpointerup=h.onpointercancel=()=>{h.onpointermove=null;lp.style.display="none"}})}
+ /* عدسة مكبّرة فوق الصباع: الصباع بيغطي الركن، فبنعرض المنطقة اللي تحته مكبّرة ×٣ مع علامة + في مكان الركن */
+ const lp=document.createElement("canvas");lp.width=lp.height=240;
+ lp.style.cssText="position:fixed;width:120px;height:120px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.6);pointer-events:none;display:none;z-index:40;background:#000";
+ ed.appendChild(lp);
+ function loupe(p,ev){const lx=lp.getContext("2d"),R=240,src=R/(3*sc*2)*2;// مساحة من الصورة = ٣ أضعاف التكبير على الشاشة
+  lx.fillStyle="#000";lx.fillRect(0,0,R,R);lx.save();lx.beginPath();lx.arc(R/2,R/2,R/2,0,7);lx.clip();
+  const sw=R/(sc*3*2)*2;lx.drawImage(c,p[0]-sw/2,p[1]-sw/2,sw,sw,0,0,R,R);
+  // خطوط الحدود الحالية داخل العدسة
+  lx.strokeStyle="#e36414";lx.lineWidth=3;lx.beginPath();q.forEach((pt,k)=>{const X=(pt[0]-p[0])/sw*R+R/2,Y=(pt[1]-p[1])/sw*R+R/2;k?lx.lineTo(X,Y):lx.moveTo(X,Y)});lx.closePath();lx.stroke();
+  lx.strokeStyle="#fff";lx.lineWidth=2;lx.beginPath();lx.moveTo(R/2-18,R/2);lx.lineTo(R/2+18,R/2);lx.moveTo(R/2,R/2-18);lx.lineTo(R/2,R/2+18);lx.stroke();lx.restore();
+  // فوق الصباع، ولو قريب من فوق الشاشة تنزل تحته
+  let top=ev.clientY-170;if(top<10)top=ev.clientY+50;let left=ev.clientX-60;left=Math.max(6,Math.min(innerWidth-126,left));
+  lp.style.top=top+"px";lp.style.left=left+"px";lp.style.display="block"}
+ function finish(r){hs.forEach(h=>h.remove());lp.remove();ed.style.display="none";window.removeEventListener("resize",render);resolve(r)}
  $("#edCancel").onclick=()=>finish(null);window.addEventListener("resize",render);
  requestAnimationFrame(render);
 })}
