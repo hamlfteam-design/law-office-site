@@ -17,7 +17,7 @@ function loadCV(){if(cv)return Promise.resolve(true);if(loading)return loading;
    m.onRuntimeInitialized=()=>done(m)};
   if(G.cv&&!G.cv.nodeType)return hook();
   if(typeof document==="undefined")return res(null);
-  const s=document.createElement("script");s.src="opencv/opencv.js";s.async=true;s.onload=hook;s.onerror=()=>res(null);
+  const s=document.createElement("script");s.src="opencv/opencv.js?v=410";s.async=true;s.onload=hook;s.onerror=()=>res(null);
   document.head.appendChild(s)});
  return loading}
 
