@@ -12,7 +12,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script src="jspdf.umd.min.js"></script>
+<script src="filters.js"></script>
 <script src="sig.js" defer></script>
+<script src="tools.js" defer></script>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--muted:#6b7280;--acc:#0f4c5c;--acc2:#e36414;--line:#e5e1d8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -51,10 +53,14 @@ padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #editor .bot{padding:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 #editor .bot .btn{padding:10px 12px;font-size:14px}
 .chip{background:#333;color:#fff;border:1px solid #555}
+.fchips{display:flex;gap:6px;overflow-x:auto;width:100%;padding-bottom:4px}.fchips .btn{white-space:nowrap}
+.sliders{display:flex;gap:10px;width:100%;color:#ddd}.sliders label{flex:1;color:#ddd;margin:0;font-size:12px}.sliders input{padding:0}
 .chip.on{background:var(--acc2);border-color:var(--acc2)}
 #busy{position:fixed;inset:0;background:rgba(0,0,0,.55);color:#fff;display:none;align-items:center;justify-content:center;z-index:30;font-size:16px}
 #dlg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
 #dlg .box{background:#fff;border-radius:16px;padding:16px;width:100%;max-width:420px}
+.ghead{display:flex;align-items:center;gap:6px;margin:14px 4px 6px}.ghead h3{font-size:14px;color:var(--acc);margin:0;flex:1}
+.ghead button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 8px;font-size:15px}
 .note{font-size:12.5px;color:var(--muted);line-height:1.6}
 .hidden{display:none!important}
 </style>
@@ -106,13 +112,17 @@ function home(){
 }
 function renderList(){
  const f=(home.filter||"").trim();
- const list=docs.filter(d=>!f||[d.title,d.client,d.caseNo].join(" ").includes(f)).sort((a,b)=>b.updated-a.updated);
+ const list=docs.filter(d=>!f||(!(window.folderLocked&&folderLocked(d.client))&&[d.title,d.client,d.caseNo].join(" ").includes(f))).sort((a,b)=>b.updated-a.updated);
  if(!list.length){$("#list").innerHTML=`<div class="empty">لا توجد مستندات بعد.<br>اضغط «مسح مستند جديد» للبدء.</div>
   <p class="note">💡 لتثبيته كتطبيق على الآيفون: افتح الرابط في Safari ← زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية».</p>`;return}
  const groups={};list.forEach(d=>(groups[d.client||"بدون عميل"]=groups[d.client||"بدون عميل"]||[]).push(d));
- $("#list").innerHTML=Object.entries(groups).map(([c,ds])=>`<h3 style="font-size:14px;color:var(--acc);margin:14px 4px 6px">👤 ${esc(c)}</h3>`+
+ const lockedL=(window.prefs?prefs().lockedClients:[]);
+ $("#list").innerHTML=Object.entries(groups).map(([c,ds])=>`<div class="ghead"><h3>👤 ${esc(c)}</h3>
+   <button onclick="toggleFolderLock(this.dataset.c)" data-c="${esc(c)}" title="قفل الفولدر">${lockedL.includes(c)?"🔒":"🔓"}</button>
+   <button onclick="exportClient(this.dataset.c)" data-c="${esc(c)}" title="تصدير العميل">📦</button></div>`+
+  (window.folderLocked&&folderLocked(c)?`<div class="card" style="text-align:center;cursor:pointer" onclick="openFolder(this.dataset.c)" data-c="${esc(c)}">🔒 الفولدر مقفول (${ds.length} مستند) — اضغط للفتح</div>`:
   ds.map(d=>`<div class="card doc" onclick="openDoc('${d.id}')"><img src="${d.pages[0]?.img||""}">
-   <div><div class="t">${esc(d.title)}</div><div class="m">${d.caseNo?"قضية: "+esc(d.caseNo)+" · ":""}${d.pages.length} صفحة · ${new Date(d.updated).toLocaleDateString("ar-EG")}</div></div></div>`).join("")).join("");
+   <div><div class="t">${esc(d.title)}</div><div class="m">${d.caseNo?"قضية: "+esc(d.caseNo)+" · ":""}${d.pages.length} صفحة · ${new Date(d.updated).toLocaleDateString("ar-EG")}</div></div></div>`).join(""))).join("");
 }
 function newDoc(){
  const cl=[...new Set(docs.map(d=>d.client).filter(Boolean))];
@@ -150,7 +160,9 @@ function renderDoc(){
   <label><input type="checkbox" id="wmOn" style="width:auto"> علامة مائية</label><input id="wmTx" placeholder="نص العلامة المائية" value="مكتب المستشار د. حسن عبد المنعم حسن">
   <label><input type="checkbox" id="tsOn" style="width:auto"> ختم التاريخ والوقت</label>
   <label>الجودة / الحجم</label><select id="q"><option value="0.85">عالية</option><option value="0.65" selected>متوسطة (موصى بها)</option><option value="0.45">حجم صغير (واتساب)</option></select>
+  <label>مقاس صفحة الـ PDF</label><select id="psz">${[["FIT","مطابق للصورة"],["A4","A4"],["LETTER","Letter"]].map(([k,l])=>`<option value="${k}" ${prefs().pdfSize===k?"selected":""}>${l}</option>`).join("")}</select>
   <div class="row" style="margin-top:12px"><button class="btn" style="flex:1" onclick="exportPdf()">⬇️ حفظ PDF</button>
+  <button class="btn sec" onclick="exportPdf(true)">📤 مشاركة</button><button class="btn sec" onclick="compressDlg()">🗜️ ضغط لحجم محدد</button>
   ${d.mode==="id"?`<button class="btn sec" onclick="exportId()">🪪 بطاقة على A4</button>`:""}
   <button class="btn sec" onclick="mergeDlg()">🔗 دمج</button><button class="btn danger" onclick="delDoc()">حذف</button></div>
   <p class="note" id="pdfNote"></p>
@@ -207,7 +219,7 @@ async function processPending(){if(!pending.length)return;
  while(pending.length){const c=pending.shift();const r=await editPage(c,detectQuad(c),pending.length);if(r)cur.pages.push(r);}
  save(cur);renderDoc()}
 async function reEdit(i){const p=cur.pages[i];if(!p.raw){return}
- const im=new Image();im.src=p.raw;await im.decode();const c=imgToCanvas(im);const r=await editPage(c,p.quad||detectQuad(c),0,p.filter);
+ const im=new Image();im.src=p.raw;await im.decode();const c=imgToCanvas(im);const r=await editPage(c,p.quad||detectQuad(c),0,p.filter,p.bri,p.con);
  if(r){cur.pages[i]=r;save(cur)}renderDoc()}
 async function rotate(i){const p=cur.pages[i];const im=new Image();im.src=p.img;await im.decode();
  const c=document.createElement("canvas");c.width=im.height;c.height=im.width;const x=c.getContext("2d");x.translate(c.width,0);x.rotate(Math.PI/2);x.drawImage(im,0,0);
@@ -281,7 +293,8 @@ function applyFilter(c,f){
  x.putImageData(im,0,0);return o}
 
 /* ---------- crop editor ---------- */
-function editPage(c,quad,left,filter="enh"){return new Promise(resolve=>{
+function editPage(c,quad,left,filter,bri0,con0){return new Promise(resolve=>{
+ filter=normFilter(filter||prefs().defaultFilter);let bri=bri0||0,con=con0||0;
  const ed=$("#editor"),st=$("#stage"),cv=$("#cv");ed.style.display="flex";
  let q=quad.map(p=>[...p]),fl=filter,stage="crop",out=null;
  const hs=[];
@@ -298,15 +311,18 @@ function editPage(c,quad,left,filter="enh"){return new Promise(resolve=>{
    b.innerHTML=`<button class="btn chip" id="eAll">الصفحة كاملة</button><button class="btn chip" id="eAuto">كشف تلقائي</button><button class="btn warn" id="eNext">التالي ←</button>`;
    $("#eAll").onclick=()=>{q=[[0,0],[c.width,0],[c.width,c.height],[0,c.height]];draw()};
    $("#eAuto").onclick=()=>{q=detectQuad(c);draw()};
-   $("#eNext").onclick=()=>{busy(1);setTimeout(()=>{warped=warp(c,q);stage="filter";hs.forEach(h=>h.style.display="none");render();busy(0)},30)}}
+   $("#eNext").onclick=()=>{busy(1);setTimeout(()=>{warped=normalizeFormat(warp(c,q)).canvas;stage="filter";hs.forEach(h=>h.style.display="none");render();busy(0)},30)}}
   else{$("#edTitle").textContent="اختر التحسين";
-   b.innerHTML=["orig:الأصلية","enh:محسّنة","gray:رمادي","bw:أبيض وأسود"].map(s=>{const [k,l]=s.split(":");return `<button class="btn chip ${k===fl?"on":""}" data-f="${k}">${l}</button>`}).join("")+
+   b.innerHTML=`<div class="fchips">${FILTERS.map(([k,l])=>`<button class="btn chip ${k===fl?"on":""}" data-f="${k}">${l}</button>`).join("")}</div>
+   <div class="sliders"><label>☀️ الإضاءة <input type="range" id="eBri" min="-100" max="100" value="${bri}"></label>
+   <label>◐ التباين <input type="range" id="eCon" min="-100" max="100" value="${con}"></label></div>`+
    `<button class="btn sec" id="eBack">↩ قص</button><button class="btn warn" id="eOk">✔ حفظ</button>`;
    b.querySelectorAll("[data-f]").forEach(e=>e.onclick=()=>{fl=e.dataset.f;render()});
+   $("#eBri").onchange=e=>{bri=+e.target.value;render()};$("#eCon").onchange=e=>{con=+e.target.value;render()};
    $("#eBack").onclick=()=>{stage="crop";hs.forEach(h=>h.style.display="");render()};
-   $("#eOk").onclick=()=>finish({img:out.toDataURL("image/jpeg",.88),raw:c.toDataURL("image/jpeg",.8),quad:q,filter:fl})}}
+   $("#eOk").onclick=()=>finish({img:out.toDataURL("image/jpeg",.88),raw:c.toDataURL("image/jpeg",.8),quad:q,filter:fl,bri,con})}}
  let warped=null;
- function render(){if(stage==="filter"){busy(1);out=applyFilter(warped,fl);busy(0)}sc=layout();draw();bar()}
+ function render(){if(stage==="filter"){busy(1);out=applyFilterX(warped,fl,bri,con);busy(0)}sc=layout();draw();bar()}
  for(let i=0;i<4;i++){const h=document.createElement("div");h.className="h";st.appendChild(h);hs.push(h);
   h.addEventListener("pointerdown",e=>{h.setPointerCapture(e.pointerId);const mv=ev=>{const r=cv.getBoundingClientRect();
     q[i]=[Math.max(0,Math.min(c.width,(ev.clientX-r.left)/sc)),Math.max(0,Math.min(c.height,(ev.clientY-r.top)/sc))];draw()};
@@ -325,20 +341,56 @@ async function stampCanvas(src){const im=new Image();im.src=src;await im.decode(
   x.font=`bold ${Math.round(c.width/14)}px Tahoma`;x.textAlign="center";x.fillText($("#wmTx").value.trim(),0,0);x.restore()}
  if($("#tsOn").checked){const t=new Date().toLocaleString("ar-EG");x.font=`${Math.round(c.width/45)}px Tahoma`;x.fillStyle="rgba(180,0,0,.8)";x.textAlign="left";x.fillText(t,c.width*.03,c.height*.97)}
  return c}
-async function pdfFromCanvases(cs,name){const {jsPDF}=window.jspdf;const qv=+$("#q").value;let pdf=null;
- for(const c of cs){const w=595,h=Math.round(595*c.height/c.width);const o=w>h?"l":"p";
-  if(!pdf)pdf=new jsPDF({orientation:o,unit:"pt",format:[w,h]});else pdf.addPage([w,h],o);
-  pdf.addImage(c.toDataURL("image/jpeg",qv),"JPEG",0,0,w,h)}
- const blob=pdf.output("blob");await deliver(blob,name)}
-async function deliver(blob,name){
+const PAGE_PT={A4:[595,842],LETTER:[612,792]};
+function scaleCanvas(c,f){if(f>=1)return c;const o=document.createElement("canvas");o.width=Math.max(1,Math.round(c.width*f));o.height=Math.max(1,Math.round(c.height*f));
+ const x=o.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,o.width,o.height);return o}
+/* يبني PDF: FIT = صفحة بنسبة الصورة، A4/Letter = الصورة داخل الورقة بهوامش صغيرة */
+function buildPdf(cs,qv,size="FIT",scale=1,econ=[]){const {jsPDF}=window.jspdf;let pdf=null;
+ cs.forEach((c0,i)=>{const e=econ[i];const c=scaleCanvas(c0,scale*(e?.75:1)),q=e?Math.min(qv,.5):qv;
+  let pw,ph,dx=0,dy=0,dw,dh;
+  if(PAGE_PT[size]){[pw,ph]=PAGE_PT[size];if(c.width>c.height)[pw,ph]=[ph,pw];const m=14,f=Math.min((pw-2*m)/c.width,(ph-2*m)/c.height);
+   dw=c.width*f;dh=c.height*f;dx=(pw-dw)/2;dy=(ph-dh)/2}else{pw=595;ph=Math.round(595*c.height/c.width);dw=pw;dh=ph}
+  const o=pw>ph?"l":"p";if(!pdf)pdf=new jsPDF({orientation:o,unit:"pt",format:[pw,ph],compress:true});else pdf.addPage([pw,ph],o);
+  pdf.addImage(c.toDataURL("image/jpeg",q),"JPEG",dx,dy,dw,dh)});
+ return pdf.output("blob")}
+/* PdfCompressor: جودة أولاً (بحث ثنائي حتى ٣٥٪) ثم تصغير الدقة حتى ١٢٤٠ بكسل */
+async function compressToTarget(cs,target,size){const tick=()=>new Promise(r=>setTimeout(r,0));let lo=35,hi=88,best=null,bestQ=null;
+ while(lo<=hi){const q=(lo+hi)>>1;await tick();const b=buildPdf(cs,q/100,size);if(b.size<=target){best=b;bestQ=q;lo=q+1}else hi=q-1}
+ if(best)return{blob:best,met:true};
+ let last=buildPdf(cs,.35,size),edge=Math.max(...cs.map(c=>Math.max(c.width,c.height))),cur=edge;
+ for(let step=0;step<5&&last.size>target&&cur>1240;step++){cur=Math.max(1240,Math.round(cur*Math.sqrt(target/last.size)*.97));await tick();last=buildPdf(cs,.35,size,cur/edge)}
+ return{blob:last,met:last.size<=target}}
+async function pdfFromCanvases(cs,name,share,econ){const blob=buildPdf(cs,+$("#q").value,$("#psz")?.value||"FIT",1,econ||[]);await deliver(blob,name,share)}
+async function deliver(blob,name,share){
  const fn=name.replace(/[\\/:*?"<>|]/g,"_")+".pdf";
+ if(share){try{const f=new File([blob],fn,{type:"application/pdf"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:fn});$("#pdfNote").textContent=`✅ تمت مشاركة ${fn} (${(blob.size/1024).toFixed(0)} ك.ب)`;return}}
+  catch(e){if(e&&e.name==="AbortError")return;
+   // Safari أحياناً يرفض المشاركة بعد معالجة طويلة: زر يشارك فوراً بضغطة جديدة
+   if(e&&e.name==="NotAllowedError"){window._shareFile=new File([blob],fn,{type:"application/pdf"});
+    $("#pdfNote").innerHTML=`الملف جاهز (${(blob.size/1024).toFixed(0)} ك.ب) <button class="btn" onclick="navigator.share({files:[_shareFile],title:_shareFile.name}).catch(()=>{})">📤 مشاركة الآن</button>`;return}}
+  $("#pdfNote").textContent="المشاركة المباشرة غير متاحة هنا، فهيتحفظ الملف بدلها.";}
  if(downloads){try{await downloads.save({filename:fn,data:blob});$("#pdfNote").textContent=`✅ ${fn} (${(blob.size/1024).toFixed(0)} ك.ب)`;return}catch(e){}}
  // fallback when opened outside claude.ai viewer (e.g. home-screen)
  try{const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();
   $("#pdfNote").innerHTML=`تم تجهيز الملف (${(blob.size/1024).toFixed(0)} ك.ب). لو ما اتحفظش: <a href="${u}" target="_blank">افتحه</a> ثم شاركه ⬆️ ← «حفظ في الملفات».`}
  catch(e){$("#pdfNote").textContent="تعذّر حفظ الملف في هذا العرض."}}
-async function exportPdf(){if(!cur.pages.length)return;busy(1);try{const cs=[];for(const p of cur.pages)cs.push(await stampCanvas(p.img));
- await pdfFromCanvases(cs,[cur.client,cur.title].filter(Boolean).join(" - "))}finally{busy(0)}}
+async function exportPdf(share){if(!cur.pages.length)return;busy(1);try{const cs=[];for(const p of cur.pages)cs.push(await stampCanvas(p.img));
+ const auto=prefs().autoCompress;const name=[cur.client,cur.title].filter(Boolean).join(" - ");
+ if(auto){const r=await compressToTarget(cs,auto,$("#psz").value);await deliver(r.blob,name,share);return}
+ await pdfFromCanvases(cs,name,share,cur.pages.map(p=>p.filter==="economy"))}finally{busy(0)}}
+const PRESETS=[["٣٠٠ ك.ب",300*1024],["٥٠٠ ك.ب",500*1024],["١ ميجا",1024*1024],["٢ ميجا",2*1024*1024],["٥ ميجا",5*1024*1024]];
+function compressDlg(){dialog(`<h3 style="margin-top:0">ضغط لحجم محدد</h3><p class="note">للرفع على المواقع الحكومية اللي بتحدّد حجم أقصى للمرفق.</p>
+ <label>الحجم المطلوب</label><select id="cmpSel">${PRESETS.map(([l,b])=>`<option value="${b}">${l}</option>`).join("")}<option value="c">حجم مخصص (ك.ب)</option></select>
+ <input id="cmpKb" type="number" inputmode="numeric" placeholder="مثال: 750" class="hidden" style="margin-top:8px">
+ <div class="row" style="margin-top:12px"><button class="btn" onclick="doCompress()">🗜️ ضغط وحفظ</button><button class="btn sec" onclick="doCompress(true)">📤 ضغط ومشاركة</button><button class="btn sec" onclick="closeDlg()">إلغاء</button></div>`);
+ $("#cmpSel").onchange=e=>$("#cmpKb").classList.toggle("hidden",e.target.value!=="c")}
+async function doCompress(share){const v=$("#cmpSel").value,target=v==="c"?(+$("#cmpKb").value||0)*1024:+v;if(target<20*1024)return;
+ closeDlg();busy(1);try{const cs=[];for(const p of cur.pages)cs.push(await stampCanvas(p.img));
+  const r=await compressToTarget(cs,target,$("#psz").value);await deliver(r.blob,[cur.client,cur.title].filter(Boolean).join(" - "),share);
+  const kb=x=>(x/1024).toFixed(0)+" ك.ب";
+  $("#pdfNote").textContent+=r.met?` — الحجم النهائي: ${kb(r.blob.size)} (المطلوب ${kb(target)})`:` — مقدرتش أوصل للحجم ده من غير ما الصورة تبوظ. أقل حجم مقروء: ${kb(r.blob.size)}`}
+ finally{busy(0)}}
 async function exportId(){if(cur.pages.length<1)return;busy(1);try{
  const A=document.createElement("canvas");A.width=1240;A.height=1754;const x=A.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,A.width,A.height);
  const cw=1012*0.85,chh=638*0.85;for(let i=0;i<Math.min(2,cur.pages.length);i++){const c=await stampCanvas(cur.pages[i].img);
