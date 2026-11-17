@@ -148,19 +148,54 @@ function photoSignature(){return new Promise(resolve=>{
  inp.onchange=async()=>{const f=inp.files[0];if(!f)return resolve(null);
   try{busy(1);const im=await fileToImg(f);await new Promise(r=>setTimeout(r,30));const out=extractSignature(im);busy(0);
    if(!out){alert("لم يُعثر على توقيع واضح في الصورة. صوّر التوقيع على ورقة بيضاء في إضاءة جيدة، وخلّي الورقة تملأ الصورة.");return resolve(null)}
-   resolve(out.toDataURL("image/png"))}catch(e){busy(0);resolve(null)}};
+   const u=out.toDataURL("image/png");const c=await cropScreen(u);resolve(c||u)}catch(e){busy(0);resolve(null)}};
  inp.click()})}
+
+/* ---------- قص التوقيع: لو اتصوّر معاه كلمة أو جزء زيادة ---------- */
+async function cropScreen(url){const img=await loadImg(url),IW=img.naturalWidth,IH=img.naturalHeight;
+ return new Promise(resolve=>{
+ const d=shell("قص التوقيع — حرّك الأركان حوالين التوقيع بس");const cv=d.querySelector("canvas"),x=cv.getContext("2d");
+ let dim=sizeCanvas(cv);let r={x:0,y:0,w:IW,h:IH};
+ const fit=()=>{const s=Math.min(dim.w/IW,dim.h/IH)*.92;return{s,ox:(dim.w-IW*s)/2,oy:(dim.h-IH*s)/2}};
+ function draw(){const {s,ox,oy}=fit();x.setTransform(dim.dpr,0,0,dim.dpr,0,0);x.clearRect(0,0,dim.w,dim.h);
+  // مربعات شطرنج علشان الشفافية تبان
+  const q=12;for(let yy=0;yy<IH*s;yy+=q)for(let xx=0;xx<IW*s;xx+=q){x.fillStyle=((xx/q+yy/q)&1)?"#ddd":"#fff";x.fillRect(ox+xx,oy+yy,Math.min(q,IW*s-xx),Math.min(q,IH*s-yy))}
+  x.drawImage(img,ox,oy,IW*s,IH*s);
+  x.fillStyle="rgba(0,0,0,.55)";const X=ox+r.x*s,Y=oy+r.y*s,W=r.w*s,H=r.h*s;
+  x.fillRect(ox,oy,IW*s,Y-oy);x.fillRect(ox,Y+H,IW*s,oy+IH*s-Y-H);x.fillRect(ox,Y,X-ox,H);x.fillRect(X+W,Y,ox+IW*s-X-W,H);
+  x.strokeStyle="#e9622f";x.lineWidth=2;x.strokeRect(X,Y,W,H);
+  for(const [cx,cy] of [[X,Y],[X+W,Y],[X+W,Y+H],[X,Y+H]]){x.beginPath();x.arc(cx,cy,13,0,7);x.fillStyle="#fff";x.fill();x.beginPath();x.arc(cx,cy,8,0,7);x.fillStyle="#e9622f";x.fill()}}
+ let g=null;const loc=e=>{const b=cv.getBoundingClientRect(),{s,ox,oy}=fit();return[(e.clientX-b.left-ox)/s,(e.clientY-b.top-oy)/s]};
+ cv.addEventListener("pointerdown",e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}const [px,py]=loc(e),{s}=fit();
+  const cs=[[r.x,r.y],[r.x+r.w,r.y],[r.x+r.w,r.y+r.h],[r.x,r.y+r.h]];let h=-1,bd=34/s;cs.forEach((c,i)=>{const dd=Math.hypot(c[0]-px,c[1]-py);if(dd<bd){bd=dd;h=i}});
+  g={h,px,py,r0:{...r}}});
+ cv.addEventListener("pointermove",e=>{if(!g)return;e.preventDefault();const [px,py]=loc(e),dx=px-g.px,dy=py-g.py,o=g.r0,M=20;
+  if(g.h<0){r={...o,x:Math.max(0,Math.min(IW-o.w,o.x+dx)),y:Math.max(0,Math.min(IH-o.h,o.y+dy))}}
+  else{let x0=o.x,y0=o.y,x1=o.x+o.w,y1=o.y+o.h;if(g.h===0||g.h===3)x0=Math.min(x1-M,Math.max(0,x0+dx));else x1=Math.max(x0+M,Math.min(IW,x1+dx));
+   if(g.h<2)y0=Math.min(y1-M,Math.max(0,y0+dy));else y1=Math.max(y0+M,Math.min(IH,y1+dy));r={x:x0,y:y0,w:x1-x0,h:y1-y0}}
+  draw()});
+ const up=()=>{g=null};cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
+ d.querySelector(".acts").innerHTML=`<button class="btn sec" data-cancel>إلغاء</button><button class="btn sec" data-full>الكل</button><button class="btn warn" data-ok>✔ قص</button>`;
+ const done=v=>{window.removeEventListener("resize",rs);d.remove();resolve(v)};const rs=()=>{dim=sizeCanvas(cv);draw()};window.addEventListener("resize",rs);
+ d.querySelector("[data-x]").onclick=d.querySelector("[data-cancel]").onclick=()=>done(null);
+ d.querySelector("[data-full]").onclick=()=>{r={x:0,y:0,w:IW,h:IH};draw()};
+ d.querySelector("[data-ok]").onclick=()=>{const o=document.createElement("canvas");o.width=Math.round(r.w);o.height=Math.round(r.h);
+  o.getContext("2d").drawImage(img,r.x,r.y,r.w,r.h,0,0,o.width,o.height);const t=trimToInk(o)||o;done(t.toDataURL("image/png"))};
+ requestAnimationFrame(()=>{dim=sizeCanvas(cv);draw()})})}
+window.cropSignature=cropScreen;
 
 /* ---------- مكتبة التوقيعات ---------- */
 function libraryDialog(){return new Promise(resolve=>{
  const render=()=>{const a=loadSigs();
   dialog(`<h3 style="margin-top:0">مكتبة التوقيعات</h3>
-  ${a.length?`<div class="sigLib">${a.map(s=>`<div><img src="${s.img}" data-pick="${s.id}"><button data-del="${s.id}" title="حذف من المكتبة">✕</button></div>`).join("")}</div>`
+  ${a.length?`<div class="sigLib">${a.map(s=>`<div><img src="${s.img}" data-pick="${s.id}"><button data-del="${s.id}" title="حذف من المكتبة">✕</button><button data-crop="${s.id}" title="قص" style="left:auto;right:4px">✂️</button></div>`).join("")}</div>`
    :`<p class="note">لا توجد توقيعات محفوظة بعد.</p>`}
   <div class="row" style="margin-top:8px"><button class="btn" data-new>✍️ توقيع جديد</button><button class="btn sec" data-photo>📷 تصوير توقيع</button><button class="btn sec" data-close>إغلاق</button></div>`);
   const box=$("#dlgBox");
   box.querySelectorAll("[data-pick]").forEach(e=>e.onclick=()=>{closeDlg();resolve(a.find(s=>s.id===e.dataset.pick).img)});
   box.querySelectorAll("[data-del]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();if(!confirm("حذف هذا التوقيع من المكتبة؟"))return;saveSigs(loadSigs().filter(s=>s.id!==e.dataset.del));render()});
+  box.querySelectorAll("[data-crop]").forEach(e=>e.onclick=async ev=>{ev.stopPropagation();closeDlg();const a2=loadSigs(),it=a2.find(s=>s.id===e.dataset.crop);
+   const c=it&&await cropScreen(it.img);if(c){it.img=c;saveSigs(a2)}render()});
   box.querySelector("[data-new]").onclick=async()=>{closeDlg();const u=await padScreen();if(u){addSig(u);resolve(u)}else resolve(null)};
   box.querySelector("[data-photo]").onclick=async()=>{closeDlg();const u=await photoSignature();if(u){addSig(u);resolve(u)}else resolve(null)};
   box.querySelector("[data-close]").onclick=()=>{closeDlg();resolve(null)}};
