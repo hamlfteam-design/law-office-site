@@ -382,7 +382,8 @@ async function deliver(blob,name,share){
  try{const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();
   $("#pdfNote").innerHTML=`تم تجهيز الملف (${(blob.size/1024).toFixed(0)} ك.ب). لو ما اتحفظش: <a href="${u}" target="_blank">افتحه</a> ثم شاركه ⬆️ ← «حفظ في الملفات».`}
  catch(e){$("#pdfNote").textContent="تعذّر حفظ الملف في هذا العرض."}}
-async function exportPdf(share){if(!cur.pages.length)return;busy(1);try{const cs=[];for(const p of cur.pages)cs.push(await stampCanvas(p.img));
+async function exportPdf(share){if(!cur.pages.length)return;
+ if(cur.mode==="id"&&cur.pages.length===2&&window.prefs&&prefs().cardsOnOneSheet)return exportId(share);busy(1);try{const cs=[];for(const p of cur.pages)cs.push(await stampCanvas(p.img));
  const auto=prefs().autoCompress;const name=[cur.client,cur.title].filter(Boolean).join(" - ");
  if(auto){const r=await compressToTarget(cs,auto,$("#psz").value);await deliver(r.blob,name,share);return}
  await pdfFromCanvases(cs,name,share,cur.pages.map(p=>p.filter==="economy"))}finally{busy(0)}}
@@ -398,11 +399,12 @@ async function doCompress(share){const v=$("#cmpSel").value,target=v==="c"?(+$("
   const kb=x=>(x/1024).toFixed(0)+" ك.ب";
   $("#pdfNote").textContent+=r.met?` — الحجم النهائي: ${kb(r.blob.size)} (المطلوب ${kb(target)})`:` — مقدرتش أوصل للحجم ده من غير ما الصورة تبوظ. أقل حجم مقروء: ${kb(r.blob.size)}`}
  finally{busy(0)}}
-async function exportId(){if(cur.pages.length<1)return;busy(1);try{
+async function exportId(share){if(cur.pages.length<1)return;busy(1);try{
  const A=document.createElement("canvas");A.width=1240;A.height=1754;const x=A.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,A.width,A.height);
  const cw=1012*0.85,chh=638*0.85;for(let i=0;i<Math.min(2,cur.pages.length);i++){const c=await stampCanvas(cur.pages[i].img);
-  x.drawImage(c,(A.width-cw)/2,i?A.height*.54:A.height*.1,cw,chh);x.strokeStyle="#ccc";x.strokeRect((A.width-cw)/2,i?A.height*.54:A.height*.1,cw,chh)}
- await pdfFromCanvases([A],[cur.client,"بطاقة"].filter(Boolean).join(" - "))}finally{busy(0)}}
+  x.drawImage(c,(A.width-cw)/2,i?A.height*.54:A.height*.1,cw,chh);x.strokeStyle="#ccc";x.strokeRect((A.width-cw)/2,i?A.height*.54:A.height*.1,cw,chh);
+  x.fillStyle="#555";x.font="bold 30px Tahoma";x.textAlign="right";x.direction="rtl";x.fillText(i?"الوجه الخلفي — Back":"الوجه الأمامي — Front",(A.width+cw)/2,(i?A.height*.54:A.height*.1)-14)}
+ await pdfFromCanvases([A],[cur.client,"بطاقة"].filter(Boolean).join(" - "),share)}finally{busy(0)}}
 
 /* ---------- start ---------- */
 if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{})}
