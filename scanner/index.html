@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>المحامي المحترف سكانر — آيفون</title>
 <meta name="robots" content="noindex,nofollow">
@@ -23,6 +23,7 @@
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--muted:#6b7280;--acc:#0f4c5c;--acc2:#e36414;--line:#e5e1d8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 body{margin:0;font-family:-apple-system,"SF Arabic","Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--ink);
 padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--acc);color:#fff}
@@ -436,6 +437,9 @@ async function exportId(share){if(cur.pages.length<1)return;busy(1);try{
  await pdfFromCanvases([A],[cur.client,"بطاقة"].filter(Boolean).join(" - "),share)}finally{busy(0)}}
 
 /* ---------- start ---------- */
+// منع تكبير Safari للصفحة كلها (الضغطتين المتتاليتين أو القرصة) — كان بيكبّر الشاشة ناحية اليمين ويخفي الأزرار
+["gesturestart","gesturechange","gestureend"].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
+{let lastT=0;document.addEventListener("touchend",e=>{const n=Date.now();if(n-lastT<350&&!e.target.closest("input,textarea,select"))e.preventDefault();lastT=n},{passive:false})}
 if("serviceWorker" in navigator){
  // تحديث تلقائي: أول ما نسخة جديدة تتنشر، الصفحة تعيد تحميل نفسها مرة واحدة
  const hadCtl=!!navigator.serviceWorker.controller;let reloaded=false;

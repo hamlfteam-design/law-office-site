@@ -33,13 +33,14 @@ const T={
 window.OverlayTransformJS=T; // للاختبار
 
 /* ---------- واجهة مشتركة ---------- */
-const css=`#sigEd{position:fixed;inset:0;background:#000;z-index:15;display:flex;flex-direction:column;
+const css=`#sigEd{position:fixed;inset:0;touch-action:none;background:#000;z-index:15;display:flex;flex-direction:column;
  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #sigEd .top{display:flex;align-items:center;gap:8px;padding:10px;color:#fff}
 #sigEd .top span{flex:1;font-size:15px;font-weight:600}
 #sigEd .area{flex:1;position:relative;overflow:hidden;margin:8px;touch-action:none;-webkit-user-select:none;user-select:none}
 #sigEd .area canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
-#sigEd .tools{display:flex;gap:6px;overflow-x:auto;padding:6px 10px}
+#sigEd .tools{display:flex;gap:6px;overflow-x:auto;padding:6px 10px;touch-action:pan-x;flex-wrap:wrap;justify-content:center}
+#sigEd .acts,#sigEd .top{touch-action:manipulation}
 #sigEd .tools .btn,#sigEd .acts .btn{padding:10px 12px;font-size:14px;white-space:nowrap}
 #sigEd .acts{display:flex;gap:10px;padding:8px 14px 12px}
 #sigEd .acts .btn{flex:1}
@@ -207,7 +208,8 @@ async function overlayScreen(pageSrc){
  // منع تكبير Safari للصفحة كلها أثناء القرصة
  ["gesturestart","gesturechange"].forEach(n=>area.addEventListener(n,e=>e.preventDefault()));
 
- function tools(){const tb=d.querySelector(".tools");
+ let toolsKey="";
+ function tools(){const tb=d.querySelector(".tools");const key=[!!activeId,viewZoom>1,entries.length].join();if(key===toolsKey)return;toolsKey=key;
   tb.innerHTML=`<button class="btn sec" data-add>✍️ إضافة توقيع</button><button class="btn sec" data-stamp>📅 ختم التاريخ</button>
    ${activeId?`<button class="btn sec" data-delsel style="color:#b91c1c">🗑️ حذف المحدد</button>`:""}
    ${viewZoom>1?`<button class="btn sec" data-fit>⤢ ملء الشاشة</button>`:""}`;
