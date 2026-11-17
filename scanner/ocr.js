@@ -45,3 +45,29 @@ function ocrCard(d){return `<div class="card" style="margin-top:14px"><div class
   <p class="note" id="ocrMsg"></p>`:`<p class="note">بيقرا العربي والإنجليزي من صفحات المستند، وتقدر تنسخه أو تلخّصه أو تدوّر بيه.</p>`}</div>`}
 {const _rd=window.renderDoc;window.renderDoc=function(){_rd();if(!cur)return;
  const exp=[...app.querySelectorAll(".card")].pop();if(exp)exp.insertAdjacentHTML("beforebegin",ocrCard(cur))}}
+
+/* ---------- اتجاه الصفحة والبطاقة تلقائياً (PageOrientation / CardOrientation) ----------
+   تتقرا الصفحة بـ Tesseract بأكتر من اتجاه، والاتجاه اللي فيه أكتر كلمات مقروءة بثقة عالية
+   يكسب؛ والبطاقة تتقرا كما هي ومقلوبة ١٨٠° وتتلف فقط لو القراءة المقلوبة أوضح بفرق واضح. */
+function rotCanvas(src,deg){if(!deg)return src;const c=document.createElement("canvas");const s=deg%180!==0;c.width=s?src.height:src.width;c.height=s?src.width:src.height;
+ const x=c.getContext("2d");x.translate(c.width/2,c.height/2);x.rotate(deg*Math.PI/180);x.drawImage(src,-src.width/2,-src.height/2);return c}
+function shrink(c,edge){const f=Math.min(1,edge/Math.max(c.width,c.height));if(f>=1)return c;const o=document.createElement("canvas");o.width=Math.round(c.width*f);o.height=Math.round(c.height*f);o.getContext("2d").drawImage(c,0,0,o.width,o.height);return o}
+async function readStats(w,c){const {data}=await w.recognize(c);const ws=(data.words||[]).filter(x=>x.text&&x.text.trim().length>1);
+ return{good:ws.filter(x=>x.confidence>=70).length,mean:ws.length?ws.reduce((a,x)=>a+x.confidence,0)/ws.length:0}}
+async function orientWorker(){await loadTesseract();const base=new URL("ocr/",location.href).href;
+ const w=await Tesseract.createWorker(prefs().ocrLangs||"ara+eng",1,{workerPath:base+"worker.min.js",corePath:base,langPath:base.replace(/\/$/,""),gzip:false});
+ await w.setParameters({tessedit_pageseg_mode:"11"});return w}
+async function pageRotation(w,canvas){const s=shrink(canvas,1000),cnt={0:(await readStats(w,s)).good};
+ // Tesseract.js بيقرا جزء من الصفحة المقلوبة ١٨٠° بثقة، فبنقارن بالمقلوب دايماً، والجانبين بس لو القراءة ضعيفة
+ cnt[180]=(await readStats(w,rotCanvas(s,180))).good;
+ if(cnt[0]<15)for(const d of [90,270])cnt[d]=(await readStats(w,rotCanvas(s,d))).good;
+ let best=0;for(const d of [90,180,270])if((cnt[d]||0)>cnt[best])best=d;
+ return best&&cnt[best]>=8&&cnt[best]>=cnt[0]*2+3?best:0}
+async function cardRotation(w,canvas){const s=shrink(canvas,1200),a=(await readStats(w,s)).mean,b=(await readStats(w,rotCanvas(s,180))).mean;return b-a>=5?180:0}
+/* يعدّل اتجاه صفحات اتصورت للتو؛ لو ملفات القراءة مش متاحة يسيب الصفحات زي ما هي */
+window.autoOrient=async function(d,fromIndex,progress){let w;try{w=await orientWorker()}catch(e){return}
+ try{for(let i=fromIndex;i<d.pages.length;i++){progress&&progress(i-fromIndex+1,d.pages.length-fromIndex);const p=d.pages[i];
+   const im=new Image();im.src=p.img;await im.decode();const c=document.createElement("canvas");c.width=im.width;c.height=im.height;c.getContext("2d").drawImage(im,0,0);
+   const isCard=d.mode==="id"||detectFormat(c.width,c.height)==="ID_CARD";const deg=isCard?await cardRotation(w,c):await pageRotation(w,c);
+   if(deg){p.img=rotCanvas(c,deg).toDataURL("image/jpeg",.9);p.rot=((p.rot||0)+deg)%360}}}
+ catch(e){}finally{try{await w.terminate()}catch(e){}}};

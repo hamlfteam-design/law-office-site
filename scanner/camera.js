@@ -71,5 +71,8 @@ window.autoProcess=async function(){if(!pending.length){renderDoc();return}const
  try{while(pending.length){const c=pending.shift();i++;b.textContent=`جاري معالجة الصفحات… ${i} من ${n}`;await new Promise(r=>setTimeout(r,20));
   const q=c._quad||detectQuad(c);const out=applyFilterX(normalizeFormat(warp(c,q)).canvas,f);
   cur.pages.push({img:out.toDataURL("image/jpeg",.88),raw:c.toDataURL("image/jpeg",.8),quad:q,filter:f})}
-  save(cur)}finally{busy(0);b.textContent="جارٍ المعالجة…";renderDoc()}};
+  save(cur);
+  // تصحيح الاتجاه تلقائياً (الصفحة المقلوبة أو بالعرض، والبطاقة المقلوبة)
+  if(window.autoOrient){await autoOrient(cur,cur.pages.length-n,(k,t)=>b.textContent=`جاري ضبط اتجاه الصفحات… ${k} من ${t}`);save(cur)}}
+ finally{busy(0);b.textContent="جارٍ المعالجة…";renderDoc()}};
 })();

@@ -220,8 +220,11 @@ $("#galIn").onchange=e=>{const f=[...e.target.files];e.target.value="";if(!cur)r
 
 /* batch: after "done", run edge detect + crop editor for each pending page */
 async function processPending(){if(!pending.length)return;
+ const start=cur.pages.length;
  while(pending.length){const c=pending.shift();const r=await editPage(c,detectQuad(c),pending.length);if(r)cur.pages.push(r);}
- save(cur);renderDoc()}
+ save(cur);
+ if(window.autoOrient&&cur.pages.length>start){busy(1);const b=$("#busy");await autoOrient(cur,start,(k,t)=>b.textContent=`جاري ضبط اتجاه الصفحات… ${k} من ${t}`);b.textContent="جارٍ المعالجة…";busy(0);save(cur)}
+ renderDoc()}
 async function reEdit(i){const p=cur.pages[i];if(!p.raw){return}
  const im=new Image();im.src=p.raw;await im.decode();const c=imgToCanvas(im);const r=await editPage(c,p.quad||detectQuad(c),0,p.filter,p.bri,p.con);
  if(r){cur.pages[i]=r;save(cur)}renderDoc()}
