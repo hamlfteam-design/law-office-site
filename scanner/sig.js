@@ -91,15 +91,24 @@ function padScreen(){return new Promise(resolve=>{
 })}
 
 /* ---------- توقيع بتصوير ورقة (SignatureExtractor) ---------- */
+/* مرحلتين: الأولى على صورة مصغّرة تحدد مكان التوقيع، والتانية تقص المكان ده من
+   الصورة الأصلية بدقتها الكاملة وتعيد الاستخلاص عليه → PNG شفاف بوضوح عالي */
 function extractSignature(img){
- const WORK=1600,INK=170,AF=140,AN=225,SPECK=25,MARGIN=12;
+ const first=extractPass(img,1600,true);if(!first)return null;
+ const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,k=iw/first.w,pad=Math.round(40*k);
+ const sx=Math.max(0,Math.round(first.x0*k)-pad),sy=Math.max(0,Math.round(first.y0*k)-pad),
+  sw=Math.min(iw-sx,Math.round((first.x1-first.x0)*k)+pad*2),sh=Math.min(ih-sy,Math.round((first.y1-first.y0)*k)+pad*2);
+ const crop=document.createElement("canvas");crop.width=sw;crop.height=sh;crop.getContext("2d").drawImage(img,sx,sy,sw,sh,0,0,sw,sh);
+ const hi=extractPass(crop,2400,false);return hi?hi.canvas:first.canvas}
+function extractPass(img,WORK,dropBorder){
+ const INK=170,AF=140,AN=225,MARGIN=12;
  const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,s=Math.min(1,WORK/Math.max(iw,ih));
  const w=Math.max(1,Math.round(iw*s)),h=Math.max(1,Math.round(ih*s));
  const c=document.createElement("canvas");c.width=w;c.height=h;const cx=c.getContext("2d");cx.drawImage(img,0,0,w,h);
  const px=cx.getImageData(0,0,w,h).data,N=w*h,g=new Float32Array(N);
  for(let i=0;i<N;i++)g[i]=.299*px[i*4]+.587*px[i*4+1]+.114*px[i*4+2];
  // إضاءة الورقة: متوسط واسع (بديل الـ median blur) ثم القسمة عليه
- const R=Math.max(15,Math.round(Math.max(w,h)/16)),I=new Float64Array((w+1)*(h+1));
+ const SPECK=Math.max(25,Math.round(N/40000)),R=Math.max(15,Math.round(Math.max(w,h)/(dropBorder?16:6))),I=new Float64Array((w+1)*(h+1));
  for(let y=1;y<=h;y++){let r=0;for(let x=1;x<=w;x++){r+=g[(y-1)*w+x-1];I[y*(w+1)+x]=I[(y-1)*(w+1)+x]+r}}
  const nv=new Float32Array(N),ink=new Uint8Array(N);
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const x1=Math.max(0,x-R),y1=Math.max(0,y-R),x2=Math.min(w,x+R+1),y2=Math.min(h,y+R+1);
@@ -112,7 +121,7 @@ function extractSignature(img){
   while(sp){const p=stck[--sp];area++;const X=p%w,Y=(p/w)|0;if(X<=1||Y<=1||X>=w-2||Y>=h-2)border=true;
    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const xx=X+dx,yy=Y+dy;if(xx<0||yy<0||xx>=w||yy>=h)continue;
     const q=yy*w+xx;if(ink[q]&&lab[q]<0){lab[q]=n;stck[sp++]=q}}}
-  keep.push(area>=SPECK&&!border);n++}
+  keep.push(area>=SPECK&&!(dropBorder&&border));n++}
  let x0=w,y0=h,x1=-1,y1=-1;
  for(let i=0;i<N;i++)if(lab[i]>=0&&keep[lab[i]]){const X=i%w,Y=(i/w)|0;if(X<x0)x0=X;if(X>x1)x1=X;if(Y<y0)y0=Y;if(Y>y1)y1=Y}
  if(x1<0)return null;
@@ -123,8 +132,9 @@ function extractSignature(img){
  const o=document.createElement("canvas");o.width=ow;o.height=oh;const ox=o.getContext("2d"),od=ox.createImageData(ow,oh);
  for(let y=cy0;y<=cy1;y++)for(let x=cx0;x<=cx1;x++){const i=y*w+x,k=((y-cy0)*ow+(x-cx0))*4;
   const a=near[i]?Math.max(0,Math.min(1,(AN-nv[i])/(AN-AF)))*255:0;
-  od.data[k]=px[i*4];od.data[k+1]=px[i*4+1];od.data[k+2]=px[i*4+2];od.data[k+3]=a}
- ox.putImageData(od,0,0);return o}
+  // لون الحبر نفسه بس أغمق وأوضح (الصورة بتطلع الحبر باهت)
+  od.data[k]=px[i*4]*.55;od.data[k+1]=px[i*4+1]*.55;od.data[k+2]=Math.min(255,px[i*4+2]*.75);od.data[k+3]=a}
+ ox.putImageData(od,0,0);return{canvas:o,w,h,x0,y0,x1,y1}}
 window.extractSignatureJS=extractSignature; // للاختبار
 
 function photoSignature(){return new Promise(resolve=>{
