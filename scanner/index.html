@@ -16,6 +16,7 @@
 <script src="sig.js" defer></script>
 <script src="tools.js" defer></script>
 <script src="ocr.js" defer></script>
+<script src="camera.js" defer></script>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--muted:#6b7280;--acc:#0f4c5c;--acc2:#e36414;--line:#e5e1d8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -41,8 +42,8 @@ label{font-size:13px;color:var(--muted);display:block;margin:8px 0 4px}
 .pg.drag{opacity:.4}.pg.over{border-color:var(--acc2)}
 .pg img{width:100%;aspect-ratio:3/4;object-fit:contain;display:block;background:#fafafa}
 .pg .n{position:absolute;top:4px;right:4px;background:var(--acc);color:#fff;font-size:11px;border-radius:8px;padding:2px 7px}
-.pg .acts{display:flex;justify-content:space-around;border-top:1px solid var(--line)}
-.pg .acts button{border:0;background:none;padding:6px;font-size:16px}
+.pg .acts{display:flex;flex-wrap:wrap;justify-content:space-around;border-top:1px solid var(--line)}
+.pg .acts button{border:0;background:none;padding:6px 3px;font-size:15px}
 .empty{text-align:center;color:var(--muted);padding:40px 10px}
 #editor{position:fixed;inset:0;background:#111;z-index:10;display:none;flex-direction:column;
 padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
@@ -137,7 +138,7 @@ function newDoc(){
 function createDoc(){
  const d={id:"d"+Date.now(),client:$("#nC").value.trim(),caseNo:$("#nK").value.trim(),
   title:$("#nT").value.trim()||("مستند "+new Date().toLocaleString("ar-EG")),mode:$("#nM").value,pages:[],updated:Date.now()};
- docs.push(d);save(d);closeDlg();openDoc(d.id);setTimeout(()=>$("#camIn").click(),50);
+ docs.push(d);save(d);closeDlg();openDoc(d.id);setTimeout(()=>window.openCamera?openCamera():$("#camIn").click(),50);
 }
 function openDoc(id){
  cur=docs.find(d=>d.id===id);$("#backBtn").classList.remove("hidden");$("#ttl").textContent=cur.title;renderDoc();
@@ -146,7 +147,8 @@ function renderDoc(){
  const d=cur;
  app.innerHTML=`<div class="card"><div class="m" style="color:var(--muted);font-size:13px">👤 ${esc(d.client||"بدون عميل")} ${d.caseNo?" · قضية "+esc(d.caseNo):""} ${d.mode==="id"?" · وضع البطاقة":""}</div></div>
  <div class="row" style="margin-bottom:10px">
-  <button class="btn" onclick="$('#camIn').click()">📷 تصوير صفحة</button>
+  <button class="btn" onclick="openCamera()">📷 تصوير صفحات</button>
+  <button class="btn sec" onclick="$('#camIn').click()">📸 كاميرا الآيفون</button>
   <button class="btn sec" onclick="$('#galIn').click()">🖼️ من الصور</button>
   ${pending.length?`<button class="btn warn" onclick="processPending()">✅ تم (${pending.length})</button>`:""}
  </div>
