@@ -12,6 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script src="jspdf.umd.min.js"></script>
+<script src="sig.js" defer></script>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--muted:#6b7280;--acc:#0f4c5c;--acc2:#e36414;--line:#e5e1d8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -141,7 +142,7 @@ function renderDoc(){
  ${pending.length?`<p class="note">صوّر كل الصفحات، وبعدين اضغط «تم» — هتظبط حواف كل صفحة وتتحسّن دفعة واحدة.</p>`:""}
  <div class="pages" id="pages">${d.pages.map((p,i)=>`<div class="pg" draggable="true" data-i="${i}">
    <span class="n">${i+1}</span><img src="${p.img}" onclick="viewPage(${i})">
-   <div class="acts"><button onclick="reEdit(${i})" title="قص">✂️</button><button onclick="rotate(${i})" title="تدوير">⟳</button>
+   <div class="acts"><button onclick="reEdit(${i})" title="قص">✂️</button><button onclick="signPage(${i})" title="توقيع">✍️</button><button onclick="rotate(${i})" title="تدوير">⟳</button>
    <button onclick="move(${i},-1)">▲</button><button onclick="delPage(${i})">🗑️</button></div></div>`).join("")}</div>
  ${!d.pages.length&&!pending.length?`<div class="empty">لا توجد صفحات بعد</div>`:""}
  <div class="card" style="margin-top:14px">
