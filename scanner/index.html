@@ -18,6 +18,7 @@
 <script src="ocr.js" defer></script>
 <script src="camera.js" defer></script>
 <script src="library.js" defer></script>
+<script src="rotate.js" defer></script>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--muted:#6b7280;--acc:#0f4c5c;--acc2:#e36414;--line:#e5e1d8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -228,7 +229,8 @@ async function processPending(){if(!pending.length)return;
 async function reEdit(i){const p=cur.pages[i];if(!p.raw){return}
  const im=new Image();im.src=p.raw;await im.decode();const c=imgToCanvas(im);const r=await editPage(c,p.quad||detectQuad(c),0,p.filter,p.bri,p.con);
  if(r){cur.pages[i]=r;save(cur)}renderDoc()}
-async function rotate(i){const p=cur.pages[i];const im=new Image();im.src=p.img;await im.decode();
+async function rotate(i){const p=cur.pages[i];
+ if(window.rotateScreen){const r=await rotateScreen(p.img);if(!r)return;p.img=r.canvas.toDataURL("image/jpeg",.9);p.rot=(((p.rot||0)+r.quarter*90)%360+360)%360;save(cur);renderDoc();return}const im=new Image();im.src=p.img;await im.decode();
  const c=document.createElement("canvas");c.width=im.height;c.height=im.width;const x=c.getContext("2d");x.translate(c.width,0);x.rotate(Math.PI/2);x.drawImage(im,0,0);
  p.img=c.toDataURL("image/jpeg",.9);save(cur);renderDoc()}
 
@@ -323,9 +325,10 @@ function editPage(c,quad,left,filter,bri0,con0){return new Promise(resolve=>{
    b.innerHTML=`<div class="fchips">${FILTERS.map(([k,l])=>`<button class="btn chip ${k===fl?"on":""}" data-f="${k}">${l}</button>`).join("")}</div>
    <div class="sliders"><label>☀️ الإضاءة <input type="range" id="eBri" min="-100" max="100" value="${bri}"></label>
    <label>◐ التباين <input type="range" id="eCon" min="-100" max="100" value="${con}"></label></div>`+
-   `<button class="btn sec" id="eBack">↩ قص</button><button class="btn warn" id="eOk">✔ حفظ</button>`;
+   `<button class="btn sec" id="eBack">↩ قص</button><button class="btn sec" id="eRot">🔄 تدوير</button><button class="btn warn" id="eOk">✔ حفظ</button>`;
    b.querySelectorAll("[data-f]").forEach(e=>e.onclick=()=>{fl=e.dataset.f;render()});
    $("#eBri").onchange=e=>{bri=+e.target.value;render()};$("#eCon").onchange=e=>{con=+e.target.value;render()};
+   $("#eRot").onclick=async()=>{const r=await rotateScreen(warped.toDataURL("image/jpeg",.92));if(r){warped=r.canvas;render()}};
    $("#eBack").onclick=()=>{stage="crop";hs.forEach(h=>h.style.display="");render()};
    $("#eOk").onclick=()=>finish({img:out.toDataURL("image/jpeg",.88),raw:c.toDataURL("image/jpeg",.8),quad:q,filter:fl,bri,con})}}
  let warped=null;
