@@ -23,6 +23,7 @@ function render(img,quarter,fine){const q=((quarter%4)+4)%4,sw=q%2?img.height:im
  x.imageSmoothingQuality="high";x.drawImage(img,-img.width/2,-img.height/2);return c}
 window.rotateCanvasFine=render;
 
+window.rotateRender=render;
 window.rotateScreen=function(src){return new Promise(async resolve=>{
  const img=new Image();img.src=src;await img.decode();let quarter=0,fine=0;
  const d=document.createElement("div");d.id="rotScr";

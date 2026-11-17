@@ -28,8 +28,10 @@ window.openCamera=async function(){if(!cur)return;
  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:3840},height:{ideal:2160}}})}
  catch(e){alert("مقدرتش أفتح الكاميرا جوه التطبيق (اسمح بالكاميرا من إعدادات Safari). هفتح كاميرا الآيفون العادية بدلها.");$("#camIn").click();return}
  const d=document.createElement("div");d.id="camScr";
+ const isId=()=>cur.mode==="id",single=()=>prefs().captureMode==="single";
  d.innerHTML=`<div class="tb"><button class="btn sec" data-x>✕</button><span id="camInfo">وجّه الكاميرا على الورقة</span>
-  <button class="bdg ${cur.mode==="id"?"on":""}" data-id title="وضع البطاقة">ID</button><button class="bdg" data-ocr title="قراءة النص">أب</button></div>
+  <button class="bdg" data-mode title="طريقة التصوير" style="padding:0 10px;width:auto"></button>
+  <button class="bdg ${isId()?"on":""}" data-id title="هوية: وجه وظهر على ورقة واحدة">ID</button><button class="bdg" data-ocr title="قراءة النص">أب</button></div>
   <div class="vw"><video playsinline muted autoplay></video><canvas class="ov"></canvas><div class="flash"></div></div>
   <div class="bb"><img class="thumb" alt=""><button class="shut" aria-label="تصوير"></button><button class="btn warn" data-done>✅ تم</button></div>`;
  document.body.appendChild(d);
@@ -45,34 +47,67 @@ window.openCamera=async function(){if(!cur)return;
    quad=stab.push(q);const g=geom();ox.setTransform(g.dpr,0,0,g.dpr,0,0);ox.clearRect(0,0,ov.width,ov.height);
    if(quad){ox.beginPath();quad.forEach((p,i)=>{const X=g.ox+p[0]*g.s,Y=g.oy+p[1]*g.s;i?ox.lineTo(X,Y):ox.moveTo(X,Y)});ox.closePath();
     ox.fillStyle="rgba(227,100,20,.18)";ox.fill();ox.strokeStyle="#e36414";ox.lineWidth=3;ox.stroke()}
-   $("#camInfo").textContent=(quad?"تم العثور على الورقة — اضغط للتصوير":"وجّه الكاميرا على الورقة")+(shots?` · ${shots} صفحة`:"")}
+   $("#camInfo").textContent=hint()+(quad?" ✓":"")+(shots&&!isId()?` · ${shots} صفحة`:"")}
   setTimeout(()=>requestAnimationFrame(loop),180)}
+ const hint=()=>isId()?(shots%2===0?"صوّر الوجه الأمامي":"اقلب وصوّر الوجه الخلفي"):(single()?"تصوير فردي — صفحة واحدة":"تصوير دفعات — صوّر كل الصفحات ثم «تم»");
+ const modeBtn=d.querySelector("[data-mode]"),showMode=()=>modeBtn.textContent=single()?"فردي":"دفعات";showMode();
+ modeBtn.onclick=()=>{setPref("captureMode",single()?"batch":"single");showMode()};
  loop();
  const frame=()=>{const c=document.createElement("canvas");const m=Math.min(1,2200/Math.max(v.videoWidth,v.videoHeight));
   c.width=Math.round(v.videoWidth*m);c.height=Math.round(v.videoHeight*m);c.getContext("2d").drawImage(v,0,0,c.width,c.height);return{c,m}};
  d.querySelector(".shut").onclick=()=>{if(!v.videoWidth)return;const {c,m}=frame();
   pending.push(Object.assign(c,{_quad:quad?quad.map(p=>[p[0]*m,p[1]*m]):null}));shots++;
   const fl=d.querySelector(".flash");fl.style.opacity=.8;setTimeout(()=>fl.style.opacity=0,120);d.querySelector(".thumb").src=c.toDataURL("image/jpeg",.5);
-  navigator.vibrate&&navigator.vibrate(15)};
+  navigator.vibrate&&navigator.vibrate(15);stab.reset();
+  // فردي: صفحة واحدة (أو وش وضهر في وضع الهوية) وبعدين سؤال الحفظ على طول
+  if(single()&&(!isId()||shots%2===0))setTimeout(finish,250)};
  d.querySelector("[data-id]").onclick=e=>{cur.mode=cur.mode==="id"?"doc":"id";save(cur);e.target.classList.toggle("on",cur.mode==="id")};
+ const finish=()=>{close();askSave(()=>openCamera())};
  d.querySelector("[data-ocr]").onclick=async()=>{if(!v.videoWidth)return;const {c}=frame();busy(1);
   try{const t=await ocrPages([{img:c.toDataURL("image/jpeg",.9)}],prefs().ocrLangs);busy(0);
    dialog(`<h3 style="margin-top:0">النص</h3><textarea readonly style="width:100%;min-height:180px;font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px">${esc(t)}</textarea>
    <div class="row" style="margin-top:8px"><button class="btn sec" onclick="navigator.clipboard.writeText(this.closest('.box').querySelector('textarea').value)">📋 نسخ</button><button class="btn" onclick="closeDlg()">إغلاق</button></div>`);
    $("#dlg").style.zIndex=40}catch(e){busy(0);alert("تعذّر تشغيل قراءة النص.")}};
  const close=()=>{running=false;stream.getTracks().forEach(t=>t.stop());d.remove();$("#dlg").style.zIndex=""};
- d.querySelector("[data-x]").onclick=()=>{close();renderDoc()};
- d.querySelector("[data-done]").onclick=()=>{close();autoProcess()};
+ d.querySelector("[data-x]").onclick=()=>{close();if(pending.length)askSave(()=>openCamera());else renderDoc()};
+ d.querySelector("[data-done]").onclick=finish;
 };
 
+/* بعد انتهاء التصوير: سؤال الحفظ، وبعده المعالجة التلقائية كاملة */
+window.askSave=function(again){if(!pending.length){renderDoc();return}const n=pending.length;
+ const idNote=cur.mode==="id"?(n%2?"<p class=\"note\">⚠️ عدد الصور فردي — آخر صورة هتتحفظ لوحدها على ورقة.</p>":"<p class=\"note\">كل وجه وظهر هيتحطوا فوق بعض على ورقة واحدة.</p>"):"";
+ dialog(`<h3 style="margin-top:0">تم تصوير ${n} ${cur.mode==="id"?"صورة":"صفحة"}</h3><p>حفظ في «${esc(cur.title)}»؟ البرنامج هيظبط الحواف والمقاس والفلتر لوحده.</p>${idNote}
+ <div class="row"><button class="btn" style="flex:1" id="svOk">💾 حفظ</button>${again?`<button class="btn sec" id="svMore">📷 تصوير المزيد</button>`:""}<button class="btn danger" id="svNo">تجاهل</button></div>`);
+ $("#svOk").onclick=()=>{closeDlg();autoProcess()};
+ if(again)$("#svMore").onclick=()=>{closeDlg();again()};
+ $("#svNo").onclick=()=>{pending.length=0;closeDlg();
+  // مستند جديد اتصوّر تجربة ومالوش صفحات: يتشال على طول
+  if(!cur.pages.length){del(cur.id);docs=docs.filter(x=>x!==cur);home()}else renderDoc()}};
+
+/* يحط وش وضهر (بطاقة/جواز/أي هوية) فوق بعض على ورقة A4 واحدة */
+window.idSheet=async function(a,b){const load=async s=>{const im=new Image();im.src=s;await im.decode();return im};
+ const A=document.createElement("canvas");A.width=1654;A.height=2339;const x=A.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,A.width,A.height);
+ const boxW=A.width*.82,boxH=A.height*.40;const ims=[await load(a)];if(b)ims.push(await load(b));
+ ims.forEach((im,i)=>{const f=Math.min(boxW/im.width,boxH/im.height),w=im.width*f,h=im.height*f,cx=A.width/2,cy=A.height*(i?.73:.27);
+  x.drawImage(im,cx-w/2,cy-h/2,w,h);x.strokeStyle="#d0d0d0";x.lineWidth=2;x.strokeRect(cx-w/2,cy-h/2,w,h)});
+ return A.toDataURL("image/jpeg",.9)};
+
 /* المعالجة بعد «تم»: لكل صفحة كشف الحواف ← تعديل الميل ← مقاس A4/بطاقة ← الفلتر الافتراضي */
-window.autoProcess=async function(){if(!pending.length){renderDoc();return}const b=$("#busy"),n=pending.length;busy(1);
+window.autoProcess=async function(){if(!pending.length){renderDoc();return}const b=$("#busy");let n=pending.length;busy(1);
  const f=normFilter(prefs().defaultFilter);let i=0;
  try{while(pending.length){const c=pending.shift();i++;b.textContent=`جاري معالجة الصفحات… ${i} من ${n}`;await new Promise(r=>setTimeout(r,20));
-  const q=c._quad||detectQuad(c);const out=applyFilterX(normalizeFormat(warp(c,q)).canvas,f);
-  cur.pages.push({img:out.toDataURL("image/jpeg",.88),raw:c.toDataURL("image/jpeg",.8),quad:q,filter:f})}
+  const q=c._quad||detectQuad(c);const nf=normalizeFormat(warp(c,q));const out=applyFilterX(nf.canvas,f);
+  cur.pages.push({img:out.toDataURL("image/jpeg",.88),raw:c.toDataURL("image/jpeg",.8),quad:q,filter:f,format:nf.format})}
   save(cur);
+  if(window.autoOrient){await autoOrient(cur,cur.pages.length-n,(k,t)=>b.textContent=`جاري ضبط اتجاه الصفحات… ${k} من ${t}`);save(cur)}
+  // الهوية: وضع ID، أو صورتين اتعرفوا تلقائياً إنهم بطاقة → وش وضهر على ورقة واحدة
+  const fresh=cur.pages.splice(cur.pages.length-n,n);const autoCard=n===2&&fresh.every(p=>p.format==="ID_CARD");
+  if(cur.mode==="id"||autoCard){b.textContent="جاري تجهيز ورقة الهوية…";
+   for(let k=0;k<fresh.length;k+=2){const fr=fresh[k],bk=fresh[k+1];
+    cur.pages.push({img:await idSheet(fr.img,bk&&bk.img),sides:[fr,bk].filter(Boolean),filter:fr.filter,format:"ID_SHEET"})}}
+  else cur.pages.push(...fresh);
+  save(cur);n=0;
   // تصحيح الاتجاه تلقائياً (الصفحة المقلوبة أو بالعرض، والبطاقة المقلوبة)
-  if(window.autoOrient){await autoOrient(cur,cur.pages.length-n,(k,t)=>b.textContent=`جاري ضبط اتجاه الصفحات… ${k} من ${t}`);save(cur)}}
+}
  finally{busy(0);b.textContent="جارٍ المعالجة…";renderDoc()}};
 })();

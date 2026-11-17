@@ -13,6 +13,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script src="jspdf.umd.min.js"></script>
 <script src="filters.js"></script>
+<script src="edge.js"></script>
 <script src="sig.js" defer></script>
 <script src="tools.js" defer></script>
 <script src="ocr.js" defer></script>
@@ -126,7 +127,8 @@ function renderList(){
    <button onclick="exportClient(this.dataset.c)" data-c="${esc(c)}" title="تصدير العميل">📦</button></div>`+
   (window.folderLocked&&folderLocked(c)?`<div class="card" style="text-align:center;cursor:pointer" onclick="openFolder(this.dataset.c)" data-c="${esc(c)}">🔒 الفولدر مقفول (${ds.length} مستند) — اضغط للفتح</div>`:
   ds.map(d=>`<div class="card doc" onclick="openDoc('${d.id}')"><img src="${d.pages[0]?.img||""}">
-   <div><div class="t">${esc(d.title)}</div><div class="m">${d.caseNo?"قضية: "+esc(d.caseNo)+" · ":""}${d.pages.length} صفحة · ${new Date(d.updated).toLocaleDateString("ar-EG")}</div></div></div>`).join(""))).join("");
+   <div style="flex:1"><div class="t">${esc(d.title)}</div><div class="m">${d.caseNo?"قضية: "+esc(d.caseNo)+" · ":""}${d.pages.length} صفحة · ${new Date(d.updated).toLocaleDateString("ar-EG")}</div></div>
+   <button class="btn sec" style="padding:8px 10px" title="حذف المستند" onclick="event.stopPropagation();cur=docs.find(x=>x.id==='${d.id}');delDoc(true)">🗑️</button></div>`).join(""))).join("");
 }
 function newDoc(){
  const cl=[...new Set(docs.map(d=>d.client).filter(Boolean))];
@@ -134,20 +136,22 @@ function newDoc(){
  <label>العميل</label><input id="nC" list="cl" placeholder="اسم العميل"><datalist id="cl">${cl.map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
  <label>رقم القضية / الموضوع</label><input id="nK" placeholder="اختياري">
  <label>عنوان المستند</label><input id="nT" placeholder="مثال: توكيل، بطاقة، عقد">
- <label>نوع المسح</label><select id="nM"><option value="doc">مستند عادي</option><option value="id">بطاقة شخصية (وجه + ظهر على A4)</option></select>
+ <label>نوع المسح</label><select id="nM"><option value="doc">مستند عادي</option><option value="id">هوية: بطاقة / جواز سفر / كارنيه (وجه + ظهر على ورقة واحدة)</option></select>
+ <label>طريقة التصوير</label><select id="nCap"><option value="batch" ${prefs().captureMode!=="single"?"selected":""}>دفعات — كذا صفحة وبعدين «تم»</option><option value="single" ${prefs().captureMode==="single"?"selected":""}>فردي — صفحة واحدة وتتحفظ على طول</option></select>
  <div class="row" style="margin-top:14px"><button class="btn" style="flex:1" onclick="createDoc()">ابدأ التصوير</button><button class="btn sec" onclick="closeDlg()">إلغاء</button></div>`);
 }
 function createDoc(){
  const d={id:"d"+Date.now(),client:$("#nC").value.trim(),caseNo:$("#nK").value.trim(),
   title:$("#nT").value.trim()||("مستند "+new Date().toLocaleString("ar-EG")),mode:$("#nM").value,pages:[],updated:Date.now()};
- docs.push(d);save(d);closeDlg();openDoc(d.id);setTimeout(()=>window.openCamera?openCamera():$("#camIn").click(),50);
+ setPref("captureMode",$("#nCap").value);docs.push(d);save(d);closeDlg();openDoc(d.id);setTimeout(()=>window.openCamera?openCamera():$("#camIn").click(),50);
 }
 function openDoc(id){
  cur=docs.find(d=>d.id===id);$("#backBtn").classList.remove("hidden");$("#ttl").textContent=cur.title;renderDoc();
 }
 function renderDoc(){
  const d=cur;
- app.innerHTML=`<div class="card"><div class="m" style="color:var(--muted);font-size:13px">👤 ${esc(d.client||"بدون عميل")} ${d.caseNo?" · قضية "+esc(d.caseNo):""} ${d.mode==="id"?" · وضع البطاقة":""}</div></div>
+ app.innerHTML=`<div class="card" style="display:flex;align-items:center;gap:8px"><div class="m" style="color:var(--muted);font-size:13px;flex:1">👤 ${esc(d.client||"بدون عميل")} ${d.caseNo?" · قضية "+esc(d.caseNo):""} ${d.mode==="id"?" · وضع الهوية":""}</div>
+  <button class="btn danger" style="padding:8px 12px;font-size:14px" onclick="delDoc()">🗑️ حذف المستند</button></div>
  <div class="row" style="margin-bottom:10px">
   <button class="btn" onclick="openCamera()">📷 تصوير صفحات</button>
   <button class="btn sec" onclick="$('#camIn').click()">📸 كاميرا الآيفون</button>
@@ -168,8 +172,8 @@ function renderDoc(){
   <label>مقاس صفحة الـ PDF</label><select id="psz">${[["FIT","مطابق للصورة"],["A4","A4"],["LETTER","Letter"]].map(([k,l])=>`<option value="${k}" ${prefs().pdfSize===k?"selected":""}>${l}</option>`).join("")}</select>
   <div class="row" style="margin-top:12px"><button class="btn" style="flex:1" onclick="exportPdf()">⬇️ حفظ PDF</button>
   <button class="btn sec" onclick="exportPdf(true)">📤 مشاركة</button><button class="btn sec" onclick="compressDlg()">🗜️ ضغط لحجم محدد</button>
-  ${d.mode==="id"?`<button class="btn sec" onclick="exportId()">🪪 بطاقة على A4</button>`:""}
-  <button class="btn sec" onclick="mergeDlg()">🔗 دمج</button><button class="btn danger" onclick="delDoc()">حذف</button></div>
+  ${d.mode==="id"&&!d.pages.some(p=>p.sides)?`<button class="btn sec" onclick="exportId()">🪪 بطاقة على A4</button>`:""}
+  <button class="btn sec" onclick="mergeDlg()">🔗 دمج</button></div>
   <p class="note" id="pdfNote"></p>
  </div>`;
  setupDrag();
@@ -196,7 +200,7 @@ function setupDrag(){
 function reorder(a,b){if(a===null||a===b){renderDoc();return}const p=cur.pages.splice(a,1)[0];cur.pages.splice(b,0,p);save(cur);renderDoc()}
 function move(i,dir){const j=i+dir;if(j<0)return;reorder(i,j)}
 function delPage(i){cur.pages.splice(i,1);save(cur);renderDoc()}
-function delDoc(){dialog(`<p>حذف «${esc(cur.title)}» نهائيًا؟</p><div class="row"><button class="btn danger" onclick="doDelDoc()">حذف</button><button class="btn sec" onclick="closeDlg()">إلغاء</button></div>`)}
+function delDoc(fromList){dialog(`<p>حذف «${esc(cur.title)}» (${cur.pages.length} صفحة) نهائيًا؟</p><div class="row"><button class="btn danger" onclick="doDelDoc()">🗑️ حذف</button><button class="btn sec" onclick="closeDlg();${fromList?"cur=null":""}">إلغاء</button></div>`)}
 function doDelDoc(){del(cur.id);docs=docs.filter(d=>d!==cur);closeDlg();home()}
 function viewPage(i){dialog(`<img src="${cur.pages[i].img}" style="width:100%;border-radius:8px"><div class="row" style="margin-top:10px"><button class="btn sec" onclick="closeDlg()">إغلاق</button></div>`)}
 function mergeDlg(){
@@ -214,28 +218,50 @@ function imgToCanvas(im,max=2200){const s=Math.min(1,max/Math.max(im.naturalWidt
  c.getContext("2d").drawImage(im,0,0,c.width,c.height);return c}
 async function onFiles(files){if(!cur)return;busy(1);
  for(const f of files){try{pending.push(imgToCanvas(await fileToImg(f)))}catch(e){}}busy(0);renderDoc();
- if(files.length===1&&!this?.multiple)setTimeout(()=>dialog(`<p>تم التقاط الصفحة (${pending.length}).</p><div class="row"><button class="btn" onclick="closeDlg();$('#camIn').click()">📷 الصفحة التالية</button><button class="btn warn" onclick="closeDlg();processPending()">✅ تم</button></div>`),60)}
+ const single=prefs().captureMode==="single"&&(cur.mode!=="id"||pending.length%2===0);
+ setTimeout(()=>single?askSave(()=>$('#camIn').click()):dialog(`<p>تم التقاط ${cur.mode==="id"?(pending.length%2?"الوجه الأمامي — صوّر الخلفي":"الوجهين"):"الصفحة ("+pending.length+")"}.</p><div class="row"><button class="btn" onclick="closeDlg();$('#camIn').click()">📷 ${cur.mode==="id"&&pending.length%2?"الوجه الخلفي":"الصفحة التالية"}</button><button class="btn warn" onclick="closeDlg();processPending()">✅ تم</button></div>`),60)}
 $("#camIn").onchange=e=>{onFiles([...e.target.files]);e.target.value=""};
 $("#galIn").onchange=e=>{const f=[...e.target.files];e.target.value="";if(!cur)return;busy(1);
- Promise.all(f.map(x=>fileToImg(x).then(imgToCanvas).catch(()=>null))).then(cs=>{pending.push(...cs.filter(Boolean));busy(0);renderDoc()})};
+ Promise.all(f.map(x=>fileToImg(x).then(imgToCanvas).catch(()=>null))).then(cs=>{pending.push(...cs.filter(Boolean));busy(0);askSave()})};
 
 /* batch: after "done", run edge detect + crop editor for each pending page */
-async function processPending(){if(!pending.length)return;
- const start=cur.pages.length;
- while(pending.length){const c=pending.shift();const r=await editPage(c,detectQuad(c),pending.length);if(r)cur.pages.push(r);}
- save(cur);
- if(window.autoOrient&&cur.pages.length>start){busy(1);const b=$("#busy");await autoOrient(cur,start,(k,t)=>b.textContent=`جاري ضبط اتجاه الصفحات… ${k} من ${t}`);b.textContent="جارٍ المعالجة…";busy(0);save(cur)}
- renderDoc()}
-async function reEdit(i){const p=cur.pages[i];if(!p.raw){return}
- const im=new Image();im.src=p.raw;await im.decode();const c=imgToCanvas(im);const r=await editPage(c,p.quad||detectQuad(c),0,p.filter,p.bri,p.con);
- if(r){cur.pages[i]=r;save(cur)}renderDoc()}
+async function processPending(){if(!pending.length)return;askSave()}
+async function editOne(p,left){const im=new Image();im.src=p.raw;await im.decode();const c=imgToCanvas(im);
+ return editPage(c,p.quad||detectQuad(c),left||0,p.filter,p.bri,p.con)}
+async function reEdit(i){const p=cur.pages[i];
+ if(p.sides){const ns=[];for(let k=0;k<p.sides.length;k++){const s=p.sides[k];const r=s.raw?await editOne(s,p.sides.length-1-k):null;ns.push(r?{...s,...r}:s)}
+  p.sides=ns;p.img=await idSheet(ns[0].img,ns[1]&&ns[1].img);save(cur);renderDoc();return}
+ if(!p.raw)return;const r=await editOne(p);
+ if(!r){renderDoc();return}
+ const look=x=>[normFilter(x.filter),x.bri||0,x.con||0].join("|"),changed=look(r)!==look(p);
+ cur.pages[i]={...p,...r};save(cur);renderDoc();
+ if(changed&&cur.pages.length>1)askAll("الفلتر والإضاءة والتباين",()=>applyLookAll(i))}
+/* سؤال: التعديل على الصفحة دي بس ولا على كل الصفحات */
+function askAll(what,all){dialog(`<h3 style="margin-top:0">تطبيق التعديل</h3><p>تطبيق ${what} على:</p>
+ <div class="row"><button class="btn" style="flex:1" id="aaAll">كل صفحات المستند</button><button class="btn sec" id="aaOne">الصفحة دي بس</button></div>`);
+ $("#aaOne").onclick=closeDlg;$("#aaAll").onclick=async()=>{closeDlg();busy(1);try{await all()}finally{busy(0);save(cur);renderDoc()}}}
+async function relook(p,src){const im=new Image();im.src=p.raw;await im.decode();const c=imgToCanvas(im);
+ const nf=normalizeFormat(warp(c,p.quad||detectQuad(c)));let base=nf.canvas;
+ if(p.rot&&window.rotateRender){const t=new Image();t.src=base.toDataURL("image/jpeg",.92);await t.decode();base=rotateRender(t,Math.round(p.rot/90),0)}
+ return{...p,filter:src.filter,bri:src.bri,con:src.con,img:applyFilterX(base,src.filter,src.bri||0,src.con||0).toDataURL("image/jpeg",.88)}}
+async function applyLookAll(i){const src=cur.pages[i],b=$("#busy");
+ for(let k=0;k<cur.pages.length;k++){if(k===i)continue;const p=cur.pages[k];b.textContent=`جاري تطبيق التعديل… ${k+1} من ${cur.pages.length}`;await new Promise(r=>setTimeout(r,10));
+  if(p.sides){const ns=[];for(const s of p.sides)ns.push(s.raw?await relook(s,src):s);p.sides=ns;p.img=await idSheet(ns[0].img,ns[1]&&ns[1].img)}
+  else if(p.raw)cur.pages[k]=await relook(p,src)}
+ b.textContent="جارٍ المعالجة…"}
 async function rotate(i){const p=cur.pages[i];
- if(window.rotateScreen){const r=await rotateScreen(p.img);if(!r)return;p.img=r.canvas.toDataURL("image/jpeg",.9);p.rot=(((p.rot||0)+r.quarter*90)%360+360)%360;save(cur);renderDoc();return}const im=new Image();im.src=p.img;await im.decode();
+ if(window.rotateScreen){const r=await rotateScreen(p.img);if(!r)return;p.img=r.canvas.toDataURL("image/jpeg",.9);p.rot=(((p.rot||0)+r.quarter*90)%360+360)%360;save(cur);renderDoc();
+  if(cur.pages.length>1)askAll("نفس التدوير",async()=>{const b=$("#busy");for(let k=0;k<cur.pages.length;k++){if(k===i)continue;const q=cur.pages[k];
+   b.textContent=`جاري التدوير… ${k+1} من ${cur.pages.length}`;await new Promise(z=>setTimeout(z,10));const im=new Image();im.src=q.img;await im.decode();
+   q.img=rotateRender(im,r.quarter,r.fine).toDataURL("image/jpeg",.9);q.rot=(((q.rot||0)+r.quarter*90)%360+360)%360}b.textContent="جارٍ المعالجة…"});return}const im=new Image();im.src=p.img;await im.decode();
  const c=document.createElement("canvas");c.width=im.height;c.height=im.width;const x=c.getContext("2d");x.translate(c.width,0);x.rotate(Math.PI/2);x.drawImage(im,0,0);
  p.img=c.toDataURL("image/jpeg",.9);save(cur);renderDoc()}
 
 /* ---------- edge detection (lightweight, no external libs) ---------- */
 function detectQuad(c){
+ if(window.detectCV){const q=detectCV(c,cur&&cur.mode==="id"?1.586:null);if(q)return q}
+ return detectQuadLite(c)}
+function detectQuadLite(c){
  const W=200,s=W/Math.max(c.width,c.height),w=Math.round(c.width*s),h=Math.round(c.height*s);
  const t=document.createElement("canvas");t.width=w;t.height=h;const x=t.getContext("2d");x.drawImage(c,0,0,w,h);
  const d=x.getImageData(0,0,w,h).data,g=new Float32Array(w*h);
@@ -386,7 +412,7 @@ async function deliver(blob,name,share){
   $("#pdfNote").innerHTML=`تم تجهيز الملف (${(blob.size/1024).toFixed(0)} ك.ب). لو ما اتحفظش: <a href="${u}" target="_blank">افتحه</a> ثم شاركه ⬆️ ← «حفظ في الملفات».`}
  catch(e){$("#pdfNote").textContent="تعذّر حفظ الملف في هذا العرض."}}
 async function exportPdf(share){if(!cur.pages.length)return;
- if(cur.mode==="id"&&cur.pages.length===2&&window.prefs&&prefs().cardsOnOneSheet)return exportId(share);busy(1);try{const cs=[];for(const p of cur.pages)cs.push(await stampCanvas(p.img));
+ if(cur.mode==="id"&&cur.pages.length===2&&!cur.pages.some(p=>p.sides)&&window.prefs&&prefs().cardsOnOneSheet)return exportId(share);busy(1);try{const cs=[];for(const p of cur.pages)cs.push(await stampCanvas(p.img));
  const auto=prefs().autoCompress;const name=[cur.client,cur.title].filter(Boolean).join(" - ");
  if(auto){const r=await compressToTarget(cs,auto,$("#psz").value);await deliver(r.blob,name,share);return}
  await pdfFromCanvases(cs,name,share,cur.pages.map(p=>p.filter==="economy"))}finally{busy(0)}}
