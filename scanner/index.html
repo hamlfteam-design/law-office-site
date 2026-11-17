@@ -15,6 +15,7 @@
 <script src="filters.js"></script>
 <script src="sig.js" defer></script>
 <script src="tools.js" defer></script>
+<script src="ocr.js" defer></script>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--muted:#6b7280;--acc:#0f4c5c;--acc2:#e36414;--line:#e5e1d8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -106,13 +107,13 @@ function home(){
  const clients=[...new Set(docs.map(d=>d.client||"بدون عميل"))];
  let h=`<div class="row" style="margin-bottom:12px">
    <button class="btn" style="flex:1" onclick="newDoc()">📷 مسح مستند جديد</button></div>
-   <input id="q" placeholder="🔍 بحث بالعميل أو القضية أو العنوان" oninput="home.filter=this.value;renderList()" value="${esc(home.filter||"")}">
+   <input id="q" placeholder="🔍 بحث بالعميل أو القضية أو العنوان أو نص المستند" oninput="home.filter=this.value;renderList()" value="${esc(home.filter||"")}">
    <div id="list" style="margin-top:12px"></div>`;
  app.innerHTML=h;renderList();
 }
 function renderList(){
  const f=(home.filter||"").trim();
- const list=docs.filter(d=>!f||(!(window.folderLocked&&folderLocked(d.client))&&[d.title,d.client,d.caseNo].join(" ").includes(f))).sort((a,b)=>b.updated-a.updated);
+ const list=docs.filter(d=>!f||(!(window.folderLocked&&folderLocked(d.client))&&[d.title,d.client,d.caseNo,d.ocrText].join(" ").includes(f))).sort((a,b)=>b.updated-a.updated);
  if(!list.length){$("#list").innerHTML=`<div class="empty">لا توجد مستندات بعد.<br>اضغط «مسح مستند جديد» للبدء.</div>
   <p class="note">💡 لتثبيته كتطبيق على الآيفون: افتح الرابط في Safari ← زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية».</p>`;return}
  const groups={};list.forEach(d=>(groups[d.client||"بدون عميل"]=groups[d.client||"بدون عميل"]||[]).push(d));
