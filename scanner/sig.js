@@ -265,14 +265,21 @@ async function overlayScreen(pageSrc){
  let toolsKey="";
  function tools(){const tb=d.querySelector(".tools");const key=[!!activeId,viewZoom>1,entries.length].join();/*a*/if(key===toolsKey)return;toolsKey=key;
   tb.innerHTML=`<button class="btn sec" data-add>✍️ إضافة توقيع</button><button class="btn sec" data-stamp>📅 ختم التاريخ</button>
-   ${activeId?`<button class="btn sec" data-rl>↺ لف</button><button class="btn sec" data-rr>↻ لف</button><button class="btn sec" data-sm>➖ أصغر</button><button class="btn sec" data-bg>➕ أكبر</button><button class="btn sec" data-delsel style="color:#b91c1c">🗑️ حذف المحدد</button>`:""}
+   ${activeId?`<button class="btn warn" data-crop>✂️ قص التوقيع</button><button class="btn sec" data-rl>↺ لف</button><button class="btn sec" data-rr>↻ لف</button><button class="btn sec" data-sm>➖ أصغر</button><button class="btn sec" data-bg>➕ أكبر</button><button class="btn sec" data-delsel style="color:#b91c1c">🗑️ حذف المحدد</button>`:""}
    ${viewZoom>1?`<button class="btn sec" data-fit>⤢ ملء الشاشة</button>`:""}`;
-  tb.querySelector("[data-add]").onclick=async()=>{const u=await libraryDialog();if(u)add(await loadImg(u),.35)};
+  tb.querySelector("[data-add]").onclick=async()=>{const u=await libraryDialog();if(u){add(await loadImg(u),.35);const e=entries[entries.length-1];e.src=u;const it=loadSigs().find(z=>z.img===u);if(it)e.libId=it.id}};
   tb.querySelector("[data-stamp]").onclick=()=>{const n=new Date(),p=v=>String(v).padStart(2,"0");add(textStamp(`${n.getFullYear()}/${p(n.getMonth()+1)}/${p(n.getDate())}`),.22)};
   const sel=()=>entries.find(o=>o.id===activeId);
   const rot=deg=>{const e=sel();if(e){e.t={...e.t,a:(e.t.a||0)+deg*Math.PI/180};draw()}};
   const scl=f=>{const e=sel();if(e){const a=e.t.a;e.t=T.clampTo(T.scaledBy(e.t,f),PW,PH);e.t.a=a;draw()}};
   [["[data-rl]",()=>rot(-5)],["[data-rr]",()=>rot(5)],["[data-sm]",()=>scl(1/1.1)],["[data-bg]",()=>scl(1.1)]].forEach(([q,fn])=>{const bt=tb.querySelector(q);if(bt)bt.onclick=fn});
+  const cb=tb.querySelector("[data-crop]");if(cb)cb.onclick=async()=>{const e=sel();if(!e)return;
+   const src=e.src||(e.img.toDataURL?e.img.toDataURL("image/png"):e.img.src);const u=await cropScreen(src);if(!u)return;
+   const im=await loadImg(u),a=e.t.a,cx=e.t.x+e.t.w/2,cy=e.t.y+e.t.h/2,w=e.t.w*im.width/Math.max(1,(e.img.naturalWidth||e.img.width)),h=w*im.height/Math.max(1,im.width);
+   e.img=im;e.src=u;e.t=T.clampTo({x:cx-w/2,y:cy-h/2,w,h,a},PW,PH);e.t.a=a;
+   // لو التوقيع جاي من المكتبة، نحفظ النسخة المقصوصة مكانه
+   if(e.libId){const L=loadSigs(),it=L.find(z=>z.id===e.libId);if(it){it.img=u;saveSigs(L)}}
+   toolsKey="";draw()};
   const ds=tb.querySelector("[data-delsel]");if(ds)ds.onclick=()=>{const i=entries.findIndex(o=>o.id===activeId);if(i>=0)entries.splice(i,1);activeId=null;draw()};
   const ft=tb.querySelector("[data-fit]");if(ft)ft.onclick=()=>{viewZoom=1;panX=panY=0;draw()};
   const ok=d.querySelector("[data-ok]");if(ok)ok.disabled=!entries.length,ok.style.opacity=entries.length?1:.5}
