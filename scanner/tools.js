@@ -85,6 +85,7 @@ function settings(){
  ${sec("ضغط تلقائي للمستندات الجديدة")}<div class="card"><p class="note">أي PDF هيتصدّر من دلوقتي هيتضغط تلقائي للحجم ده، مع الحفاظ على وضوح النص قد الإمكان.</p>
   <select id="sAuto"><option value="0">بدون ضغط</option>${PRESETS.map(([l,b])=>`<option value="${b}" ${p.autoCompress==b?"selected":""}>${l}</option>`).join("")}</select></div>
  ${sec("العلامة المائية")}<div class="card"><input id="sWm" placeholder="النص الافتراضي للعلامة المائية" value="${esc(p.watermarkText)}"><p class="note">لو سبته فاضي هيتكتب اسم المكتب.</p></div>
+ ${sec("حقول الحفظ")}<div class="card"><p class="note">البيانات اللي تتسجل مع كل مستند (رقم التوكيل، تاريخ الجلسة…).</p><button class="btn sec" onclick="fieldsScreen()">🗂️ إدارة الحقول</button></div>
  ${sec("النسخ الاحتياطي")}<div class="card"><p class="note">نسخة من كل المستندات والتوقيعات والإعدادات في ملف واحد، تقدر تشفّره بكلمة سر وتحفظه في «الملفات» أو iCloud.</p>
   <div class="row"><button class="btn" id="sBk">💾 عمل نسخة احتياطية</button><button class="btn sec" id="sRs">♻️ استعادة نسخة</button></div></div>
  ${sec("التخزين")}<div class="card"><p class="note" id="sSt">…</p></div>

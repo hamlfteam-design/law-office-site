@@ -17,6 +17,7 @@
 <script src="tools.js" defer></script>
 <script src="ocr.js" defer></script>
 <script src="camera.js" defer></script>
+<script src="library.js" defer></script>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--muted:#6b7280;--acc:#0f4c5c;--acc2:#e36414;--line:#e5e1d8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -114,7 +115,7 @@ function home(){
 }
 function renderList(){
  const f=(home.filter||"").trim();
- const list=docs.filter(d=>!f||(!(window.folderLocked&&folderLocked(d.client))&&[d.title,d.client,d.caseNo,d.ocrText].join(" ").includes(f))).sort((a,b)=>b.updated-a.updated);
+ const list=docs.filter(d=>!f||(!(window.folderLocked&&folderLocked(d.client))&&(window.docSearchText?docSearchText(d):[d.title,d.client,d.caseNo,d.ocrText].join(" ")).includes(f))).sort((a,b)=>{const m=window.prefs?prefs().sort:"DATE_DESC";return m==="NAME"?String(a.title).localeCompare(String(b.title),"ar"):m==="DATE_ASC"?a.updated-b.updated:b.updated-a.updated});
  if(!list.length){$("#list").innerHTML=`<div class="empty">لا توجد مستندات بعد.<br>اضغط «مسح مستند جديد» للبدء.</div>
   <p class="note">💡 لتثبيته كتطبيق على الآيفون: افتح الرابط في Safari ← زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية».</p>`;return}
  const groups={};list.forEach(d=>(groups[d.client||"بدون عميل"]=groups[d.client||"بدون عميل"]||[]).push(d));
