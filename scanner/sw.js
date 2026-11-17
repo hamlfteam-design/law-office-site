@@ -1,4 +1,4 @@
-var CACHE="lp-scanner-v13";
+var CACHE="lp-scanner-v14";
 var CORE=["./","index.html","jspdf.umd.min.js","filters.js","edge.js","sig.js","tools.js","ocr.js","camera.js","library.js","rotate.js","manifest.webmanifest","apple-touch-icon.png","icon-192.png","icon-512.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)));self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))));self.clients.claim()});

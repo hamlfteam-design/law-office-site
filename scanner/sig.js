@@ -28,8 +28,14 @@ const T={
  centered(PW,PH,w,h){w=Math.min(w,PW);h=Math.min(h,PH);return{x:(PW-w)/2,y:(PH-h)/2,w,h}},
  hitHandle(t,px,py,slop){let best=null,bd=1e9;for(let i=0;i<4;i++){const [cx,cy]=T.corner(t,i),d=Math.hypot(cx-px,cy-py);if(d<bd){bd=d;best=i}}
   return bd<=slop?best:null},
- hitsBody(t,px,py){return px>=t.x&&px<=t.x+t.w&&py>=t.y&&py<=t.y+t.h}
+ hitsBody(t,px,py){return px>=t.x&&px<=t.x+t.w&&py>=t.y&&py<=t.y+t.h},
+ // التدوير: نحوّل النقطة لإطار التوقيع نفسه (قبل الدوران) حوالين مركزه
+ local(t,px,py){const a=-(t.a||0);if(!a)return[px,py];const cx=t.x+t.w/2,cy=t.y+t.h/2,dx=px-cx,dy=py-cy;
+  return[cx+dx*Math.cos(a)-dy*Math.sin(a),cy+dx*Math.sin(a)+dy*Math.cos(a)]},
+ vec(t,dx,dy){const a=-(t.a||0);return a?[dx*Math.cos(a)-dy*Math.sin(a),dx*Math.sin(a)+dy*Math.cos(a)]:[dx,dy]}
 };
+function drawRot(ctx,img,t,ox,oy,s){const cx=ox+(t.x+t.w/2)*s,cy=oy+(t.y+t.h/2)*s;ctx.save();ctx.translate(cx,cy);ctx.rotate(t.a||0);
+ if(img)ctx.drawImage(img,-t.w*s/2,-t.h*s/2,t.w*s,t.h*s);return()=>ctx.restore()}
 window.OverlayTransformJS=T; // للاختبار
 
 /* ---------- واجهة مشتركة ---------- */
@@ -176,10 +182,11 @@ async function overlayScreen(pageSrc){
  function draw(){const b=base(),t=b.s*viewZoom,ox=b.bx+panX,oy=b.by+panY;
   x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,cv.width,cv.height);x.setTransform(dim.dpr,0,0,dim.dpr,0,0);
   x.drawImage(page,ox,oy,PW*t,PH*t);
-  for(const e of entries){const r=e.t;x.drawImage(e.img,ox+r.x*t,oy+r.y*t,r.w*t,r.h*t)}
+  for(const e of entries)drawRot(x,e.img,e.t,ox,oy,t)();
   const a=entries.find(e=>e.id===activeId);
-  if(a){const r=a.t,X=ox+r.x*t,Y=oy+r.y*t,W=r.w*t,H=r.h*t;x.strokeStyle="#e9622f";x.lineWidth=2;x.strokeRect(X,Y,W,H);
-   for(const [cx,cy] of [[X,Y],[X+W,Y],[X+W,Y+H],[X,Y+H]]){x.beginPath();x.arc(cx,cy,11,0,7);x.fillStyle="#fff";x.fill();x.beginPath();x.arc(cx,cy,7,0,7);x.fillStyle="#e9622f";x.fill()}}
+  if(a){const r=a.t,W=r.w*t,H=r.h*t,X=-W/2,Y=-H/2;const done=drawRot(x,null,r,ox,oy,t);x.strokeStyle="#e9622f";x.lineWidth=2;x.strokeRect(X,Y,W,H);
+   for(const [cx,cy] of [[X,Y],[X+W,Y],[X+W,Y+H],[X,Y+H]]){x.beginPath();x.arc(cx,cy,11,0,7);x.fillStyle="#fff";x.fill();x.beginPath();x.arc(cx,cy,7,0,7);x.fillStyle="#e9622f";x.fill()}
+   done()}
   tools()}
  function add(img,frac){const w=PW*frac,h=w*img.height/Math.max(1,img.width);const e={id:"o"+Date.now()+Math.random(),img,t:T.centered(PW,PH,w,h)};
   entries.push(e);activeId=e.id;draw()}
@@ -188,29 +195,31 @@ async function overlayScreen(pageSrc){
     الهدف يُحدَّد عند أول ضغطة (مقبض المحدد ← جسم توقيع ← صفحة فارغة). */
  const ptrs=new Map();let g=null;
  const cen=()=>{let sx=0,sy=0;for(const p of ptrs.values()){sx+=p.x;sy+=p.y}return[sx/ptrs.size,sy/ptrs.size]};
+ const angle=()=>{const v=[...ptrs.values()];return v.length<2?0:Math.atan2(v[1].y-v[0].y,v[1].x-v[0].x)};
  const spread=()=>{const v=[...ptrs.values()];return v.length<2?0:Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y)};
  const local=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
  cv.addEventListener("pointerdown",e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}
   ptrs.set(e.pointerId,local(e));
   if(ptrs.size===1){const p=local(e),[ix,iy]=toImg(p.x,p.y),b=base(),t=b.s*viewZoom;
-   const act=entries.find(o=>o.id===activeId);const handle=act?T.hitHandle(act.t,ix,iy,HANDLE_SLOP/t):null;
-   let target=handle!=null?act:null;if(!target)for(let i=entries.length-1;i>=0;i--)if(T.hitsBody(entries[i].t,ix,iy)){target=entries[i];break}
+   const act=entries.find(o=>o.id===activeId);const handle=act?T.hitHandle(act.t,...T.local(act.t,ix,iy),HANDLE_SLOP/t):null;
+   let target=handle!=null?act:null;if(!target)for(let i=entries.length-1;i>=0;i--)if(T.hitsBody(entries[i].t,...T.local(entries[i].t,ix,iy))){target=entries[i];break}
    if(target)activeId=target.id;
    g={target,handle,ix,iy,moved:false,start:p};}
-  if(g){const [cx,cy]=cen();g.cx=cx;g.cy=cy;g.sp=spread()}draw()});
+  if(g){const [cx,cy]=cen();g.cx=cx;g.cy=cy;g.sp=spread();g.ang=angle()}draw()});
  cv.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId)||!g)return;e.preventDefault();ptrs.set(e.pointerId,local(e));
   const [cx,cy]=cen(),sp=spread(),dx=cx-g.cx,dy=cy-g.cy,zoom=(g.sp>0&&sp>0&&ptrs.size>1)?sp/g.sp:1;
-  g.cx=cx;g.cy=cy;g.sp=sp;
+  const an=angle();let dAng=(ptrs.size>1&&g.ang!=null)?an-g.ang:0;if(dAng>Math.PI)dAng-=2*Math.PI;if(dAng<-Math.PI)dAng+=2*Math.PI;g.ang=an;
+  g.cx=cx;g.cy=cy;g.sp=sp;if(dAng)g.moved=true;
   if(Math.hypot(cx-g.start.x,cy-g.start.y)>6||zoom!==1)g.moved=true;
   const b=base(),t=b.s*viewZoom;
-  if(g.target&&g.handle!=null&&ptrs.size===1)g.target.t=T.clampTo(T.resized(g.target.t,g.handle,dx/t,dy/t),PW,PH);
-  else if(g.target)g.target.t=T.clampTo(T.scaledBy(T.moved(g.target.t,dx/t,dy/t),zoom),PW,PH);
+  if(g.target&&g.handle!=null&&ptrs.size===1){const [lx,ly]=T.vec(g.target.t,dx/t,dy/t);g.target.t=T.clampTo(T.resized(g.target.t,g.handle,lx,ly),PW,PH)}
+  else if(g.target){const nt=T.clampTo(T.scaledBy(T.moved(g.target.t,dx/t,dy/t),zoom),PW,PH);nt.a=(g.target.t.a||0)+dAng;g.target.t=nt}
   else{if(zoom!==1){const nz=Math.min(6,Math.max(1,viewZoom*zoom)),f=nz/viewZoom,ox=b.bx+panX,oy=b.by+panY;
      panX=cx-(cx-ox)*f-b.bx;panY=cy-(cy-oy)*f-b.by;viewZoom=nz}
    if(viewZoom>1){panX+=dx;panY+=dy}else{panX=0;panY=0}}
   draw()});
  const end=e=>{if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);
-  if(ptrs.size&&g){const [cx,cy]=cen();g.cx=cx;g.cy=cy;g.sp=spread();return}
+  if(ptrs.size&&g){const [cx,cy]=cen();g.cx=cx;g.cy=cy;g.sp=spread();g.ang=angle();return}
   if(g&&!g.moved&&!g.target){ // ضغطة على صفحة فارغة: انقل التوقيع المحدد إليها
    const s=entries.find(o=>o.id===activeId);if(s){const r=s.t;s.t=T.clampTo(T.moved(r,g.ix-(r.x+r.w/2),g.iy-(r.y+r.h/2)),PW,PH)}}
   g=null;draw()};
@@ -219,12 +228,16 @@ async function overlayScreen(pageSrc){
  ["gesturestart","gesturechange"].forEach(n=>area.addEventListener(n,e=>e.preventDefault()));
 
  let toolsKey="";
- function tools(){const tb=d.querySelector(".tools");const key=[!!activeId,viewZoom>1,entries.length].join();if(key===toolsKey)return;toolsKey=key;
+ function tools(){const tb=d.querySelector(".tools");const key=[!!activeId,viewZoom>1,entries.length].join();/*a*/if(key===toolsKey)return;toolsKey=key;
   tb.innerHTML=`<button class="btn sec" data-add>✍️ إضافة توقيع</button><button class="btn sec" data-stamp>📅 ختم التاريخ</button>
-   ${activeId?`<button class="btn sec" data-delsel style="color:#b91c1c">🗑️ حذف المحدد</button>`:""}
+   ${activeId?`<button class="btn sec" data-rl>↺ لف</button><button class="btn sec" data-rr>↻ لف</button><button class="btn sec" data-sm>➖ أصغر</button><button class="btn sec" data-bg>➕ أكبر</button><button class="btn sec" data-delsel style="color:#b91c1c">🗑️ حذف المحدد</button>`:""}
    ${viewZoom>1?`<button class="btn sec" data-fit>⤢ ملء الشاشة</button>`:""}`;
   tb.querySelector("[data-add]").onclick=async()=>{const u=await libraryDialog();if(u)add(await loadImg(u),.35)};
   tb.querySelector("[data-stamp]").onclick=()=>{const n=new Date(),p=v=>String(v).padStart(2,"0");add(textStamp(`${n.getFullYear()}/${p(n.getMonth()+1)}/${p(n.getDate())}`),.22)};
+  const sel=()=>entries.find(o=>o.id===activeId);
+  const rot=deg=>{const e=sel();if(e){e.t={...e.t,a:(e.t.a||0)+deg*Math.PI/180};draw()}};
+  const scl=f=>{const e=sel();if(e){const a=e.t.a;e.t=T.clampTo(T.scaledBy(e.t,f),PW,PH);e.t.a=a;draw()}};
+  [["[data-rl]",()=>rot(-5)],["[data-rr]",()=>rot(5)],["[data-sm]",()=>scl(1/1.1)],["[data-bg]",()=>scl(1.1)]].forEach(([q,fn])=>{const bt=tb.querySelector(q);if(bt)bt.onclick=fn});
   const ds=tb.querySelector("[data-delsel]");if(ds)ds.onclick=()=>{const i=entries.findIndex(o=>o.id===activeId);if(i>=0)entries.splice(i,1);activeId=null;draw()};
   const ft=tb.querySelector("[data-fit]");if(ft)ft.onclick=()=>{viewZoom=1;panX=panY=0;draw()};
   const ok=d.querySelector("[data-ok]");if(ok)ok.disabled=!entries.length,ok.style.opacity=entries.length?1:.5}
@@ -234,7 +247,7 @@ async function overlayScreen(pageSrc){
  d.querySelector("[data-x]").onclick=d.querySelector("[data-cancel]").onclick=()=>done(null);
  d.querySelector("[data-ok]").onclick=()=>{if(!entries.length)return; // OverlayCompositor: دمج نهائي بدقة الصفحة
   const o=document.createElement("canvas");o.width=PW;o.height=PH;const ox=o.getContext("2d");ox.drawImage(page,0,0);
-  for(const e of entries)ox.drawImage(e.img,e.t.x,e.t.y,e.t.w,e.t.h);done(o.toDataURL("image/jpeg",.9))};
+  for(const e of entries)drawRot(ox,e.img,e.t,0,0,1)();done(o.toDataURL("image/jpeg",.9))};
  requestAnimationFrame(()=>{dim=sizeCanvas(cv);draw()});
  })}
 
