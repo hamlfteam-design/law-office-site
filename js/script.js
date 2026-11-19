@@ -1,8 +1,8 @@
 /* Floating contact buttons (call + WhatsApp icon -> booking link) and click tracking — added 2026-10-12 */
 (function(){
 try{
-var PHONE='201208555806';var BOOK='https://hamlf.com/#contact-consult';
-var en=(document.documentElement.lang||'').toLowerCase().indexOf('en')===0;
+var PHONE='201208555806';
+var en=(document.documentElement.lang||'').toLowerCase().indexOf('en')===0;var BOOK='https://hamlf.com/'+(en?'en/':'')+'#contact-consult';
 var L=en?{call:'Call the office',wa:'Chat on WhatsApp',msg:'Hello, I would like to ask about a legal consultation.'}
         :{call:'اتصل بالمكتب',wa:'راسلنا على واتساب',msg:'السلام عليكم، أرغب في الاستفسار عن استشارة قانونية.'};
 function track(name){try{if(typeof gtag==='function')gtag('event',name,{event_category:'contact',page_path:location.pathname});}catch(e){}}
