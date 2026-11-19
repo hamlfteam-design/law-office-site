@@ -1202,7 +1202,7 @@ var btns=box.querySelectorAll('.cx-choice');var g=document.getElementById('cxGen
 function pick(k,scroll){btns.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-cx')===k?'true':'false');});g.hidden=k!=='general';c.hidden=k!=='consult';if(scroll){(k==='consult'?c:box).scrollIntoView({behavior:'smooth',block:'start'});}}
 btns.forEach(function(b){b.addEventListener('click',function(){pick(b.getAttribute('data-cx'),false);});});
 function fromHash(){if(location.hash==='#contact-consult')pick('consult',true);}
-document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact-consult"],a[href="https://hamlf.com/#contact-consult"]');if(a){e.preventDefault();try{history.replaceState(null,'','#contact-consult')}catch(x){}pick('consult',true);}});
+document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact-consult"],a[href="https://hamlf.com/#contact-consult"],a[href="https://hamlf.com/en/#contact-consult"]');if(a){e.preventDefault();try{history.replaceState(null,'','#contact-consult')}catch(x){}pick('consult',true);}});
 window.addEventListener('hashchange',fromHash);fromHash();
 // 2026-11-15: re-align after images/fonts finish loading (they push the section down on first load)
 if(location.hash==='#contact-consult'){var re=function(){c.scrollIntoView({behavior:'auto',block:'start'});};window.addEventListener('load',function(){re();setTimeout(re,400);setTimeout(re,1200);});}
@@ -1233,7 +1233,7 @@ if(q)q.addEventListener('input',function(){var v=norm(q.value.trim());var shown=
 </script>
 <script src="../js/translate.js"></script>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-<script src="../js/script.js?v=20261119"></script>
+<script src="../js/script.js?v=20261120"></script>
 
 
 </body></html>
