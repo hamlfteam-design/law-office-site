@@ -1112,7 +1112,7 @@ location.replace("https://hamlf.com/");
 <p><strong>Office working hours:</strong> Saturday to Wednesday, 1:00 PM – 6:00 PM Cairo time (for calls, follow-up and receiving requests)<br>
 <span style="font-size:.85rem;color:var(--muted);">Meetings with overseas clients are scheduled by prior appointment and can be arranged outside working hours to suit time-zone differences, by video session through the firm's own private link (emailed to the client with a reminder before the appointment), by FaceTime video call on +201067772512, or by voice call.</span></p>
 <p><strong>In-person client meetings only:</strong> Sundays and Tuesdays, by prior booking subject to availability — book online through our <a href="booking.html">appointment booking page</a>. The other working days are for calls, follow-up and case work.</p>
-<p><strong>Phone / WhatsApp:</strong> <a href="tel:+201208555806" style="direction:ltr;unicode-bidi:isolate;display:inline-block">+20 120 855 5806</a> · <a href="https://wa.me/201208555806" target="_blank" rel="noopener">Message us on WhatsApp</a></p>
+<p><strong>Phone:</strong> <a href="tel:+201208555806" style="direction:ltr;unicode-bidi:isolate;display:inline-block">+20 120 855 5806</a></p>
 <p><strong>Written consultation:</strong> reviewing the facts of your matter and your documents and giving a written legal opinion is a paid service, booked through the <a href="booking.html?type=written">consultation booking page</a>; its fee is shown once you accept that the service is paid. It does not include phone or video calls.</p>
 <p><strong>How we work:</strong> <a href="how-we-work.html">How we work with you, step by step</a></p>
 <p><strong>Response time:</strong> we reply to your message within 48 working hours of receipt at the latest, in Arabic or English.</p>
@@ -1170,7 +1170,7 @@ location.replace("https://hamlf.com/");
 <div class="cx-panel" id="contact-consult" style="scroll-margin-top:90px" hidden>
 <div class="cx-cards">
 <div class="cx-card"><h4>🏢 Office Visit</h4><p>An in-person meeting at the firm's office in Downtown Cairo, by prior appointment.</p><a class="btn-primary" href="booking.html?type=office">Book this consultation</a></div>
-<div class="cx-card"><h4>💻 Online Session</h4><p>By video, phone or WhatsApp, for up to 20 or 30 minutes.</p><a class="btn-primary" href="booking.html?type=video">Book this consultation</a></div>
+<div class="cx-card"><h4>💻 Online Session</h4><p>By video or phone, for up to 20 or 30 minutes.</p><a class="btn-primary" href="booking.html?type=video">Book this consultation</a></div>
 <div class="cx-card"><h4>⚖️ Felony Case — Document Review &amp; Opinion</h4><p>A review of your felony case documents and a legal opinion on them.</p><a class="btn-primary" href="booking.html?type=criminal">Book this consultation</a></div>
 <div class="cx-card"><h4>🏛️ Cassation Appeal — Document Review &amp; Written Opinion</h4><p>A review of your cassation appeal documents and a written legal opinion.</p><a class="btn-primary" href="booking.html?type=cassation">Book this consultation</a></div>
 <div class="cx-card"><h4>📝 Civil Case — Written Reply + Document Research</h4><p>You send your civil case documents; we research them and reply in writing.</p><a class="btn-primary" href="booking.html?type=written">Book this consultation</a></div>
@@ -1202,7 +1202,7 @@ var btns=box.querySelectorAll('.cx-choice');var g=document.getElementById('cxGen
 function pick(k,scroll){btns.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-cx')===k?'true':'false');});g.hidden=k!=='general';c.hidden=k!=='consult';if(scroll){(k==='consult'?c:box).scrollIntoView({behavior:'smooth',block:'start'});}}
 btns.forEach(function(b){b.addEventListener('click',function(){pick(b.getAttribute('data-cx'),false);});});
 function fromHash(){if(location.hash==='#contact-consult')pick('consult',true);}
-document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact-consult"]');if(a){e.preventDefault();try{history.replaceState(null,'','#contact-consult')}catch(x){}pick('consult',true);}});
+document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact-consult"],a[href="https://hamlf.com/#contact-consult"]');if(a){e.preventDefault();try{history.replaceState(null,'','#contact-consult')}catch(x){}pick('consult',true);}});
 window.addEventListener('hashchange',fromHash);fromHash();
 // 2026-11-15: re-align after images/fonts finish loading (they push the section down on first load)
 if(location.hash==='#contact-consult'){var re=function(){c.scrollIntoView({behavior:'auto',block:'start'});};window.addEventListener('load',function(){re();setTimeout(re,400);setTimeout(re,1200);});}

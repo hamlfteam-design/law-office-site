@@ -1424,7 +1424,7 @@ location.replace("https://hamlf.com/");
 <p><strong>ساعات عمل المكتب:</strong> من السبت إلى الأربعاء، 1:00 ظهراً — 6:00 مساءً بتوقيت القاهرة (للاتصال والمتابعة وتلقي الطلبات)<br>
 <span style="font-size:.85rem;color:var(--muted);">اجتماعات عملاء الخارج تُحدَّد بموعد مسبق، ويمكن ترتيبها خارج ساعات العمل بما يناسب فارق التوقيت، بجلسة فيديو عبر رابط المؤسسة الخاص (يصل للعميل بالإيميل مع تذكير قبل الميعاد)، أو بمكالمة فيديو FaceTime على الرقم ‎+201067772512‎، أو بمكالمة صوتية.</span></p>
 <p><strong>مواعيد المقابلات الشخصية فقط:</strong> يومَا الأحد والثلاثاء، بحجز مسبق حسب المواعيد المتاحة عبر <a href="booking.html">صفحة حجز موعد</a>. وباقي أيام العمل مخصصة للاتصال والمتابعة وإنجاز الأعمال.</p>
-<p><strong>الهاتف / واتساب:</strong> <a href="tel:+201208555806" style="direction:ltr;unicode-bidi:isolate;display:inline-block">+20 120 855 5806</a> · <a href="https://wa.me/201208555806" target="_blank" rel="noopener">راسلنا على واتساب</a></p>
+<p><strong>الهاتف:</strong> <a href="tel:+201208555806" style="direction:ltr;unicode-bidi:isolate;display:inline-block">+20 120 855 5806</a></p>
 <p><strong>الاستشارة المكتوبة:</strong> مراجعة وقائع موضوعك ومستنداتك وإبداء رأي قانوني مكتوب خدمة مدفوعة، تحجزها من <a href="booking.html?type=written">صفحة حجز الاستشارة</a>، وتظهر أتعابها بعد موافقتك على مبدأ الدفع. ولا تشمل المكالمات الهاتفية أو مكالمات الفيديو.</p>
 <p><strong>خطوات التعامل:</strong> <a href="how-we-work.html">كيف نعمل معك خطوة بخطوة</a></p>
 <p><strong>مدة الرد:</strong> نرد على رسالتك خلال ٤٨ ساعة عمل بحد أقصى من وصولها، بالعربي أو الإنجليزي.</p>
@@ -1513,7 +1513,7 @@ var btns=box.querySelectorAll('.cx-choice');var g=document.getElementById('cxGen
 function pick(k,scroll){btns.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-cx')===k?'true':'false');});g.hidden=k!=='general';c.hidden=k!=='consult';if(scroll){(k==='consult'?c:box).scrollIntoView({behavior:'smooth',block:'start'});}}
 btns.forEach(function(b){b.addEventListener('click',function(){pick(b.getAttribute('data-cx'),false);});});
 function fromHash(){if(location.hash==='#contact-consult')pick('consult',true);}
-document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact-consult"]');if(a){e.preventDefault();try{history.replaceState(null,'','#contact-consult')}catch(x){}pick('consult',true);}});
+document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact-consult"],a[href="https://hamlf.com/#contact-consult"]');if(a){e.preventDefault();try{history.replaceState(null,'','#contact-consult')}catch(x){}pick('consult',true);}});
 window.addEventListener('hashchange',fromHash);fromHash();
 // 2026-11-15: re-align after images/fonts finish loading (they push the section down on first load)
 if(location.hash==='#contact-consult'){var re=function(){c.scrollIntoView({behavior:'auto',block:'start'});};window.addEventListener('load',function(){re();setTimeout(re,400);setTimeout(re,1200);});}
