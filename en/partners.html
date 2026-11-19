@@ -245,7 +245,7 @@
 
   <h2>How Cooperation Begins</h2>
   <ol class="p-steps">
-    <li>Contact us and let us know the type of cooperation you'd like to start with (the form below, or directly via WhatsApp/email).</li>
+    <li>Contact us and let us know the type of cooperation you'd like to start with (the form below, or directly by email at info@hamlf.com).</li>
     <li>A short introductory call to define the expected scope of work and areas of alignment between our two firms.</li>
     <li>Signing a simplified legal cooperation agreement (MOU) defining referral scope, communication process, and fee-sharing.</li>
     <li>Work begins on the first referred matter, with a direct point of contact and regular follow-up.</li>
@@ -271,7 +271,7 @@
           <input type="text" id="contactName" placeholder="Full name" required>
         </div>
         <div>
-          <label for="contactPhone">Contact Number (WhatsApp)</label>
+          <label for="contactPhone">Contact Number</label>
           <input type="tel" id="contactPhone" placeholder="With country code" required>
         </div>
       </div>
@@ -294,7 +294,7 @@
         <textarea id="details" placeholder="Any details about the type of matters or cooperation you have in mind..."></textarea>
       </div>
       <button type="submit" class="submit-btn">Send Cooperation Request</button>
-      <p class="note">This will open WhatsApp with a ready-made message containing your details — you can review it before sending.</p>
+      <p class="note">This will open your email app with a ready-made message containing your details — you can review it before sending.</p>
     </form>
   </div>
 
@@ -309,7 +309,7 @@
 </footer>
 
 <script>
-  const OFFICE_PHONE = "201208555806";
+  const SUBJ = "International legal cooperation request";
   document.getElementById("partnerForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const firmName = document.getElementById("firmName").value.trim();
@@ -328,7 +328,7 @@
       `Type of cooperation: ${coopType}\n` +
       `Additional details: ${details}`;
 
-    const waUrl = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
+    const waUrl = `mailto:info@hamlf.com?subject=${encodeURIComponent(SUBJ)}&body=${encodeURIComponent(bodyText)}`;
     let gone = false;
     const go = () => { if (gone) return; gone = true; window.location.href = waUrl; };
     try {

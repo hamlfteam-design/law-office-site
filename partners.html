@@ -249,7 +249,7 @@
 
   <h2>ازاي نبدأ التعاون</h2>
   <ol class="p-steps">
-    <li>تواصل معانا وتوضيح نوع التعاون اللي تحب تبدأ بيه (النموذج تحت أو مباشرة على الواتساب/الإيميل).</li>
+    <li>تواصل معانا وتوضيح نوع التعاون اللي تحب تبدأ بيه (النموذج تحت أو مباشرة على الإيميل info@hamlf.com).</li>
     <li>مكالمة تعارف قصيرة لتحديد نطاق العمل المتوقع ومجالات التوافق بين المكتبين.</li>
     <li>توقيع اتفاق تعاون قانوني مبسّط (MOU) يوضح نطاق الإحالة، آلية التواصل، وتقاسم الأتعاب.</li>
     <li>بدء العمل على أول ملف محال، مع نقطة تواصل مباشرة ومتابعة دورية.</li>
@@ -275,7 +275,7 @@
           <input type="text" id="contactName" placeholder="الاسم الكامل" required>
         </div>
         <div>
-          <label for="contactPhone">رقم التواصل (واتساب)</label>
+          <label for="contactPhone">رقم التواصل</label>
           <input type="tel" id="contactPhone" placeholder="بالكود الدولي" required>
         </div>
       </div>
@@ -298,7 +298,7 @@
         <textarea id="details" placeholder="أي تفاصيل عن نوع القضايا أو التعاون اللي في بالكم..."></textarea>
       </div>
       <button type="submit" class="submit-btn">إرسال طلب التعاون</button>
-      <p class="note">هيفتحلك واتساب برسالة جاهزة بكل البيانات — تقدر تراجعها قبل الإرسال.</p>
+      <p class="note">هيفتحلك الإيميل برسالة جاهزة بكل البيانات — تقدر تراجعها قبل الإرسال.</p>
     </form>
   </div>
 
@@ -313,7 +313,7 @@
 </footer>
 
 <script>
-  const OFFICE_PHONE = "201208555806";
+  const SUBJ = "طلب تعاون قانوني دولي";
   document.getElementById("partnerForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const firmName = document.getElementById("firmName").value.trim();
@@ -332,7 +332,7 @@
       `شكل التعاون المطلوب: ${coopType}\n` +
       `تفاصيل إضافية: ${details}`;
 
-    const waUrl = `https://wa.me/${OFFICE_PHONE}?text=${encodeURIComponent(bodyText)}`;
+    const waUrl = `mailto:info@hamlf.com?subject=${encodeURIComponent(SUBJ)}&body=${encodeURIComponent(bodyText)}`;
     let gone = false;
     const go = () => { if (gone) return; gone = true; window.location.href = waUrl; };
     try {
