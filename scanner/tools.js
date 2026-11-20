@@ -103,7 +103,7 @@ function settings(){
 window.settings=settings;
 
 /* ---------- النسخ الاحتياطي ---------- */
-function saveFile(blob,fn){const f=new File([blob],fn,{type:blob.type||"application/octet-stream"});
+function saveFile(blob,fn){if(window.deliverFile)return deliverFile(blob,fn,/\.pdf$/i.test(fn));const f=new File([blob],fn,{type:blob.type||"application/octet-stream"});
  if(navigator.canShare&&navigator.canShare({files:[f]}))return navigator.share({files:[f],title:fn}).catch(()=>dl());dl();
  function dl(){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}}
 function backupDlg(){dialog(`<h3 style="margin-top:0">نسخة احتياطية</h3>

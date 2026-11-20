@@ -11,15 +11,15 @@
 <meta name="theme-color" content="#0f4c5c">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<script src="jspdf.umd.min.js?v=202611180040"></script>
-<script src="filters.js?v=202611180040"></script>
-<script src="edge.js?v=202611180040"></script>
-<script src="sig.js?v=202611180040" defer></script>
-<script src="tools.js?v=202611180040" defer></script>
-<script src="ocr.js?v=202611180040" defer></script>
-<script src="camera.js?v=202611180040" defer></script>
-<script src="library.js?v=202611180040" defer></script>
-<script src="rotate.js?v=202611180040" defer></script>
+<script src="jspdf.umd.min.js?v=202611202244"></script>
+<script src="filters.js?v=202611202244"></script>
+<script src="edge.js?v=202611202244"></script>
+<script src="sig.js?v=202611202244" defer></script>
+<script src="tools.js?v=202611202244" defer></script>
+<script src="ocr.js?v=202611202244" defer></script>
+<script src="camera.js?v=202611202244" defer></script>
+<script src="library.js?v=202611202244" defer></script>
+<script src="rotate.js?v=202611202244" defer></script>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--muted:#6b7280;--acc:#0f4c5c;--acc2:#e36414;--line:#e5e1d8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -69,6 +69,10 @@ padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 .ghead button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 8px;font-size:15px}
 .note{font-size:12.5px;color:var(--muted);line-height:1.6}
 .hidden{display:none!important}
+#printArea{display:none}
+@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important}
+ #printArea img{display:block;width:100%;height:auto;max-height:100vh;object-fit:contain;page-break-after:always;break-after:page}
+ #printArea img:last-child{page-break-after:auto;break-after:auto}@page{margin:8mm}}
 </style>
 </head>
 <body>
@@ -172,7 +176,7 @@ function renderDoc(){
   <label>الجودة / الحجم</label><select id="q"><option value="0.85">عالية</option><option value="0.65" selected>متوسطة (موصى بها)</option><option value="0.45">حجم صغير (واتساب)</option></select>
   <label>مقاس صفحة الـ PDF</label><select id="psz">${[["FIT","مطابق للصورة"],["A4","A4"],["LETTER","Letter"]].map(([k,l])=>`<option value="${k}" ${prefs().pdfSize===k?"selected":""}>${l}</option>`).join("")}</select>
   <div class="row" style="margin-top:12px"><button class="btn" style="flex:1" onclick="exportPdf()">⬇️ حفظ PDF</button>
-  <button class="btn sec" onclick="exportPdf(true)">📤 مشاركة</button><button class="btn sec" onclick="compressDlg()">🗜️ ضغط لحجم محدد</button>
+  <button class="btn sec" onclick="exportPdf(true)">📤 مشاركة / حفظ في…</button><button class="btn sec" onclick="printPages()">🖨️ طباعة</button><button class="btn sec" onclick="compressDlg()">🗜️ ضغط لحجم محدد</button>
   ${d.mode==="id"&&!d.pages.some(p=>p.sides)?`<button class="btn sec" onclick="exportId()">🪪 بطاقة على A4</button>`:""}
   <button class="btn sec" onclick="mergeDlg()">🔗 دمج</button></div>
   <p class="note" id="pdfNote"></p>
@@ -411,20 +415,35 @@ async function compressToTarget(cs,target,size){const tick=()=>new Promise(r=>se
  for(let step=0;step<5&&last.size>target&&cur>1240;step++){cur=Math.max(1240,Math.round(cur*Math.sqrt(target/last.size)*.97));await tick();last=buildPdf(cs,.35,size,cur/edge)}
  return{blob:last,met:last.size<=target}}
 async function pdfFromCanvases(cs,name,share,econ){const blob=buildPdf(cs,+$("#q").value,$("#psz")?.value||"FIT",1,econ||[]);await deliver(blob,name,share)}
-async function deliver(blob,name,share){
- const fn=name.replace(/[\\/:*?"<>|]/g,"_")+".pdf";
- if(share){try{const f=new File([blob],fn,{type:"application/pdf"});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:fn});$("#pdfNote").textContent=`✅ تمت مشاركة ${fn} (${(blob.size/1024).toFixed(0)} ك.ب)`;return}}
-  catch(e){if(e&&e.name==="AbortError")return;
-   // Safari أحياناً يرفض المشاركة بعد معالجة طويلة: زر يشارك فوراً بضغطة جديدة
-   if(e&&e.name==="NotAllowedError"){window._shareFile=new File([blob],fn,{type:"application/pdf"});
-    $("#pdfNote").innerHTML=`الملف جاهز (${(blob.size/1024).toFixed(0)} ك.ب) <button class="btn" onclick="navigator.share({files:[_shareFile],title:_shareFile.name}).catch(()=>{})">📤 مشاركة الآن</button>`;return}}
-  $("#pdfNote").textContent="المشاركة المباشرة غير متاحة هنا، فهيتحفظ الملف بدلها.";}
- if(downloads){try{await downloads.save({filename:fn,data:blob});$("#pdfNote").textContent=`✅ ${fn} (${(blob.size/1024).toFixed(0)} ك.ب)`;return}catch(e){}}
- // fallback when opened outside claude.ai viewer (e.g. home-screen)
- try{const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();
-  $("#pdfNote").innerHTML=`تم تجهيز الملف (${(blob.size/1024).toFixed(0)} ك.ب). لو ما اتحفظش: <a href="${u}" target="_blank">افتحه</a> ثم شاركه ⬆️ ← «حفظ في الملفات».`}
- catch(e){$("#pdfNote").textContent="تعذّر حفظ الملف في هذا العرض."}}
+/* بعد تجهيز الملف: شاشة فيها كل الاختيارات. كل زرار بيشتغل بضغطة جديدة من المستخدم،
+   لأن Safari بيرفض المشاركة لو جت بعد معالجة طويلة من غير ضغطة */
+let _outFile=null,_outUrl=null;
+async function deliver(blob,name,share){deliverFile(blob,name.replace(/[\\/:*?"<>|]/g,"_")+".pdf",true)}
+function deliverFile(blob,fn,isPdf){const f=new File([blob],fn,{type:isPdf?"application/pdf":(blob.type||"application/octet-stream")});
+ _outFile=f;try{_outUrl&&URL.revokeObjectURL(_outUrl)}catch(e){}_outUrl=URL.createObjectURL(blob);
+ const canFiles=!!(navigator.canShare&&navigator.canShare({files:[f]}));
+ dialog(`<h3 style="margin-top:0">✅ الملف جاهز</h3><p class="note" style="direction:ltr;text-align:right">${esc(fn)} — ${(blob.size/1024).toFixed(0)} KB</p>
+ <div style="display:grid;gap:8px;margin-top:10px">
+  ${canFiles?`<button class="btn" onclick="outShare()">📤 مشاركة / إرسال (واتساب، بريد، Drive…)</button>
+  <button class="btn sec" onclick="outShare()">📁 حفظ في الملفات أو في مكان تختاره</button>
+  <p class="note" style="margin:-4px 2px 0">من القائمة اللي هتظهر: «حفظ في الملفات» وبعدين اختار الفولدر (آيفون، iCloud، Drive…).</p>`:""}
+  ${isPdf?`<button class="btn sec" onclick="outPrint()">🖨️ طباعة</button>
+  <button class="btn sec" onclick="outOpen()">👁️ فتح الملف</button>`:""}
+  ${!canFiles?`<button class="btn sec" onclick="outDownload()">⬇️ تنزيل</button>`:""}
+  <button class="btn sec" onclick="closeDlg()">إغلاق</button></div>`);
+ const n=$("#pdfNote");if(n)n.textContent=`✅ ${fn} (${(blob.size/1024).toFixed(0)} ك.ب) — جاهز`}
+window.deliverFile=deliverFile;
+function outShare(){if(!_outFile)return;navigator.share({files:[_outFile],title:_outFile.name}).then(()=>closeDlg()).catch(e=>{if(e&&e.name!=="AbortError")outOpen()})}
+function outOpen(){if(!_outUrl)return;const w=window.open(_outUrl,"_blank");if(!w)location.href=_outUrl}
+function outDownload(){if(!_outUrl)return;if(downloads){downloads.save({filename:_outFile.name,data:_outFile}).catch(()=>{});return}
+ const a=document.createElement("a");a.href=_outUrl;a.download=_outFile.name;document.body.appendChild(a);a.click();a.remove()}
+/* الطباعة: صفحات المستند نفسها (بالعلامة المائية/الختم لو متعلّمين) كل صفحة على ورقة */
+async function outPrint(){closeDlg();if(!cur||!cur.pages.length)return outOpen();await printPages()}
+async function printPages(){if(!cur||!cur.pages.length)return;busy(1);let box;
+ try{box=document.getElementById("printArea")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"printArea"}));box.innerHTML="";
+  for(const p of cur.pages){const c=await stampCanvas(p.img);const im=new Image();im.src=c.toDataURL("image/jpeg",.92);await im.decode();box.appendChild(im)}}
+ finally{busy(0)}
+ setTimeout(()=>{try{window.print()}catch(e){outOpen()}},150)}
 async function exportPdf(share){if(!cur.pages.length)return;
  if(cur.mode==="id"&&cur.pages.length===2&&!cur.pages.some(p=>p.sides)&&window.prefs&&prefs().cardsOnOneSheet)return exportId(share);busy(1);try{const cs=[];for(const p of cur.pages)cs.push(await stampCanvas(p.img));
  const auto=prefs().autoCompress;const name=[cur.client,cur.title].filter(Boolean).join(" - ");
