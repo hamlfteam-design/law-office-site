@@ -1,0 +1,12 @@
+{
+  "name": "بوابة محامي الطوارئ — HAMLF",
+  "short_name": "طوارئ HAMLF",
+  "start_url": "/emergency/lawyer.html",
+  "scope": "/emergency/",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#F7F6F1",
+  "theme_color": "#0B2A1F",
+  "icons": [{ "src": "/logo.png", "sizes": "500x500", "type": "image/png", "purpose": "any" }]
+}

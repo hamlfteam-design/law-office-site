@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>متابعة بلاغ الطوارئ | HAMLF</title>
+<link rel="icon" href="../logo.png">
+<style>
+@font-face{font-family:"SF Sultan";src:url(../Sultan-Black.ttf) format("truetype")}
+@font-face{font-family:"HBody";src:url(../Sultan-Black.ttf) format("truetype");unicode-range:U+0030-0039,U+0660-0669}
+@font-face{font-family:"HBody";src:url(../SF-Mada-Bold.ttf) format("truetype")}
+:root{--dark:#0B2A1F;--pri:#0B6E4F;--gold:#C9A227;--bg:#F7F6F1;--txt:#16261F;--mut:#5B6E63}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"HBody",sans-serif;font-weight:700}
+header{background:var(--dark);color:#fff;padding:14px 20px;font-family:"SF Sultan";font-size:17px}
+main{max-width:760px;margin:20px auto;padding:0 14px}
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px #0001}
+.card h2{margin:0 0 14px;font-size:18px;color:var(--dark);text-align:center;border-bottom:2px solid var(--gold);padding-bottom:8px;font-family:"SF Sultan"}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}
+input{width:100%;padding:10px;border:1px solid #cfd6d1;border-radius:10px;font:inherit;background:#fcfcfa}
+.btn{display:block;width:100%;background:var(--pri);color:#fff;border:0;border-radius:12px;padding:13px;font:inherit;font-size:16px;cursor:pointer;margin-top:12px}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.steps div{flex:1;text-align:center;padding:8px 4px;border-radius:8px;background:#e6e4dc;color:var(--mut);font-size:13px}
+.steps div.on{background:var(--pri);color:#fff}
+.upd{background:#f2f8f5;border-right:4px solid var(--pri);border-radius:8px;padding:10px 12px;margin-bottom:10px;line-height:1.8}
+.upd small{color:var(--mut)}
+.note{font-size:12.5px;color:var(--mut);line-height:1.8}
+.err{color:#B23B3B;font-size:14px;margin-top:8px}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
+</style>
+</head>
+<body>
+<header>مؤسسة د. حسن عبد المنعم حسن - محامون ومستشارون (HAMLF)</header>
+<main>
+  <section class="card" id="lookup">
+    <h2>متابعة بلاغ الطوارئ</h2>
+    <label>الرقم المرجعي للبلاغ</label><input id="ref" dir="ltr" placeholder="2026/12345">
+    <label>رقم التليفون المسجّل في الطلب</label><input id="ph" type="tel" dir="ltr">
+    <button class="btn" id="go">عرض حالة البلاغ</button>
+    <div class="err" id="err"></div>
+  </section>
+  <section class="card" id="view" style="display:none"></section>
+  <p class="note" style="text-align:center">مرحلة البناء: الصفحة دي لسه ما اتربطتش بقاعدة بيانات المكتب، ولا بالترجمة الآلية.</p>
+</main>
+<footer dir="ltr">Tel / WhatsApp: +201208555806</footer>
+<script src="emergency-core.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var EM = window.EM, ar = EM.ar;
+  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : s; return d.innerHTML; }
+  document.getElementById("go").onclick = function () {
+    var ref = EM.la(document.getElementById("ref").value).trim(), ph = EM.la(document.getElementById("ph").value).replace(/\D/g, "").slice(-10);
+    var r = EM.store.get().reports.filter(function (x) { return x.ref === ref && String(x.familyPhone).replace(/\D/g, "").slice(-10) === ph; })[0];
+    var err = document.getElementById("err");
+    if (!r) { err.textContent = "البيانات مش مطابقة لأي بلاغ. اتأكد من الرقم المرجعي ورقم التليفون."; return; }
+    err.textContent = "";
+    /* العميل بيشوف الملخص اللي المدير وافق عليه بس — التقرير الداخلي ما يظهرش */
+    var L = EM.lawyer(r.assignedLawyerId) || {}, done = r.status === "closed", assigned = !!r.assignedLawyerId;
+    var pub = (r.timeline || []).filter(function (t) { return t.public; });
+    var h = '<h2>متابعة البلاغ ' + esc(ar(r.ref)) + '</h2>' +
+      '<div class="steps"><div class="on">تم الاستلام</div><div class="' + (assigned ? "on" : "") + '">موجّه للمحامي</div><div class="' + (r.ackAt ? "on" : "") + '">المحامي في الطريق</div><div class="' + (done ? "on" : "") + '">انتهى</div></div>' +
+      '<p><b>المرحلة الحالية:</b> ' + esc(EM.STAGES[r.stage] || "") + '</p>';
+    h += pub.length ? pub.map(function (t) { return '<div class="upd">' + esc(t.txt) + '<br><small>' + esc(EM.fmtDT(t.at)) + '</small></div>'; }).join("")
+      : '<div class="upd">تم استلام البلاغ وجارٍ المتابعة. هتظهر التحديثات هنا أول بأول.</div>';
+    if (L.name) h += '<p><b>المحامي:</b> أ. ' + esc(L.name) + (L.phone ? ' — <span dir="ltr">' + esc(L.phone) + '</span>' : '') +
+      '<br><small class="note">رقم المحامي لتواصل أهلية المحتجز فقط — للاستفسار عن مستجدات الملف يُرجى التواصل مع مسئول المتابعة.</small></p>';
+    h += '<p><b>مسئول متابعة الملف:</b> المستشار د. حسن عبد المنعم حسن — <span dir="ltr">Tel / WhatsApp: +201208555806</span></p>';
+    var v = document.getElementById("view"); v.innerHTML = h; v.style.display = "block";
+  };
+})();
+</script>
+</body>
+</html>
