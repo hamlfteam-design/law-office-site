@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" href="logo.png">
+<title>عاجل – طوارئ | HAMLF</title>
+<style>
+@font-face{font-family:"SF Sultan";src:url(Sultan-Black.ttf) format("truetype")}
+@font-face{font-family:"HBody";src:url(Sultan-Black.ttf) format("truetype");unicode-range:U+0030-0039,U+0660-0669,U+06F0-06F9}
+@font-face{font-family:"HBody";src:url(SF-Mada-Bold.ttf) format("truetype")}
+:root{--dark:#0B2A1F;--pri:#0B6E4F;--gold:#C9A227;--bg:#F7F6F1;--txt:#16261F;--mut:#5B6E63;--red:#B23B3B}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"HBody",sans-serif;font-weight:700}
+h1,h2,h3,.num{font-family:"SF Sultan",sans-serif;font-weight:900}
+header{background:var(--dark);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+header .brand{font-family:"SF Sultan";font-size:18px}
+header button{background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+.banner{background:var(--red);color:#fff;text-align:center;padding:18px 16px}
+.banner h1{margin:0 0 6px;font-size:26px}
+.banner p{margin:2px 0;font-size:14px;opacity:.95}
+.chip{display:inline-block;background:#fff2;border:1px solid #fff6;border-radius:20px;padding:4px 12px;margin:6px 4px 0;font-size:13px}
+main{max-width:860px;margin:20px auto;padding:0 14px}
+.steps{display:flex;gap:6px;margin-bottom:16px}
+.steps div{flex:1;text-align:center;padding:8px 4px;border-radius:8px;background:#e6e4dc;color:var(--mut);font-size:13px}
+.steps div.on{background:var(--pri);color:#fff}
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px #0001}
+.card h2{margin:0 0 14px;font-size:18px;color:var(--dark);text-align:center;border-bottom:2px solid var(--gold);padding-bottom:8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+label{display:block;font-size:13px;color:var(--mut);margin-bottom:4px}
+label .req{color:var(--red)}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cfd6d1;border-radius:10px;font:inherit;background:#fcfcfa}
+textarea{min-height:70px;resize:vertical}
+.radios{display:flex;gap:14px;flex-wrap:wrap}
+.note{font-size:12px;color:var(--mut);margin-top:4px}
+.foreign{background:#fbf6e6;border:1px dashed var(--gold);border-radius:10px;padding:12px}
+.decl label{display:flex;gap:8px;align-items:flex-start;color:var(--txt);font-size:14px;margin-bottom:10px}
+.decl input{width:auto;margin-top:4px}
+.fee{display:flex;justify-content:space-between;align-items:center;background:#eef6f2;border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.fee .num{font-size:22px;color:var(--pri)}
+.pay{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pay label{border:2px solid #cfd6d1;border-radius:12px;padding:14px;text-align:center;cursor:pointer;color:var(--txt);font-size:15px}
+.pay input{display:none}
+.pay input:checked+span{color:var(--pri)}
+.pay label:has(input:checked){border-color:var(--pri);background:#eef6f2}
+#receipt{display:none;margin-top:12px}
+.btn{display:block;width:100%;background:var(--red);color:#fff;border:0;border-radius:12px;padding:14px;font:inherit;font-size:17px;cursor:pointer}
+.ok{display:none;background:#fff;border-right:6px solid var(--pri);border-radius:12px;padding:18px;line-height:1.9}
+.ok .num{color:var(--pri);font-size:20px}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
+@media(max-width:640px){.grid,.pay{grid-template-columns:1fr}}
+.mic{position:absolute;left:8px;bottom:8px;border:0;background:var(--pri);color:#fff;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:16px}.mic.rec{background:var(--red);animation:p 1s infinite}@keyframes p{50%{opacity:.5}}.tw{position:relative}.listen{border:0;background:#0E5E73;color:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand" data-ar="مؤسسة د. حسن عبد المنعم حسن - محامون ومستشارون (HAMLF)" data-en="Dr. Hassan Abdel Moniem Hassan Law Firm (HAMLF)">مؤسسة د. حسن عبد المنعم حسن - محامون ومستشارون (HAMLF)</div>
+  <button onclick="toggleLang()" id="lb">English</button>
+</header>
+
+<div class="banner">
+  <h1 data-ar="عاجل – طوارئ" data-en="Urgent – Arrest &amp; Detention Assistance">عاجل – طوارئ</h1>
+  <p data-ar="طلب تدخل ومساعدة في حالات القبض والاحتجاز" data-en="Request for intervention and assistance in arrest and detention cases">طلب تدخل ومساعدة في حالات القبض والاحتجاز</p>
+  <span class="chip" data-ar="متاح ٢٤ ساعة" data-en="Available 24/7">متاح ٢٤ ساعة</span>
+  <span class="chip" data-ar="🌐 اكتب بأي لغة" data-en="🌐 Write in any language">🌐 اكتب بأي لغة</span>
+  <span class="chip" data-ar="التغطية حالياً: القاهرة والجيزة — قريباً محافظات أخرى" data-en="Currently covering Cairo &amp; Giza — more governorates soon">التغطية حالياً: القاهرة والجيزة — قريباً محافظات أخرى</span>
+</div>
+
+<main>
+<div class="steps">
+  <div class="on" data-ar="١ مقدم الطلب" data-en="1 Applicant">١ مقدم الطلب</div>
+  <div class="on" data-ar="٢ بيانات الحالة" data-en="2 Case">٢ بيانات الحالة</div>
+  <div class="on" data-ar="٣ المرفقات والإقرارات" data-en="3 Documents">٣ المرفقات والإقرارات</div>
+  <div class="on" data-ar="٤ السداد" data-en="4 Payment">٤ السداد</div>
+</div>
+
+<form id="f" onsubmit="done(event)">
+<section class="card">
+  <h2 data-ar="بيانات مقدم الطلب" data-en="Applicant details">بيانات مقدم الطلب</h2>
+  <div class="grid">
+    <div><label><span data-ar="اسم مقدم الطلب" data-en="Applicant name">اسم مقدم الطلب</span> <span class="req">*</span></label><input name="applicantName" required></div>
+    <div><label><span data-ar="الجنسية" data-en="Nationality">الجنسية</span> <span class="req">*</span></label><input name="applicantNationality" required></div>
+    <div><label><span data-ar="هاتف / واتساب" data-en="Phone / WhatsApp">هاتف / واتساب</span> <span class="req">*</span></label><input name="phone" type="tel" required dir="ltr"></div>
+    <div><label data-ar="هاتف بديل" data-en="Alternative phone">هاتف بديل</label><input name="altPhone" type="tel" dir="ltr"></div>
+    <div><label><span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span> <span class="req">*</span></label><input name="email" type="email" required dir="ltr"></div>
+    <div><label><span data-ar="بلد الإقامة" data-en="Country of residence">بلد الإقامة</span> <span class="req">*</span></label><input name="residence" required></div>
+    <div><label><span data-ar="صلته بالمحتجز" data-en="Relation to detainee">صلته بالمحتجز</span> <span class="req">*</span></label><input name="relation" required></div>
+    <div><label data-ar="لغة التواصل المفضلة" data-en="Preferred language">لغة التواصل المفضلة</label>
+      <select name="language"><option data-ar="العربية" data-en="Arabic">العربية</option><option>English</option><option>Русский</option><option>Deutsch</option><option>Italiano</option><option>Français</option><option data-ar="لغة أخرى" data-en="Other">لغة أخرى</option></select><div class="note" data-ar="اكتب بلغتك — تصلنا رسالتك مترجمة ونرد عليك بلغتك" data-en="Write in your language — we receive it translated and reply in your language">اكتب بلغتك — تصلنا رسالتك مترجمة ونرد عليك بلغتك</div></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2 data-ar="بيانات الحالة" data-en="Case details">بيانات الحالة</h2>
+  <div class="grid">
+    <div><label><span data-ar="اسم المحتجز بالكامل" data-en="Detainee full name">اسم المحتجز بالكامل</span> <span class="req">*</span></label><input name="detaineeName" required></div>
+    <div><label><span data-ar="الجنسية" data-en="Nationality">الجنسية</span> <span class="req">*</span></label>
+      <select name="detaineeNationality" id="nat" onchange="document.getElementById('fx').style.display=this.value=='f'?'block':'none'">
+        <option value="e" data-ar="مصري" data-en="Egyptian">مصري</option><option value="f" data-ar="أجنبي" data-en="Foreign">أجنبي</option></select></div>
+    <div><label data-ar="الجنس" data-en="Gender">الجنس</label>
+      <select name="gender"><option data-ar="ذكر" data-en="Male">ذكر</option><option data-ar="أنثى" data-en="Female">أنثى</option></select></div>
+    <div><label data-ar="تاريخ الميلاد / السن" data-en="Date of birth / Age">تاريخ الميلاد / السن</label><input name="dob"></div>
+    <div><label><span data-ar="الرقم القومي / رقم جواز السفر" data-en="National ID / Passport no.">الرقم القومي / رقم جواز السفر</span> <span class="req">*</span></label><input name="idNumber" required dir="ltr"></div>
+    <div><label><span data-ar="المحافظة" data-en="Governorate">المحافظة</span> <span class="req">*</span></label>
+      <select name="governorate" required><option data-ar="القاهرة" data-en="Cairo">القاهرة</option><option data-ar="الجيزة" data-en="Giza">الجيزة</option></select>
+      <div class="note" data-ar="قريباً تغطية شاملة لمحافظات أخرى" data-en="More governorates coming soon">قريباً تغطية شاملة لمحافظات أخرى</div></div>
+    <div><label><span data-ar="مكان القبض" data-en="Place of arrest">مكان القبض</span> <span class="req">*</span></label><input name="arrestPlace" required></div>
+    <div><label data-ar="مكان الاحتجاز الحالي (إن كان معلوماً)" data-en="Current place of detention (if known)">مكان الاحتجاز الحالي (إن كان معلوماً)</label><input name="detentionPlace"></div>
+    <div><label><span data-ar="تاريخ القبض / الاحتجاز" data-en="Date of arrest / detention">تاريخ القبض / الاحتجاز</span> <span class="req">*</span></label><input name="arrestTime" type="datetime-local" required></div>
+    <div><label data-ar="جهة القبض" data-en="Arresting authority">جهة القبض</label>
+      <select name="authorityKnown" id="auth" onchange="document.getElementById('authx').style.display=this.value=='k'?'block':'none'">
+        <option value="u" data-ar="غير معلومة" data-en="Unknown">غير معلومة</option><option value="k" data-ar="معلومة" data-en="Known">معلومة</option></select>
+      <input id="authx" name="authority" style="display:none;margin-top:6px" placeholder="اذكر الجهة"></div>
+    <div class="full"><label><span data-ar="سبب الاحتجاز" data-en="Reason for detention">سبب الاحتجاز</span> <span class="req">*</span></label><div class="tw"><textarea name="reason" required></textarea><button type="button" class="mic" onclick="mic(this)" title="تحدث">🎤</button></div></div>
+    <div><label data-ar="رقم المحضر / القضية (إن وُجد)" data-en="Police record / case no. (if any)">رقم المحضر / القضية (إن وُجد)</label><input name="recordNo"></div>
+    <div><label data-ar="النيابة المختصة (إن عُلمت)" data-en="Prosecution office (if known)">النيابة المختصة (إن عُلمت)</label><input name="prosecution"></div>
+    <div><label data-ar="هل عُرض على النيابة؟" data-en="Presented to prosecution?">هل عُرض على النيابة؟</label>
+      <div class="radios"><label><input type="radio" name="p" value="yes"> <span data-ar="نعم" data-en="Yes">نعم</span></label><label><input type="radio" name="p" value="no"> <span data-ar="لا" data-en="No">لا</span></label><label><input type="radio" name="p" value="unknown" checked> <span data-ar="غير معلوم" data-en="Unknown">غير معلوم</span></label></div></div>
+    <div><label data-ar="هل معه محامٍ حالياً؟" data-en="Does he have a lawyer now?">هل معه محامٍ حالياً؟</label>
+      <div class="radios"><label><input type="radio" name="l" value="yes"> <span data-ar="نعم" data-en="Yes">نعم</span></label><label><input type="radio" name="l" value="no" checked> <span data-ar="لا" data-en="No">لا</span></label></div></div>
+    <div class="full"><label data-ar="ظروف خاصة بالمحتجز (مرض ويُذكر نوعه، كبر سن ... إلخ)" data-en="Special circumstances (illness – specify, old age, etc.)">ظروف خاصة بالمحتجز (مرض ويُذكر نوعه، كبر سن ... إلخ)</label><textarea name="special"></textarea></div>
+    <div class="full foreign" id="fx" style="display:none">
+      <label data-ar="للأجانب: هل تم إخطار السفارة؟" data-en="Foreigners: has the embassy been notified?">للأجانب: هل تم إخطار السفارة؟</label>
+      <div class="radios"><label><input type="radio" name="em" value="yes"> <span data-ar="نعم" data-en="Yes">نعم</span></label><label><input type="radio" name="em" value="no"> <span data-ar="لا" data-en="No">لا</span></label><label><input type="radio" name="em" value="unknown" checked> <span data-ar="غير معلوم" data-en="Unknown">غير معلوم</span></label></div>
+      <div class="decl" style="margin-top:10px"><label><input type="checkbox" name="embassyConsent"> <span data-ar="أوافق على تواصل المؤسسة مع السفارة بشأن الحالة" data-en="I consent to the firm contacting the embassy about this case">أوافق على تواصل المؤسسة مع السفارة بشأن الحالة</span></label></div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2 data-ar="المرفقات والإقرارات" data-en="Documents &amp; declarations">المرفقات والإقرارات</h2>
+  <div class="grid">
+    <div><label><span data-ar="صورة الهوية / جواز السفر" data-en="ID / Passport copy">صورة الهوية / جواز السفر</span> <span class="req">*</span></label><input type="file" required accept="image/*,.pdf"></div>
+    <div><label data-ar="مستندات أخرى (اختياري)" data-en="Other documents (optional)">مستندات أخرى (اختياري)</label><input type="file" multiple></div>
+  </div>
+  <div class="decl" style="margin-top:16px">
+    <label><input type="checkbox" required> <span data-ar="أُقر بصحة البيانات المقدمة." data-en="I confirm the information provided is true.">أُقر بصحة البيانات المقدمة.</span></label>
+    <label><input type="checkbox" required> <span data-ar="أوافق على استخدام بياناتي لغرض التدخل في هذه الحالة فقط." data-en="I agree my data be used solely for intervention in this case.">أوافق على استخدام بياناتي لغرض التدخل في هذه الحالة فقط.</span></label>
+    <label><input type="checkbox" required> <span data-ar="أُقر بأن سداد تكاليف التدخل لا يعني ضمان الإفراج أو تحقيق نتيجة معينة." data-en="I acknowledge that paying the intervention fee does not guarantee release or any specific outcome.">أُقر بأن سداد تكاليف التدخل لا يعني ضمان الإفراج أو تحقيق نتيجة معينة.</span></label>
+    <label><input type="checkbox" required> <span data-ar="أوافق على معالجة رسائلي الكتابية والصوتية بخدمة ترجمة آلية لتيسير التواصل، مع العلم بأن النص العربي هو المعتمد." data-en="I agree that my written and voice messages may be processed by a machine-translation service to ease communication; the Arabic text prevails.">أوافق على معالجة رسائلي بخدمة ترجمة آلية لتيسير التواصل، مع العلم بأن النص العربي هو المعتمد.</span></label>
+    <label><input type="checkbox" required> <span data-ar="أُقر بعلمي بأن تكاليف التدخل مقابل التدخل العاجل والمتابعة الأولية فقط ولا تشمل أتعاب القضية أو مصروفاتها، وتُخصم من الأتعاب في حال التعاقد على القضية خلال ٣٠ يوماً." data-en="I understand the intervention fee covers urgent intervention and initial follow-up only, excludes case fees and expenses, and is deducted from the fees if the firm is retained within 30 days.">أُقر بعلمي بأن تكاليف التدخل مقابل التدخل العاجل والمتابعة الأولية فقط ولا تشمل أتعاب القضية أو مصروفاتها، وتُخصم من الأتعاب في حال التعاقد على القضية خلال ٣٠ يوماً.</span></label>
+  </div>
+</section>
+
+<section class="card">
+  <h2 data-ar="تكاليف التدخل والسداد" data-en="Intervention fee &amp; payment">تكاليف التدخل والسداد</h2>
+  <div class="fee"><span data-ar="تكاليف التدخل" data-en="Intervention fee">تكاليف التدخل</span><span class="num" data-ar="يُحدَّد بعد مراجعة الطلب" data-en="Set after review">يُحدَّد بعد مراجعة الطلب</span></div>
+  <p class="note" style="font-size:13px;line-height:1.8" data-ar="هذا المبلغ مقابل التدخل العاجل والمتابعة الأولية فقط (التوجّه لمكان الاحتجاز، معرفة الموقف، حضور التحقيق عند الإمكان)، ولا يشمل أتعاب القضية أو مصروفات إجراءاتها. وفي حال التعاقد مع المؤسسة على القضية خلال ٣٠ يوماً، يُخصم هذا المبلغ من الأتعاب المتفق عليها." data-en="This fee covers urgent intervention and initial follow-up only (attending the place of detention, establishing the legal position, attending the investigation where possible), and does not include case fees or procedural expenses. If the firm is retained for the case within 30 days, this amount will be deducted from the agreed fees.">هذا المبلغ مقابل التدخل العاجل والمتابعة الأولية فقط (التوجّه لمكان الاحتجاز، معرفة الموقف، حضور التحقيق عند الإمكان)، ولا يشمل أتعاب القضية أو مصروفات إجراءاتها. وفي حال التعاقد مع المؤسسة على القضية خلال ٣٠ يوماً، يُخصم هذا المبلغ من الأتعاب المتفق عليها.</p>
+  <div class="pay">
+    <label><input type="radio" name="pm" checked value="opay" onchange="rc(0)"><span>OPay</span><div class="note" data-ar="تأكيد آلي للسداد" data-en="Automatic confirmation">تأكيد آلي للسداد</div></label>
+    <label><input type="radio" name="pm" value="instapay" onchange="rc(1)"><span>InstaPay</span><div class="note" data-ar="يلزم رفع صورة إيصال التحويل" data-en="Transfer receipt required">يلزم رفع صورة إيصال التحويل</div></label>
+  </div>
+  <div id="receipt"><label><span data-ar="صورة إيصال التحويل" data-en="Transfer receipt">صورة إيصال التحويل</span> <span class="req">*</span></label><input type="file" accept="image/*,.pdf"></div>
+</section>
+
+<button class="btn" id="sb" data-ar="إرسال طلب التدخل" data-en="Submit request">إرسال طلب التدخل</button>
+</form>
+
+<div class="ok" id="ok">
+  <p data-ar="يسعدنا أن نكون إلى جانبك، وأن نساعدك ونحافظ على حقوقك. ثقتك بنا محل تقديرنا، وحقك أمانة عندنا." data-en="We stand by your side — your trust is valued, and your rights are in safe hands.">يسعدنا أن نكون إلى جانبك، وأن نساعدك ونحافظ على حقوقك. ثقتك بنا محل تقديرنا، وحقك أمانة عندنا.</p>
+  <p><span data-ar="تم استلام طلبك برقم مرجعي" data-en="Your request has been received under reference no.">تم استلام طلبك برقم مرجعي</span> <span class="num" id="ref"></span></p>
+  <p data-ar="بعد تمام السداد جارٍ توجيه البلاغ للمختص للتحرك الفوري." data-en="Once payment is confirmed, it will be forwarded immediately to the competent lawyer for urgent action.">بعد تمام السداد جارٍ توجيه البلاغ للمختص للتحرك الفوري.</p>
+  <p dir="ltr" style="text-align:right">Tel / WhatsApp: +201208555806</p>
+</div>
+</main>
+<footer><a href="/" data-ar="الرجوع للموقع" data-en="Back to website">الرجوع للموقع</a> · <span dir="ltr">Tel / WhatsApp: +201208555806</span></footer>
+
+<script>
+let en=false;
+function toggleLang(){en=!en;document.documentElement.lang=en?'en':'ar';document.documentElement.dir=en?'ltr':'rtl';
+ document.querySelectorAll('[data-ar]').forEach(e=>e.innerHTML=en?e.dataset.en:e.dataset.ar);
+ document.getElementById('lb').textContent=en?'العربية':'English';
+ document.getElementById('authx').placeholder=en?'Specify authority':'اذكر الجهة';}
+function rc(i){const r=document.getElementById('receipt');r.style.display=i?'block':'none';r.querySelector('input').required=!!i;}
+
+function mic(b){const t=b.previousElementSibling;const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){alert(en?'Voice input is not supported in this browser — try Chrome.':'الإدخال الصوتي غير مدعوم في هذا المتصفح — جرّب Chrome.');return;}const r=new R();r.lang=en?'en-US':'ar-EG';r.interimResults=false;b.classList.add('rec');r.onresult=e=>{t.value+=(t.value?' ':'')+e.results[0][0].transcript;};r.onend=()=>b.classList.remove('rec');r.onerror=()=>b.classList.remove('rec');try{r.start()}catch(x){b.classList.remove('rec')}}
+function say(x,l){if(!window.speechSynthesis)return;const u=new SpeechSynthesisUtterance(x);u.lang=l;speechSynthesis.speak(u);}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig, OFFICE_ID } from "./portal/portal-config.js";
+const db=getFirestore(initializeApp(firebaseConfig));
+const AR=d=>String(d).replace(/[0-9]/g,c=>"٠١٢٣٤٥٦٧٨٩"[c]);
+window.done=async function(e){
+  e.preventDefault();
+  const f=e.target, b=document.getElementById('sb'); b.disabled=true;
+  const d={}; new FormData(f).forEach((v,k)=>{ if(!(v instanceof File)) d[k]=v; });
+  d.embassyConsent=!!f.embassyConsent?.checked;
+  d.filesAttached=[...f.querySelectorAll('input[type=file]')].reduce((n,i)=>n+i.files.length,0);
+  const now=new Date(), id=now.getFullYear()+"-"+String(now.getTime()).slice(-6);
+  const ref=now.getFullYear()+"/"+String(now.getTime()).slice(-6);
+  const payload={...d, ref, officeId:OFFICE_ID, status:"new", source:"hamlf.com", lang:document.documentElement.lang, createdAt:serverTimestamp()};
+  let saved=true;
+  try{ await setDoc(doc(db,"emergencyRequests",id),payload); }catch(err){ saved=false; console.warn(err); }
+  document.getElementById('ref').textContent=AR(ref);
+  f.style.display='none'; document.getElementById('ok').style.display='block'; scrollTo(0,0);
+  if(!saved){
+    // احتياطي لحين تفعيل قاعدة الإنشاء: نفتح واتساب المكتب برسالة فيها ملخص الطلب
+    const t="طلب طوارئ "+ref+"\nمقدم الطلب: "+(d.applicantName||"")+" — "+(d.phone||"")+"\nالمحتجز: "+(d.detaineeName||"")+"\nالمحافظة: "+(d.governorate||"")+"\nمكان القبض: "+(d.arrestPlace||"")+"\nوقت القبض: "+(d.arrestTime||"")+"\nالسبب: "+(d.reason||"");
+    location.href="https://wa.me/201208555806?text="+encodeURIComponent(t);
+  }
+};
+</script>
+</body>
+</html>
